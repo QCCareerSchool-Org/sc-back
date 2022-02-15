@@ -1,0 +1,35 @@
+import { winston } from '../frameworks/winston';
+import { privateKey, publicKey } from '../keys';
+import { ZLibCompressionService } from './compression/zlibCompressionService';
+import { EnvironmentConfigService } from './config/environmentConfigService';
+import { NodeCryptoService } from './crypto/nodeCryptoService';
+import { DateService } from './date/dateService';
+import { NodemailerEmailService } from './email/nodemailerEmailService';
+import { NodeFileService } from './file/nodeFileService';
+import { GradeService } from './grade/gradeService';
+import { IpaddrJSIPAddressService } from './ipaddress/ipaddrIPAddressService';
+import { JWTService } from './jwt/jwtService';
+import { WinstonLoggerService } from './logger/winstonLoggerService';
+import { PasswordService } from './password/passwordService';
+import { FisherYatesShuffleService } from './shuffle/fisherYatesShuffleService';
+import { StudentService } from './student/studentService';
+import { TelephoneNumberService } from './telephoneNumber/telephoneNumberService';
+import { UUIDService } from './uuid/uuidService';
+
+// service singletons
+export const environmentConfigService = new EnvironmentConfigService();
+const { email } = environmentConfigService.config;
+export const nodeCryptoService = new NodeCryptoService();
+export const nodeMailerEmailService = new NodemailerEmailService(email.host, email.port, email.user, email.pass, email.mode);
+export const nodeFileService = new NodeFileService();
+export const winstonLoggerService = new WinstonLoggerService(winston);
+export const dateService = new DateService();
+export const telephoneNumberService = new TelephoneNumberService();
+export const passwordService = new PasswordService();
+export const ipaddrJSIPAddressService = new IpaddrJSIPAddressService();
+export const jwtService = new JWTService(privateKey, publicKey);
+export const studentService = new StudentService();
+export const gradeService = new GradeService();
+export const zLibcompressionService = new ZLibCompressionService();
+export const fisherYatesShuffleService = new FisherYatesShuffleService();
+export const uuidService = new UUIDService();

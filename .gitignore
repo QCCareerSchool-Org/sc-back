@@ -1,0 +1,10 @@
+node_modules
+# Keep environment variables out of version control
+.env
+mysql-ca.crt
+mysql-client.crt
+mysql-client.key
+mysql-client.pfx
+jwtRS256.key
+jwtRS256.pub.key
+dist
