@@ -53,7 +53,7 @@ export class LoginController extends BaseController<Request, AccessTokenPayload>
     if (Array.isArray(forwardedFor) && forwardedFor.length) {
       ipAddress = forwardedFor[0];
     } else if (typeof forwardedFor === 'string') {
-      ipAddress = forwardedFor;
+      ipAddress = forwardedFor.split(',')[0].trim();
     } else if (typeof this.req.socket.remoteAddress === 'string') {
       ipAddress = this.req.socket.remoteAddress;
     }
@@ -85,7 +85,8 @@ export class LoginController extends BaseController<Request, AccessTokenPayload>
         domain: environmentConfigService.config.auth.cookieDomain,
         sameSite: 'strict',
       };
-      // Angular needs to read the XSRF-TOKEN cookie, otherwise the client could read it from the response body
+      // Angular needs to read the XSRF-TOKEN cookie, otherwise we wouldn't send
+      // it as a cookie and the client could read it from the response body
       this.res.cookie('XSRF-TOKEN', xsrfToken, { ...accessCookieOptions, path: '/', httpOnly: false });
       this.res.cookie('accessToken', accessToken, accessCookieOptions);
 

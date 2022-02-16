@@ -18,7 +18,7 @@ export const locationMiddleware: RequestHandler = asyncWrapper(async (req, res, 
   if (Array.isArray(forwardedFor) && forwardedFor.length) {
     address = forwardedFor[0];
   } else if (typeof forwardedFor === 'string') {
-    address = forwardedFor;
+    address = forwardedFor.split(',')[0].trim();
   } else {
     address = req.socket.remoteAddress;
   }
