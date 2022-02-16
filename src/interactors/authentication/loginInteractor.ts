@@ -65,7 +65,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         return Result.fail(new LoginNotFound());
       }
 
-      const [ account, accountType ] = lookup;
+      const [ accountId, account, accountType ] = lookup;
 
       if (account.passwordHash === null) {
         return Result.fail(new LoginNoPasswordHash());
@@ -85,15 +85,15 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       // create a jwt access token
       const accessTokenPayload: AccessTokenPayload = {
-        id: account.id,
+        id: accountId,
         type: accountType,
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
       if (accountType === 'student') { // add student-only data to payload
         const studentAccount = account as Student;
-        if (isValidStudentType(studentAccount.studentTypeType)) {
-          accessTokenPayload.studentType = studentAccount.studentTypeType;
+        if (isValidStudentType(studentAccount.studentTypeId)) {
+          accessTokenPayload.studentType = studentAccount.studentTypeId;
           accessTokenPayload.crmId = studentAccount.apiUsername ?? undefined;
         }
       }
@@ -104,7 +104,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       const refreshTokenString = refreshTokenBytes.toString('base64');
 
       const refreshTokenData: Omit<RefreshToken, 'id'> = {
-        accountId: account.id,
+        accountId,
         token: refreshTokenBytes,
         expiry: new Date(this.dateService.getDate().getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
         ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
@@ -147,15 +147,15 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
     }
   }
 
-  private async getAccount(username: string): Promise<[Account, AccountType] | null> {
+  private async getAccount(username: string): Promise<[number, Account, AccountType] | null> {
     const administrator = await this.prisma.administrator.findUnique({ where: { username } });
     if (administrator) {
-      return [ administrator, 'admin' ];
+      return [ administrator.administratorId, administrator, 'admin' ];
     }
 
     const tutor = await this.prisma.tutor.findUnique({ where: { username } });
     if (tutor) {
-      return [ tutor, 'tutor' ];
+      return [ tutor.tutorId, tutor, 'tutor' ];
     }
 
     const [ courseCode, studentNumber ] = this.studentService.splitUsername(username);
@@ -171,7 +171,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         },
       });
       if (student) {
-        return [ student, 'student' ];
+        return [ student.studentId, student, 'student' ];
       }
     }
 

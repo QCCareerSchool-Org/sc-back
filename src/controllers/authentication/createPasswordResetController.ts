@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { createPasswordResetInteractor } from '../../interactors';
-import { CreatePasswordResetNoEmailAddress, CreatePasswordResetUserNotFound } from '../../interactors/authentication/createPasswordResetInteractor';
+import { CreatePasswordResetCountryNotFound, CreatePasswordResetNoEmailAddress, CreatePasswordResetUserNotFound } from '../../interactors/authentication/createPasswordResetInteractor';
 import { BaseController } from '../baseController';
 
 type Body = {
@@ -38,6 +38,8 @@ export class CreatePasswordResetController extends BaseController<Body, void> {
         return this.notFound('Username not found');
       case CreatePasswordResetNoEmailAddress:
         return this.badRequest('No email address on file');
+      case CreatePasswordResetCountryNotFound:
+        return this.badRequest('Country not found');
       default:
         return this.internalServerError(result.error.message);
     }

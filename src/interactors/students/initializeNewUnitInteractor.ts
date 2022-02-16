@@ -41,7 +41,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
     try {
       // check the student and course
       const student = await this.prisma.student.findUnique({
-        where: { id: studentId },
+        where: { studentId },
         include: { enrollments: { where: { id: enrollmentId } } },
       });
 
@@ -140,7 +140,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
                   partMediaElement: {
                     create: partTemplate.partMediaElementTemplates.map(partMediaTemplate => ({
                       partMediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      mimeTypeType: partMediaTemplate.mimeTypeType,
+                      mimeTypeId: partMediaTemplate.mimeTypeId,
                       externalData: partMediaTemplate.externalData,
                     })),
                   },
@@ -149,7 +149,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
               assignmentMediaElement: {
                 create: assignmentTemplate.assignmentMediaElementTemplates.map(assignmentMediaTemplate => ({
                   assignmentMediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  mimeTypeType: assignmentMediaTemplate.mimeTypeType,
+                  mimeTypeId: assignmentMediaTemplate.mimeTypeId,
                   externalData: assignmentMediaTemplate.externalData,
                 })),
               },

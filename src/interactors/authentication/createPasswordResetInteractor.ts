@@ -19,9 +19,7 @@ type CreatePasswordResetResponseDTO = void;
 
 export class CreatePasswordResetUserNotFound extends Error { }
 export class CreatePasswordResetNoEmailAddress extends Error { }
-export class CreatePasswordResetAccountIdUndefined extends Error { }
 export class CreatePasswordResetCountryNotFound extends Error { }
-export class CreatePasswordResetIdUndefined extends Error { }
 
 type Account = Administrator | Tutor | Student;
 
@@ -46,7 +44,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
         return Result.fail(new CreatePasswordResetUserNotFound());
       }
 
-      const [ account, accountType ] = lookup;
+      const [ accountId, account, accountType ] = lookup;
 
       if (!account.emailAddress) {
         return Result.fail(new CreatePasswordResetNoEmailAddress());
@@ -55,14 +53,10 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       const randomBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
       const code = randomBytes.toString('hex');
 
-      if (typeof account.id === 'undefined') {
-        return Result.fail(new CreatePasswordResetAccountIdUndefined());
-      }
-
       const data: Omit<PasswordResetRequest, 'id'> = {
-        administratorId: accountType === 'admin' ? account.id : null,
-        tutorId: accountType === 'tutor' ? account.id : null,
-        studentId: accountType === 'student' ? account.id : null,
+        administratorId: accountType === 'admin' ? accountId : null,
+        tutorId: accountType === 'tutor' ? accountId : null,
+        studentId: accountType === 'student' ? accountId : null,
         code,
         used: false,
         requestDate: this.dateService.getDate(),
@@ -77,7 +71,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
         this.fileService.readFile('../../../email/header.png'),
       ]);
 
-      const country = await this.prisma.country.findUnique({ where: { id: account.countryId } });
+      const country = await this.prisma.country.findUnique({ where: { countryId: account.countryId } });
 
       if (!country) {
         return Result.fail(new CreatePasswordResetCountryNotFound());
@@ -114,10 +108,6 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
    * @returns the replacer function
    */
   private getReplaceFunction(name: string, telephoneNumber: string, passwordResetRequest: PasswordResetRequest): (template: string) => string {
-    if (typeof passwordResetRequest.id === 'undefined') {
-      throw new CreatePasswordResetIdUndefined();
-    }
-
     const date = passwordResetRequest.requestDate.toISOString();
     const resetLink = `https://sc.qccareerschool.com/reset?id=${encodeURIComponent(passwordResetRequest.id)}&code=${encodeURIComponent(passwordResetRequest.code)}`;
 
@@ -127,15 +117,15 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       .replace('${resetLink}', resetLink);
   }
 
-  private async getAccount(username: string): Promise<[ Account, AccountType ] | null> {
+  private async getAccount(username: string): Promise<[ number, Account, AccountType ] | null> {
     const administrator = await this.prisma.administrator.findUnique({ where: { username } });
     if (administrator) {
-      return [ administrator, 'admin' ];
+      return [ administrator.administratorId, administrator, 'admin' ];
     }
 
     const tutor = await this.prisma.tutor.findUnique({ where: { username } });
     if (tutor) {
-      return [ tutor, 'tutor' ];
+      return [ tutor.tutorId, tutor, 'tutor' ];
     }
 
     const [ courseCode, studentNumber ] = this.studentService.splitUsername(username);
@@ -151,7 +141,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
         },
       });
       if (student) {
-        return [ student, 'student' ];
+        return [ student.studentId, student, 'student' ];
       }
     }
 

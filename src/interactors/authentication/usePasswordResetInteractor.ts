@@ -66,17 +66,17 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
       if (accountType === 'admin') {
         await this.prisma.administrator.update({
           data: { passwordHash },
-          where: { id: accountId },
+          where: { administratorId: accountId },
         });
       } else if (accountType === 'tutor') {
         await this.prisma.tutor.update({
           data: { passwordHash },
-          where: { id: accountId },
+          where: { tutorId: accountId },
         });
       } else if (accountType === 'student') {
         await this.prisma.student.update({
           data: { passwordHash },
-          where: { id: accountId },
+          where: { studentId: accountId },
         });
       } else {
         return Result.fail(new UsePasswordResetInvalidAccountType());

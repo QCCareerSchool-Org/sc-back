@@ -86,12 +86,12 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         xsrf: xsrfToken, // store the XSRF token in the payload
       };
       if (type === 'student') { // add student-only data to payload
-        const student = await this.prisma.student.findUnique({ where: { id: refreshToken.accountId } });
+        const student = await this.prisma.student.findUnique({ where: { studentId: refreshToken.accountId } });
         if (student === null) {
           return Result.fail(new RefreshStudentNotFound());
         }
-        if (isValidStudentType(student.studentTypeType)) {
-          accessTokenPayload.studentType = student.studentTypeType;
+        if (isValidStudentType(student.studentTypeId)) {
+          accessTokenPayload.studentType = student.studentTypeId;
           accessTokenPayload.crmId = student.apiUsername ?? undefined;
         } else {
           return Result.fail(new RefreshStudentInvalidType());
