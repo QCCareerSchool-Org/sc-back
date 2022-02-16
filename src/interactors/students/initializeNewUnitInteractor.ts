@@ -42,7 +42,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
       // check the student and course
       const student = await this.prisma.student.findUnique({
         where: { studentId },
-        include: { enrollments: { where: { id: enrollmentId } } },
+        include: { enrollments: { where: { enrollmentId } } },
       });
 
       if (!student) {
