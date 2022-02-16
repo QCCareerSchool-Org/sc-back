@@ -7,6 +7,7 @@ import { Result, ResultType } from '../result';
 
 export type GetNewUnitRequestDTO = {
   studentId: number;
+  enrollmentId: number;
   unitId: string;
 };
 
@@ -39,11 +40,12 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, unitId }: GetNewUnitRequestDTO): Promise<ResultType<GetNewUnitResponseDTO>> {
+  public async execute({ studentId, enrollmentId, unitId }: GetNewUnitRequestDTO): Promise<ResultType<GetNewUnitResponseDTO>> {
     try {
       const unit = await this.prisma.newUnit.findFirst({
         where: {
-          studentId,
+          enrollmentId,
+          enrollment: { studentId },
           unitId: this.uuidService.uuidToBin(unitId),
         },
         include: { assignments: true },

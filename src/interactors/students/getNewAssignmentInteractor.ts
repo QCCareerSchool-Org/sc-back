@@ -52,13 +52,14 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
   public async execute({ studentId, enrollmentId, unitId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
     try {
-      // TODO: check enrollment belongs to student
-
       const assignment = await this.prisma.newAssignment.findFirst({
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
           unitId: this.uuidService.uuidToBin(unitId),
-          unit: { enrollmentId },
+          unit: {
+            enrollmentId,
+            enrollment: { studentId },
+          },
         },
         include: {
           parts: {

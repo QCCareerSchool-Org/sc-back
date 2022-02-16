@@ -31,8 +31,13 @@ export class GetAllNewUnitsInteractor implements IInteractor<GetAllNewUnitsReque
 
   public async execute({ studentId, enrollmentId, courseId }: GetAllNewUnitsRequestDTO): Promise<ResultType<GetAllNewUnitsResponseDTO>> {
     try {
-      // TODO: check enrollment belongs to student
-      const units = await this.prisma.newUnit.findMany({ where: { enrollmentId, courseId } });
+      const units = await this.prisma.newUnit.findMany({
+        where: {
+          enrollmentId,
+          courseId,
+          enrollment: { studentId },
+        },
+      });
 
       return Result.success(units.map(u => ({
         unitId: this.uuidService.binToUUID(u.unitId),

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Student {
-  id                      Int                          @id @default(autoincrement())
+  studentId               Int                          @id @default(autoincrement()) @map("id")
   countryId               Int                          @db.UnsignedInt @map("country_id")
   provinceId              Int?                         @db.UnsignedInt @map("province_id")
   studentTypeType         String                       @default("makeup") @db.VarChar(50) @map("student_type")
@@ -39,12 +39,12 @@ model Student {
   upgradeNotification     Boolean                      @default(true) @map("upgrade_notification")
   entityVersion           Int                          @default(0) @map("entity_version")
   timestamp               DateTime                     @default(now()) @db.Timestamp(6)
-  country                 Country                      @relation(fields: [countryId], references: [id], map: "accounts_ibfk_3")
-  provinces               provinces?                   @relation(fields: [provinceId], references: [id], onDelete: Restrict, map: "accounts_ibfk_4")
+  country                 Country                      @relation(fields: [countryId], references: [countryId], map: "accounts_ibfk_3")
+  province                Province?                    @relation(fields: [provinceId], references: [provinceId], onDelete: Restrict, map: "accounts_ibfk_4")
   studentType             StudentType                  @relation(fields: [studentTypeType], references: [type], map: "accounts_ibfk_2")
   studentsProfessions     StudentProfession[]
-  CASINTelephoneCalls     ca_sin_telephone_calls[]
-  CASocialInsuranceNumber ca_social_insurance_numbers?
+  caSINTelephoneCalls     ca_sin_telephone_calls[]
+  caSocialInsuranceNumber ca_social_insurance_numbers?
   emailChanges            email_changes[]
   flags                   flags[]
   // outfit_likes            outfit_likes[]
@@ -57,12 +57,12 @@ model Student {
   q_results               q_results[]
   // oldRefreshTokens          RefreshToken[]
   refreshTokens           StudentRefreshToken[]
-  service_areas           service_areas[]
+  serviceAreas            ServiceArea[]
   enrollments             Enrollment[]
   testimonials            testimonials[]
 
   @@map("accounts")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
   @@index([countryId], map: "country_id")
   @@index([provinceId], map: "province_id")
@@ -70,19 +70,19 @@ model Student {
 }
 
 model StudentProfession {
-  account_id      Int         @default(0)
-  profession_name String      @default("") @db.VarChar(50)
-  students        Student    @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "accounts_professions_ibfk_1")
-  professions     professions @relation(fields: [profession_name], references: [name], onDelete: Cascade, map: "accounts_professions_ibfk_2")
+  studentId      Int        @default(0) @map("account_id")
+  professionName String     @default("") @db.VarChar(50) @map("profession_name")
+  student        Student    @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "accounts_professions_ibfk_1")
+  profession     Profession @relation(fields: [professionName], references: [name], onDelete: Cascade, map: "accounts_professions_ibfk_2")
 
   @@map("accounts_professions")
-  @@id([account_id, profession_name])
-  @@index([account_id], map: "account_id")
-  @@index([profession_name], map: "profession_name")
+  @@id([studentId, professionName])
+  @@index([studentId], map: "account_id")
+  @@index([professionName], map: "profession_name")
 }
 
 model Administrator {
-  id                      Int                       @id @default(autoincrement())
+  administratorId         Int                       @id @default(autoincrement()) @map("id")
   countryId               Int                       @db.UnsignedInt @map("country_id")
   passwordHash            String?                   @db.VarChar(255) @map("pw_hash")
   username                String                    @unique(map: "username") @db.VarChar(50)
@@ -99,36 +99,38 @@ model Administrator {
   forumPasswordTemp       String?                   @db.VarChar(255) @map("forum_password_temp")
   unitPricePriv           Boolean                   @default(false) @map("unit_price_priv")
   entityVersion           Int                       @default(0) @map("entity_version")
-  country                 Country                   @relation(fields: [countryId], references: [id], map: "ibfk_administrators_1")
-  messages                messages[]
+  country                 Country                   @relation(fields: [countryId], references: [countryId], map: "ibfk_administrators_1")
+  messages                Message[]
   passwordResetRequests   PasswordResetRequest[]
   refreshTokens           AdministratorRefreshToken[]
   transfers               transfers[]
 
   @@map("administrators")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([administratorId, entityVersion], map: "id_entity_version")
   @@index([countryId], map: "country_id")
 }
 
 model Answer {
-  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  answerId   Int      @id @default(autoincrement()) @db.UnsignedInt @map("id")
   questionId Int      @db.UnsignedInt @map("question_id")
   text       String   @db.VarChar(500)
   correct    Boolean
   selected   Boolean  @default(false)
-  questions  Question @relation(fields: [questionId], references: [id], onDelete: Cascade, map: "question_id")
+  questions  Question @relation(fields: [questionId], references: [questionId], onDelete: Cascade, map: "question_id")
 
   @@map("answers")
   @@index([questionId], map: "question_id_idx")
 }
 
-model api_tokens {
+model ApiToken {
   username String @id
   password String @db.VarChar(100)
+
+  @@map("api_tokens")
 }
 
-model assignments {
-  id               Int     @id @default(autoincrement()) @db.UnsignedInt
+model Assignment {
+  assignmentId     Int     @id @default(autoincrement()) @db.UnsignedInt @map("id")
   unitId           Int     @db.UnsignedInt @map("unit_id")
   assignmentNumber Int     @db.TinyInt @map("assignment")
   name             String  @db.VarChar(255)
@@ -139,24 +141,26 @@ model assignments {
   units            units   @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "assignments_ibfk_1")
   parts            parts[]
 
+  @@map("assignments")
   @@unique([unitId, assignmentNumber], map: "assignment")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([assignmentId, entityVersion], map: "id_entity_version")
   @@index([unitId], map: "unit_id")
 }
 
-model assignments_submitted {
-  id               Int               @id @default(autoincrement()) @db.UnsignedInt
-  unitId           Int               @db.UnsignedInt @map("unit_id")
-  enrollmentId     Int?              @db.UnsignedInt @map("student_id")
-  assignmentNumber Int               @db.TinyInt @map("assignment")
-  name             String            @db.VarChar(255)
-  points           Int               @default(0) @db.TinyInt
-  optional         Boolean           @default(false)
-  mark             Int?              @db.TinyInt
-  unit             units_submitted   @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "assignments_submitted_ibfk_1")
-  parts            parts_submitted[]
+model SubmittedAssignment {
+  assignmentId      Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  unitId            Int               @db.UnsignedInt @map("unit_id")
+  enrollmentId      Int?              @db.UnsignedInt @map("student_id")
+  assignmentNumber  Int               @db.TinyInt @map("assignment")
+  name              String            @db.VarChar(255)
+  points            Int               @default(0) @db.TinyInt
+  optional          Boolean           @default(false)
+  mark              Int?              @db.TinyInt
+  unit              units_submitted   @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "assignments_submitted_ibfk_1")
+  parts             parts_submitted[]
 
   // TODO enrollments FK
+  @@map("assignments_submitted")
   @@unique([unitId, assignmentNumber], map: "unit_id_2")
   @@index([assignmentNumber], map: "assignment")
   @@index([unitId], map: "unit_id")
@@ -179,7 +183,7 @@ model ca_sin_telephone_calls {
   account_id       Int
   telephone_number String
   created          DateTime @default(now()) @db.Timestamp(0)
-  students         Student  @relation(fields: [account_id], references: [id], onUpdate: Restrict, map: "FK_ca_sin_telephone_calls_accounts")
+  students         Student  @relation(fields: [account_id], references: [studentId], onUpdate: Restrict, map: "FK_ca_sin_telephone_calls_accounts")
 
   @@index([account_id], map: "FK_ca_sin_telephone_calls_accounts")
 }
@@ -188,7 +192,7 @@ model ca_social_insurance_numbers {
   account_id     Int     @id
   sin            Bytes   @db.VarBinary(128)
   entity_version Int     @default(0)
-  students       Student @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "ca_social_insurance_numbers_ibfk_1")
+  students       Student @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "ca_social_insurance_numbers_ibfk_1")
 
   @@unique([account_id, entity_version], map: "id_entity_version")
 }
@@ -204,24 +208,24 @@ model categories {
 }
 
 model Country {
-  id                  Int               @id @default(autoincrement()) @db.UnsignedInt
-  code                String            @unique(map: "code") @default("") @db.Char(2)
-  name                String            @default("") @db.VarChar(255)
-  iso                 Int?              @unique(map: "iso 3166-1") @map("iso 3166-1") @db.SmallInt
-  priceDisplayOrder   Int               @db.SmallInt @map("price_display_order")
-  lastUpdate          String?           @db.VarChar(255) @map("last_update")
-  entityVersion       Int               @default(0) @map("entity_version")
-  students            Student[]
-  administrators      Administrator[]
-  provinces           provinces[]
-  regions             regions[]
-  service_areas       service_areas[]
-  t2202a_receipts     t2202a_receipts[]
-  tutors              Tutor[]
-  unit_costs          unit_costs[]
+  countryId          Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  code               String            @unique(map: "code") @default("") @db.Char(2)
+  name               String            @default("") @db.VarChar(255)
+  iso                Int?              @unique(map: "iso 3166-1") @map("iso 3166-1") @db.SmallInt
+  priceDisplayOrder  Int               @db.SmallInt @map("price_display_order")
+  lastUpdate         String?           @db.VarChar(255) @map("last_update")
+  entityVersion      Int               @default(0) @map("entity_version")
+  students           Student[]
+  administrators     Administrator[]
+  provinces          Province[]
+  regions            regions[]
+  serviceAreas       ServiceArea[]
+  t2202a_receipts    t2202a_receipts[]
+  tutors             Tutor[]
+  unit_costs         unit_costs[]
 
   @@map("countries")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([countryId, entityVersion], map: "id_entity_version")
 }
 
 model course_material {
@@ -278,7 +282,7 @@ model email_changes {
   id            Int     @id @default(autoincrement())
   account_id    Int
   email_address String
-  students      Student @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "email_changes_ibfk_1")
+  students      Student @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "email_changes_ibfk_1")
 
   @@index([account_id], map: "account_id")
   @@index([email_address], map: "email_address")
@@ -337,7 +341,7 @@ model flags {
   account_id Int
   key        String   @db.VarChar(192)
   value      Boolean?
-  student    Student  @relation(fields: [account_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "flags_ibfk_1")
+  student    Student  @relation(fields: [account_id], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "flags_ibfk_1")
 
   @@id([account_id, key])
   @@index([account_id], map: "account_id")
@@ -465,22 +469,23 @@ model materials {
   @@index([mimeTypeType], map: "mime_type")
 }
 
-model messages {
-  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
-  thread_id        BigInt          @db.UnsignedBigInt
-  tutor_id         Int?
-  administrator_id Int?
-  body             String?         @db.MediumText
-  sent_date        DateTime        @db.DateTime(0)
-  read_date        DateTime?       @db.DateTime(0)
-  reply            Boolean         @default(false)
-  administrator    Administrator?  @relation(fields: [administrator_id], references: [id], onDelete: Restrict, map: "messages_ibfk_3")
-  threads          threads         @relation(fields: [thread_id], references: [id], onDelete: Cascade, map: "messages_ibfk_1")
-  tutor            Tutor?          @relation(fields: [tutor_id], references: [id], onDelete: Restrict, map: "messages_ibfk_2")
+model Message {
+  messageId       BigInt         @id @default(autoincrement()) @db.UnsignedBigInt @map("id")
+  threadId        BigInt         @db.UnsignedBigInt @map("thread_id")
+  tutorId         Int?           @map("tutor_id")
+  administratorId Int?           @map("administrator_id")
+  body            String?        @db.MediumText
+  sentDate        DateTime       @db.DateTime(0) @map("sent_date")
+  readDate        DateTime?      @db.DateTime(0) @map("read_date")
+  reply           Boolean        @default(false)
+  administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Restrict, map: "messages_ibfk_3")
+  thread          Thread         @relation(fields: [threadId], references: [threadId], onDelete: Cascade, map: "messages_ibfk_1")
+  tutor           Tutor?         @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "messages_ibfk_2")
 
-  @@index([administrator_id], map: "administrator_id")
-  @@index([thread_id], map: "thread_id")
-  @@index([tutor_id], map: "tutor_id")
+  @@map("messages")
+  @@index([administratorId], map: "administrator_id")
+  @@index([threadId], map: "thread_id")
+  @@index([tutorId], map: "tutor_id")
 }
 
 model MimeType {
@@ -523,7 +528,7 @@ model modules {
 // model outfit_likes {
 //   outfit_id  Int     @id
 //   account_id Int
-//   student    Student @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "outfit_likes_ibfk_1")
+//   student    Student @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "outfit_likes_ibfk_1")
 
 //   @@index([account_id], map: "account_id")
 // }
@@ -545,7 +550,7 @@ model modules {
 //   image_height    Int
 //   mimeTypeType    String         @db.VarChar(255) @map("image_type")
 //   created         DateTime       @default(now()) @db.Timestamp(0)
-//   student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade, map: "outfits_ibfk_3")
+//   student         Student        @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "outfits_ibfk_3")
 //   mimeType        MimeType       @relation(fields: [mimeTypeType], references: [type], map: "outfits_ibfk_4")
 //   outfitStyles    outfit_styles  @relation(fields: [outfitStyleId], references: [id], map: "outfits_ibfk_1")
 //   garments        garments[]
@@ -556,15 +561,15 @@ model modules {
 // }
 
 model parts {
-  id             Int         @id @default(autoincrement()) @db.UnsignedInt
-  assignmentId   Int         @db.UnsignedInt @map("assignment_id")
-  partNumber     Int         @default(1) @db.TinyInt @map("part")
-  name           String      @db.VarChar(255)
-  allowedTypes   String      @default(".doc,.docx") @map("allowed_types")
-  optional       Boolean     @default(false)
-  enabled        Boolean     @default(true)
-  entityVersion  Int         @default(0) @map("entity_version")
-  assignment     assignments @relation(fields: [assignmentId], references: [id], onDelete: Cascade, map: "parts_ibfk_1")
+  id            Int        @id @default(autoincrement()) @db.UnsignedInt
+  assignmentId  Int        @db.UnsignedInt @map("assignment_id")
+  partNumber    Int        @default(1) @db.TinyInt @map("part")
+  name          String     @db.VarChar(255)
+  allowedTypes  String     @default(".doc,.docx") @map("allowed_types")
+  optional      Boolean    @default(false)
+  enabled       Boolean    @default(true)
+  entityVersion Int        @default(0) @map("entity_version")
+  assignment    Assignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_ibfk_1")
 
   @@unique([id, entityVersion], map: "id_entity_version")
   @@unique([assignmentId, partNumber], map: "part")
@@ -572,20 +577,20 @@ model parts {
 }
 
 model parts_submitted {
-  id            Int                   @id @default(autoincrement()) @db.UnsignedInt
-  assignmentId  Int                   @db.UnsignedInt @map("assignment_id")
-  enrollmentId  Int?                  @db.UnsignedInt @map("student_id") // not used?
-  partNumber    Int                   @default(1) @db.TinyInt @map("part")
-  name          String                @db.VarChar(255)
-  allowedTypes  String                @default(".doc,.docx") @map("allowed_types")
-  optional      Boolean               @default(false)
-  filename      String?               @db.VarChar(255)
-  mimeTypeType  String?               @db.VarChar(255) @map("mime_type")
-  compressed    Boolean               @default(false)
-  creationDate  DateTime?             @db.DateTime(0) @map("creation_date")
-  uploadDate    DateTime?             @db.DateTime(0) @map("upload_date")
-  assignment    assignments_submitted @relation(fields: [assignmentId], references: [id], onDelete: Cascade, map: "parts_submitted_ibfk_1")
-  mimeType      MimeType?             @relation(fields: [mimeTypeType], references: [type], onDelete: Restrict, map: "parts_submitted_ibfk_2")
+  id            Int                 @id @default(autoincrement()) @db.UnsignedInt
+  assignmentId  Int                 @db.UnsignedInt @map("assignment_id")
+  enrollmentId  Int?                @db.UnsignedInt @map("student_id") // not used?
+  partNumber    Int                 @default(1) @db.TinyInt @map("part")
+  name          String              @db.VarChar(255)
+  allowedTypes  String              @default(".doc,.docx") @map("allowed_types")
+  optional      Boolean             @default(false)
+  filename      String?             @db.VarChar(255)
+  mimeTypeType  String?             @db.VarChar(255) @map("mime_type")
+  compressed    Boolean             @default(false)
+  creationDate  DateTime?           @db.DateTime(0) @map("creation_date")
+  uploadDate    DateTime?           @db.DateTime(0) @map("upload_date")
+  assignment    SubmittedAssignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_submitted_ibfk_1")
+  mimeType      MimeType?           @relation(fields: [mimeTypeType], references: [type], onDelete: Restrict, map: "parts_submitted_ibfk_2")
 
   @@unique([assignmentId, partNumber], map: "assignment_id_2")
   @@index([assignmentId], map: "assignment_id")
@@ -601,9 +606,9 @@ model PasswordResetRequest {
   requestDate      DateTime        @default(now()) @db.Timestamp(0) @map("request_date")
   used             Boolean         @default(false)
   entityVersion    Int             @default(0) @map("entity_version")
-  student          Student?        @relation(fields: [studentId], references: [id], onDelete: Cascade, map: "password_reset_requests_ibfk_1")
-  administrator    Administrator?  @relation(fields: [administratorId], references: [id], onDelete: Cascade, map: "password_reset_requests_ibfk_3")
-  tutor            Tutor?          @relation(fields: [tutorId], references: [id], onDelete: Cascade, map: "password_reset_requests_ibfk_2")
+  student          Student?        @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "password_reset_requests_ibfk_1")
+  administrator    Administrator?  @relation(fields: [administratorId], references: [administratorId], onDelete: Cascade, map: "password_reset_requests_ibfk_3")
+  tutor            Tutor?          @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, map: "password_reset_requests_ibfk_2")
 
   @@map("password_reset_requests")
   @@unique([id, entityVersion], map: "id_entity_version")
@@ -638,7 +643,7 @@ model pictures {
   thumbnail_width  Int?
   thumbnail_height Int?
   timestamp        DateTime @default(now()) @db.Timestamp(0)
-  student          Student  @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "pictures_ibfk_1")
+  student          Student  @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "pictures_ibfk_1")
   mimeType         MimeType @relation(fields: [mimeTypeType], references: [type], map: "pictures_ibfk_2")
 
   @@index([account_id], map: "account_id")
@@ -652,22 +657,23 @@ model portraits {
   height       Int      @db.UnsignedInt
   mimeTypeType String   @db.VarChar(255) @map("mime_type")
   modified     DateTime @default(now()) @db.Timestamp(0)
-  student      Student  @relation(fields: [account_id], references: [id], map: "FK_portraits_accounts")
+  student      Student  @relation(fields: [account_id], references: [studentId], map: "FK_portraits_accounts")
   mimeType     MimeType @relation(fields: [mimeTypeType], references: [type], map: "FK_portraits_mime_types")
 
   @@index([mimeTypeType], map: "FK_portraits_mime_types")
 }
 
-model professions {
+model Profession {
   name                String              @id @db.VarChar(50)
   priority            Int?
   studentTypeType     String              @default("makeup") @db.VarChar(50) @map("student_type")
-  school_id           Int                 @db.UnsignedInt
-  entity_version      Int                 @default(0)
+  schoolId            Int                 @db.UnsignedInt @map("school_id")
+  entityVersion       Int                 @default(0) @map("entity_version")
   studentType         StudentType         @relation(fields: [studentTypeType], references: [type], map: "professions_ibfk_1")
   studentsProfessions StudentProfession[]
 
-  @@unique([name, entity_version], map: "name_entity_version")
+  @@map("professions")
+  @@unique([name, entityVersion], map: "name_entity_version")
   @@index([studentTypeType], map: "student_type")
 }
 
@@ -703,7 +709,7 @@ model profiles {
   instagram            String?                @db.VarChar(255)
   linkedin             String?                @db.VarChar(255)
   timestamp            DateTime               @default(now()) @db.Timestamp(0)
-  student              Student                @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "profiles_ibfk_1")
+  student              Student                @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "profiles_ibfk_1")
   backgrounds          backgrounds?           @relation(fields: [background_id], references: [background_id], onDelete: Restrict, map: "profiles_ibfk_2")
   styles               styles?                @relation(fields: [style_id], references: [style_id], onDelete: Restrict, map: "profiles_ibfk_3")
   profiles_professions profiles_professions[]
@@ -745,8 +751,8 @@ model profiles_professions {
 //   @@index([student_id], map: "student_id")
 // }
 
-model provinces {
-  id                     Int               @id @default(autoincrement()) @db.UnsignedInt
+model Province {
+  provinceId             Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
   countryId              Int               @db.UnsignedInt @map("country_id")
   regionId               Int?              @db.UnsignedInt @map("region_id")
   countryCode            String            @default("") @db.Char(2) @map("country_code")
@@ -758,14 +764,15 @@ model provinces {
   order                  Int?
   display                Boolean           @default(true)
   entityVersion          Int               @default(0) @map("entity_version")
-  country                Country           @relation(fields: [countryId], references: [id], map: "provinces_ibfk_1")
+  country                Country           @relation(fields: [countryId], references: [countryId], map: "provinces_ibfk_1")
   regions                regions?          @relation(fields: [regionId], references: [id], onDelete: Restrict, map: "provinces_ibfk_2")
   students               Student[]
-  service_areas          service_areas[]
+  serviceAreas           ServiceArea[]
   t2202a_receipts        t2202a_receipts[]
 
+  @@map("provinces")
   @@unique([countryCode, code], map: "country_province")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([provinceId, entityVersion], map: "id_entity_version")
   @@index([code], map: "code")
   @@index([countryCode], map: "country_code")
   @@index([countryId], map: "country_id")
@@ -781,7 +788,7 @@ model push_subscriptions {
   auth       String?  @db.VarChar(24)
   ip_address Bytes?   @db.VarBinary(16)
   created    DateTime @db.DateTime(0)
-  student    Student  @relation(fields: [account_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "push_subscriptions_ibfk_1")
+  student    Student  @relation(fields: [account_id], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "push_subscriptions_ibfk_1")
 
   @@index([account_id], map: "account_id")
 }
@@ -868,7 +875,7 @@ model q_results {
   account_id Int
   http_post  String      @db.MediumText
   created    DateTime    @default(now()) @db.Timestamp(0)
-  student    Student     @relation(fields: [account_id], references: [id], onDelete: Cascade, map: "q_results_ibfk_3")
+  student    Student     @relation(fields: [account_id], references: [studentId], onDelete: Cascade, map: "q_results_ibfk_3")
   q_forms    q_forms     @relation(fields: [form_id], references: [id], map: "q_results_ibfk_1")
   q_answers  q_answers[]
 
@@ -894,22 +901,22 @@ model q_types {
 }
 
 model Question {
-  id      Int          @id @default(autoincrement()) @db.UnsignedInt
-  quiz_id Int          @db.UnsignedInt
-  text    String       @db.MediumText
-  points  Int          @db.UnsignedTinyInt
-  type    QuestionType
-  correct Boolean      @default(false)
-  order   Int          @db.UnsignedInt
-  quiz    Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade, map: "quiz_id")
-  answers Answer[]
+  questionId Int          @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  quizId     Int          @db.UnsignedInt @map("quiz_id")
+  text       String       @db.MediumText
+  points     Int          @db.UnsignedTinyInt
+  type       QuestionType
+  correct    Boolean      @default(false)
+  order      Int          @db.UnsignedInt
+  quiz       Quiz         @relation(fields: [quizId], references: [quizId], onDelete: Cascade, map: "quiz_id")
+  answers    Answer[]
 
   @@map("questions")
-  @@index([quiz_id], map: "quiz_id_idx")
+  @@index([quizId], map: "quiz_id_idx")
 }
 
 model Quiz {
-  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  quizId        Int             @id @default(autoincrement()) @db.UnsignedInt @map("id")
   unitId        Int             @db.UnsignedInt @map("unit_id")
   title         String          @db.VarChar(45)
   introduction  String?         @db.MediumText
@@ -925,7 +932,7 @@ model Quiz {
   questions     Question[]
 
   @@map("quizzes")
-  @@unique([id, entityVersion], map: "id_entity_version")
+  @@unique([quizId, entityVersion], map: "id_entity_version")
   @@index([unitId], map: "unit_id")
 }
 
@@ -934,7 +941,7 @@ model Quiz {
 //   studentId Int      @map("account_id")
 //   token     Bytes    @db.Binary(48)
 //   expiry    DateTime @db.DateTime(0)
-//   student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_1")
+//   student   Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_1")
 //
 //   @map("refresh_tokens")
 //   @@index([studentId], map: "account_id")
@@ -958,7 +965,7 @@ model AdministratorRefreshToken {
   created         DateTime       @default(now()) @db.Timestamp(0)
   modified        DateTime       @default(now()) @db.Timestamp(0)
   entityVersion   Int            @default(0) @map("entity_version")
-  administrator   Administrator  @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_a_ibfk_1")
+  administrator   Administrator  @relation(fields: [accountId], references: [administratorId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_a_ibfk_1")
 
   @@map("refresh_tokens_a")
   @@unique([id, entityVersion], map: "id_entity_version")
@@ -983,7 +990,7 @@ model StudentRefreshToken {
   created         DateTime @default(now()) @db.Timestamp(0)
   modified        DateTime @default(now()) @db.Timestamp(0)
   entityVersion   Int      @default(0) @map("entity_version")
-  student         Student @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_s_ibfk_1")
+  student         Student @relation(fields: [accountId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_s_ibfk_1")
 
   @@map("refresh_tokens_s")
   @@unique([id, entityVersion], map: "id_entity_version")
@@ -1008,7 +1015,7 @@ model TutorRefreshToken {
   created         DateTime @default(now()) @db.Timestamp(0)
   modified        DateTime @default(now()) @db.Timestamp(0)
   entityVersion   Int      @default(0) @map("entity_version")
-  tutor           Tutor    @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_t_ibfk_1")
+  tutor           Tutor    @relation(fields: [accountId], references: [tutorId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_t_ibfk_1")
 
   @@map("refresh_tokens_t")
   @@unique([id, entityVersion], map: "id_entity_version")
@@ -1024,8 +1031,8 @@ model regions {
   name         String?     @db.VarChar(50)
   type         String?     @db.VarChar(60)
   order        Int?
-  country      Country     @relation(fields: [countryId], references: [id], map: "regions_ibfk_1")
-  provinces    provinces[]
+  country      Country     @relation(fields: [countryId], references: [countryId], map: "regions_ibfk_1")
+  provinces    Province[]
 
   @@unique([countryCode, code], map: "country_region")
   @@index([countryId], map: "country_id")
@@ -1050,16 +1057,17 @@ model schools {
   @@unique([id, entity_version], map: "id_entity_version")
 }
 
-model service_areas {
-  id          Int        @id @default(autoincrement())
-  studentId   Int        @default(0) @map("account_id")
-  name        String     @default("") @db.VarChar(255)
-  countryId   Int        @db.UnsignedInt @map("country_id")
-  provinceId  Int?       @db.UnsignedInt @map("province_id")
-  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade, map: "service_areas_ibfk_1")
-  country     Country    @relation(fields: [countryId], references: [id], map: "service_areas_ibfk_2")
-  provinces   provinces? @relation(fields: [provinceId], references: [id], onDelete: Restrict, map: "service_areas_ibfk_3")
+model ServiceArea {
+  serviceAreaId Int       @id @default(autoincrement()) @map("id")
+  studentId     Int       @default(0) @map("account_id")
+  name          String    @default("") @db.VarChar(255)
+  countryId     Int       @db.UnsignedInt @map("country_id")
+  provinceId    Int?      @db.UnsignedInt @map("province_id")
+  student       Student   @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "service_areas_ibfk_1")
+  country       Country   @relation(fields: [countryId], references: [countryId], map: "service_areas_ibfk_2")
+  provinces     Province? @relation(fields: [provinceId], references: [provinceId], onDelete: Restrict, map: "service_areas_ibfk_3")
 
+  @@map("service_areas")
   @@index([studentId], map: "account_id")
   @@index([countryId], map: "country_id")
   @@index([provinceId], map: "province_id")
@@ -1070,7 +1078,7 @@ model StudentType {
   profile     Boolean       @default(false)
   students    Student[]
   courses     Course[]
-  professions professions[]
+  professions Profession[]
   q_forms     q_forms[]
   styles      styles[]
   tutors      Tutor[]
@@ -1102,15 +1110,15 @@ model Enrollment {
   updated              DateTime?             @db.DateTime(0)
   entity_version       Int                   @default(0)
   timestamp            DateTime              @default(now()) @db.Timestamp(6)
-  students             Student               @relation(fields: [studentId], references: [id], onDelete: Cascade, map: "students_ibfk_1")
+  students             Student               @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "students_ibfk_1")
   course               Course                @relation(fields: [courseId], references: [id], map: "students_ibfk_3")
   currencies           currencies            @relation(fields: [currencyCode], references: [code], map: "students_ibfk_4")
-  tutor                Tutor?                @relation(fields: [tutorId], references: [id], onDelete: Restrict, map: "students_ibfk_2")
+  tutor                Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "students_ibfk_2")
   finalSubmission      FinalSubmission?
   new_units            NewUnit[]
   // projects             projects[]
   t2202a_receipts      t2202a_receipts[]
-  threads              threads[]
+  threads              Thread[]
   tokens               tokens[]
   units_submitted      units_submitted[]
   uploads              uploads[]
@@ -1151,10 +1159,10 @@ model subtitles {
 model t2202a_receipts {
   id           Int        @id @default(autoincrement()) @db.UnsignedInt
   enrollmentId Int        @db.UnsignedInt @map("student_id")
-  start_year   Int        @db.MediumInt
-  start_month  Int        @db.TinyInt
-  end_year     Int        @db.MediumInt
-  end_month    Int        @db.TinyInt
+  startYear    Int        @db.MediumInt @map("start_year")
+  startMonth   Int        @db.TinyInt @map("start_month")
+  endYear      Int        @db.MediumInt @map("end_year")
+  endMonth     Int        @db.TinyInt @map("end_month")
   tuition      Decimal    @db.Decimal(8, 2)
   address1     String     @db.VarChar(40)
   address2     String?    @db.VarChar(40)
@@ -1164,8 +1172,8 @@ model t2202a_receipts {
   countryId    Int        @db.UnsignedInt @map("country_id")
   accessed     Int        @default(0) @db.UnsignedInt
   version      Int        @default(1) @db.UnsignedInt
-  country      Country    @relation(fields: [countryId], references: [id], onUpdate: Restrict, map: "t2202a_receipts_ibfk_2")
-  provinces    provinces? @relation(fields: [provinceId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "t2202a_receipts_ibfk_3")
+  country      Country    @relation(fields: [countryId], references: [countryId], onUpdate: Restrict, map: "t2202a_receipts_ibfk_2")
+  province     Province?  @relation(fields: [provinceId], references: [provinceId], onDelete: Restrict, onUpdate: Restrict, map: "t2202a_receipts_ibfk_3")
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onUpdate: Restrict, map: "t2202a_receipts_ibfk_1")
 
   @@index([countryId], map: "country_id")
@@ -1181,19 +1189,20 @@ model testimonials {
   rating    Boolean?
   created   DateTime? @db.DateTime(0)
   modified  DateTime  @default(now()) @db.Timestamp(0)
-  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade, map: "testimonials_ibfk_1")
+  student   Student   @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "testimonials_ibfk_1")
 
   @@index([studentId], map: "account_id")
 }
 
-model threads {
-  id           BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+model Thread {
+  threadId     BigInt     @id @default(autoincrement()) @db.UnsignedBigInt @map("id")
   enrollmentId Int        @db.UnsignedInt @map("student_id")
   subject      String     @db.VarChar(255)
-  closed_date  DateTime?  @db.DateTime(0)
+  closedDate   DateTime?  @db.DateTime(0) @map("closed_date")
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, map: "threads_ibfk_1")
-  messages     messages[]
+  messages     Message[]
 
+  @@map("threads")
   @@index([enrollmentId], map: "student_id")
 }
 
@@ -1217,18 +1226,18 @@ model tokens {
 }
 
 model transfers {
-  id               Int             @id @default(autoincrement()) @db.UnsignedInt
-  unitId           Int             @db.UnsignedInt @map("unit_id")
-  preTutorId       Int?            @map("pre_tutor_id")
-  postTutorId      Int?            @map("post_tutor_id")
-  administrator_id Int?
-  created          DateTime?       @db.DateTime(0)
-  administrator    Administrator?  @relation(fields: [administrator_id], references: [id], map: "transfers_ibfk_4")
-  preTutor         Tutor?          @relation("transfers_post_tutor_idTotutors", fields: [preTutorId], references: [id], map: "transfers_ibfk_3")
-  postTutor        Tutor?          @relation("transfers_pre_tutor_idTotutors", fields: [postTutorId], references: [id], map: "transfers_ibfk_2")
-  units_submitted  units_submitted @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "transfers_ibfk_1")
+  id              Int             @id @default(autoincrement()) @db.UnsignedInt
+  unitId          Int             @db.UnsignedInt @map("unit_id")
+  preTutorId      Int?            @map("pre_tutor_id")
+  postTutorId     Int?            @map("post_tutor_id")
+  administratorId Int?            @map("administrator_id")
+  created         DateTime?       @db.DateTime(0)
+  administrator   Administrator?  @relation(fields: [administratorId], references: [administratorId], map: "transfers_ibfk_4")
+  preTutor        Tutor?          @relation("transfers_post_tutor_idTotutors", fields: [preTutorId], references: [tutorId], map: "transfers_ibfk_3")
+  postTutor       Tutor?          @relation("transfers_pre_tutor_idTotutors", fields: [postTutorId], references: [tutorId], map: "transfers_ibfk_2")
+  units_submitted units_submitted @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "transfers_ibfk_1")
 
-  @@index([administrator_id], map: "administrator_id")
+  @@index([administratorId], map: "administrator_id")
   @@index([postTutorId], map: "post_tutor_id")
   @@index([preTutorId], map: "pre_tutor_id")
   @@index([unitId], map: "unit_id")
@@ -1243,51 +1252,51 @@ model tutor_push_subscriptions {
   auth       String?  @db.VarChar(24)
   ip_address Bytes?   @db.VarBinary(16)
   created    DateTime @db.DateTime(0)
-  tutor      Tutor    @relation(fields: [tutor_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tutor_push_subscriptions_ibfk_1")
+  tutor      Tutor    @relation(fields: [tutor_id], references: [tutorId], onDelete: Cascade, onUpdate: Restrict, map: "tutor_push_subscriptions_ibfk_1")
 
   @@index([endpoint], map: "endpoint")
   @@index([tutor_id], map: "tutor_id")
 }
 
 model Tutor {
-  id                                        Int                        @id @default(autoincrement())
-  schoolId                                  Int                        @db.UnsignedInt @map("school_id")
-  countryId                                 Int                        @db.UnsignedInt @map("country_id")
-  studentTypeType                           String                     @default("makeup") @db.VarChar(50) @map("student_type")
-  passwordHash                              String?                    @db.VarChar(255) @map("pw_hash")
-  username                                  String                     @unique(map: "username") @db.VarChar(50)
-  salt                                      String?                    @db.Char(32)
-  password                                  String?                    @db.Char(64)
-  firstName                                 String                     @map("first_name")
-  lastName                                  String                     @map("last_name")
-  expiry                                    DateTime?                  @db.Date
-  emailAddress                              String?                    @map("email_address")
-  emailMessage                              String?                    @db.LongText @map("email_message")
-  picture_data                              Bytes?
-  picture_width                             Int?
-  picture_height                            Int?
-  picture_type                              String?                    @db.VarChar(255)
-  payment_schedule                          tutors_payment_schedule?   @default(weekly)
-  hst                                       Decimal?                   @db.Decimal(6, 4)
-  last_login                                DateTime?                  @db.DateTime(0)
-  entity_version                            Int                        @default(0)
-  timestamp                                 DateTime                   @default(now()) @db.Timestamp(6)
-  country                                   Country                    @relation(fields: [countryId], references: [id], map: "tutors_ibfk_2")
-  schools                                   schools                    @relation(fields: [schoolId], references: [id], map: "tutors_ibfk_3")
-  studentType                               StudentType                @relation(fields: [studentTypeType], references: [type], map: "tutors_ibfk_1")
-  messages                                  messages[]
-  passwordResetRequests                     PasswordResetRequest[]
-  refreshTokens                             TutorRefreshToken[]
-  enrollments                               Enrollment[]
-  transfers_transfers_post_tutor_idTotutors transfers[]                @relation("transfers_post_tutor_idTotutors")
-  transfers_transfers_pre_tutor_idTotutors  transfers[]                @relation("transfers_pre_tutor_idTotutors")
-  tutor_push_subscriptions                  tutor_push_subscriptions[]
-  units_submitted                           units_submitted[]
-  uploads                                   uploads[]
-  writing_assignments                       writing_assignments[]
+  tutorId                  Int                        @id @default(autoincrement()) @map("id")
+  schoolId                 Int                        @db.UnsignedInt @map("school_id")
+  countryId                Int                        @db.UnsignedInt @map("country_id")
+  studentTypeType          String                     @default("makeup") @db.VarChar(50) @map("student_type")
+  passwordHash             String?                    @db.VarChar(255) @map("pw_hash")
+  username                 String                     @unique(map: "username") @db.VarChar(50)
+  salt                     String?                    @db.Char(32)
+  password                 String?                    @db.Char(64)
+  firstName                String                     @map("first_name")
+  lastName                 String                     @map("last_name")
+  expiry                   DateTime?                  @db.Date
+  emailAddress             String?                    @map("email_address")
+  emailMessage             String?                    @db.LongText @map("email_message")
+  pictureData              Bytes?                     @map("picture_data")
+  pictureWidth             Int?                       @map("picture_width")
+  pictureHeight            Int?                       @map("picture_height")
+  pictureType              String?                    @db.VarChar(255) @map("picture_type")
+  paymentSchedule          TutorPaymentSchedule?      @default(weekly) @map("payment_schedule")
+  hst                      Decimal?                   @db.Decimal(6, 4)
+  lastLogin                DateTime?                  @db.DateTime(0) @map("last_login")
+  entityVersion            Int                        @default(0) @map("entity_version")
+  timestamp                DateTime                   @default(now()) @db.Timestamp(6)
+  country                  Country                    @relation(fields: [countryId], references: [countryId], map: "tutors_ibfk_2")
+  schools                  schools                    @relation(fields: [schoolId], references: [id], map: "tutors_ibfk_3")
+  studentType              StudentType                @relation(fields: [studentTypeType], references: [type], map: "tutors_ibfk_1")
+  messages                 Message[]
+  passwordResetRequests    PasswordResetRequest[]
+  refreshTokens            TutorRefreshToken[]
+  enrollments              Enrollment[]
+  transfersTo              transfers[]                @relation("transfers_post_tutor_idTotutors")
+  transfersFrom            transfers[]                @relation("transfers_pre_tutor_idTotutors")
+  tutor_push_subscriptions tutor_push_subscriptions[]
+  units_submitted          units_submitted[]
+  uploads                  uploads[]
+  writing_assignments      writing_assignments[]
 
   @@map("tutors")
-  @@unique([id, entity_version], map: "id_entity_version")
+  @@unique([tutorId, entityVersion], map: "id_entity_version")
   @@index([countryId], map: "country_id")
   @@index([schoolId], map: "school_id")
   @@index([studentTypeType], map: "student_type")
@@ -1300,7 +1309,7 @@ model unit_costs {
   cost           Decimal    @db.Decimal(6, 2)
   currencyId     Int        @db.UnsignedInt @map("currency_id")
   entityVersion  Int        @default(0) @map("entity_version")
-  country        Country?   @relation(fields: [countryId], references: [id], onDelete: Restrict, map: "unit_costs_ibfk_2")
+  country        Country?   @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "unit_costs_ibfk_2")
   currencies     currencies @relation(fields: [currencyId], references: [id], onUpdate: Restrict, map: "unit_costs_ibfk_3")
   units          units      @relation(fields: [unitId], references: [id], onDelete: Cascade, map: "unit_costs_ibfk_1")
 
@@ -1326,7 +1335,7 @@ model units {
   order           Int                  @default(0) @db.UnsignedInt
   entityVersion   Int                  @default(0) @map("entity_version")
   course          Course               @relation(fields: [courseId], references: [id], map: "units_ibfk_1")
-  assignments     assignments[]
+  assignments     Assignment[]
   unitCosts       unit_costs[]
 
   @@unique([courseId, unitLetter], map: "course_id_unit")
@@ -1363,8 +1372,8 @@ model units_submitted {
   timestamp        DateTime                       @default(now()) @db.Timestamp(6)
   currencies       currencies?                    @relation(fields: [currencyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "units_submitted_ibfk_3")
   enrollment       Enrollment                     @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, map: "units_submitted_ibfk_2")
-  tutor            Tutor?                         @relation(fields: [tutorId], references: [id], onDelete: Restrict, map: "units_submitted_ibfk_1")
-  assignments      assignments_submitted[]
+  tutor            Tutor?                         @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "units_submitted_ibfk_1")
+  assignments      SubmittedAssignment[]
   quizzes          Quiz[]
   returns          returns?
   transfers        transfers[]
@@ -1388,7 +1397,7 @@ model uploads {
   upload_date    DateTime   @db.DateTime(0)
   mimeType       MimeType   @relation(fields: [mimeTypeType], references: [type], map: "uploads_ibfk_2")
   enrollment     Enrollment @relation(fields: [enrollmentId], references: [id], map: "uploads_ibfk_3")
-  tutor          Tutor      @relation(fields: [tutorId], references: [id], map: "uploads_ibfk_1")
+  tutor          Tutor      @relation(fields: [tutorId], references: [tutorId], map: "uploads_ibfk_1")
 
   @@index([courseCode], map: "course_code")
   @@index([courseCode, studentNumber], map: "course_code_2")
@@ -1411,7 +1420,7 @@ model writing_assignments {
   entityVersion Int             @default(0) @map("entity_version")
   currencies    currencies?     @relation(fields: [currencyId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "writing_assignments_ibfk_3")
   enrollment    Enrollment      @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, map: "writing_assignments_ibfk_2")
-  tutor         Tutor           @relation(fields: [tutorId], references: [id], map: "writing_assignments_ibfk_1")
+  tutor         Tutor           @relation(fields: [tutorId], references: [tutorId], map: "writing_assignments_ibfk_1")
   writingFiles  writing_files[]
 
   @@unique([id, entityVersion], map: "id_entity_version")
@@ -1720,7 +1729,7 @@ enum QuestionType {
   match
 }
 
-enum tutors_payment_schedule {
+enum TutorPaymentSchedule {
   weekly
   bi_weekly @map("bi-weekly")
   monthly

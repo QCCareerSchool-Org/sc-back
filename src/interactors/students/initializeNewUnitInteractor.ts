@@ -7,7 +7,7 @@ import { Result, ResultType } from '../result';
 
 export type InitializeNewUnitRequestDTO = {
   studentId: number;
-  courseId: number;
+  enrollmentId: number;
   unit: string;
 };
 
@@ -37,12 +37,12 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unit }: InitializeNewUnitRequestDTO): Promise<ResultType<InitializeNewUnitResponseDTO>> {
+  public async execute({ studentId, enrollmentId, unit }: InitializeNewUnitRequestDTO): Promise<ResultType<InitializeNewUnitResponseDTO>> {
     try {
       // check the student and course
       const student = await this.prisma.student.findUnique({
         where: { id: studentId },
-        include: { enrollments: { where: { courseId } } },
+        include: { enrollments: { where: { id: enrollmentId } } },
       });
 
       if (!student) {
@@ -61,10 +61,8 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
         return Result.fail(new InitializeNewUnitEnrollmentOnHold());
       }
 
-      const enrollmentId = student.enrollments[0].id;
-
       // check the existing units
-      const units = await this.prisma.newUnit.findMany({ where: { enrollmentId, courseId } });
+      const units = await this.prisma.newUnit.findMany({ where: { enrollmentId } });
 
       if (units.some(u => !u.skipped && (u.submitted === null || u.marked === null))) {
         return Result.fail(new InitializeNewUnitNotReady());
@@ -73,6 +71,8 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
       if (units.some(u => u.unit === unit)) {
         return Result.fail(new InitializeNewUnitAlreadyInitialized());
       }
+
+      const courseId = student.enrollments[0].courseId;
 
       // find the unit template and all its children
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
