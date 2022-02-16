@@ -8,3 +8,5 @@ mysql-client.pfx
 jwtRS256.key
 jwtRS256.pub.key
 dist
+combined.log
+error.log
