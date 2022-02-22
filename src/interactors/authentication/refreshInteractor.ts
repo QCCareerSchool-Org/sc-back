@@ -130,7 +130,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         accessTokenPayload,
         cookies: [
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
-          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, httpOnly: false } }, // httpOnly is false for Angular CSRF
+          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, path: '/', httpOnly: false } }, // httpOnly is false for Angular CSRF
         ],
       });
 

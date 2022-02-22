@@ -171,7 +171,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         accessTokenPayload,
         cookies: [
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
-          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, httpOnly: false } }, // httpOnly is false for Angular CSRF
+          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, path: '/', httpOnly: false } }, // httpOnly is false for Angular CSRF
           { name: 'refreshToken', value: refreshTokenString, options: refreshCookieOptions },
           { name: 'refreshId', value: refreshToken.id.toString(), options: refreshCookieOptions },
           { name: 'refreshType', value: accountType, options: refreshCookieOptions },
