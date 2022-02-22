@@ -1,15 +1,13 @@
 import * as yup from 'yup';
 
 import { getNewUnitInteractor } from '../../interactors';
-import { GetNewUnitNotFound, GetNewUnitResponseDTO } from '../../interactors/students/getNewUnitInteractor';
+import { GetNewUnitNotFound, GetNewUnitResponseDTO } from '../../interactors/student/getNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** numeric string */
-    enrollmentId: string;
     /** hex string */
     unitId: string;
   };
@@ -22,7 +20,6 @@ export class GetNewUnitController extends BaseController<Request, Response> {
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
-      enrollmentId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -40,10 +37,11 @@ export class GetNewUnitController extends BaseController<Request, Response> {
 
   protected async executeImpl({ params }: Request): Promise<void> {
     const studentId = parseInt(params.studentId, 10);
-    const enrollmentId = parseInt(params.enrollmentId, 10);
     const { unitId } = params;
 
-    const result = await getNewUnitInteractor.execute({ studentId, enrollmentId, unitId });
+    console.log('request', params);
+
+    const result = await getNewUnitInteractor.execute({ studentId, unitId });
 
     if (result.success) {
       return this.ok(result.value);

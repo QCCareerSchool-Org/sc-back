@@ -1,15 +1,13 @@
 import * as yup from 'yup';
 
-import { getAllNewUnitsInteractor } from '../../interactors';
-import { GetAllNewUnitsResponseDTO } from '../../interactors/students/getAllNewUnitsInteractor';
+import { getEnrollmentInteractor } from '../../interactors';
+import { GetEnrollmentNotFound, GetEnrollmentResponseDTO } from '../../interactors/student/getEnrollment';
 import { BaseController } from '../baseController';
 
 type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** numeric string */
-    enrollmentId: string;
   };
   query: {
     /** numeric string */
@@ -17,14 +15,13 @@ type Request = {
   };
 };
 
-type Response = GetAllNewUnitsResponseDTO;
+type Response = GetEnrollmentResponseDTO;
 
-export class GetAllNewUnitsController extends BaseController<Request, Response> {
+export class GetEnrollmentController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
-      enrollmentId: yup.string().matches(/^\d+$/u).defined(),
     });
     const querySchema: yup.SchemaOf<Request['query']> = yup.object({
       courseId: yup.string().matches(/^\d+$/u).defined(),
@@ -47,16 +44,17 @@ export class GetAllNewUnitsController extends BaseController<Request, Response> 
 
   protected async executeImpl({ params, query }: Request): Promise<void> {
     const studentId = parseInt(params.studentId, 10);
-    const enrollmentId = parseInt(params.enrollmentId, 10);
     const courseId = parseInt(query.courseId, 10);
 
-    const result = await getAllNewUnitsInteractor.execute({ studentId, enrollmentId, courseId });
+    const result = await getEnrollmentInteractor.execute({ studentId, courseId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
+      case GetEnrollmentNotFound:
+        return this.notFound('Enrollment not found');
       default:
         return this.internalServerError(result.error.message);
     }

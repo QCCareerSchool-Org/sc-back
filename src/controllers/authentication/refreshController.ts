@@ -1,11 +1,9 @@
-import type { CookieOptions } from 'express';
 import * as yup from 'yup';
 
 import { AccessTokenPayload } from '../../domain/access-token-payload';
 import { AccountType } from '../../domain/account-type';
 import { refreshInteractor } from '../../interactors';
 import { RefreshStudentInvalidType, RefreshStudentNotFound, RefreshTokenExpired, RefreshTokenInvalid, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
-import { environmentConfigService } from '../../services';
 import { BaseController } from '../baseController';
 
 type Cookies = {
@@ -47,20 +45,14 @@ export class RefreshController extends BaseController<Cookies, AccessTokenPayloa
     const result = await refreshInteractor.execute({ id, type: refreshType, token });
 
     if (result.success) {
-      const { accessTokenPayload, accessToken, xsrfToken } = result.value;
+      const { accessTokenPayload, cookies } = result.value;
 
-      // send the access token cookie and XSRF token cookie
-      const accessCookieOptions: CookieOptions = {
-        secure: environmentConfigService.config.environment !== 'development',
-        httpOnly: true,
-        path: '/api',
-        maxAge: environmentConfigService.config.auth.accessTokenLifetime * 1000,
-        domain: environmentConfigService.config.auth.cookieDomain,
-        sameSite: 'strict',
-      };
-      this.res.cookie('XSRF-TOKEN', xsrfToken, { ...accessCookieOptions, path: '/', httpOnly: false }); // Angular needs to read this
-      this.res.cookie('accessToken', accessToken, accessCookieOptions);
+      // send all the cookies
+      for (const c of cookies) {
+        this.sendCookie(c.name, c.value, c.options.maxAge, c.options.path, c.options.domain, c.options.secure, c.options.httpOnly, c.options.sameSite);
+      }
 
+      // return the payload
       return this.ok(accessTokenPayload);
     }
 

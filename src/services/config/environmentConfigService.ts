@@ -62,6 +62,7 @@ export class EnvironmentConfigService implements IConfigService {
         portraitsPath: process.env.PORTRAITS_PATH ?? basePath + '/portraits',
         courseBannersPath: process.env.COURSE_BANNERS_PATH ?? basePath + '/course-banners',
         unitResponsesPath: process.env.UNIT_RESPONSES_PATH ?? basePath + '/audio replies',
+        tutorIntroductionPath: process.env.TUTOR_INTRODUCTION_PATH ?? basePath + '/tutor introductions',
       },
       auth: {
         cookieDomain: process.env.COOKIE_DOMAIN ?? 'sc.qccareerschool.com',
@@ -76,6 +77,7 @@ export class EnvironmentConfigService implements IConfigService {
         mode: smtpMode,
       },
       passwordResetTimeout: 30 * 60, // the number of seconds a password reset request is valid
+      uploadSlotMaxFilesize: process.env.UPLOAD_SLOT_MAX_FILESIZE ? parseInt(process.env.UPLOAD_SLOT_MAX_FILESIZE, 10) : 33_554_432, // 32 MB
     };
   }
 

@@ -1,12 +1,10 @@
 import type { BrowserDetectInfo } from 'browser-detect/dist/types/browser-detect.interface';
-import type { CookieOptions } from 'express';
 import type { CityResponse } from 'maxmind';
 import * as yup from 'yup';
 
 import { AccessTokenPayload } from '../../domain/access-token-payload';
 import { loginInteractor } from '../../interactors';
 import { LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
-import { environmentConfigService } from '../../services';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -74,38 +72,14 @@ export class LoginController extends BaseController<Request, AccessTokenPayload>
     });
 
     if (result.success) {
-      const { accessTokenPayload, accessToken, xsrfToken, refreshToken, refreshTokenId } = result.value;
+      const { accessTokenPayload, cookies } = result.value;
 
-      // send the access token cookie and XSRF token cookie
-      const accessCookieOptions: CookieOptions = {
-        secure: environmentConfigService.config.environment !== 'development',
-        httpOnly: true,
-        path: '/api',
-        maxAge: environmentConfigService.config.auth.accessTokenLifetime * 1000,
-        domain: environmentConfigService.config.auth.cookieDomain,
-        sameSite: 'strict',
-      };
-      // Angular needs to read the XSRF-TOKEN cookie, otherwise we wouldn't send
-      // it as a cookie and the client could read it from the response body
-      this.res.cookie('XSRF-TOKEN', xsrfToken, { ...accessCookieOptions, path: '/', httpOnly: false });
-      this.res.cookie('accessToken', accessToken, accessCookieOptions);
-
-      // send the refresh token cookies
-      const refreshCookieOptions: CookieOptions = {
-        secure: environmentConfigService.config.environment !== 'development',
-        httpOnly: true,
-        path: '/api/auth',
-        domain: environmentConfigService.config.auth.cookieDomain,
-        sameSite: 'strict',
-        // TODO: check that these are session cookies when no expires attribute is sent
-      };
-      if (stayLoggedIn) {
-        refreshCookieOptions.maxAge = environmentConfigService.config.auth.refreshTokenLifetime * 1000;
+      // send all the cookies
+      for (const c of cookies) {
+        this.sendCookie(c.name, c.value, c.options.maxAge, c.options.path, c.options.domain, c.options.secure, c.options.httpOnly, c.options.sameSite);
       }
-      this.res.cookie('refreshToken', refreshToken, refreshCookieOptions);
-      this.res.cookie('refreshType', accessTokenPayload.type, refreshCookieOptions);
-      this.res.cookie('refreshId', refreshTokenId, refreshCookieOptions);
 
+      // return the payload
       return this.ok(accessTokenPayload);
     }
 

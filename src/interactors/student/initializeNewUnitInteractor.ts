@@ -8,16 +8,16 @@ import { Result, ResultType } from '../result';
 export type InitializeNewUnitRequestDTO = {
   studentId: number;
   enrollmentId: number;
-  unit: string;
+  unitLetter: string;
 };
 
 export type InitializeNewUnitResponseDTO = {
   unitId: string;
-  courseId: number;
-  unit: string;
+  unitLetter: string;
   title: string | null;
   description: string | null;
   optional: boolean;
+  complete: boolean;
   created: Date;
 };
 
@@ -37,7 +37,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, enrollmentId, unit }: InitializeNewUnitRequestDTO): Promise<ResultType<InitializeNewUnitResponseDTO>> {
+  public async execute({ studentId, enrollmentId, unitLetter }: InitializeNewUnitRequestDTO): Promise<ResultType<InitializeNewUnitResponseDTO>> {
     try {
       // check the student and course
       const student = await this.prisma.student.findUnique({
@@ -57,7 +57,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
         return Result.fail(new InitializeNewUnitEnrollmentNotFound());
       }
 
-      if (!student.enrollments[0].on_hold) {
+      if (!student.enrollments[0].onHold) {
         return Result.fail(new InitializeNewUnitEnrollmentOnHold());
       }
 
@@ -68,7 +68,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
         return Result.fail(new InitializeNewUnitNotReady());
       }
 
-      if (units.some(u => u.unit === unit)) {
+      if (units.some(u => u.unitLetter === unitLetter)) {
         return Result.fail(new InitializeNewUnitAlreadyInitialized());
       }
 
@@ -76,18 +76,18 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
 
       // find the unit template and all its children
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
-        where: { courseId, unit },
+        where: { courseId, unitLetter },
         include: {
-          assignmentTemplates: {
+          assignments: {
             include: {
-              partTemplates: {
+              parts: {
                 include: {
-                  textBoxTemplates: true,
-                  uploadSlotTemplates: true,
-                  partMediaElementTemplates: true,
+                  textBoxes: true,
+                  uploadSlots: true,
+                  mediaElements: true,
                 },
               },
-              assignmentMediaElementTemplates: true,
+              mediaElements: true,
             },
           },
         },
@@ -100,57 +100,56 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
       const newUnit = await this.prisma.newUnit.create({
         data: {
           unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId: unitTemplate.courseId,
           enrollmentId,
-          unit: unitTemplate.unit,
+          unitLetter: unitTemplate.unitLetter,
           title: unitTemplate.title,
           description: unitTemplate.description,
           optional: unitTemplate.optional,
           assignments: {
-            create: unitTemplate.assignmentTemplates.map(assignmentTemplate => ({
+            create: unitTemplate.assignments.map(assignment => ({
               assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-              assignment: assignmentTemplate.assignment,
-              title: assignmentTemplate.title,
-              description: assignmentTemplate.description,
-              optional: assignmentTemplate.optional,
+              assignmentNumber: assignment.assignmentNumber,
+              title: assignment.title,
+              description: assignment.description,
+              optional: assignment.optional,
               parts: {
-                create: assignmentTemplate.partTemplates.map(partTemplate => ({
+                create: assignment.parts.map(part => ({
                   partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  part: partTemplate.part,
-                  title: partTemplate.title,
-                  description: partTemplate.description,
-                  optional: partTemplate.optional,
+                  partNumber: part.partNumber,
+                  title: part.title,
+                  description: part.description,
+                  optional: part.optional,
                   textBoxes: {
-                    create: partTemplate.textBoxTemplates.map(textBoxTemplate => ({
+                    create: part.textBoxes.map(textBox => ({
                       textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      description: textBoxTemplate.description,
-                      lines: textBoxTemplate.lines,
-                      optional: textBoxTemplate.optional,
-                      order: textBoxTemplate.order,
+                      description: textBox.description,
+                      lines: textBox.lines,
+                      optional: textBox.optional,
+                      order: textBox.order,
                     })),
                   },
                   uploadSlots: {
-                    create: partTemplate.uploadSlotTemplates.map(uploadSlotTemplate => ({
+                    create: part.uploadSlots.map(uploadSlot => ({
                       uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      label: uploadSlotTemplate.label,
-                      optional: uploadSlotTemplate.optional,
-                      order: uploadSlotTemplate.order,
+                      label: uploadSlot.label,
+                      optional: uploadSlot.optional,
+                      order: uploadSlot.order,
                     })),
                   },
-                  partMediaElement: {
-                    create: partTemplate.partMediaElementTemplates.map(partMediaTemplate => ({
-                      partMediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      mimeTypeId: partMediaTemplate.mimeTypeId,
-                      externalData: partMediaTemplate.externalData,
+                  mediaElements: {
+                    create: part.mediaElements.map(mediaElement => ({
+                      mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                      mimeTypeId: mediaElement.mimeTypeId,
+                      externalData: mediaElement.externalData,
                     })),
                   },
                 })),
               },
-              assignmentMediaElement: {
-                create: assignmentTemplate.assignmentMediaElementTemplates.map(assignmentMediaTemplate => ({
-                  assignmentMediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  mimeTypeId: assignmentMediaTemplate.mimeTypeId,
-                  externalData: assignmentMediaTemplate.externalData,
+              mediaElements: {
+                create: assignment.mediaElements.map(mediaElement => ({
+                  mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                  mimeTypeId: mediaElement.mimeTypeId,
+                  externalData: mediaElement.externalData,
                 })),
               },
             })),
@@ -160,11 +159,11 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
 
       return Result.success({
         unitId: this.uuidService.binToUUID(newUnit.unitId),
-        courseId: newUnit.courseId,
-        unit: newUnit.unit,
+        unitLetter: newUnit.unitLetter,
         title: newUnit.title,
         description: newUnit.description,
         optional: newUnit.optional,
+        complete: newUnit.complete,
         created: newUnit.created,
       });
 

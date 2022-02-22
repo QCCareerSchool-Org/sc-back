@@ -17,8 +17,8 @@ const { port } = environmentConfigService.config;
 
 const corsOptions: CorsOptions = {
   origin: [
-    'http://localstudentcenter.com:4200',
-    'https://sc.qccareerschool.com',
+    'http://localhost:3000',
+    'https://studentcenter.qccareerschool.com',
   ],
   credentials: true,
 };

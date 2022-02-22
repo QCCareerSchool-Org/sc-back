@@ -16,10 +16,24 @@ export type RefreshRequestDTO = {
   token: Buffer;
 };
 
+type CookieOptions = {
+  maxAge?: number;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+};
+
+type Cookie = {
+  name: string;
+  value: string;
+  options: CookieOptions;
+};
+
 export type RefreshResponseDTO = {
   accessTokenPayload: AccessTokenPayload;
-  accessToken: string;
-  xsrfToken: string;
+  cookies: Cookie[];
 };
 
 export class RefreshTokenInvalidType extends Error {}
@@ -76,14 +90,14 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       // generate a cryptographically suitable pseudo-random value for the XSRF token
       const xsrfTokenBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
-      const xsrfToken = xsrfTokenBytes.toString('base64');
+      const xsrfTokenString = xsrfTokenBytes.toString('base64');
 
       // create a new jwt access token
       const accessTokenPayload: AccessTokenPayload = {
         id: refreshToken.accountId,
         type: type,
         exp: accessExp,
-        xsrf: xsrfToken, // store the XSRF token in the payload
+        xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
       if (type === 'student') { // add student-only data to payload
         const student = await this.prisma.student.findUnique({ where: { studentId: refreshToken.accountId } });
@@ -99,10 +113,25 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       }
       const accessToken = await this.jwtService.sign(accessTokenPayload);
 
+      const baseCookieOptions = {
+        secure: this.configService.config.environment !== 'development',
+        httpOnly: true,
+        domain: this.configService.config.auth.cookieDomain,
+        sameSite: 'strict',
+      } as const;
+
+      const accessCookieOptions = {
+        ...baseCookieOptions,
+        path: this.configService.config.environment !== 'development' ? '/api' : '/', // strip prefix in development
+        maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
+      };
+
       return Result.success({
         accessTokenPayload,
-        accessToken,
-        xsrfToken,
+        cookies: [
+          { name: 'accessToken', value: accessToken, options: accessCookieOptions },
+          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, httpOnly: false } }, // httpOnly is false for Angular CSRF
+        ],
       });
 
     } catch (err) {

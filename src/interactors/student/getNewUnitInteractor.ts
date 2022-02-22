@@ -7,26 +7,28 @@ import { Result, ResultType } from '../result';
 
 export type GetNewUnitRequestDTO = {
   studentId: number;
-  enrollmentId: number;
   unitId: string;
 };
 
 export type GetNewUnitResponseDTO = {
   /** hex string */
   unitId: string;
-  courseId: number;
-  unit: string;
+  unitLetter: string;
   title: string | null;
   description: string | null;
   optional: boolean;
+  complete: boolean;
   created: Date;
   assignments: Array<{
     /** hex string */
     assignmentId: string;
-    assignment: number;
+    /** hex string */
+    unitId: string;
+    assignmentNumber: number;
     title: string | null;
     description: string | null;
     optional: boolean;
+    complete: boolean;
   }>;
 };
 
@@ -40,11 +42,10 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, enrollmentId, unitId }: GetNewUnitRequestDTO): Promise<ResultType<GetNewUnitResponseDTO>> {
+  public async execute({ studentId, unitId }: GetNewUnitRequestDTO): Promise<ResultType<GetNewUnitResponseDTO>> {
     try {
       const unit = await this.prisma.newUnit.findFirst({
         where: {
-          enrollmentId,
           enrollment: { studentId },
           unitId: this.uuidService.uuidToBin(unitId),
         },
@@ -57,18 +58,20 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
 
       return Result.success({
         unitId: this.uuidService.binToUUID(unit.unitId),
-        courseId: unit.courseId,
-        unit: unit.unit,
+        unitLetter: unit.unitLetter,
         title: unit.title,
         description: unit.description,
         optional: unit.optional,
+        complete: unit.complete,
         created: unit.created,
         assignments: unit.assignments.map(a => ({
           assignmentId: this.uuidService.binToUUID(a.assignmentId),
-          assignment: a.assignment,
+          unitId: this.uuidService.binToUUID(a.unitId),
+          assignmentNumber: a.assignmentNumber,
           title: a.title,
           description: a.description,
           optional: a.optional,
+          complete: a.complete,
         })),
       });
 

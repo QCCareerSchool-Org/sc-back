@@ -29,12 +29,24 @@ type LoginRequestDTO = {
   longitude: number | null;
 };
 
+type CookieOptions = {
+  maxAge?: number;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+};
+
+type Cookie = {
+  name: string;
+  value: string;
+  options: CookieOptions;
+};
+
 type LoginResponseDTO = {
   accessTokenPayload: AccessTokenPayload;
-  accessToken: string;
-  xsrfToken: string;
-  refreshToken: string;
-  refreshTokenId: bigint;
+  cookies: Cookie[];
 };
 
 export class LoginNotFound extends Error { }
@@ -133,12 +145,37 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         throw Error();
       }
 
+      const baseCookieOptions = {
+        secure: this.configService.config.environment !== 'development',
+        httpOnly: true,
+        domain: this.configService.config.auth.cookieDomain,
+        sameSite: 'strict',
+      } as const;
+
+      const accessCookieOptions: CookieOptions = {
+        ...baseCookieOptions,
+        path: this.configService.config.environment !== 'development' ? '/api' : '/', // strip prefix in development
+        maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
+      };
+
+      const refreshCookieOptions: CookieOptions = {
+        ...baseCookieOptions,
+        path: this.configService.config.environment !== 'development' ? '/api/auth' : '/auth', // strip prefix in development
+      };
+
+      if (request.stayLoggedIn) {
+        refreshCookieOptions.maxAge = this.configService.config.auth.refreshTokenLifetime * 1000;
+      }
+
       return Result.success({
         accessTokenPayload,
-        accessToken,
-        xsrfToken: xsrfTokenString,
-        refreshToken: refreshTokenString,
-        refreshTokenId: refreshToken.id,
+        cookies: [
+          { name: 'accessToken', value: accessToken, options: accessCookieOptions },
+          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, httpOnly: false } }, // httpOnly is false for Angular CSRF
+          { name: 'refreshToken', value: refreshTokenString, options: refreshCookieOptions },
+          { name: 'refreshId', value: refreshToken.id.toString(), options: refreshCookieOptions },
+          { name: 'refreshType', value: accountType, options: refreshCookieOptions },
+        ],
       });
 
     } catch (err) {

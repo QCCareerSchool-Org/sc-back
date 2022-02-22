@@ -17,6 +17,7 @@ export type Config = {
     portraitsPath: string;
     courseBannersPath: string;
     unitResponsesPath: string;
+    tutorIntroductionPath: string;
   };
   auth: {
     cookieDomain: string;
@@ -33,6 +34,7 @@ export type Config = {
     mode: 'TLS' | 'STARTTLS' | 'INSECURE';
   };
   passwordResetTimeout: number;
+  uploadSlotMaxFilesize: number;
 };
 
 export interface IConfigService {

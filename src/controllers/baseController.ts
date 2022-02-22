@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { CookieOptions, Request, Response } from 'express';
 
 export abstract class BaseController<RequestDTO, ResponseDTO> {
 
@@ -76,6 +76,29 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     const days = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
     const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
     return `${days[date.getUTCDay()]}, ${date.getUTCDate().toString().padStart(2, '0')} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()} ${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}:${date.getUTCSeconds().toString().padStart(2, '0')} GMT`;
+  }
+
+  protected sendCookie(name: string, value: string, maxAge?: number, path?: string, domain?: string, secure?: boolean, httpOnly?: boolean, sameSite?: 'strict' | 'lax' | 'none'): void {
+    const options: CookieOptions = { };
+    if (typeof maxAge !== 'undefined') {
+      options.maxAge = maxAge;
+    }
+    if (typeof path !== 'undefined') {
+      options.path = path;
+    }
+    if (typeof domain !== 'undefined') {
+      options.domain = domain;
+    }
+    if (typeof secure !== 'undefined') {
+      options.secure = secure;
+    }
+    if (typeof httpOnly !== 'undefined') {
+      options.httpOnly = httpOnly;
+    }
+    if (typeof sameSite !== 'undefined') {
+      options.sameSite = sameSite;
+    }
+    this.res.cookie(name, value, options);
   }
 
   /** Validates the input and returns a DTO if successful, false otherwise */
