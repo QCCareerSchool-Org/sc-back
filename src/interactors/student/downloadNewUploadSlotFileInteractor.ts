@@ -75,7 +75,7 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
         fileData = await this.fileService.readFile(path);
       } catch (err) {
         this.logger.error('Could not read file', err);
-        throw new DownloadNewUploadSlotFileReadError();
+        return Result.fail(new DownloadNewUploadSlotFileReadError());
       }
 
       const data = uploadSlot.mimeType?.compress ? await this.compressionService.gunzip(fileData) : fileData;

@@ -24,7 +24,6 @@ type Response = void;
 export class DownloadNewUploadSlotFileController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
-    console.log(this.req.file);
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
