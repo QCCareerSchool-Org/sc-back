@@ -132,6 +132,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
                     create: part.uploadSlots.map(uploadSlot => ({
                       uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                       label: uploadSlot.label,
+                      allowedTypes: uploadSlot.allowedTypes,
                       optional: uploadSlot.optional,
                       order: uploadSlot.order,
                     })),

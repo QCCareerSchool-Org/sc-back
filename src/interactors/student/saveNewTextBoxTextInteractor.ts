@@ -34,6 +34,13 @@ export type SaveNewTextBoxTextResponseDTO = {
 export class SaveNewTextBoxTextNotFound extends Error { }
 export class SaveNewTextBoxTextEntityNotFound extends Error { }
 
+/**
+ * When saving text, we'll recheck the part, assignment, and unit to
+ * see if they're complete and update them as well. We could avoid the extra
+ * work here, and recalculate the `complete` status of units, and assignments
+ * when needed, but then we'd have to check every text box and upload slot of
+ * every part of every assignment each time we wanted to retrieve a unit.
+ */
 export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
 
   public constructor(

@@ -37,6 +37,7 @@ export type GetEnrollmentResponseDTO = {
     courseGuide: boolean;
     quizzesEnabled: boolean;
     noTutor: boolean;
+    unitType: number;
     units: Array<{
       unitId: number;
       courseId: number;
@@ -175,6 +176,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           courseGuide: enrollment.course.courseGuide,
           quizzesEnabled: enrollment.course.quizzesEnabled,
           noTutor: enrollment.course.noTutor,
+          unitType: enrollment.course.unitType,
           units: enrollment.course.units.map(unit => ({
             unitId: unit.unitId,
             courseId: unit.courseId,

@@ -5,65 +5,87 @@ import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
-export type GetEnrollmentRequestDTO = {
+export type GetStudentRequestDTO = {
   studentId: number;
-  courseId: number;
 };
 
-export type GetEnrollmentResponseDTO = {
-  enrollmentId: number;
-  courseId: number;
-  studentNumber: number;
-  tutorId: number | null;
-  maxAssignments: number | null;
-  graduated: boolean;
-  assignmentsDisabled: boolean;
-  quizzesDisabled: boolean;
-  onHold: boolean;
-  holdReason: string | null;
-  currencyCode: string;
-  courseCost: number;
-  amountPaid: number;
-  monthlyInstallment: number | null;
-  enrollmentDate: Date | null;
-  fastTrack: boolean;
-  paymentsDisabled: boolean;
-  course: {
+export type GetStudentResponseDTO = {
+  studentId: number;
+  countryId: number;
+  provinceId: number | null;
+  studentTypeId: string;
+  // passwordHash: string | null;
+  // salt: string | null;
+  // password: string | null;
+  passwordChanged: boolean;
+  sex: 'M' | 'F';
+  firstName: string;
+  lastName: string;
+  numLogins: number;
+  lastLogin: Date | null;
+  expiry: Date | null;
+  emailAddress: string | null;
+  creationDate: Date;
+  arrears: boolean;
+  forumUsername: string | null;
+  // forumPassword: string | null;
+  // forumIV: Buffer | null;
+  forumPasswordNew: string | null;
+  apiUsername: number | null;
+  // apiPassword: string | null;
+  // apiIV: Buffer | null;
+  apiPasswordNew: string | null;
+  questionnaire: boolean;
+  videoViewed: boolean;
+  ajaxUploads: boolean;
+  upgradeNotification: boolean;
+  entityVersion: number;
+  timestamp: Date;
+  country: {
+    countryId: number;
     code: string;
     name: string;
-    courseGuide: boolean;
-    quizzesEnabled: boolean;
-    noTutor: boolean;
-    units: Array<{
-      unitId: number;
-      unitLetter: string;
-      title: string | null;
-      responseType: 'mp3' | null;
-      optional: boolean;
-      noMarks: boolean;
-      noAssignments: boolean;
-      optionalUpload: boolean;
-    }>;
-    newUnits: Array<{
-      /** hex string */
-      unitId: string;
-    }>;
+    entityVersion: number;
   };
-  tutor: {
-    tutorId: number;
+  province: {
+    provinceId: number;
+    countryId: number;
+    regionId: number | null;
+    code: string;
+    name: string;
+    regionCode: string | null;
+    alternateAbbreviation: string | null;
+    type: string | null;
+    entityVersion: number;
   } | null;
-  units: Array<{
-    unitId: number;
-  }>;
-  newUnits: Array<{
-    /** hex string */
-    unitId: string;
+  enrollments: Array<{
+    enrollmentId: number;
+    courseId: number;
+    studentNumber: number;
+    studentId: number;
+    tutorId: number | null;
+    maxAssignments: number | null;
+    graduated: boolean;
+    assignmentsDisabled: boolean;
+    quizzesDisabled: boolean;
+    onHold: boolean;
+    holdReason: string | null;
+    currencyCode: string;
+    courseCost: number;
+    amountPaid: number;
+    monthlyInstallment: number | null;
+    enrollmentDate: Date | null;
+    fastTrack: boolean;
+    paymentsDisabled: boolean;
+    updated: Date | null;
+    entityVersion: number;
+    timestamp: Date;
   }>;
 };
 
-export class GetEnrollmentNotFound extends Error { }
+export class GetStudentNotFound extends Error { }
 
-export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
+export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, GetStudentResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -71,75 +93,82 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId }: GetEnrollmentRequestDTO): Promise<ResultType<GetEnrollmentResponseDTO>> {
+  public async execute({ studentId }: GetStudentRequestDTO): Promise<ResultType<GetStudentResponseDTO>> {
     try {
-      const enrollment = await this.prisma.enrollment.findFirst({
-        where: { studentId, courseId },
-        include: {
-          course: {
-            include: {
-              // units: { where: { enabled: true }, orderBy: { order: 'asc' } },
-              // newUnits: { orderBy: { unitLetter: 'asc' } },
-              units: true,
-              newUnits: true,
-            },
-          },
-          tutor: true,
-          // units: { orderBy: { order: 'asc' } },
-          // newUnits: { orderBy: { unitLetter: 'asc' } },
-          units: true,
-          newUnits: true,
-
-        },
+      const student = await this.prisma.student.findUnique({
+        where: { studentId },
+        include: { enrollments: true, country: true, province: true },
       });
 
-      if (!enrollment) {
-        return Result.fail(new GetEnrollmentNotFound());
+      if (!student) {
+        return Result.fail(new GetStudentNotFound());
       }
 
       return Result.success({
-        enrollmentId: enrollment.enrollmentId,
-        courseId: enrollment.courseId,
-        studentNumber: enrollment.studentNumber,
-        tutorId: enrollment.tutorId,
-        maxAssignments: enrollment.maxAssignments,
-        graduated: enrollment.graduated,
-        assignmentsDisabled: enrollment.assignmentsDisabled,
-        quizzesDisabled: enrollment.quizzesDisabled,
-        onHold: enrollment.onHold,
-        holdReason: enrollment.holdReason,
-        currencyCode: enrollment.currencyCode,
-        courseCost: enrollment.courseCost.toNumber(),
-        amountPaid: enrollment.amountPaid.toNumber(),
-        monthlyInstallment: enrollment.monthlyInstallment?.toNumber() ?? null,
-        enrollmentDate: enrollment.enrollmentDate,
-        fastTrack: enrollment.fastTrack,
-        paymentsDisabled: enrollment.paymentsDisabled,
-        course: {
-          code: enrollment.course.code,
-          name: enrollment.course.name,
-          courseGuide: enrollment.course.courseGuide,
-          quizzesEnabled: enrollment.course.quizzesEnabled,
-          noTutor: enrollment.course.noTutor,
-          units: enrollment.course.units.map(unit => ({
-            unitId: unit.unitId,
-            unitLetter: unit.unitLetter,
-            title: unit.title,
-            responseType: unit.responseType,
-            optional: unit.optional,
-            noMarks: unit.noMarks,
-            noAssignments: unit.noAssignments,
-            optionalUpload: unit.optionalUpload,
-          })),
-          newUnits: enrollment.course.newUnits.map(unit => ({
-            unitId: this.uuidService.binToUUID(unit.unitId),
-          })),
+        studentId: student.studentId,
+        countryId: student.countryId,
+        provinceId: student.provinceId,
+        studentTypeId: student.studentTypeId,
+        passwordChanged: student.passwordChanged,
+        sex: student.sex,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        numLogins: student.numLogins,
+        lastLogin: student.lastLogin,
+        expiry: student.expiry,
+        emailAddress: student.emailAddress,
+        creationDate: student.creationDate,
+        arrears: student.arrears,
+        forumUsername: student.forumUsername,
+        forumPasswordNew: student.forumPasswordNew,
+        apiUsername: student.apiUsername,
+        apiPasswordNew: student.apiPasswordNew,
+        questionnaire: student.questionnaire,
+        videoViewed: student.videoViewed,
+        ajaxUploads: student.ajaxUploads,
+        upgradeNotification: student.upgradeNotification,
+        entityVersion: student.entityVersion,
+        timestamp: student.timestamp,
+        country: {
+          countryId: student.country.countryId,
+          code: student.country.code,
+          name: student.country.name,
+          entityVersion: student.country.entityVersion,
         },
-        tutor: enrollment.tutorId === null ? null : {
-          tutorId: enrollment.tutorId,
+        province: student.province === null ? null : {
+          provinceId: student.province.provinceId,
+          countryId: student.province.countryId,
+          regionId: student.province.regionId,
+          code: student.province.code,
+          name: student.province.name,
+          regionCode: student.province.regionCode,
+          alternateAbbreviation: student.province.alternateAbbreviation,
+          type: student.province.type,
+          entityVersion: student.province.entityVersion,
         },
-        units: [],
-        newUnits: [],
+        enrollments: student.enrollments.map(e => ({
+          enrollmentId: e.enrollmentId,
+          courseId: e.courseId,
+          studentNumber: e.studentNumber,
+          studentId: e.studentId,
+          tutorId: e.tutorId,
+          maxAssignments: e.maxAssignments,
+          graduated: e.graduated,
+          assignmentsDisabled: e.assignmentsDisabled,
+          quizzesDisabled: e.quizzesDisabled,
+          onHold: e.onHold,
+          holdReason: e.holdReason,
+          currencyCode: e.currencyCode,
+          courseCost: e.courseCost.toNumber(),
+          amountPaid: e.amountPaid.toNumber(),
+          monthlyInstallment: e.monthlyInstallment === null ? null : e.monthlyInstallment.toNumber(),
+          enrollmentDate: e.enrollmentDate,
+          fastTrack: e.fastTrack,
+          paymentsDisabled: e.paymentsDisabled,
+          updated: e.updated,
+          entityVersion: e.entityVersion,
+          timestamp: e.timestamp,
+        })),
       });
 
     } catch (err) {

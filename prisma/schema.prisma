@@ -108,7 +108,7 @@ model Student {
   passwordHash            String?                      @db.VarChar(255) @map("pw_hash")
   salt                    String?                      @db.Char(32)
   password                String?                      @db.Char(64)
-  password_changed        Boolean                      @default(false)
+  passwordChanged         Boolean                      @default(false) @map("password_changed")
   sex                     Sex                          @default(F)
   firstName               String                       @default("") @map("first_name")
   lastName                String                       @default("") @map("last_name")
@@ -384,6 +384,7 @@ model Course {
   courseGuide       Boolean           @default(true) @map("course_guide")
   quizzesEnabled    Boolean           @default(false) @map("quizzes_enabled")
   noTutor           Boolean           @default(false) @map("no_tutor")
+  unitType          Int               @db.UnsignedTinyInt @default(0) @map("unit_type")
   enabled           Boolean           @default(true)
   order             Int               @default(0) @db.TinyInt
   entityVersion     Int               @default(0) @map("entity_version")
@@ -1210,7 +1211,6 @@ model NewUnitTemplate {
 
 model NewUnit {
   unitId       Bytes             @id @db.Binary(16) @map("unit_id")
-  // courseId     Int               @db.UnsignedInt @map("course_id")
   enrollmentId Int               @db.UnsignedInt @map("student_id")
   unitLetter   String            @db.Char(1) @map("unit")
   title        String?
@@ -1223,12 +1223,10 @@ model NewUnit {
   marked       DateTime?         @db.DateTime(0)
   created      DateTime          @default(now()) @db.DateTime(0)
   modified     DateTime?         @db.DateTime(0) @updatedAt
-  // course       Course            @relation(fields: [courseId], references: [courseId], map: "new_units_ibfk_1")
-  enrollment   Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_2")
+  enrollment   Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1")
   assignments  NewAssignment[]
 
   @@map("new_units")
-  // @@index([courseId], map: "course_id")
   @@index([enrollmentId], map: "student_id")
 }
 
@@ -1400,6 +1398,7 @@ model NewUploadSlotTemplate {
   uploadSlotId Bytes           @id @db.Binary(16) @map("upload_slot_template_id")
   partId       Bytes           @db.Binary(16) @map("part_template_id")
   label        String
+  allowedTypes String          @default("image") @map("allowed_types")
   optional     Boolean         @default(false)
   order        Int             @db.UnsignedTinyInt @default(0)
   created      DateTime        @default(now()) @db.DateTime(0)
@@ -1414,6 +1413,7 @@ model NewUploadSlot {
   uploadSlotId Bytes     @id @db.Binary(16) @map("upload_slot_id")
   partId       Bytes     @db.Binary(16) @map("part_id")
   label        String
+  allowedTypes String    @default("image") @map("allowed_types")
   optional     Boolean   @default(false)
   order        Int       @db.UnsignedTinyInt @default(0)
   filename     String?

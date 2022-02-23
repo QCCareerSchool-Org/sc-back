@@ -21,6 +21,7 @@ const corsOptions: CorsOptions = {
     'https://studentcenter.qccareerschool.com',
   ],
   credentials: true,
+  exposedHeaders: [ 'Content-Disposition' ],
 };
 
 const app = express();

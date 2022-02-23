@@ -101,6 +101,13 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.cookie(name, value, options);
   }
 
+  protected sendFile(data: Buffer, filename: string, mimeType: string, size: number): void {
+    this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    this.res.setHeader('Content-Type', mimeType);
+    this.res.setHeader('Content-Length', size);
+    this.res.end(data, 'binary');
+  }
+
   /** Validates the input and returns a DTO if successful, false otherwise */
   protected abstract validate(): Promise<RequestDTO | false>;
 

@@ -81,15 +81,6 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
           where: { uploadSlotId: uploadSlotIdBin },
         });
 
-        // delete the file
-        const path = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId);
-        try {
-          await this.fileService.unlink(path);
-        } catch (err) {
-          console.log(err);
-          throw new DeleteNewUploadSlotFileUnlinkError();
-        }
-
         // retrieve the parent unit and all of its assignments, parts, text boxes, and upload slots
         const unit = await transaction.newUnit.findUnique({
           where: { unitId: unitIdBin },
@@ -145,6 +136,15 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
             },
           },
         });
+
+        // delete the file
+        const path = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId);
+        try {
+          await this.fileService.unlink(path);
+        } catch (err) {
+          this.logger.error('Could not delete file', err);
+          throw new DeleteNewUploadSlotFileUnlinkError();
+        }
 
         // return the upload slot from the beginning of the transaction
         return updatedUploadSlot;

@@ -50,6 +50,7 @@ export type GetNewAssignmentResponseDTO = {
       /** hex string */
       partId: string;
       label: string;
+      allowedTypes: string[];
       optional: boolean;
       order: number;
       filename: string | null;
@@ -124,6 +125,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
             partId: this.uuidService.binToUUID(u.partId),
             label: u.label,
+            allowedTypes: u.allowedTypes.split(','),
             optional: u.optional,
             order: u.order,
             filename: u.filename,

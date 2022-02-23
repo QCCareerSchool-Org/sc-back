@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { uploadNewUploadSlotFileInteractor } from '../../interactors';
-import { UploadNewUploadSlotFileEntityNotFound, UploadNewUploadSlotFileNotFound, UploadNewUploadSlotFileResponseDTO, UploadNewUploadSlotFileSaveError, UploadNewUploadSlotFileTooLarge } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
+import { UploadNewUploadSlotFileEntityNotFound, UploadNewUploadSlotFileInvalidType, UploadNewUploadSlotFileNotFound, UploadNewUploadSlotFileResponseDTO, UploadNewUploadSlotFileSaveError, UploadNewUploadSlotFileTooLarge } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -91,6 +91,8 @@ export class UploadNewUploadSlotFileController extends BaseController<Request, R
         return this.notFound('Upload slot not found');
       case UploadNewUploadSlotFileTooLarge:
         return this.badRequest('File too large');
+      case UploadNewUploadSlotFileInvalidType:
+        return this.badRequest('Invalid file type');
       case UploadNewUploadSlotFileSaveError:
         return this.internalServerError('Can\'t save file');
       case UploadNewUploadSlotFileEntityNotFound:
