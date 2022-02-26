@@ -8,9 +8,9 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** hex string */
+    /** uuid */
     unitId: string;
-    /** hex string */
+    /** uuid */
     assignmentId: string;
   };
 };
@@ -39,6 +39,10 @@ export class GetNewAssignmentController extends BaseController<Request, Response
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
+    if (!this.isGetMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
     const { unitId, assignmentId } = params;
 

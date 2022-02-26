@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { getEnrollmentInteractor, getStudentInteractor } from '../../interactors';
+import { getStudentInteractor } from '../../interactors';
 import { GetStudentNotFound, GetStudentResponseDTO } from '../../interactors/student/getStudentInteractor';
 import { BaseController } from '../baseController';
 
@@ -33,6 +33,10 @@ export class GetStudentController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
+    if (!this.isGetMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
 
     const result = await getStudentInteractor.execute({ studentId });

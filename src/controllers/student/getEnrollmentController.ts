@@ -43,6 +43,10 @@ export class GetEnrollmentController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params, query }: Request): Promise<void> {
+    if (!this.isGetMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(query.courseId, 10);
 

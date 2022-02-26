@@ -90,6 +90,7 @@ model Tutor {
   transfersFrom         Transfer[]                 @relation("transfers_pre_tutor_idTotutors")
   pushSubscriptions     TutorPushSubscription[]
   units                 SubmittedUnit[]
+  newUnits              NewUnit[]
   uploads               Upload[]
   writingAssignments    WritingAssignment[]
 
@@ -427,7 +428,7 @@ model Enrollment {
   updated              DateTime?             @db.DateTime(0)
   entityVersion        Int                   @default(0) @map("entity_version")
   timestamp            DateTime              @default(now()) @db.Timestamp(6)
-  students             Student               @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "students_ibfk_1")
+  student              Student               @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "students_ibfk_1")
   course               Course                @relation(fields: [courseId], references: [courseId], map: "students_ibfk_3")
   currencies           Currency              @relation(fields: [currencyCode], references: [code], map: "students_ibfk_4")
   tutor                Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "students_ibfk_2")
@@ -1196,7 +1197,7 @@ model Message {
 model NewUnitTemplate {
   unitId      Bytes                   @id @db.Binary(16) @map("unit_template_id")
   courseId    Int                     @db.UnsignedInt @map("course_id")
-  unitLetter  String                  @db.Char(1) @map("unit")
+  unitLetter  String                  @db.Char(1) @map("unit_letter")
   title       String?
   description String?                 @db.Text
   optional    Boolean                 @default(false)
@@ -1212,18 +1213,22 @@ model NewUnitTemplate {
 model NewUnit {
   unitId       Bytes             @id @db.Binary(16) @map("unit_id")
   enrollmentId Int               @db.UnsignedInt @map("student_id")
-  unitLetter   String            @db.Char(1) @map("unit")
+  tutorId      Int?              @db.Int @map("tutor_id")
+  unitLetter   String            @db.Char(1) @map("unit_letter")
   title        String?
   description  String?           @db.Text
   optional     Boolean           @default(false)
   complete     Boolean           @default(false)
-  skipped      Boolean           @default(false)
+  tutorComment String?           @db.MediumText @map("tutor_comment")
+  adminComment String?           @db.MediumText @map("admin_comment")
   submitted    DateTime?         @db.DateTime(0)
+  skipped      DateTime?         @db.DateTime(0)
   transferred  DateTime?         @db.DateTime(0)
   marked       DateTime?         @db.DateTime(0)
   created      DateTime          @default(now()) @db.DateTime(0)
   modified     DateTime?         @db.DateTime(0) @updatedAt
   enrollment   Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1")
+  tutor        Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
   assignments  NewAssignment[]
 
   @@map("new_units")
@@ -1233,7 +1238,7 @@ model NewUnit {
 model NewAssignmentTemplate {
   assignmentId     Bytes                               @id @db.Binary(16) @map("assignment_template_id")
   unitId           Bytes                               @db.Binary(16) @map("unit_template_id")
-  assignmentNumber Int                                 @db.UnsignedInt @map("assignment")
+  assignmentNumber Int                                 @db.UnsignedInt @map("assignment_number")
   title            String?
   description      String?                             @db.Text
   optional         Boolean                             @default(false)
@@ -1244,13 +1249,13 @@ model NewAssignmentTemplate {
   parts            NewPartTemplate[]
 
   @@map("new_assignment_templates")
-  @@unique([unitId, assignmentNumber], map: "unit_template_id_assignment")
+  @@unique([unitId, assignmentNumber], map: "unit_template_id_assignment_number")
 }
 
 model NewAssignment {
   assignmentId     Bytes                       @id @db.Binary(16) @map("assignment_id")
   unitId           Bytes                       @db.Binary(16) @map("unit_id")
-  assignmentNumber Int                         @db.UnsignedInt @map("assignment")
+  assignmentNumber Int                         @db.UnsignedInt @map("assignment_number")
   title            String?
   description      String?                     @db.Text
   optional         Boolean                     @default(false)
@@ -1262,7 +1267,7 @@ model NewAssignment {
   parts            NewPart[]
 
   @@map("new_assignments")
-  @@unique([unitId, assignmentNumber], map: "unit_id_assignment")
+  @@unique([unitId, assignmentNumber], map: "unit_id_assignment_number")
 }
 
 model NewAssignmentMediaElementTemplate {
@@ -1298,7 +1303,7 @@ model NewAssignmentMediaElement {
 model NewPartTemplate {
   partId        Bytes                         @id @db.Binary(16) @map("part_template_id")
   assignmentId  Bytes                         @db.Binary(16) @map("assignment_template_id")
-  partNumber    Int                           @db.UnsignedInt @map("part")
+  partNumber    Int                           @db.UnsignedInt @map("part_number")
   title         String?
   description   String?                       @db.Text
   optional      Boolean                       @default(false)
@@ -1310,13 +1315,13 @@ model NewPartTemplate {
   uploadSlots   NewUploadSlotTemplate[]
 
   @@map("new_part_templates")
-  @@unique([assignmentId, partNumber], map: "assignment_template_id_part")
+  @@unique([assignmentId, partNumber], map: "assignment_template_id_part_number")
 }
 
 model NewPart {
   partId        Bytes                 @id @db.Binary(16) @map("part_id")
   assignmentId  Bytes                 @db.Binary(16) @map("assignment_id")
-  partNumber    Int                   @db.UnsignedInt @map("part")
+  partNumber    Int                   @db.UnsignedInt @map("part_number")
   title         String?
   description   String?               @db.Text
   optional      Boolean               @default(false)
@@ -1329,7 +1334,7 @@ model NewPart {
   uploadSlots   NewUploadSlot[]
 
   @@map("new_parts")
-  @@unique([assignmentId, partNumber], map: "assignment_id_part")
+  @@unique([assignmentId, partNumber], map: "assignment_id_part_number")
 }
 
 model NewPartMediaElementTemplate {

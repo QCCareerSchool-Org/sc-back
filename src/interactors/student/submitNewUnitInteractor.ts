@@ -1,16 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
-export type GetNewUnitRequestDTO = {
+export type SubmitNewUnitRequestDTO = {
   studentId: number;
   unitId: string;
 };
 
-export type GetNewUnitResponseDTO = {
+export type SubmitNewUnitResponseDTO = {
   /** uuid */
   unitId: string;
   enrollmentId: number;
@@ -59,45 +60,87 @@ export type GetNewUnitResponseDTO = {
   }>;
 };
 
-export class GetNewUnitNotFound extends Error { }
+export class SubmitNewUnitNotFound extends Error { }
+export class SubmitNewUnitEnrollmentOnHold extends Error { }
+export class SubmitNewUnitIncomplete extends Error { }
+export class SubmitNewUnitAlreadySubmitted extends Error { }
+export class SubmitNewUnitAlreadySkipped extends Error { }
+export class SubmitNewUnitAwaitingAdminComment extends Error { }
+export class SubmitNewUnitTutorNotAssigned extends Error { }
 
-export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, GetNewUnitResponseDTO> {
+export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequestDTO, SubmitNewUnitResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, unitId }: GetNewUnitRequestDTO): Promise<ResultType<GetNewUnitResponseDTO>> {
+  public async execute({ studentId, unitId }: SubmitNewUnitRequestDTO): Promise<ResultType<SubmitNewUnitResponseDTO>> {
     try {
+      const unitIdBin = this.uuidService.uuidToBin(unitId);
+
       const unit = await this.prisma.newUnit.findFirst({
         where: {
           enrollment: { studentId },
-          unitId: this.uuidService.uuidToBin(unitId),
+          unitId: unitIdBin,
         },
         include: { enrollment: true, assignments: true },
       });
 
       if (!unit) {
-        return Result.fail(new GetNewUnitNotFound());
+        return Result.fail(new SubmitNewUnitNotFound());
       }
 
+      if (!unit.enrollment.onHold) {
+        return Result.fail(new SubmitNewUnitEnrollmentOnHold());
+      }
+
+      if (!unit.complete) {
+        return Result.fail(new SubmitNewUnitIncomplete());
+      }
+
+      if (unit.submitted) {
+        return Result.fail(new SubmitNewUnitAlreadySubmitted());
+      }
+
+      if (unit.skipped) {
+        return Result.fail(new SubmitNewUnitAlreadySkipped());
+      }
+
+      // see if the tutor has sent this back to the student, but an administrator hasn't reviewed it yet
+      if (unit.tutorComment !== null && unit.adminComment === null) {
+        return Result.fail(new SubmitNewUnitAwaitingAdminComment());
+      }
+
+      if (unit.enrollment.tutorId === null) {
+        return Result.fail(new SubmitNewUnitTutorNotAssigned());
+      }
+
+      const updatedUnit = await this.prisma.newUnit.update({
+        data: {
+          submitted: this.dateService.getDate(),
+          tutorId: unit.enrollment.tutorId,
+        },
+        where: { unitId: unitIdBin },
+      });
+
       return Result.success({
-        unitId: this.uuidService.binToUUID(unit.unitId),
-        enrollmentId: unit.enrollmentId,
-        tutorId: unit.tutorId,
-        unitLetter: unit.unitLetter,
-        title: unit.title,
-        description: unit.description,
-        optional: unit.optional,
-        complete: unit.complete,
+        unitId: this.uuidService.binToUUID(updatedUnit.unitId),
+        enrollmentId: updatedUnit.enrollmentId,
+        tutorId: updatedUnit.tutorId,
+        unitLetter: updatedUnit.unitLetter,
+        title: updatedUnit.title,
+        description: updatedUnit.description,
+        optional: updatedUnit.optional,
+        complete: updatedUnit.complete,
         adminComment: unit.adminComment,
-        submitted: unit.submitted,
-        skipped: unit.skipped,
-        transferred: unit.transferred,
-        marked: unit.marked,
-        created: unit.created,
+        submitted: updatedUnit.submitted,
+        skipped: updatedUnit.skipped,
+        transferred: updatedUnit.transferred,
+        marked: updatedUnit.marked,
+        created: updatedUnit.created,
         enrollment: {
           enrollmentId: unit.enrollment.enrollmentId,
           courseId: unit.enrollment.courseId,
@@ -129,7 +172,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
       });
 
     } catch (err) {
-      this.logger.error('error getting new unit', err instanceof Error ? err.message : err);
+      this.logger.error('error submitting new unit', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

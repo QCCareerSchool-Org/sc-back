@@ -12,9 +12,9 @@ export type GetNewAssignmentRequestDTO = {
 };
 
 export type GetNewAssignmentResponseDTO = {
-  /** hex string */
+  /** uuid */
   assignmentId: string;
-  /** hex string */
+  /** uuid */
   unitId: string;
   assignmentNumber: number;
   title: string | null;
@@ -23,9 +23,9 @@ export type GetNewAssignmentResponseDTO = {
   complete: boolean;
   created: Date;
   parts: Array<{
-    /** hex string */
+    /** uuid */
     partId: string;
-    /** hex string */
+    /** uuid */
     assignmentId: string;
     partNumber: number;
     title: string | null;
@@ -33,9 +33,9 @@ export type GetNewAssignmentResponseDTO = {
     optional: boolean;
     complete: boolean;
     textBoxes: Array<{
-      /** hex string */
+      /** uuid */
       textBoxId: string;
-      /** hex string */
+      /** uuid */
       partId: string;
       description: string | null;
       lines: number | null;
@@ -45,9 +45,9 @@ export type GetNewAssignmentResponseDTO = {
       complete: boolean;
     }>;
     uploadSlots: Array<{
-      /** hex string */
+      /** uuid */
       uploadSlotId: string;
-      /** hex string */
+      /** uuid */
       partId: string;
       label: string;
       allowedTypes: string[];

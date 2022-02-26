@@ -10,21 +10,21 @@ import { Result, ResultType } from '../result';
 
 export type UploadNewUploadSlotFileRequestDTO = {
   studentId: number;
-  /** hex string */
+  /** uuid */
   unitId: string;
-  /** hex string */
+  /** uuid */
   assignmentId: string;
-  /** hex string */
+  /** uuid */
   partId: string;
-  /** hex string */
+  /** uuid */
   uploadSlotId: string;
   file: InteractorFile;
 };
 
 export type UploadNewUploadSlotFileResponseDTO = {
-  /** hex string */
+  /** uuid */
   uploadSlotId: string;
-  /** hex string */
+  /** uuid */
   partId: string;
 };
 

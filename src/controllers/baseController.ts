@@ -60,6 +60,10 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.status(404).send(message ?? 'Not Found');
   }
 
+  protected methodNotAllowed(message?: string): void {
+    this.res.status(405).send(message ?? 'Method Not Allowed');
+  }
+
   protected conflict(message?: string): void {
     this.res.status(409).send(message ?? 'Conflict');
   }
@@ -71,6 +75,21 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
   }
 
   // Helper functions
+  protected isGetMethod(): boolean {
+    return this.req.method === 'GET';
+  }
+
+  protected isPostMethod(): boolean {
+    return this.req.method === 'POST';
+  }
+
+  protected isPutMethod(): boolean {
+    return this.req.method === 'PUT';
+  }
+
+  protected isDeleteMethod(): boolean {
+    return this.req.method === 'DELETE';
+  }
 
   protected formatHeaderDate(date: Date): string {
     const days = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];

@@ -8,13 +8,13 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** hex string */
+    /** uuid */
     unitId: string;
-    /** hex string */
+    /** uuid */
     assignmentId: string;
-    /** hex string */
+    /** uuid */
     partId: string;
-    /** hex string */
+    /** uuid */
     uploadSlotId: string;
   };
   file: {
@@ -65,6 +65,10 @@ export class UploadNewUploadSlotFileController extends BaseController<Request, R
   }
 
   protected async executeImpl({ params, file }: Request): Promise<void> {
+    if (!this.isPutMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 

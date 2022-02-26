@@ -12,12 +12,21 @@ export type InitializeNewUnitRequestDTO = {
 };
 
 export type InitializeNewUnitResponseDTO = {
+  /** uuid */
   unitId: string;
+  enrollmentId: number;
+  tutorId: number | null;
   unitLetter: string;
   title: string | null;
   description: string | null;
   optional: boolean;
   complete: boolean;
+  // students should never see `tutorComment`
+  adminComment: string | null;
+  submitted: Date | null;
+  skipped: Date | null;
+  transferred: Date | null;
+  marked: Date | null;
   created: Date;
 };
 
@@ -101,6 +110,7 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
         data: {
           unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           enrollmentId,
+          tutorId: null,
           unitLetter: unitTemplate.unitLetter,
           title: unitTemplate.title,
           description: unitTemplate.description,
@@ -160,11 +170,18 @@ export class InitializeNewUnitInteractor implements IInteractor<InitializeNewUni
 
       return Result.success({
         unitId: this.uuidService.binToUUID(newUnit.unitId),
+        enrollmentId: newUnit.enrollmentId,
+        tutorId: newUnit.tutorId,
         unitLetter: newUnit.unitLetter,
         title: newUnit.title,
         description: newUnit.description,
         optional: newUnit.optional,
         complete: newUnit.complete,
+        adminComment: newUnit.adminComment,
+        submitted: newUnit.submitted,
+        skipped: newUnit.skipped,
+        transferred: newUnit.transferred,
+        marked: newUnit.marked,
         created: newUnit.created,
       });
 

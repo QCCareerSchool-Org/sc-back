@@ -8,13 +8,13 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** hex string */
+    /** uuid */
     unitId: string;
-    /** hex string */
+    /** uuid */
     assignmentId: string;
-    /** hex string */
+    /** uuid */
     partId: string;
-    /** hex string */
+    /** uuid */
     textBoxId: string;
   };
   body: {
@@ -54,6 +54,10 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
   }
 
   protected async executeImpl({ params, body }: Request): Promise<void> {
+    if (!this.isPutMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
     const { unitId, assignmentId, partId, textBoxId } = params;
     const { text } = body;

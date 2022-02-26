@@ -7,21 +7,21 @@ import { Result, ResultType } from '../result';
 
 export type SaveNewTextBoxTextRequestDTO = {
   studentId: number;
-  /** hex string */
+  /** uuid */
   unitId: string;
-  /** hex string */
+  /** uuid */
   assignmentId: string;
-  /** hex string */
+  /** uuid */
   partId: string;
-  /** hex string */
+  /** uuid */
   textBoxId: string;
   text: string;
 };
 
 export type SaveNewTextBoxTextResponseDTO = {
-  /** hex string */
+  /** uuid */
   textBoxId: string;
-  /** hex string */
+  /** uuid */
   partId: string;
   description: string | null;
   lines: number | null;

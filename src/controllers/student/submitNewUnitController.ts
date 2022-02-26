@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { getNewUnitInteractor } from '../../interactors';
-import { GetNewUnitNotFound, GetNewUnitResponseDTO } from '../../interactors/student/getNewUnitInteractor';
+import { submitNewUnitInteractor } from '../../interactors';
+import { SubmitNewUnitAlreadySkipped, SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitResponseDTO, SubmitNewUnitTutorNotAssigned } from '../../interactors/student/submitNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -13,9 +13,9 @@ type Request = {
   };
 };
 
-type Response = GetNewUnitResponseDTO;
+type Response = SubmitNewUnitResponseDTO;
 
-export class GetNewUnitController extends BaseController<Request, Response> {
+export class SubmitNewUnitController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -36,22 +36,32 @@ export class GetNewUnitController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isGetMethod()) {
+    if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
     const studentId = parseInt(params.studentId, 10);
     const { unitId } = params;
 
-    const result = await getNewUnitInteractor.execute({ studentId, unitId });
+    const result = await submitNewUnitInteractor.execute({ studentId, unitId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitNotFound:
+      case SubmitNewUnitNotFound:
         return this.notFound('Unit not found');
+      case SubmitNewUnitEnrollmentOnHold:
+        return this.badRequest('Course is on hold');
+      case SubmitNewUnitIncomplete:
+        return this.badRequest('Unit is not complete');
+      case SubmitNewUnitAlreadySubmitted:
+        return this.badRequest('Unit has already been submitted');
+      case SubmitNewUnitAlreadySkipped:
+        return this.badRequest('Unit has already been skipped');
+      case SubmitNewUnitTutorNotAssigned:
+        return this.badRequest('Tutor is not assigned');
       default:
         return this.internalServerError(result.error.message);
     }

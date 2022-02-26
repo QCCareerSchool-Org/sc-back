@@ -8,13 +8,13 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
-    /** hex string */
+    /** uuid */
     unitId: string;
-    /** hex string */
+    /** uuid */
     assignmentId: string;
-    /** hex string */
+    /** uuid */
     partId: string;
-    /** hex string */
+    /** uuid */
     uploadSlotId: string;
   };
 };
@@ -46,6 +46,10 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
+    if (!this.isDeleteMethod()) {
+      return this.methodNotAllowed();
+    }
+
     const studentId = parseInt(params.studentId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 

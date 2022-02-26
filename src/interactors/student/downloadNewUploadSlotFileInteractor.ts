@@ -11,13 +11,13 @@ import { Result, ResultType } from '../result';
 
 export type DownloadNewUploadSlotFileRequestDTO = {
   studentId: number;
-  /** hex string */
+  /** uuid */
   unitId: string;
-  /** hex string */
+  /** uuid */
   assignmentId: string;
-  /** hex string */
+  /** uuid */
   partId: string;
-  /** hex string */
+  /** uuid */
   uploadSlotId: string;
 };
 

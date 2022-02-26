@@ -50,7 +50,7 @@ export type GetEnrollmentResponseDTO = {
       optionalUpload: boolean;
     }>;
     newUnits: Array<{
-      /** hex string */
+      /** uuid */
       unitId: string;
       courseId: number;
       unitLetter: string;
@@ -96,20 +96,22 @@ export type GetEnrollmentResponseDTO = {
     timestamp: Date;
   }>;
   newUnits: Array<{
-    /** hex string */
+    /** uuid */
     unitId: string;
     enrollmentId: number;
+    tutorId: number | null;
     unitLetter: string;
     title: string | null;
     description: string | null;
     optional: boolean;
     complete: boolean;
-    skipped: boolean;
+    // students should never see `tutorComment`
+    adminComment: string | null;
     submitted: Date | null;
+    skipped: Date | null;
     transferred: Date | null;
     marked: Date | null;
     created: Date;
-    modified: Date | null;
   }>;
 };
 
@@ -236,17 +238,18 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         newUnits: enrollment.newUnits.map(unit => ({
           unitId: this.uuidService.binToUUID(unit.unitId),
           enrollmentId: unit.enrollmentId,
+          tutorId: unit.tutorId,
           unitLetter: unit.unitLetter,
           title: unit.title,
           description: unit.description,
           optional: unit.optional,
+          adminComment: unit.adminComment,
           complete: unit.complete,
-          skipped: unit.skipped,
           submitted: unit.submitted,
+          skipped: unit.skipped,
           transferred: unit.transferred,
           marked: unit.marked,
           created: unit.created,
-          modified: unit.modified,
         })),
       });
 
