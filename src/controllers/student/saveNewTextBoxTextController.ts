@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { saveNewTextBoxTextInteractor } from '../../interactors';
-import { SaveNewTextBoxTextEntityNotFound, SaveNewTextBoxTextNotFound, SaveNewTextBoxTextResponseDTO } from '../../interactors/student/saveNewTextBoxTextInteractor';
+import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextResponseDTO, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/student/saveNewTextBoxTextInteractor';
 
 import { BaseController } from '../baseController';
 
@@ -71,8 +71,10 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
     switch (result.error.constructor) {
       case SaveNewTextBoxTextNotFound:
         return this.notFound('Text box not found');
-      case SaveNewTextBoxTextEntityNotFound:
-        return this.internalServerError('Associated entity not found');
+      case SaveNewTextBoxTextUnitSubmitted:
+        return this.badRequest('Unit already submitted');
+      case SaveNewTextBoxTextUnitSkipped:
+        return this.badRequest('Unit already skipped');
       default:
         return this.internalServerError(result.error.message);
     }

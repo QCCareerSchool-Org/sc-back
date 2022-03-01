@@ -27,8 +27,9 @@ export type DeleteNewUploadSlotFileResponseDTO = {
 };
 
 export class DeleteNewUploadSlotFileNotFound extends Error { }
+export class DeleteNewUploadSlotFileUnitSubmitted extends Error { }
+export class DeleteNewUploadSlotFileUnitSkipped extends Error { }
 export class DeleteNewUploadSlotFileUnlinkError extends Error { }
-export class DeleteNewUploadSlotFileEntityNotFound extends Error { }
 
 export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewUploadSlotFileRequestDTO, DeleteNewUploadSlotFileResponseDTO> {
 
@@ -61,6 +62,7 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
             },
           },
         },
+        include: { part: { include: { assignment: { include: { unit: true } } } } },
       });
 
       if (!uploadSlot) {
@@ -69,6 +71,14 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
+      if (uploadSlot.part.assignment.unit.submitted) {
+        return Result.fail(new DeleteNewUploadSlotFileUnitSubmitted());
+      }
+
+      if (uploadSlot.part.assignment.unit.skipped) {
+        return Result.fail(new DeleteNewUploadSlotFileUnitSkipped());
+      }
+
       const data = await this.prisma.$transaction(async transaction => {
         // update the upload slot
         const updatedUploadSlot = await transaction.newUploadSlot.update({
@@ -76,65 +86,8 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
             filename: null,
             size: null,
             mimeTypeId: null,
-            complete: false,
           },
           where: { uploadSlotId: uploadSlotIdBin },
-        });
-
-        // retrieve the parent unit and all of its assignments, parts, text boxes, and upload slots
-        const unit = await transaction.newUnit.findUnique({
-          where: { unitId: unitIdBin },
-          include: { assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } } },
-        });
-        if (!unit) {
-          throw new DeleteNewUploadSlotFileEntityNotFound();
-        }
-
-        const assignment = unit.assignments.find(a => Buffer.compare(a.assignmentId, assignmentIdBin) === 0);
-        if (!assignment) {
-          throw new DeleteNewUploadSlotFileEntityNotFound();
-        }
-
-        const part = assignment.parts.find(p => Buffer.compare(p.partId, partIdBin) === 0);
-        if (!part) {
-          throw new DeleteNewUploadSlotFileEntityNotFound();
-        }
-
-        const textBoxesComplete = part.textBoxes.filter(t => !t.optional).every(t => t.complete);
-        const uploadSlotsComplete = part.uploadSlots.filter(u => !u.optional).every(u => u.complete);
-        const partComplete = textBoxesComplete && uploadSlotsComplete;
-
-        const otherPartsComplete = assignment.parts
-          .filter(p => Buffer.compare(p.partId, partIdBin) !== 0)
-          .filter(p => !p.optional)
-          .every(p => p.complete);
-        const assignmentComplete = (partComplete || part.optional) && otherPartsComplete;
-
-        const otherAssignmentsComplete = unit.assignments
-          .filter(a => Buffer.compare(a.assignmentId, assignmentIdBin) !== 0)
-          .filter(a => !a.optional)
-          .every(a => a.complete);
-        const unitComplete = (assignmentComplete || assignment.optional) && otherAssignmentsComplete;
-
-        await transaction.newUnit.update({
-          where: { unitId: unitIdBin },
-          data: {
-            complete: unitComplete,
-            assignments: {
-              update: {
-                where: { assignmentId: assignmentIdBin },
-                data: {
-                  complete: assignmentComplete,
-                  parts: {
-                    update: {
-                      where: { partId: partIdBin },
-                      data: { complete: partComplete },
-                    },
-                  },
-                },
-              },
-            },
-          },
         });
 
         // delete the file

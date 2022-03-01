@@ -1,5 +1,6 @@
-import { Administrator, AdministratorRefreshToken, PrismaClient, Student, StudentRefreshToken, Tutor, TutorRefreshToken } from '@prisma/client';
+import { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
+import { v1 } from 'uuid';
 
 import { IInteractor } from '..';
 import { AccessTokenPayload } from '../../domain/access-token-payload';
@@ -12,6 +13,7 @@ import type { IIPAddressService } from '../../services/ipaddress';
 import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
 import { IStudentService } from '../../services/student';
+import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 type LoginRequestDTO = {
@@ -54,7 +56,6 @@ export class LoginNoPasswordHash extends Error { }
 export class LoginWrongPassword extends Error { }
 
 type Account = Administrator | Tutor | Student;
-type RefreshToken = AdministratorRefreshToken | TutorRefreshToken | StudentRefreshToken;
 
 export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginResponseDTO> {
 
@@ -64,6 +65,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
     private readonly dateService: IDateService,
     private readonly jwtService: IJWTService,
     private readonly cryptoService: ICryptoService,
+    private readonly uuidService: IUUIDService,
     private readonly ipAddressService: IIPAddressService,
     private readonly studentService: IStudentService,
     private readonly logger: ILoggerService,
@@ -72,7 +74,6 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
   public async execute(request: LoginRequestDTO): Promise<ResultType<LoginResponseDTO>> {
     try {
       const lookup = await this.getAccount(request.username);
-
       if (!lookup) {
         return Result.fail(new LoginNotFound());
       }
@@ -112,38 +113,32 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       const accessToken = await this.jwtService.sign(accessTokenPayload);
 
       // create a cryptographically suitable pseudo-random value for the refresh token
-      const refreshTokenBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
+      const refreshTokenBytes = await this.cryptoService.randomBytes(64); // 512 bits of entropy
       const refreshTokenString = refreshTokenBytes.toString('base64');
 
-      const refreshTokenData: Omit<RefreshToken, 'id'> = {
-        accountId,
-        token: refreshTokenBytes,
-        expiry: new Date(this.dateService.getDate().getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
-        ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
-        browser: request.browser,
-        browserVersion: request.browserVersion,
-        mobile: request.mobile,
-        os: request.os,
-        city: request.city,
-        country: request.country,
-        latitude: request.latitude === null ? null : new Decimal(request.latitude),
-        longitude: request.longitude === null ? null : new Decimal(request.longitude),
-        created: new Date(),
-        modified: new Date(),
-        entityVersion: 0,
-      };
-
       // store a the refresh token in the database
-      let refreshToken: RefreshToken;
-      if (accountType === 'admin') {
-        refreshToken = await this.prisma.administratorRefreshToken.create({ data: refreshTokenData });
-      } else if (accountType === 'tutor') {
-        refreshToken = await this.prisma.tutorRefreshToken.create({ data: refreshTokenData });
-      } else if (accountType === 'student') {
-        refreshToken = await this.prisma.studentRefreshToken.create({ data: refreshTokenData });
-      } else {
-        throw Error();
-      }
+      await this.prisma.refreshToken.create({
+        data: {
+          refreshTokenId: this.uuidService.uuidToBin(v1()),
+          studentId: accountType === 'student' ? accountId : null,
+          tutorId: accountType === 'tutor' ? accountId : null,
+          administratorId: accountType === 'admin' ? accountId : null,
+          token: refreshTokenBytes,
+          expiry: new Date(this.dateService.getDate().getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
+          ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
+          browser: request.browser,
+          browserVersion: request.browserVersion,
+          mobile: request.mobile,
+          os: request.os,
+          city: request.city,
+          country: request.country,
+          latitude: request.latitude === null ? null : new Decimal(request.latitude),
+          longitude: request.longitude === null ? null : new Decimal(request.longitude),
+          created: new Date(),
+          modified: new Date(),
+          entityVersion: 0,
+        },
+      });
 
       const baseCookieOptions = {
         secure: this.configService.config.environment !== 'development',
@@ -173,8 +168,6 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
           { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, path: '/', httpOnly: false } }, // httpOnly is false for Angular CSRF
           { name: 'refreshToken', value: refreshTokenString, options: refreshCookieOptions },
-          { name: 'refreshId', value: refreshToken.id.toString(), options: refreshCookieOptions },
-          { name: 'refreshType', value: accountType, options: refreshCookieOptions },
         ],
       });
 

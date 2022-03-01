@@ -7,6 +7,7 @@ import { GetEnrollmentController } from '../../controllers/student/getEnrollment
 import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/student/getNewUnitController';
 import { GetStudentController } from '../../controllers/student/getStudentController';
+import { InitializeNextNewUnitController } from '../../controllers/student/initializeNextNewUnitController';
 import { SaveNewTextBoxTextController } from '../../controllers/student/saveNewTextBoxTextController';
 import { StudentGuardMiddleware } from '../../controllers/student/studentGuardMiddleware';
 import { SubmitNewUnitController } from '../../controllers/student/submitNewUnitController';
@@ -28,6 +29,11 @@ studentRouter.get('/:studentId', asyncWrapper(async (req, res) => {
 
 studentRouter.get('/:studentId/enrollments', asyncWrapper(async (req, res) => {
   const controller = new GetEnrollmentController(req, res);
+  await controller.execute();
+}));
+
+studentRouter.post('/:studentId/enrollments/:enrollmentId/newUnits/initializeNext', asyncWrapper(async (req, res) => {
+  const controller = new InitializeNextNewUnitController(req, res);
   await controller.execute();
 }));
 

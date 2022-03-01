@@ -6,6 +6,7 @@ import { GetEnrollmentInteractor } from './getEnrollment';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor';
 import { GetNewUnitInteractor } from './getNewUnitInteractor';
 import { GetStudentInteractor } from './getStudentInteractor';
+import { InitializeNextNewUnitInteractor } from './initializeNextNewUnitInteractor';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor';
 import { SubmitNewUnitInteractor } from './submitNewUnitInteractor';
 import { UploadNewUploadSlotFileInteractor } from './uploadNewUploadSlotFileInteractor';
@@ -20,3 +21,4 @@ export const uploadNewUploadSlotFileInteractor = new UploadNewUploadSlotFileInte
 export const deleteNewUploadSlotFileInteractor = new DeleteNewUploadSlotFileInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotFileInteractor = new DownloadNewUploadSlotFileInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, santitizerService, environmentConfigService, winstonLoggerService);
 export const submitNewUnitInteractor = new SubmitNewUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const initializeNextNewUnitInteractor = new InitializeNextNewUnitInteractor(prisma, uuidService, winstonLoggerService);

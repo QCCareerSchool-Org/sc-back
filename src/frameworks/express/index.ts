@@ -6,6 +6,7 @@ import helmet from 'helmet';
 
 import { CheckAuthenticationMiddleware } from '../../controllers/authentication/checkAuthenticationMiddleware';
 import { NotFoundController } from '../../controllers/notFoundController';
+import { initializeNextNewUnitInteractor } from '../../interactors';
 import { environmentConfigService, winstonLoggerService } from '../../services';
 import { asyncWrapper } from './asyncWrapper';
 import { authenticationRouter } from './authenticationRouter';

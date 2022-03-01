@@ -11,8 +11,6 @@ import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
 
 export type RefreshRequestDTO = {
-  id: bigint;
-  type: AccountType;
   token: Buffer;
 };
 
@@ -36,14 +34,11 @@ export type RefreshResponseDTO = {
   cookies: Cookie[];
 };
 
-export class RefreshTokenInvalidType extends Error {}
 export class RefreshTokenNotFound extends Error {}
 export class RefreshTokenExpired extends Error {}
-export class RefreshTokenInvalid extends Error {}
+export class RefreshTokenInvalidType extends Error {}
 export class RefreshStudentNotFound extends Error {}
 export class RefreshStudentInvalidType extends Error {}
-
-type RefreshToken = AdministratorRefreshToken | TutorRefreshToken | StudentRefreshToken;
 
 export class RefreshInteractor implements IInteractor<RefreshRequestDTO, RefreshResponseDTO> {
 
@@ -56,21 +51,13 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ id, type, token }: RefreshRequestDTO): Promise<ResultType<RefreshResponseDTO>> {
+  public async execute({ token }: RefreshRequestDTO): Promise<ResultType<RefreshResponseDTO>> {
     try {
-
       // look up the refresh token
-      let refreshToken: RefreshToken | null;
-      if (type === 'admin') {
-        refreshToken = await this.prisma.administratorRefreshToken.findUnique({ where: { id } });
-      } else if (type === 'tutor') {
-        refreshToken = await this.prisma.tutorRefreshToken.findUnique({ where: { id } });
-      } else if (type === 'student') {
-        refreshToken = await this.prisma.studentRefreshToken.findUnique({ where: { id } });
-      } else {
-        return Result.fail(new RefreshTokenInvalidType());
-      }
-
+      const refreshToken = await this.prisma.refreshToken.findUnique({
+        where: { token },
+        include: { student: true },
+      });
       if (refreshToken === null) {
         return Result.fail(new RefreshTokenNotFound());
       }
@@ -80,9 +67,20 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         return Result.fail(new RefreshTokenExpired());
       }
 
-      // make sure the correct token was supplied
-      if (!refreshToken.token.equals(token)) {
-        return Result.fail(new RefreshTokenInvalid());
+      // determine which account we're dealing with
+      let accountId: number;
+      let accountType: AccountType;
+      if (refreshToken.administratorId !== null) {
+        accountId = refreshToken.administratorId;
+        accountType = 'admin';
+      } else if (refreshToken.tutorId !== null) {
+        accountId = refreshToken.tutorId;
+        accountType = 'tutor';
+      } else if (refreshToken.studentId !== null) {
+        accountId = refreshToken.studentId;
+        accountType = 'student';
+      } else {
+        return Result.fail(new RefreshStudentInvalidType());
       }
 
       // determine when the new access token should expire
@@ -94,19 +92,18 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       // create a new jwt access token
       const accessTokenPayload: AccessTokenPayload = {
-        id: refreshToken.accountId,
-        type: type,
+        id: accountId,
+        type: accountType,
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
-      if (type === 'student') { // add student-only data to payload
-        const student = await this.prisma.student.findUnique({ where: { studentId: refreshToken.accountId } });
-        if (student === null) {
+      if (accountType === 'student') { // add student-only data to payload
+        if (!refreshToken.student) {
           return Result.fail(new RefreshStudentNotFound());
         }
-        if (isValidStudentType(student.studentTypeId)) {
-          accessTokenPayload.studentType = student.studentTypeId;
-          accessTokenPayload.crmId = student.apiUsername ?? undefined;
+        if (isValidStudentType(refreshToken.student.studentTypeId)) {
+          accessTokenPayload.studentType = refreshToken.student.studentTypeId;
+          accessTokenPayload.crmId = refreshToken.student.apiUsername ?? undefined;
         } else {
           return Result.fail(new RefreshStudentInvalidType());
         }

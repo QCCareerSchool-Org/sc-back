@@ -16,7 +16,7 @@ export const locationMiddleware: RequestHandler = asyncWrapper(async (req, res, 
   let address: string | undefined;
   const forwardedFor = req.headers['x-forwarded-for'];
   if (Array.isArray(forwardedFor) && forwardedFor.length) {
-    address = forwardedFor[0];
+    address = forwardedFor[0].split(',')[0].trim();
   } else if (typeof forwardedFor === 'string') {
     address = forwardedFor.split(',')[0].trim();
   } else {

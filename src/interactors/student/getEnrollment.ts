@@ -6,6 +6,7 @@ import { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
+import { unitIsComplete } from './unitIsComplete';
 
 export type GetEnrollmentRequestDTO = {
   studentId: number;
@@ -144,8 +145,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           // units: { orderBy: { order: 'asc' } },
           // newUnits: { orderBy: { unitLetter: 'asc' } },
           units: true,
-          newUnits: true,
-
+          newUnits: { include: { assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } } } },
         },
       });
 
@@ -243,8 +243,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           title: unit.title,
           description: unit.description,
           optional: unit.optional,
+          complete: unitIsComplete(unit),
           adminComment: unit.adminComment,
-          complete: unit.complete,
           submitted: unit.submitted,
           skipped: unit.skipped,
           transferred: unit.transferred,

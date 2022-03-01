@@ -56,6 +56,18 @@ export type GetNewUnitResponseDTO = {
     description: string | null;
     optional: boolean;
     complete: boolean;
+    parts: Array<{
+      /** uuid */
+      partId: string;
+      textBoxes: Array<{
+        /** uuid */
+        textBoxId: string;
+      }>;
+      uploadSlots: Array<{
+        /** uuid */
+        uploadSlotId: string;
+      }>;
+    }>;
   }>;
 };
 
@@ -76,12 +88,18 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
           enrollment: { studentId },
           unitId: this.uuidService.uuidToBin(unitId),
         },
-        include: { enrollment: true, assignments: true },
+        include: {
+          enrollment: true,
+          // assignments: true,
+          assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } },
+        },
       });
 
       if (!unit) {
         return Result.fail(new GetNewUnitNotFound());
       }
+
+      let unitComplete = true;
 
       return Result.success({
         unitId: this.uuidService.binToUUID(unit.unitId),
@@ -91,7 +109,6 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         title: unit.title,
         description: unit.description,
         optional: unit.optional,
-        complete: unit.complete,
         adminComment: unit.adminComment,
         submitted: unit.submitted,
         skipped: unit.skipped,
@@ -117,15 +134,54 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
           fastTrack: unit.enrollment.fastTrack,
           paymentsDisabled: unit.enrollment.paymentsDisabled,
         },
-        assignments: unit.assignments.map(a => ({
-          assignmentId: this.uuidService.binToUUID(a.assignmentId),
-          unitId: this.uuidService.binToUUID(a.unitId),
-          assignmentNumber: a.assignmentNumber,
-          title: a.title,
-          description: a.description,
-          optional: a.optional,
-          complete: a.complete,
-        })),
+        assignments: unit.assignments.map(a => {
+          let assignmentComplete = true;
+          const assignment = {
+            assignmentId: this.uuidService.binToUUID(a.assignmentId),
+            unitId: this.uuidService.binToUUID(a.unitId),
+            assignmentNumber: a.assignmentNumber,
+            title: a.title,
+            description: a.description,
+            optional: a.optional,
+            parts: a.parts.map(p => {
+              let partComplete = true;
+              const part = {
+                partId: this.uuidService.binToUUID(p.partId),
+                textBoxes: p.textBoxes.map(t => {
+                  const textBoxComplete = t.text.length > 0;
+                  if (!t.optional && !textBoxComplete) {
+                    partComplete = false;
+                  }
+                  return {
+                    textBoxId: this.uuidService.binToUUID(t.textBoxId),
+                    complete: textBoxComplete,
+                  };
+                }),
+                uploadSlots: p.uploadSlots.map(u => {
+                  const uploadSlotComplete = u.filename !== null;
+                  if (!u.optional && !uploadSlotComplete) {
+                    partComplete = false;
+                  }
+                  return {
+                    uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
+                    complete: uploadSlotComplete,
+                  };
+                }),
+                complete: partComplete,
+              };
+              if (!p.optional && !partComplete) {
+                assignmentComplete = false;
+              }
+              return part;
+            }),
+            complete: assignmentComplete,
+          };
+          if (!a.optional && !assignmentComplete) {
+            unitComplete = false;
+          }
+          return assignment;
+        }),
+        complete: unitComplete,
       });
 
     } catch (err) {

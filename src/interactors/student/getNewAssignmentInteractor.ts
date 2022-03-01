@@ -94,6 +94,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentNotFound());
       }
 
+      let assignmentComplete = true;
+
       return Result.success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
         unitId: this.uuidService.binToUUID(assignment.unitId),
@@ -101,39 +103,58 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         title: assignment.title,
         description: assignment.description,
         optional: assignment.optional,
-        complete: assignment.complete,
         created: assignment.created,
-        parts: assignment.parts.map(p => ({
-          partId: this.uuidService.binToUUID(p.partId),
-          assignmentId: this.uuidService.binToUUID(p.assignmentId),
-          partNumber: p.partNumber,
-          title: p.title,
-          description: p.description,
-          optional: p.optional,
-          complete: p.complete,
-          textBoxes: p.textBoxes.map(t => ({
-            textBoxId: this.uuidService.binToUUID(t.textBoxId),
-            partId: this.uuidService.binToUUID(t.partId),
-            description: t.description,
-            lines: t.lines,
-            optional: t.optional,
-            order: t.order,
-            text: t.text,
-            complete: t.complete,
-          })),
-          uploadSlots: p.uploadSlots.map(u => ({
-            uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
-            partId: this.uuidService.binToUUID(u.partId),
-            label: u.label,
-            allowedTypes: u.allowedTypes.split(','),
-            optional: u.optional,
-            order: u.order,
-            filename: u.filename,
-            size: u.size,
-            mimeTypeId: u.mimeTypeId,
-            complete: u.complete,
-          })),
-        })),
+        parts: assignment.parts.map(p => {
+          let partComplete = true;
+          const part = {
+            partId: this.uuidService.binToUUID(p.partId),
+            assignmentId: this.uuidService.binToUUID(p.assignmentId),
+            partNumber: p.partNumber,
+            title: p.title,
+            description: p.description,
+            optional: p.optional,
+            textBoxes: p.textBoxes.map(t => {
+              const textBoxComplete = t.text.length > 0;
+              if (!textBoxComplete) {
+                partComplete = false;
+              }
+              return {
+                textBoxId: this.uuidService.binToUUID(t.textBoxId),
+                partId: this.uuidService.binToUUID(t.partId),
+                description: t.description,
+                lines: t.lines,
+                optional: t.optional,
+                order: t.order,
+                text: t.text,
+                complete: textBoxComplete,
+              };
+            }),
+            uploadSlots: p.uploadSlots.map(u => {
+              const uploadSlotComplete = u.filename !== null;
+              if (!uploadSlotComplete) {
+                partComplete = false;
+              }
+              return {
+                uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
+                partId: this.uuidService.binToUUID(u.partId),
+                label: u.label,
+                allowedTypes: u.allowedTypes.split(','),
+                optional: u.optional,
+                order: u.order,
+                filename: u.filename,
+                size: u.size,
+                mimeTypeId: u.mimeTypeId,
+                complete: uploadSlotComplete,
+              };
+            }),
+            complete: partComplete,
+          };
+          if (!partComplete) {
+            assignmentComplete = false;
+          }
+          return part;
+        }),
+        complete: assignmentComplete,
       });
 
     } catch (err) {

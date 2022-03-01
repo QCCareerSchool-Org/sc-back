@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { deleteNewUploadSlotFileInteractor } from '../../interactors';
-import { DeleteNewUploadSlotFileEntityNotFound, DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileResponseDTO, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
+import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileResponseDTO, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -24,7 +24,6 @@ type Response = DeleteNewUploadSlotFileResponseDTO;
 export class DeleteNewUploadSlotFileController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
-    console.log(this.req.file);
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -62,10 +61,12 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
     switch (result.error.constructor) {
       case DeleteNewUploadSlotFileNotFound:
         return this.notFound('Upload slot not found');
+      case DeleteNewUploadSlotFileUnitSubmitted:
+        return this.badRequest('Unit already submitted');
+      case DeleteNewUploadSlotFileUnitSkipped:
+        return this.badRequest('Unit already skipped');
       case DeleteNewUploadSlotFileUnlinkError:
         return this.internalServerError('Can\'t delete file');
-      case DeleteNewUploadSlotFileEntityNotFound:
-        return this.internalServerError('Associated entity not found');
       default:
         return this.internalServerError(result.error.message);
     }

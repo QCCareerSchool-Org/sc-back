@@ -49,7 +49,7 @@ export class LoginController extends BaseController<Request, AccessTokenPayload>
     let ipAddress: string | null = null;
     const forwardedFor = this.req.headers['x-forwarded-for'];
     if (Array.isArray(forwardedFor) && forwardedFor.length) {
-      ipAddress = forwardedFor[0];
+      ipAddress = forwardedFor[0].split(',')[0].trim();
     } else if (typeof forwardedFor === 'string') {
       ipAddress = forwardedFor.split(',')[0].trim();
     } else if (typeof this.req.socket.remoteAddress === 'string') {

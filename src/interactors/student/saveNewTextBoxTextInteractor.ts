@@ -1,3 +1,4 @@
+import util from 'util';
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
@@ -32,15 +33,9 @@ export type SaveNewTextBoxTextResponseDTO = {
 };
 
 export class SaveNewTextBoxTextNotFound extends Error { }
-export class SaveNewTextBoxTextEntityNotFound extends Error { }
+export class SaveNewTextBoxTextUnitSubmitted extends Error { }
+export class SaveNewTextBoxTextUnitSkipped extends Error { }
 
-/**
- * When saving text, we'll recheck the part, assignment, and unit to
- * see if they're complete and update them as well. We could avoid the extra
- * work here, and recalculate the `complete` status of units, and assignments
- * when needed, but then we'd have to check every text box and upload slot of
- * every part of every assignment each time we wanted to retrieve a unit.
- */
 export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
 
   public constructor(
@@ -70,6 +65,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
             },
           },
         },
+        include: { part: { include: { assignment: { include: { unit: true } } } } },
       });
 
       if (!textBox) {
@@ -78,82 +74,28 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
-      const data = await this.prisma.$transaction(async transaction => {
-        // update the text box
-        const updatedTextBox = await transaction.newTextBox.update({
-          data: { text, complete: text.length > 0 },
-          where: { textBoxId: textBoxIdBin },
-        });
+      if (textBox.part.assignment.unit.submitted) {
+        return Result.fail(new SaveNewTextBoxTextUnitSubmitted());
+      }
 
-        // retrieve the parent unit and all of its assignments, parts, text boxes, and upload slots
-        const unit = await transaction.newUnit.findUnique({
-          where: { unitId: unitIdBin },
-          include: { assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } } },
-        });
-        if (!unit) {
-          throw new SaveNewTextBoxTextEntityNotFound();
-        }
+      if (textBox.part.assignment.unit.skipped) {
+        return Result.fail(new SaveNewTextBoxTextUnitSkipped());
+      }
 
-        const assignment = unit.assignments.find(a => Buffer.compare(a.assignmentId, assignmentIdBin) === 0);
-        if (!assignment) {
-          throw new SaveNewTextBoxTextEntityNotFound();
-        }
-
-        const part = assignment.parts.find(p => Buffer.compare(p.partId, partIdBin) === 0);
-        if (!part) {
-          throw new SaveNewTextBoxTextEntityNotFound();
-        }
-
-        const textBoxesComplete = part.textBoxes.filter(t => !t.optional).every(t => t.complete);
-        const uploadSlotsComplete = part.uploadSlots.filter(u => !u.optional).every(u => u.complete);
-        const partComplete = textBoxesComplete && uploadSlotsComplete;
-
-        const otherPartsComplete = assignment.parts
-          .filter(p => Buffer.compare(p.partId, partIdBin) !== 0)
-          .filter(p => !p.optional)
-          .every(p => p.complete);
-        const assignmentComplete = (partComplete || part.optional) && otherPartsComplete;
-
-        const otherAssignmentsComplete = unit.assignments
-          .filter(a => Buffer.compare(a.assignmentId, assignmentIdBin) !== 0)
-          .filter(a => !a.optional)
-          .every(a => a.complete);
-        const unitComplete = (assignmentComplete || assignment.optional) && otherAssignmentsComplete;
-
-        await transaction.newUnit.update({
-          where: { unitId: unitIdBin },
-          data: {
-            complete: unitComplete,
-            assignments: {
-              update: {
-                where: { assignmentId: assignmentIdBin },
-                data: {
-                  complete: assignmentComplete,
-                  parts: {
-                    update: {
-                      where: { partId: partIdBin },
-                      data: { complete: partComplete },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        // return the text box from the start of the transaction
-        return updatedTextBox;
+      const updatedTextBox = await this.prisma.newTextBox.update({
+        data: { text },
+        where: { textBoxId: textBoxIdBin },
       });
 
       return Result.success({
-        textBoxId: this.uuidService.binToUUID(data.textBoxId),
-        partId: this.uuidService.binToUUID(data.partId),
-        description: data.description,
-        lines: data.lines,
-        optional: data.optional,
-        order: data.order,
-        text: data.text,
-        complete: data.complete,
+        textBoxId: this.uuidService.binToUUID(updatedTextBox.textBoxId),
+        partId: this.uuidService.binToUUID(updatedTextBox.partId),
+        description: updatedTextBox.description,
+        lines: updatedTextBox.lines,
+        optional: updatedTextBox.optional,
+        order: updatedTextBox.order,
+        text: updatedTextBox.text,
+        complete: updatedTextBox.text.length > 0,
       });
 
     } catch (err) {

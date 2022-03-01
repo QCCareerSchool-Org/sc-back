@@ -13,7 +13,7 @@ import { locationMiddleware } from './locationMiddleware';
 export const authenticationRouter = Router();
 
 // logging in
-authenticationRouter.post('/login', locationMiddleware, browserDetectMiddleware, asyncWrapper(async (req, res) => {
+authenticationRouter.post('/login', [ locationMiddleware, browserDetectMiddleware ], asyncWrapper(async (req, res) => {
   const controller = new LoginController(req, res);
   await controller.execute();
 }));

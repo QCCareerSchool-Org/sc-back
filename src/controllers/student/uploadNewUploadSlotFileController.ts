@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { uploadNewUploadSlotFileInteractor } from '../../interactors';
-import { UploadNewUploadSlotFileEntityNotFound, UploadNewUploadSlotFileInvalidType, UploadNewUploadSlotFileNotFound, UploadNewUploadSlotFileResponseDTO, UploadNewUploadSlotFileSaveError, UploadNewUploadSlotFileTooLarge } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
+import { UploadNewUploadSlotFileEntityNotFound, UploadNewUploadSlotFileInvalidType, UploadNewUploadSlotFileNotFound, UploadNewUploadSlotFileResponseDTO, UploadNewUploadSlotFileSaveError, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotFileUnitSkipped, UploadNewUploadSlotFileUnitSubmitted } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -32,7 +32,6 @@ type Response = UploadNewUploadSlotFileResponseDTO;
 export class UploadNewUploadSlotFileController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
-    console.log(this.req.file);
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -93,14 +92,18 @@ export class UploadNewUploadSlotFileController extends BaseController<Request, R
     switch (result.error.constructor) {
       case UploadNewUploadSlotFileNotFound:
         return this.notFound('Upload slot not found');
+      case UploadNewUploadSlotFileUnitSubmitted:
+        return this.badRequest('Unit already submitted');
+      case UploadNewUploadSlotFileUnitSkipped:
+        return this.badRequest('Unit already skipped');
       case UploadNewUploadSlotFileTooLarge:
         return this.badRequest('File too large');
       case UploadNewUploadSlotFileInvalidType:
         return this.badRequest('Invalid file type');
-      case UploadNewUploadSlotFileSaveError:
-        return this.internalServerError('Can\'t save file');
       case UploadNewUploadSlotFileEntityNotFound:
         return this.internalServerError('Associated entity not found');
+      case UploadNewUploadSlotFileSaveError:
+        return this.internalServerError('Can\'t save file');
       default:
         return this.internalServerError(result.error.message);
     }

@@ -49,6 +49,7 @@ model Administrator {
   messages                Message[]
   passwordResetRequests   PasswordResetRequest[]
   refreshTokens           AdministratorRefreshToken[]
+  newRefreshTokens        RefreshToken[]
   transfers               Transfer[]
 
   @@map("administrators")
@@ -85,6 +86,7 @@ model Tutor {
   messages              Message[]
   passwordResetRequests PasswordResetRequest[]
   refreshTokens         TutorRefreshToken[]
+  newRefreshTokens      RefreshToken[]
   enrollments           Enrollment[]
   transfersTo           Transfer[]                 @relation("transfers_post_tutor_idTotutors")
   transfersFrom         Transfer[]                 @relation("transfers_pre_tutor_idTotutors")
@@ -147,10 +149,10 @@ model Student {
   pushSubscriptions       StudentPushSubscription[]
   q_results               q_results[]
   refreshTokens           StudentRefreshToken[]
+  newRefreshTokens        RefreshToken[]
   serviceAreas            ServiceArea[]
   enrollments             Enrollment[]
   testimonials            Testimonial[]
-  oldRefreshTokens        RefreshToken[]
   outfitLikes             OutfitLike[]
   outfits                 Outfit[]
 
@@ -225,15 +227,34 @@ model PasswordResetRequest {
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  studentId Int      @map("account_id")
-  token     Bytes    @db.Binary(48)
-  expiry    DateTime @db.DateTime(0)
-  student   Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_1")
+  refreshTokenId  Bytes          @id @db.Binary(16) @map("refresh_token_id")
+  studentId       Int?           @map("account_id")
+  tutorId         Int?           @map("tutor_id")
+  administratorId Int?           @map("administrator_id")
+  token           Bytes          @db.Binary(64)
+  expiry          DateTime       @db.DateTime(0)
+  ipAddress       Bytes?         @db.VarBinary(16) @map("ip_address")
+  browser         String?
+  browserVersion  String?        @map("browser_version")
+  mobile          Boolean?
+  os              String?
+  city            String?
+  country         String?        @db.Char(2)
+  latitude        Decimal?       @db.Decimal(7, 4)
+  longitude       Decimal?       @db.Decimal(7, 4)
+  created         DateTime       @default(now()) @db.DateTime(0)
+  modified        DateTime?      @db.DateTime(0) @updatedAt
+  entityVersion   Int            @default(0) @map("entity_version")
+  student         Student?       @relation(fields: [studentId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_1")
+  tutor           Tutor?         @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_2")
+  administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_3")
 
   @@map("refresh_tokens")
+  @@unique([token], map: "token")
+  @@unique([refreshTokenId, entityVersion], map: "refresh_token_id_entity_version")
   @@index([studentId], map: "account_id")
-  @@index([token], map: "token")
+  @@index([tutorId], map: "tutor_id")
+  @@index([administratorId], map: "administrator_id")
 }
 
 model AdministratorRefreshToken {
@@ -1201,6 +1222,7 @@ model NewUnitTemplate {
   title       String?
   description String?                 @db.Text
   optional    Boolean                 @default(false)
+  order       Int                     @db.Int
   created     DateTime                @default(now()) @db.DateTime(0)
   modified    DateTime?               @db.DateTime(0) @updatedAt
   course      Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1")
@@ -1211,28 +1233,29 @@ model NewUnitTemplate {
 }
 
 model NewUnit {
-  unitId       Bytes             @id @db.Binary(16) @map("unit_id")
-  enrollmentId Int               @db.UnsignedInt @map("student_id")
-  tutorId      Int?              @db.Int @map("tutor_id")
-  unitLetter   String            @db.Char(1) @map("unit_letter")
-  title        String?
-  description  String?           @db.Text
-  optional     Boolean           @default(false)
-  complete     Boolean           @default(false)
-  tutorComment String?           @db.MediumText @map("tutor_comment")
-  adminComment String?           @db.MediumText @map("admin_comment")
-  submitted    DateTime?         @db.DateTime(0)
-  skipped      DateTime?         @db.DateTime(0)
-  transferred  DateTime?         @db.DateTime(0)
-  marked       DateTime?         @db.DateTime(0)
-  created      DateTime          @default(now()) @db.DateTime(0)
-  modified     DateTime?         @db.DateTime(0) @updatedAt
-  enrollment   Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1")
-  tutor        Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
-  assignments  NewAssignment[]
+  unitId        Bytes             @id @db.Binary(16) @map("unit_id")
+  enrollmentId  Int               @db.UnsignedInt @map("student_id")
+  tutorId       Int?              @db.Int @map("tutor_id")
+  unitLetter    String            @db.Char(1) @map("unit_letter")
+  title         String?
+  description   String?           @db.Text
+  optional      Boolean           @default(false)
+  tutorComment  String?           @db.MediumText @map("tutor_comment")
+  adminComment  String?           @db.MediumText @map("admin_comment")
+  submitted     DateTime?         @db.DateTime(0)
+  skipped       DateTime?         @db.DateTime(0)
+  transferred   DateTime?         @db.DateTime(0)
+  marked        DateTime?         @db.DateTime(0)
+  entityVersion Int               @default(0) @db.Int @map("entity_version")
+  created       DateTime          @default(now()) @db.DateTime(0)
+  modified      DateTime?         @db.DateTime(0) @updatedAt
+  enrollment    Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1")
+  tutor         Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
+  assignments   NewAssignment[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
+  @@unique([unitId, entityVersion], map: "unit_id_entity_version")
 }
 
 model NewAssignmentTemplate {
@@ -1259,7 +1282,6 @@ model NewAssignment {
   title            String?
   description      String?                     @db.Text
   optional         Boolean                     @default(false)
-  complete         Boolean                     @default(false)
   created          DateTime                    @default(now()) @db.DateTime(0)
   modified         DateTime?                   @db.DateTime(0) @updatedAt
   unit             NewUnit                     @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1")
@@ -1325,7 +1347,6 @@ model NewPart {
   title         String?
   description   String?               @db.Text
   optional      Boolean               @default(false)
-  complete      Boolean               @default(false)
   created       DateTime              @default(now()) @db.DateTime(0)
   modified      DateTime?             @db.DateTime(0) @updatedAt
   assignment    NewAssignment         @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1")
@@ -1390,7 +1411,6 @@ model NewTextBox {
   optional    Boolean   @default(false)
   order       Int       @db.UnsignedTinyInt @default(0)
   text        String    @db.Text @default("")
-  complete    Boolean   @default(false)
   created     DateTime  @default(now()) @db.DateTime(0)
   modified    DateTime? @db.DateTime(0) @updatedAt
   part        NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1")
@@ -1424,7 +1444,6 @@ model NewUploadSlot {
   filename     String?
   size         Int?      @db.UnsignedInt
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
-  complete     Boolean   @default(false)
   created      DateTime  @default(now()) @db.DateTime(0)
   modified     DateTime? @db.DateTime(0) @updatedAt
   part         NewPart   @relation(fields: [partId], references: [partId], map: "new_upload_slots_ibfk_1")
