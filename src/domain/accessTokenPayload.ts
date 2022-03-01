@@ -1,7 +1,5 @@
-import { AccountType } from './account-type';
-import { StudentTypeType } from './student-type';
-
-// TODO: convert to a value object with validation
+import { AccountType } from './accountType';
+import { StudentTypeType } from './studentType';
 
 export type AccessTokenPayload = {
   id: number;

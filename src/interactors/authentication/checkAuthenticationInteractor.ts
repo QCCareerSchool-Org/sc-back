@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
 import { IInteractor } from '..';
-import { AccessTokenPayload } from '../../domain/access-token-payload';
-import { AccountType } from '../../domain/account-type';
-import { StudentTypeType } from '../../domain/student-type';
+import { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import { AccountType } from '../../domain/accountType';
+import { StudentTypeType } from '../../domain/studentType';
 import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
 import { Result, ResultType } from '../result';

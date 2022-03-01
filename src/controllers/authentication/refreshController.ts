@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { AccessTokenPayload } from '../../domain/access-token-payload';
+import { AccessTokenPayload } from '../../domain/accessTokenPayload';
 import { refreshInteractor } from '../../interactors';
 import { RefreshStudentInvalidType, RefreshStudentNotFound, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
 import { BaseController } from '../baseController';

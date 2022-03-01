@@ -1,7 +1,7 @@
 import { PasswordResetRequest, PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
-import { AccountType } from '../../domain/account-type';
+import { AccountType } from '../../domain/accountType';
 import { ICryptoService } from '../../services/crypto';
 import { IDateService } from '../../services/date';
 import { ILoggerService } from '../../services/logger';

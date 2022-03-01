@@ -2,7 +2,7 @@ import type { BrowserDetectInfo } from 'browser-detect/dist/types/browser-detect
 import type { CityResponse } from 'maxmind';
 import * as yup from 'yup';
 
-import { AccessTokenPayload } from '../../domain/access-token-payload';
+import { AccessTokenPayload } from '../../domain/accessTokenPayload';
 import { loginInteractor } from '../../interactors';
 import { LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
 import { BaseController } from '../baseController';

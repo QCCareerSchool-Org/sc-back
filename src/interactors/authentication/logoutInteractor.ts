@@ -1,7 +1,7 @@
 import { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
 
 import { IInteractor } from '..';
-import { AccountType } from '../../domain/account-type';
+import { AccountType } from '../../domain/accountType';
 import type { ILoggerService } from '../../services/logger';
 import { Result, ResultType } from '../result';
 

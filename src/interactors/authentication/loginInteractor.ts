@@ -3,9 +3,9 @@ import { Decimal } from '@prisma/client/runtime';
 import { v1 } from 'uuid';
 
 import { IInteractor } from '..';
-import { AccessTokenPayload } from '../../domain/access-token-payload';
-import { AccountType } from '../../domain/account-type';
-import { isValidStudentType } from '../../domain/student-type';
+import { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import { AccountType } from '../../domain/accountType';
+import { isValidStudentType } from '../../domain/studentType';
 import type { IConfigService } from '../../services/config';
 import type { ICryptoService } from '../../services/crypto';
 import { IDateService } from '../../services/date';

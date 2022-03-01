@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -19,12 +20,7 @@ export type DeleteNewUploadSlotFileRequestDTO = {
   uploadSlotId: string;
 };
 
-export type DeleteNewUploadSlotFileResponseDTO = {
-  /** uuid */
-  uploadSlotId: string;
-  /** uuid */
-  partId: string;
-};
+export type DeleteNewUploadSlotFileResponseDTO = NewUploadSlotDTO;
 
 export class DeleteNewUploadSlotFileNotFound extends Error { }
 export class DeleteNewUploadSlotFileUnitSubmitted extends Error { }
@@ -106,6 +102,14 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
       return Result.success({
         uploadSlotId: this.uuidService.binToUUID(data.uploadSlotId),
         partId: this.uuidService.binToUUID(data.partId),
+        label: data.label,
+        allowedTypes: data.allowedTypes.split(','),
+        optional: data.optional,
+        order: data.order,
+        filename: data.filename,
+        size: data.size,
+        mimeTypeId: data.mimeTypeId,
+        complete: data.filename !== null,
       });
 
     } catch (err) {

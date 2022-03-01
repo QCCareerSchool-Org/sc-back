@@ -1,6 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
+import { NewAssignmentDTO } from '../../domain/student/newAssignmentDTO';
+import { NewPartDTO } from '../../domain/student/newPartDTO';
+import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
+import { NewUnitDTO } from '../../domain/student/newUnitDTO';
+import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -10,63 +16,12 @@ export type GetNewUnitRequestDTO = {
   unitId: string;
 };
 
-export type GetNewUnitResponseDTO = {
-  /** uuid */
-  unitId: string;
-  enrollmentId: number;
-  tutorId: number | null;
-  unitLetter: string;
-  title: string | null;
-  description: string | null;
-  optional: boolean;
-  complete: boolean;
-  // students should never see `tutorComment`
-  adminComment: string | null;
-  submitted: Date | null;
-  skipped: Date | null;
-  transferred: Date | null;
-  marked: Date | null;
-  created: Date;
-  enrollment: {
-    enrollmentId: number;
-    courseId: number;
-    studentNumber: number;
-    tutorId: number | null;
-    maxAssignments: number | null;
-    graduated: boolean;
-    assignmentsDisabled: boolean;
-    quizzesDisabled: boolean;
-    onHold: boolean;
-    holdReason: string | null;
-    currencyCode: string;
-    courseCost: number;
-    amountPaid: number;
-    monthlyInstallment: number | null;
-    enrollmentDate: Date | null;
-    fastTrack: boolean;
-    paymentsDisabled: boolean;
-  };
-  assignments: Array<{
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    unitId: string;
-    assignmentNumber: number;
-    title: string | null;
-    description: string | null;
-    optional: boolean;
-    complete: boolean;
-    parts: Array<{
-      /** uuid */
-      partId: string;
-      textBoxes: Array<{
-        /** uuid */
-        textBoxId: string;
-      }>;
-      uploadSlots: Array<{
-        /** uuid */
-        uploadSlotId: string;
-      }>;
+export type GetNewUnitResponseDTO = NewUnitDTO & {
+  enrollment: EnrollmentDTO;
+  assignments: Array<NewAssignmentDTO & {
+    parts: Array<NewPartDTO & {
+      textBoxes: NewTextBoxDTO[];
+      uploadSlots: NewUploadSlotDTO[];
     }>;
   }>;
 };
@@ -147,6 +102,11 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
               let partComplete = true;
               const part = {
                 partId: this.uuidService.binToUUID(p.partId),
+                assignmentId: this.uuidService.binToUUID(p.assignmentId),
+                partNumber: p.partNumber,
+                title: p.title,
+                description: p.description,
+                optional: p.optional,
                 textBoxes: p.textBoxes.map(t => {
                   const textBoxComplete = t.text.length > 0;
                   if (!t.optional && !textBoxComplete) {
@@ -154,6 +114,12 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                   }
                   return {
                     textBoxId: this.uuidService.binToUUID(t.textBoxId),
+                    partId: this.uuidService.binToUUID(t.partId),
+                    description: t.description,
+                    lines: t.lines,
+                    optional: t.optional,
+                    order: t.order,
+                    text: t.text,
                     complete: textBoxComplete,
                   };
                 }),
@@ -164,6 +130,14 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                   }
                   return {
                     uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
+                    partId: this.uuidService.binToUUID(u.partId),
+                    label: u.label,
+                    allowedTypes: u.allowedTypes.split(','),
+                    optional: u.optional,
+                    order: u.order,
+                    filename: u.filename,
+                    size: u.size,
+                    mimeTypeId: u.mimeTypeId,
                     complete: uploadSlotComplete,
                   };
                 }),

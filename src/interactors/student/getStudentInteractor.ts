@@ -1,86 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { CountryDTO } from '../../domain/countryDTO';
+import { ProvinceDTO } from '../../domain/provinceDTO';
+import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
+import { StudentDTO } from '../../domain/student/studentDTO';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 export type GetStudentRequestDTO = {
   studentId: number;
 };
 
-export type GetStudentResponseDTO = {
-  studentId: number;
-  countryId: number;
-  provinceId: number | null;
-  studentTypeId: string;
-  // passwordHash: string | null;
-  // salt: string | null;
-  // password: string | null;
-  passwordChanged: boolean;
-  sex: 'M' | 'F';
-  firstName: string;
-  lastName: string;
-  numLogins: number;
-  lastLogin: Date | null;
-  expiry: Date | null;
-  emailAddress: string | null;
-  creationDate: Date;
-  arrears: boolean;
-  forumUsername: string | null;
-  // forumPassword: string | null;
-  // forumIV: Buffer | null;
-  forumPasswordNew: string | null;
-  apiUsername: number | null;
-  // apiPassword: string | null;
-  // apiIV: Buffer | null;
-  apiPasswordNew: string | null;
-  questionnaire: boolean;
-  videoViewed: boolean;
-  ajaxUploads: boolean;
-  upgradeNotification: boolean;
-  entityVersion: number;
-  timestamp: Date;
-  country: {
-    countryId: number;
-    code: string;
-    name: string;
-    entityVersion: number;
-  };
-  province: {
-    provinceId: number;
-    countryId: number;
-    regionId: number | null;
-    code: string;
-    name: string;
-    regionCode: string | null;
-    alternateAbbreviation: string | null;
-    type: string | null;
-    entityVersion: number;
-  } | null;
-  enrollments: Array<{
-    enrollmentId: number;
-    courseId: number;
-    studentNumber: number;
-    studentId: number;
-    tutorId: number | null;
-    maxAssignments: number | null;
-    graduated: boolean;
-    assignmentsDisabled: boolean;
-    quizzesDisabled: boolean;
-    onHold: boolean;
-    holdReason: string | null;
-    currencyCode: string;
-    courseCost: number;
-    amountPaid: number;
-    monthlyInstallment: number | null;
-    enrollmentDate: Date | null;
-    fastTrack: boolean;
-    paymentsDisabled: boolean;
-    updated: Date | null;
-    entityVersion: number;
-    timestamp: Date;
-  }>;
+export type GetStudentResponseDTO = StudentDTO & {
+  country: CountryDTO;
+  province: ProvinceDTO | null;
+  enrollments: EnrollmentDTO[];
 };
 
 export class GetStudentNotFound extends Error { }
@@ -89,7 +24,6 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
 
   public constructor(
     private readonly prisma: PrismaClient,
-    private readonly uuidService: IUUIDService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 

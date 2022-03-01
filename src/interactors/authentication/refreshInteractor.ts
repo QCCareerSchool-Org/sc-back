@@ -1,7 +1,7 @@
 import { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
-import { AccessTokenPayload } from '../../domain/access-token-payload';
-import { AccountType } from '../../domain/account-type';
-import { isValidStudentType } from '../../domain/student-type';
+import { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import { AccountType } from '../../domain/accountType';
+import { isValidStudentType } from '../../domain/studentType';
 import { IInteractor } from '../../interactors/';
 import { Result, ResultType } from '../../interactors/result';
 import type { IConfigService } from '../../services/config';

@@ -1,6 +1,6 @@
 import { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
-import { AccountType } from '../../domain/account-type';
+import { AccountType } from '../../domain/accountType';
 import { IInteractor } from '../../interactors';
 import { Result, ResultType } from '../../interactors/result';
 import type { ICryptoService } from '../../services/crypto';

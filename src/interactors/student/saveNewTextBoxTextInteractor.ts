@@ -1,7 +1,7 @@
-import util from 'util';
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -19,18 +19,7 @@ export type SaveNewTextBoxTextRequestDTO = {
   text: string;
 };
 
-export type SaveNewTextBoxTextResponseDTO = {
-  /** uuid */
-  textBoxId: string;
-  /** uuid */
-  partId: string;
-  description: string | null;
-  lines: number | null;
-  optional: boolean;
-  order: number;
-  text: string;
-  complete: boolean;
-};
+export type SaveNewTextBoxTextResponseDTO = NewTextBoxDTO;
 
 export class SaveNewTextBoxTextNotFound extends Error { }
 export class SaveNewTextBoxTextUnitSubmitted extends Error { }

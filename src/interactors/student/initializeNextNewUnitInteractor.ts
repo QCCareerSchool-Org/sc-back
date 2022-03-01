@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewUnitDTO } from '../../domain/student/newUnitDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -10,24 +11,7 @@ export type InitializeNextNewUnitRequestDTO = {
   enrollmentId: number;
 };
 
-export type InitializeNextNewUnitResponseDTO = {
-  /** uuid */
-  unitId: string;
-  enrollmentId: number;
-  tutorId: number | null;
-  unitLetter: string;
-  title: string | null;
-  description: string | null;
-  optional: boolean;
-  complete: boolean;
-  // students should never see `tutorComment`
-  adminComment: string | null;
-  submitted: Date | null;
-  skipped: Date | null;
-  transferred: Date | null;
-  marked: Date | null;
-  created: Date;
-};
+export type InitializeNextNewUnitResponseDTO = NewUnitDTO;
 
 export class InitializeNextNewUnitEnrollmentNotFound extends Error { }
 export class InitializeNextNewUnitStudentArrears extends Error { }

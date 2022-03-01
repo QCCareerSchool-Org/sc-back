@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewAssignmentDTO } from '../../domain/student/newAssignmentDTO';
+import { NewPartDTO } from '../../domain/student/newPartDTO';
+import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
+import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -11,53 +15,10 @@ export type GetNewAssignmentRequestDTO = {
   assignmentId: string;
 };
 
-export type GetNewAssignmentResponseDTO = {
-  /** uuid */
-  assignmentId: string;
-  /** uuid */
-  unitId: string;
-  assignmentNumber: number;
-  title: string | null;
-  description: string | null;
-  optional: boolean;
-  complete: boolean;
-  created: Date;
-  parts: Array<{
-    /** uuid */
-    partId: string;
-    /** uuid */
-    assignmentId: string;
-    partNumber: number;
-    title: string | null;
-    description: string | null;
-    optional: boolean;
-    complete: boolean;
-    textBoxes: Array<{
-      /** uuid */
-      textBoxId: string;
-      /** uuid */
-      partId: string;
-      description: string | null;
-      lines: number | null;
-      optional: boolean;
-      order: number;
-      text: string;
-      complete: boolean;
-    }>;
-    uploadSlots: Array<{
-      /** uuid */
-      uploadSlotId: string;
-      /** uuid */
-      partId: string;
-      label: string;
-      allowedTypes: string[];
-      optional: boolean;
-      order: number;
-      filename: string | null;
-      size: number | null;
-      mimeTypeId: string | null;
-      complete: boolean;
-    }>;
+export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
+  parts: Array<NewPartDTO & {
+    textBoxes: NewTextBoxDTO[];
+    uploadSlots: NewUploadSlotDTO[];
   }>;
 };
 

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor, InteractorFile } from '..';
+import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import { ICompressionService } from '../../services/compression';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
@@ -21,12 +22,7 @@ export type UploadNewUploadSlotFileRequestDTO = {
   file: InteractorFile;
 };
 
-export type UploadNewUploadSlotFileResponseDTO = {
-  /** uuid */
-  uploadSlotId: string;
-  /** uuid */
-  partId: string;
-};
+export type UploadNewUploadSlotFileResponseDTO = NewUploadSlotDTO;
 
 export class UploadNewUploadSlotFileNotFound extends Error { }
 export class UploadNewUploadSlotFileUnitSubmitted extends Error { }
@@ -133,6 +129,14 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
       return Result.success({
         uploadSlotId: this.uuidService.binToUUID(data.uploadSlotId),
         partId: this.uuidService.binToUUID(data.partId),
+        label: data.label,
+        allowedTypes: data.allowedTypes.split(','),
+        optional: data.optional,
+        order: data.order,
+        filename: data.filename,
+        size: data.size,
+        mimeTypeId: data.mimeTypeId,
+        complete: data.filename !== null,
       });
 
     } catch (err) {

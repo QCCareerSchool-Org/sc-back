@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { CourseDTO } from '../../domain/courseDTO';
+import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
+import { NewUnitDTO } from '../../domain/student/newUnitDTO';
+import { NewUnitTemplateDTO } from '../../domain/student/newUnitTemplateDTO';
+import { OldUnitDTO } from '../../domain/student/oldUnitDTO';
+import { OldUnitTemplateDTO } from '../../domain/student/oldUnitTemplateDTO';
+import { TutorDTO } from '../../domain/student/tutorDTO';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -13,107 +20,14 @@ export type GetEnrollmentRequestDTO = {
   courseId: number;
 };
 
-export type GetEnrollmentResponseDTO = {
-  enrollmentId: number;
-  courseId: number;
-  studentNumber: number;
-  tutorId: number | null;
-  maxAssignments: number | null;
-  graduated: boolean;
-  assignmentsDisabled: boolean;
-  quizzesDisabled: boolean;
-  onHold: boolean;
-  holdReason: string | null;
-  currencyCode: string;
-  courseCost: number;
-  amountPaid: number;
-  monthlyInstallment: number | null;
-  enrollmentDate: Date | null;
-  fastTrack: boolean;
-  paymentsDisabled: boolean;
-  course: {
-    courseId: number;
-    code: string;
-    name: string;
-    courseGuide: boolean;
-    quizzesEnabled: boolean;
-    noTutor: boolean;
-    unitType: number;
-    units: Array<{
-      unitId: number;
-      courseId: number;
-      unitLetter: string;
-      title: string | null;
-      responseType: 'mp3' | null;
-      optional: boolean;
-      noMarks: boolean;
-      noAssignments: boolean;
-      optionalUpload: boolean;
-    }>;
-    newUnits: Array<{
-      /** uuid */
-      unitId: string;
-      courseId: number;
-      unitLetter: string;
-      title: string | null;
-      description: string | null;
-      optional: boolean;
-      created: Date;
-      modified: Date | null;
-    }>;
+export type GetEnrollmentResponseDTO = EnrollmentDTO & {
+  course: CourseDTO & {
+    units: OldUnitTemplateDTO[];
+    newUnits: NewUnitTemplateDTO[];
   };
-  tutor: {
-    tutorId: number;
-    firstName: string;
-    lastName: string;
-    introduction: boolean;
-  } | null;
-  units: Array<{
-    unitId: number;
-    enrollmentId: number;
-    unitLetter: string;
-    title: string | null;
-    responseType: 'mp3' | null;
-    responseFilename: string | null;
-    points: number | null;
-    mark: number | null;
-    creationDate: Date;
-    finalizedDate: Date | null;
-    transferredDate: Date | null;
-    tutorId: number | null;
-    markedDate: Date | null;
-    tutorComment: null; // always null for students
-    adminComment: string | null;
-    optional: boolean;
-    noMarks: boolean;
-    noAssignments: boolean;
-    optionalUpload: boolean;
-    order: number;
-    skipped: boolean;
-    cost: number | null;
-    currencyId: number | null;
-    audioProgress: number | null;
-    entityVersion: number;
-    timestamp: Date;
-  }>;
-  newUnits: Array<{
-    /** uuid */
-    unitId: string;
-    enrollmentId: number;
-    tutorId: number | null;
-    unitLetter: string;
-    title: string | null;
-    description: string | null;
-    optional: boolean;
-    complete: boolean;
-    // students should never see `tutorComment`
-    adminComment: string | null;
-    submitted: Date | null;
-    skipped: Date | null;
-    transferred: Date | null;
-    marked: Date | null;
-    created: Date;
-  }>;
+  tutor: TutorDTO | null;
+  units: OldUnitDTO[];
+  newUnits: NewUnitDTO[];
 };
 
 export class GetEnrollmentNotFound extends Error { }
