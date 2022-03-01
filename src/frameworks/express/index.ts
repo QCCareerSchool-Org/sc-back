@@ -6,8 +6,8 @@ import helmet from 'helmet';
 
 import { CheckAuthenticationMiddleware } from '../../controllers/authentication/checkAuthenticationMiddleware';
 import { NotFoundController } from '../../controllers/notFoundController';
-import { initializeNextNewUnitInteractor } from '../../interactors';
 import { environmentConfigService, winstonLoggerService } from '../../services';
+import { administratorRouter } from './administratorRouter';
 import { asyncWrapper } from './asyncWrapper';
 import { authenticationRouter } from './authenticationRouter';
 import { globalErrorHandler } from './globalErrorHandler';
@@ -41,6 +41,7 @@ app.use(asyncWrapper(async (req, res, next) => {
   await middleware.execute();
 }));
 
+app.use('/administrators', administratorRouter);
 app.use('/students', studentRouter);
 
 // all other routes return 404

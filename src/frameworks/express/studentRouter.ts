@@ -1,18 +1,18 @@
 import { Router } from 'express';
 import multer from 'multer';
+
 import { DeleteNewUploadSlotFileController } from '../../controllers/student/deleteNewUploadSlotFileController';
 import { DownloadNewUploadSlotFileController } from '../../controllers/student/downloadNewUploadSlotFileController';
-
 import { GetEnrollmentController } from '../../controllers/student/getEnrollmentController';
 import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/student/getNewUnitController';
 import { GetStudentController } from '../../controllers/student/getStudentController';
 import { InitializeNextNewUnitController } from '../../controllers/student/initializeNextNewUnitController';
 import { SaveNewTextBoxTextController } from '../../controllers/student/saveNewTextBoxTextController';
+import { SkipNewUnitController } from '../../controllers/student/skipNewUnitController';
 import { StudentGuardMiddleware } from '../../controllers/student/studentGuardMiddleware';
 import { SubmitNewUnitController } from '../../controllers/student/submitNewUnitController';
 import { UploadNewUploadSlotFileController } from '../../controllers/student/uploadNewUploadSlotFileController';
-
 import { asyncWrapper } from './asyncWrapper';
 
 export const studentRouter = Router();
@@ -23,51 +23,56 @@ studentRouter.use('/:studentId', asyncWrapper(async (req, res, next) => {
 }));
 
 studentRouter.get('/:studentId', asyncWrapper(async (req, res) => {
-  const middleware = new GetStudentController(req, res);
-  await middleware.execute();
+  const controller = new GetStudentController(req, res);
+  await controller.execute();
 }));
 
-studentRouter.get('/:studentId/enrollments', asyncWrapper(async (req, res) => {
+studentRouter.get('/:studentId/courses/:courseId', asyncWrapper(async (req, res) => {
   const controller = new GetEnrollmentController(req, res);
   await controller.execute();
 }));
 
-studentRouter.post('/:studentId/enrollments/:enrollmentId/newUnits/initializeNext', asyncWrapper(async (req, res) => {
+studentRouter.post('/:studentId/courses/:courseId/newUnits/initializeNext', asyncWrapper(async (req, res) => {
   const controller = new InitializeNextNewUnitController(req, res);
   await controller.execute();
 }));
 
-studentRouter.get('/:studentId/newUnits/:unitId', asyncWrapper(async (req, res) => {
+studentRouter.get('/:studentId/courses/:courseId/newUnits/:unitId', asyncWrapper(async (req, res) => {
   const controller = new GetNewUnitController(req, res);
   await controller.execute();
 }));
 
-studentRouter.post('/:studentId/newUnits/:unitId/submissions', asyncWrapper(async (req, res) => {
+studentRouter.post('/:studentId/courses/:courseId/newUnits/:unitId/submissions', asyncWrapper(async (req, res) => {
   const controller = new SubmitNewUnitController(req, res);
   await controller.execute();
 }));
 
-studentRouter.get('/:studentId/newUnits/:unitId/assignments/:assignmentId', asyncWrapper(async (req, res) => {
+studentRouter.post('/:studentId/courses/:courseId/newUnits/:unitId/skips', asyncWrapper(async (req, res) => {
+  const controller = new SkipNewUnitController(req, res);
+  await controller.execute();
+}));
+
+studentRouter.get('/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId', asyncWrapper(async (req, res) => {
   const controller = new GetNewAssignmentController(req, res);
   await controller.execute();
 }));
 
-studentRouter.put('/:studentId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', asyncWrapper(async (req, res) => {
+studentRouter.put('/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', asyncWrapper(async (req, res) => {
   const controller = new SaveNewTextBoxTextController(req, res);
   await controller.execute();
 }));
 
-studentRouter.get('/:studentId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
+studentRouter.get('/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
   const controller = new DownloadNewUploadSlotFileController(req, res);
   await controller.execute();
 }));
 
-studentRouter.put('/:studentId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', multer().single('file'), asyncWrapper(async (req, res) => {
+studentRouter.put('/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', multer().single('file'), asyncWrapper(async (req, res) => {
   const controller = new UploadNewUploadSlotFileController(req, res);
   await controller.execute();
 }));
 
-studentRouter.delete('/:studentId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
+studentRouter.delete('/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
   const controller = new DeleteNewUploadSlotFileController(req, res);
   await controller.execute();
 }));

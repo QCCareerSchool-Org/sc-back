@@ -11,6 +11,7 @@ import { Result, ResultType } from '../result';
 
 export type DownloadNewUploadSlotFileRequestDTO = {
   studentId: number;
+  courseId: number;
   /** uuid */
   unitId: string;
   /** uuid */
@@ -38,7 +39,7 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, unitId, assignmentId, partId, uploadSlotId }: DownloadNewUploadSlotFileRequestDTO): Promise<ResultType<DownloadNewUploadSlotFileResponseDTO>> {
+  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId }: DownloadNewUploadSlotFileRequestDTO): Promise<ResultType<DownloadNewUploadSlotFileResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
@@ -54,7 +55,7 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
               assignmentId: assignmentIdBin,
               unit: {
                 unitId: unitIdBin,
-                enrollment: { studentId },
+                enrollment: { studentId, courseId, course: { enabled: true } },
               },
             },
           },

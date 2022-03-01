@@ -8,7 +8,7 @@ import { Result, ResultType } from '../result';
 
 export type InitializeNextNewUnitRequestDTO = {
   studentId: number;
-  enrollmentId: number;
+  courseId: number;
 };
 
 export type InitializeNextNewUnitResponseDTO = NewUnitDTO;
@@ -32,11 +32,11 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, enrollmentId }: InitializeNextNewUnitRequestDTO): Promise<ResultType<InitializeNextNewUnitResponseDTO>> {
+  public async execute({ studentId, courseId }: InitializeNextNewUnitRequestDTO): Promise<ResultType<InitializeNextNewUnitResponseDTO>> {
     try {
       // look up the enrollment, student, course, and new units
       const enrollment = await this.prisma.enrollment.findFirst({
-        where: { studentId, enrollmentId },
+        where: { studentId, courseId, course: { enabled: true } },
         include: { student: true, course: true, newUnits: true },
       });
       if (!enrollment) {
@@ -125,7 +125,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       const nextUnit = await this.prisma.newUnit.create({
         data: {
           unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          enrollmentId,
+          enrollmentId: enrollment.enrollmentId,
           tutorId: null,
           unitLetter: nextUnitTemplate.unitLetter,
           title: nextUnitTemplate.title,

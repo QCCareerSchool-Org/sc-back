@@ -8,6 +8,8 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
+    /** numeric string */
+    courseId: string;
     /** uuid */
     unitId: string;
     /** uuid */
@@ -26,6 +28,7 @@ export class DownloadNewUploadSlotFileController extends BaseController<Request,
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
+      courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -50,10 +53,12 @@ export class DownloadNewUploadSlotFileController extends BaseController<Request,
     }
 
     const studentId = parseInt(params.studentId, 10);
+    const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 
     const result = await downloadNewUploadSlotFileInteractor.execute({
       studentId,
+      courseId,
       unitId,
       assignmentId,
       partId,

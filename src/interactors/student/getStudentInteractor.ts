@@ -31,7 +31,11 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
     try {
       const student = await this.prisma.student.findUnique({
         where: { studentId },
-        include: { enrollments: true, country: true, province: true },
+        include: {
+          enrollments: { where: { course: { enabled: true } } },
+          country: true,
+          province: true,
+        },
       });
 
       if (!student) {

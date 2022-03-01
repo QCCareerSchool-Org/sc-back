@@ -6,25 +6,21 @@ import { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
-import { unitIsComplete } from './unitIsComplete';
 
-export type SubmitNewUnitRequestDTO = {
+export type SkipNewUnitRequestDTO = {
   studentId: number;
   courseId: number;
   unitId: string;
 };
 
-export type SubmitNewUnitResponseDTO = NewUnitDTO;
+export type SkipNewUnitResponseDTO = NewUnitDTO;
 
-export class SubmitNewUnitNotFound extends Error { }
-export class SubmitNewUnitEnrollmentOnHold extends Error { }
-export class SubmitNewUnitAlreadySubmitted extends Error { }
-export class SubmitNewUnitAlreadySkipped extends Error { }
-export class SubmitNewUnitAwaitingAdminComment extends Error { }
-export class SubmitNewUnitIncomplete extends Error { }
-export class SubmitNewUnitTutorNotAssigned extends Error { }
+export class SkipNewUnitNotFound extends Error { }
+export class SkipNewUnitEnrollmentOnHold extends Error { }
+export class SkipNewUnitAlreadySubmitted extends Error { }
+export class SkipNewUnitAlreadySkipped extends Error { }
 
-export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequestDTO, SubmitNewUnitResponseDTO> {
+export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO, SkipNewUnitResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -33,7 +29,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId }: SubmitNewUnitRequestDTO): Promise<ResultType<SubmitNewUnitResponseDTO>> {
+  public async execute({ studentId, courseId, unitId }: SkipNewUnitRequestDTO): Promise<ResultType<SkipNewUnitResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
@@ -49,37 +45,24 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
       });
 
       if (!unit) {
-        return Result.fail(new SubmitNewUnitNotFound());
+        return Result.fail(new SkipNewUnitNotFound());
       }
 
       if (!unit.enrollment.onHold) {
-        return Result.fail(new SubmitNewUnitEnrollmentOnHold());
+        return Result.fail(new SkipNewUnitEnrollmentOnHold());
       }
 
       if (unit.submitted) {
-        return Result.fail(new SubmitNewUnitAlreadySubmitted());
+        return Result.fail(new SkipNewUnitAlreadySubmitted());
       }
 
       if (unit.skipped) {
-        return Result.fail(new SubmitNewUnitAlreadySkipped());
-      }
-
-      // see if the tutor has sent this back to the student, but an administrator hasn't reviewed it yet
-      if (unit.tutorComment !== null && unit.adminComment === null) {
-        return Result.fail(new SubmitNewUnitAwaitingAdminComment());
-      }
-
-      if (!unitIsComplete(unit)) {
-        return Result.fail(new SubmitNewUnitIncomplete());
-      }
-
-      if (unit.enrollment.tutorId === null) {
-        return Result.fail(new SubmitNewUnitTutorNotAssigned());
+        return Result.fail(new SkipNewUnitAlreadySkipped());
       }
 
       const updatedUnit = await this.prisma.newUnit.update({
         data: {
-          submitted: this.dateService.getDate(),
+          skipped: this.dateService.getDate(),
           tutorId: unit.enrollment.tutorId,
         },
         where: { unitId: unitIdBin },
@@ -103,7 +86,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
       });
 
     } catch (err) {
-      this.logger.error('error submitting new unit', err instanceof Error ? err.message : err);
+      this.logger.error('error skipping new unit', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

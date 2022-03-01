@@ -8,6 +8,8 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
+    /** numeric string */
+    courseId: string;
     /** uuid */
     unitId: string;
     /** uuid */
@@ -29,6 +31,7 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
+      courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -59,10 +62,11 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
     }
 
     const studentId = parseInt(params.studentId, 10);
+    const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId, partId, textBoxId } = params;
     const { text } = body;
 
-    const result = await saveNewTextBoxTextInteractor.execute({ studentId, unitId, assignmentId, partId, textBoxId, text });
+    const result = await saveNewTextBoxTextInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, textBoxId, text });
 
     if (result.success) {
       return this.ok(result.value);

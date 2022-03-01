@@ -2,9 +2,9 @@ import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
 import { CourseDTO } from '../../domain/courseDTO';
+import { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
 import { NewUnitDTO } from '../../domain/student/newUnitDTO';
-import { NewUnitTemplateDTO } from '../../domain/student/newUnitTemplateDTO';
 import { OldUnitDTO } from '../../domain/student/oldUnitDTO';
 import { OldUnitTemplateDTO } from '../../domain/student/oldUnitTemplateDTO';
 import { TutorDTO } from '../../domain/student/tutorDTO';
@@ -45,7 +45,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
   public async execute({ studentId, courseId }: GetEnrollmentRequestDTO): Promise<ResultType<GetEnrollmentResponseDTO>> {
     try {
       const enrollment = await this.prisma.enrollment.findFirst({
-        where: { studentId, courseId },
+        where: { studentId, courseId, course: { enabled: true } },
         include: {
           course: {
             include: {
@@ -87,12 +87,18 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         paymentsDisabled: enrollment.paymentsDisabled,
         course: {
           courseId: enrollment.course.courseId,
+          schoolId: enrollment.course.schoolId,
           code: enrollment.course.code,
+          version: enrollment.course.version,
+          studentTypeId: enrollment.course.studentTypeId,
           name: enrollment.course.name,
           courseGuide: enrollment.course.courseGuide,
           quizzesEnabled: enrollment.course.quizzesEnabled,
           noTutor: enrollment.course.noTutor,
           unitType: enrollment.course.unitType,
+          enabled: enrollment.course.enabled,
+          order: enrollment.course.order,
+          entityVersion: enrollment.course.entityVersion,
           units: enrollment.course.units.map(unit => ({
             unitId: unit.unitId,
             courseId: unit.courseId,

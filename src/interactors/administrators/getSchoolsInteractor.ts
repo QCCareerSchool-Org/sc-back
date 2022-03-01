@@ -1,0 +1,36 @@
+import type { PrismaClient } from '@prisma/client';
+
+import type { IInteractor } from '..';
+import type { SchoolDTO } from '../../domain/schoolDTO';
+import type { ILoggerService } from '../../services/logger';
+import { Result, ResultType } from '../result';
+
+export type GetSchoolsRequestDTO = void;
+
+export type GetSchoolsResponseDTO = SchoolDTO[];
+
+export class GetSchoolsInteractor implements IInteractor<GetSchoolsRequestDTO, GetSchoolsResponseDTO> {
+
+  public constructor(
+    private readonly prisma: PrismaClient,
+    private readonly logger: ILoggerService,
+  ) { /* empty */ }
+
+  public async execute(): Promise<ResultType<GetSchoolsResponseDTO>> {
+    try {
+      const schools = await this.prisma.school.findMany();
+
+      return Result.success(schools.map(s => ({
+        schoolId: s.schoolId,
+        name: s.name,
+        slug: s.slug,
+        order: s.order,
+        entityVersion: s.entityVersion,
+      })));
+
+    } catch (err) {
+      this.logger.error('error getting schools', err instanceof Error ? err.message : err);
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+}

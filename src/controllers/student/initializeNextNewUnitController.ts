@@ -9,7 +9,7 @@ type Request = {
     /** numeric string */
     studentId: string;
     /** numeric string */
-    enrollmentId: string;
+    courseId: string;
   };
 };
 
@@ -20,7 +20,7 @@ export class InitializeNextNewUnitController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
-      enrollmentId: yup.string().matches(/^\d+$/u).defined(),
+      courseId: yup.string().matches(/^\d+$/u).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -41,9 +41,9 @@ export class InitializeNextNewUnitController extends BaseController<Request, Res
     }
 
     const studentId = parseInt(params.studentId, 10);
-    const enrollmentId = parseInt(params.enrollmentId, 10);
+    const courseId = parseInt(params.courseId, 10);
 
-    const result = await initializeNextNewUnitInteractor.execute({ studentId, enrollmentId });
+    const result = await initializeNextNewUnitInteractor.execute({ studentId, courseId });
 
     if (result.success) {
       return this.ok(result.value);

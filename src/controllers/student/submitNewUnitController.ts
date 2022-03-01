@@ -8,6 +8,8 @@ type Request = {
   params: {
     /** numeric string */
     studentId: string;
+    /** numeric string */
+    courseId: string;
     /** uuid */
     unitId: string;
   };
@@ -20,6 +22,7 @@ export class SubmitNewUnitController extends BaseController<Request, Response> {
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
+      courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -41,9 +44,10 @@ export class SubmitNewUnitController extends BaseController<Request, Response> {
     }
 
     const studentId = parseInt(params.studentId, 10);
+    const courseId = parseInt(params.courseId, 10);
     const { unitId } = params;
 
-    const result = await submitNewUnitInteractor.execute({ studentId, unitId });
+    const result = await submitNewUnitInteractor.execute({ studentId, courseId, unitId });
 
     if (result.success) {
       return this.ok(result.value);

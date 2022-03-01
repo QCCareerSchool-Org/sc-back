@@ -398,9 +398,9 @@ model School {
 
 model Course {
   courseId          Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  schoolId          Int               @db.UnsignedInt @map("school_id")
   code              String            @db.Char(2)
   version           Int               @default(0) @db.UnsignedSmallInt
-  schoolId          Int               @db.UnsignedInt @map("school_id")
   studentTypeId     String            @db.VarChar(50) @map("student_type")
   name              String            @db.VarChar(50)
   courseGuide       Boolean           @default(true) @map("course_guide")
@@ -410,7 +410,7 @@ model Course {
   enabled           Boolean           @default(true)
   order             Int               @default(0) @db.TinyInt
   entityVersion     Int               @default(0) @map("entity_version")
-  schools           School            @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
+  school            School            @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
   studentType       StudentType       @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
   materialRights    MaterialRight[]
   newUnits          NewUnitTemplate[]

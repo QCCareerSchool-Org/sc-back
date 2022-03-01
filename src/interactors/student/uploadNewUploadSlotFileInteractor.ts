@@ -11,6 +11,7 @@ import { Result, ResultType } from '../result';
 
 export type UploadNewUploadSlotFileRequestDTO = {
   studentId: number;
+  courseId: number;
   /** uuid */
   unitId: string;
   /** uuid */
@@ -43,7 +44,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, unitId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotFileRequestDTO): Promise<ResultType<UploadNewUploadSlotFileResponseDTO>> {
+  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotFileRequestDTO): Promise<ResultType<UploadNewUploadSlotFileResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
@@ -59,7 +60,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
               assignmentId: assignmentIdBin,
               unit: {
                 unitId: unitIdBin,
-                enrollment: { studentId },
+                enrollment: { studentId, courseId, course: { enabled: true } },
               },
             },
           },
