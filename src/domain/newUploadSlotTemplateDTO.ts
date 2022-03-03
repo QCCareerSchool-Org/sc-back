@@ -1,4 +1,4 @@
-export type NewUploadSlotDTO = {
+export type NewUploadSlotTemplateDTO = {
   /** uuid */
   uploadSlotId: string;
   /** uuid */
@@ -6,11 +6,8 @@ export type NewUploadSlotDTO = {
   label: string;
   allowedTypes: string[];
   points: number;
-  mark: number | null;
   optional: boolean;
   order: number;
-  filename: string | null;
-  size: number | null;
-  mimeTypeId: string | null;
-  complete: boolean;
+  created: Date;
+  modified: Date | null;
 };

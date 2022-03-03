@@ -42,6 +42,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           unit: { enrollment: { studentId, courseId, course: { enabled: true } } },
         },
         include: {
+          unit: true,
           parts: {
             orderBy: { partNumber: 'asc' },
             include: {
@@ -85,6 +86,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 partId: this.uuidService.binToUUID(t.partId),
                 description: t.description,
                 lines: t.lines,
+                points: t.points,
+                mark: assignment.unit.marked ? t.mark : null, // hide mark unless the unit is marked
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
@@ -101,6 +104,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 partId: this.uuidService.binToUUID(u.partId),
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(','),
+                points: u.points,
+                mark: assignment.unit.marked ? u.mark : null, // hide mark unless the unit is marked
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,

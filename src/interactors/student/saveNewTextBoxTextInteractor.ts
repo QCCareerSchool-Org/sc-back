@@ -82,6 +82,8 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
+        points: updatedTextBox.points,
+        mark: textBox.part.assignment.unit.marked ? updatedTextBox.mark : null, // hide mark unless the unit is marked
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,

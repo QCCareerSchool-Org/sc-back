@@ -36,7 +36,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
       const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, unitId: unitIdBin, unit: { course: { courseId, schoolId } } },
+        where: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } },
         include: {
           unit: true,
           parts: {
@@ -68,7 +68,6 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           modified: assignment.unit.modified,
         },
         parts: assignment.parts.map(p => ({
-          ...p,
           partId: this.uuidService.binToUUID(p.partId),
           assignmentId: this.uuidService.binToUUID(p.assignmentId),
           partNumber: p.partNumber,

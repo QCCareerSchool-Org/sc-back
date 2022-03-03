@@ -1393,6 +1393,7 @@ model NewTextBoxTemplate {
   partId      Bytes           @db.Binary(16) @map("part_template_id")
   description String?         @db.Text
   lines       Int?            @db.TinyInt
+  points      Int             @default(0) @db.UnsignedTinyInt
   optional    Boolean         @default(false)
   order       Int             @db.UnsignedTinyInt @default(0)
   created     DateTime        @default(now()) @db.DateTime(0)
@@ -1408,6 +1409,8 @@ model NewTextBox {
   partId      Bytes     @db.Binary(16) @map("part_id")
   description String?   @db.Text
   lines       Int?      @db.TinyInt
+  points      Int       @default(0) @db.UnsignedTinyInt
+  mark        Int?      @db.UnsignedTinyInt
   optional    Boolean   @default(false)
   order       Int       @db.UnsignedTinyInt @default(0)
   text        String    @db.Text @default("")
@@ -1424,6 +1427,7 @@ model NewUploadSlotTemplate {
   partId       Bytes           @db.Binary(16) @map("part_template_id")
   label        String
   allowedTypes String          @default("image") @map("allowed_types")
+  points       Int             @default(0) @db.UnsignedTinyInt
   optional     Boolean         @default(false)
   order        Int             @db.UnsignedTinyInt @default(0)
   created      DateTime        @default(now()) @db.DateTime(0)
@@ -1439,6 +1443,8 @@ model NewUploadSlot {
   partId       Bytes     @db.Binary(16) @map("part_id")
   label        String
   allowedTypes String    @default("image") @map("allowed_types")
+  points       Int       @default(0) @db.UnsignedTinyInt
+  mark         Int?      @db.UnsignedTinyInt
   optional     Boolean   @default(false)
   order        Int       @db.UnsignedTinyInt @default(0)
   filename     String?

@@ -1,4 +1,4 @@
-export type NewTextBoxDTO = {
+export type NewTextBoxTemplateDTO = {
   /** uuid */
   textBoxId: string;
   /** uuid */
@@ -6,9 +6,8 @@ export type NewTextBoxDTO = {
   description: string | null;
   lines: number | null;
   points: number;
-  mark: number | null;
   optional: boolean;
   order: number;
-  text: string;
-  complete: boolean;
+  created: Date;
+  modified: Date | null;
 };

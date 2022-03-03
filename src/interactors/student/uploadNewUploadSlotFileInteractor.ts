@@ -132,6 +132,8 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         partId: this.uuidService.binToUUID(data.partId),
         label: data.label,
         allowedTypes: data.allowedTypes.split(','),
+        points: data.points,
+        mark: uploadSlot.part.assignment.unit.marked ? data.mark : null, // hide mark unless the unit is marked
         optional: data.optional,
         order: data.order,
         filename: data.filename,
