@@ -119,7 +119,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       const accessCookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.environment !== 'development' ? '/api' : '/', // strip prefix in development
+        path: this.configService.config.environment !== 'development' ? '/api/v1' : '/v1', // strip proxy path prefix in development
         maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
       };
 
@@ -127,7 +127,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         accessTokenPayload,
         cookies: [
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
-          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, path: '/', httpOnly: false } }, // httpOnly is false for Angular CSRF
+          { name: 'XSRF-TOKEN', value: xsrfTokenString, options: { ...accessCookieOptions, path: '/', httpOnly: false } }, // path '/' and httpOnly false for Angular CSRF
         ],
       });
 
