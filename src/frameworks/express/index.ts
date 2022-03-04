@@ -33,7 +33,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
-app.use('/auth', authenticationRouter);
+app.use('/v1/auth', authenticationRouter);
 
 // all routes added after this will require authentication
 app.use(asyncWrapper(async (req, res, next) => {
@@ -41,8 +41,8 @@ app.use(asyncWrapper(async (req, res, next) => {
   await middleware.execute();
 }));
 
-app.use('/administrators', administratorRouter);
-app.use('/students', studentRouter);
+app.use('/v1/administrators', administratorRouter);
+app.use('/v1/students', studentRouter);
 
 // all other routes return 404
 app.use(asyncWrapper(async (req, res) => {
