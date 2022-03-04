@@ -13,93 +13,99 @@ import { GetSchoolController } from '../../controllers/administrators/getSchoolC
 import { GetSchoolsController } from '../../controllers/administrators/getSchoolsController';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
+import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController';
 import { asyncWrapper } from './asyncWrapper';
 
 export const administratorRouter = Router();
 
-administratorRouter.use('/:administratorId', asyncWrapper(async (req, res, next) => {
-  const middleware = new AdministratorGuardMiddleware(req, res, next);
-  await middleware.execute();
-}));
+administratorRouter.use(
+  '/:administratorId',
+  asyncWrapper(async (req, res, next) => new AdministratorGuardMiddleware(req, res, next).execute()),
+);
 
-administratorRouter.get('/:administratorId/schools', asyncWrapper(async (req, res) => {
-  const controller = new GetSchoolsController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools',
+  asyncWrapper(async (req, res) => new GetSchoolsController(req, res).execute()),
+);
 
-administratorRouter.get('/:administratorId/schools/:schoolId', asyncWrapper(async (req, res) => {
-  const controller = new GetSchoolController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId',
+  asyncWrapper(async (req, res) => new GetSchoolController(req, res).execute()),
+);
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId', asyncWrapper(async (req, res) => {
-  const controller = new GetCourseController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId',
+  asyncWrapper(async (req, res) => new GetCourseController(req, res).execute()),
+);
 
 // new unit templates
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId', asyncWrapper(async (req, res) => {
-  const controller = new GetNewUnitTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
+  asyncWrapper(async (req, res) => new GetNewUnitTemplateController(req, res).execute()),
+);
 
 // new assignment templates
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId', asyncWrapper(async (req, res) => {
-  const controller = new GetNewAssignmentTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
+  asyncWrapper(async (req, res) => new GetNewAssignmentTemplateController(req, res).execute()),
+);
 
 // new part templates
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId', asyncWrapper(async (req, res) => {
-  const controller = new GetNewPartTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId',
+  asyncWrapper(async (req, res) => new GetNewPartTemplateController(req, res).execute()),
+);
+
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId',
+  asyncWrapper(async (req, res) => new SaveNewPartTemplateController(req, res).execute()),
+);
 
 // new text box templates
 
-administratorRouter.post('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes', asyncWrapper(async (req, res) => {
-  const controller = new InsertNewTextBoxTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.post(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes',
+  asyncWrapper(async (req, res) => new InsertNewTextBoxTemplateController(req, res).execute()),
+);
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', asyncWrapper(async (req, res) => {
-  const controller = new GetNewTextBoxTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
+  asyncWrapper(async (req, res) => new GetNewTextBoxTemplateController(req, res).execute()),
+);
 
-administratorRouter.put('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', asyncWrapper(async (req, res) => {
-  const controller = new SaveNewTextBoxTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
+  asyncWrapper(async (req, res) => new SaveNewTextBoxTemplateController(req, res).execute()),
+);
 
-administratorRouter.delete('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', asyncWrapper(async (req, res) => {
-  const controller = new DeleteNewTextBoxTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.delete(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
+  asyncWrapper(async (req, res) => new DeleteNewTextBoxTemplateController(req, res).execute()),
+);
 
 // new upload slot templates
 
-administratorRouter.post('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots', asyncWrapper(async (req, res) => {
-  const controller = new InsertNewUploadSlotTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.post(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots',
+  asyncWrapper(async (req, res) => new InsertNewUploadSlotTemplateController(req, res).execute()),
+);
 
-administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
-  const controller = new GetNewUploadSlotTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
+  asyncWrapper(async (req, res) => new GetNewUploadSlotTemplateController(req, res).execute()),
+);
 
-administratorRouter.put('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
-  const controller = new SaveNewUploadSlotTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
+  asyncWrapper(async (req, res) => new SaveNewUploadSlotTemplateController(req, res).execute()),
+);
 
-administratorRouter.delete('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
-  const controller = new DeleteNewUploadSlotTemplateController(req, res);
-  await controller.execute();
-}));
+administratorRouter.delete(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
+  asyncWrapper(async (req, res) => new DeleteNewUploadSlotTemplateController(req, res).execute()),
+);

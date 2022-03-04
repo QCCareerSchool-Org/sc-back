@@ -12,6 +12,7 @@ import { GetSchoolInteractor } from './getSchoolInteractor';
 import { GetSchoolsInteractor } from './getSchoolsInteractor';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor';
+import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor';
 import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplateInteractor';
 
@@ -26,6 +27,7 @@ export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(pri
 export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 
 export const getNewPartTemplateInteractor = new GetNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewPartTemplateInteractor = new SaveNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
 
 export const getNewTextBoxTemplateInteractor = new GetNewTextBoxTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewTextBoxTemplateInteractor = new SaveNewTextBoxTemplateInteractor(prisma, uuidService, winstonLoggerService);

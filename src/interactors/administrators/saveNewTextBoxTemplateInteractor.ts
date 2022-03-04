@@ -57,6 +57,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
         return Result.fail(new SaveNewTextBoxTemplateNotFound());
       }
 
+      // validate the data
       if (lines !== null) {
         if (lines < 1) {
           return Result.fail(new SaveNewTextBoxTemplateLinesLessThanOne());

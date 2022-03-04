@@ -58,6 +58,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         return Result.fail(new SaveNewUploadSlotTemplateNotFound());
       }
 
+      // validate the data
       if (label.length === 0) {
         return Result.fail(new SaveNewUploadSlotTemplateLabelEmpty());
       }
