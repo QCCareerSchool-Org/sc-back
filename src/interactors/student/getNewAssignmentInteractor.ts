@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import { NewAssignmentDTO } from '../../domain/student/newAssignmentDTO';
 import { NewPartDTO } from '../../domain/student/newPartDTO';
 import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
@@ -103,7 +104,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
                 partId: this.uuidService.binToUUID(u.partId),
                 label: u.label,
-                allowedTypes: u.allowedTypes.split(','),
+                allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                 points: u.points,
                 mark: assignment.unit.marked ? u.mark : null, // hide mark unless the unit is marked
                 optional: u.optional,

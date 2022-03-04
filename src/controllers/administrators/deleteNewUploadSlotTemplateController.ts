@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { deleteNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deletetNewTextBoxTemplateInteractor';
+import { deleteNewTextBoxTemplateInteractor, deleteNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
+import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/deletetNewUploadSlotTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -19,13 +19,13 @@ type Request = {
     /** uuid */
     partId: string;
     /** uuid */
-    textBoxId: string;
+    uploadSlotId: string;
   };
 };
 
-type Response = DeleteNewTextBoxTemplateResponseDTO;
+type Response = DeleteNewUploadSlotTemplateResponseDTO;
 
-export class DeleteNewTextBoxTemplateController extends BaseController<Request, Response> {
+export class DeleteNewUploadSlotTemplateController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -35,7 +35,7 @@ export class DeleteNewTextBoxTemplateController extends BaseController<Request, 
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      textBoxId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -57,17 +57,17 @@ export class DeleteNewTextBoxTemplateController extends BaseController<Request, 
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, textBoxId } = params;
+    const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await deleteNewTextBoxTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, textBoxId });
+    const result = await deleteNewUploadSlotTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, uploadSlotId });
 
     if (result.success) {
       return this.noContent();
     }
 
     switch (result.error.constructor) {
-      case DeleteNewTextBoxTemplateNotFound:
-        return this.notFound('Text box template not found');
+      case DeleteNewUploadSlotTemplateNotFound:
+        return this.notFound('Upload slot template not found');
       default:
         return this.internalServerError(result.error.message);
     }

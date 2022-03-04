@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor, InteractorFile } from '..';
+import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import { ICompressionService } from '../../services/compression';
 import { IConfigService } from '../../services/config';
@@ -131,7 +132,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         uploadSlotId: this.uuidService.binToUUID(data.uploadSlotId),
         partId: this.uuidService.binToUUID(data.partId),
         label: data.label,
-        allowedTypes: data.allowedTypes.split(','),
+        allowedTypes: data.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: data.points,
         mark: uploadSlot.part.assignment.unit.marked ? data.mark : null, // hide mark unless the unit is marked
         optional: data.optional,

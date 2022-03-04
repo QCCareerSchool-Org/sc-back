@@ -16,7 +16,7 @@ export type DeleteNewTextBoxTemplateRequestDTO = {
 
 export type DeleteNewTextBoxTemplateResponseDTO = void;
 
-export class DeleteNewTextBoxTemplatePartNotFound extends Error { }
+export class DeleteNewTextBoxTemplateNotFound extends Error { }
 
 export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNewTextBoxTemplateRequestDTO, DeleteNewTextBoxTemplateResponseDTO> {
 
@@ -34,12 +34,12 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
-      // find the part
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      // find the text box
+      const part = await this.prisma.newTextBoxTemplate.findFirst({
+        where: { textBoxId: textBoxIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
       if (!part) {
-        return Result.fail(new DeleteNewTextBoxTemplatePartNotFound());
+        return Result.fail(new DeleteNewTextBoxTemplateNotFound());
       }
 
       // delete the text box

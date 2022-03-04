@@ -1,6 +1,7 @@
 import { prisma } from '../../frameworks/prisma';
 import { uuidService, winstonLoggerService } from '../../services';
 import { DeleteNewTextBoxTemplateInteractor } from './deletetNewTextBoxTemplateInteractor';
+import { DeleteNewUploadSlotTemplateInteractor } from './deletetNewUploadSlotTemplateInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor';
@@ -34,3 +35,4 @@ export const deleteNewTextBoxTemplateInteractor = new DeleteNewTextBoxTemplateIn
 export const getNewUploadSlotTemplateInteractor = new GetNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewUploadSlotTemplateInteractor = new SaveNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const insertNewUploadSlotTemplateInteractor = new InsertNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewUploadSlotTemplateInteractor = new DeleteNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);

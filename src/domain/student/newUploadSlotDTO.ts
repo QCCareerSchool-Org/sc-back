@@ -1,10 +1,12 @@
+import type { NewUploadSlotAllowedType } from '../newUploadSlotTemplateDTO';
+
 export type NewUploadSlotDTO = {
   /** uuid */
   uploadSlotId: string;
   /** uuid */
   partId: string;
   label: string;
-  allowedTypes: string[];
+  allowedTypes: NewUploadSlotAllowedType[];
   points: number;
   mark: number | null;
   optional: boolean;

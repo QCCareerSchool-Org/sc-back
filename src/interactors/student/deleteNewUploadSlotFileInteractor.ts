@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
@@ -66,7 +67,7 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
         return Result.fail(new DeleteNewUploadSlotFileNotFound());
       }
 
-      // we can now trust all values for unitId, assignmentId, partId, and textBoxId
+      // we can now trust all values for unitId, assignmentId, partId, and uploadSlotId
 
       if (uploadSlot.part.assignment.unit.submitted) {
         return Result.fail(new DeleteNewUploadSlotFileUnitSubmitted());
@@ -104,7 +105,7 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
         uploadSlotId: this.uuidService.binToUUID(data.uploadSlotId),
         partId: this.uuidService.binToUUID(data.partId),
         label: data.label,
-        allowedTypes: data.allowedTypes.split(','),
+        allowedTypes: data.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: data.points,
         mark: uploadSlot.part.assignment.unit.marked ? data.mark : null, // hide mark unless the unit is marked
         optional: data.optional,

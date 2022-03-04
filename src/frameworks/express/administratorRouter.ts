@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware';
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController';
+import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController';
@@ -95,5 +96,10 @@ administratorRouter.get('/:administratorId/schools/:schoolId/courses/:courseId/n
 
 administratorRouter.put('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
   const controller = new SaveNewUploadSlotTemplateController(req, res);
+  await controller.execute();
+}));
+
+administratorRouter.delete('/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId', asyncWrapper(async (req, res) => {
+  const controller = new DeleteNewUploadSlotTemplateController(req, res);
   await controller.execute();
 }));

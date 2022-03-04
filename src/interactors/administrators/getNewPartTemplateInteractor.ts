@@ -4,7 +4,7 @@ import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
-import type { NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
+import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -89,7 +89,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
           partId: this.uuidService.binToUUID(u.partId),
           label: u.label,
-          allowedTypes: u.allowedTypes.split(','),
+          allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
           points: u.points,
           optional: u.optional,
           order: u.order,

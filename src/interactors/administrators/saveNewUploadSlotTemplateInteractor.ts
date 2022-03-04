@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
-import type { NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
+import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -101,7 +101,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
         partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
         label: updatedUploadSlot.label,
-        allowedTypes: updatedUploadSlot.allowedTypes.split(','),
+        allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,
