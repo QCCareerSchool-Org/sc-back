@@ -155,7 +155,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       const refreshCookieOptions: CookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.environment !== 'development' ? '/api/v1/auth' : '/v1/auth', // strip proxy path prefix in development
+        path: this.configService.config.environment !== 'development' ? '/api/v1/auth/refresh' : '/v1/auth/refresh', // strip proxy path prefix in development
       };
 
       if (request.stayLoggedIn) {
