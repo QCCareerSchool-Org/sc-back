@@ -1,4 +1,5 @@
 import type { NewPartTemplate, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
@@ -58,10 +59,12 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
           where: { partId: partIdBin },
         });
       } catch (err) {
-        console.log(err);
-        // if (false) {
-        // return Result.fail(new SaveNewPartTemplatePartNumberAlreadyInUse());
-        // }
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+          const meta = err.meta as { target: string };
+          if (meta.target === 'assignment_template_id_part_number') {
+            return Result.fail(new SaveNewPartTemplatePartNumberAlreadyInUse());
+          }
+        }
         throw err;
       }
 

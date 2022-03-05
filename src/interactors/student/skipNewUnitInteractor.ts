@@ -48,7 +48,7 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         return Result.fail(new SkipNewUnitNotFound());
       }
 
-      if (!unit.enrollment.onHold) {
+      if (unit.enrollment.onHold) {
         return Result.fail(new SkipNewUnitEnrollmentOnHold());
       }
 

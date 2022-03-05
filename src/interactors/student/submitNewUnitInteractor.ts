@@ -52,7 +52,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         return Result.fail(new SubmitNewUnitNotFound());
       }
 
-      if (!unit.enrollment.onHold) {
+      if (unit.enrollment.onHold) {
         return Result.fail(new SubmitNewUnitEnrollmentOnHold());
       }
 

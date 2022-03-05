@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { getNewPartTemplateInteractor, saveNewPartTemplateInteractor } from '../../interactors/administrators';
+import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
 import { SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
