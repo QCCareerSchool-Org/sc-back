@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { deleteNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/deletetNewUploadSlotTemplateInteractor';
+import { deleteNewUnitTemplateInteractor } from '../../interactors/administrators';
+import { DeleteNewUnitTemplateNotFound, DeleteNewUnitTemplateResponseDTO } from '../../interactors/administrators/deletetNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -14,18 +14,12 @@ type Request = {
     courseId: string;
     /** uuid */
     unitId: string;
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    partId: string;
-    /** uuid */
-    uploadSlotId: string;
   };
 };
 
-type Response = DeleteNewUploadSlotTemplateResponseDTO;
+type Response = DeleteNewUnitTemplateResponseDTO;
 
-export class DeleteNewUploadSlotTemplateController extends BaseController<Request, Response> {
+export class DeleteNewUnitTemplateController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -33,9 +27,6 @@ export class DeleteNewUploadSlotTemplateController extends BaseController<Reques
       schoolId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -57,17 +48,17 @@ export class DeleteNewUploadSlotTemplateController extends BaseController<Reques
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, uploadSlotId } = params;
+    const { unitId } = params;
 
-    const result = await deleteNewUploadSlotTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, uploadSlotId });
+    const result = await deleteNewUnitTemplateInteractor.execute({ schoolId, courseId, unitId });
 
     if (result.success) {
       return this.noContent();
     }
 
     switch (result.error.constructor) {
-      case DeleteNewUploadSlotTemplateNotFound:
-        return this.notFound('Upload slot template not found');
+      case DeleteNewUnitTemplateNotFound:
+        return this.notFound('Unit template not found');
       default:
         return this.internalServerError(result.error.message);
     }

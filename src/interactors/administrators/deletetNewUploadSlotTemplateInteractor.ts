@@ -34,7 +34,7 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
 
-      // find the upload slot
+      // find the upload slot template
       const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
         where: { uploadSlotId: uploadSlotIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
@@ -42,7 +42,7 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
         return Result.fail(new DeleteNewUploadSlotTemplateNotFound());
       }
 
-      // delete the upload slot
+      // delete the upload slot template
       await this.prisma.newUploadSlotTemplate.delete({ where: { uploadSlotId: uploadSlotIdBin } });
 
       return Result.success(undefined);

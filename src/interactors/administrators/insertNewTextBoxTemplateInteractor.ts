@@ -48,7 +48,7 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
-      // find the part
+      // find the part template
       const part = await this.prisma.newPartTemplate.findFirst({
         where: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
       });
