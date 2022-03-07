@@ -49,11 +49,11 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
       const uploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: {
           uploadSlotId: uploadSlotIdBin,
-          part: {
+          newPart: {
             partId: partIdBin,
-            assignment: {
+            newAssignment: {
               assignmentId: assignmentIdBin,
-              unit: {
+              newUnit: {
                 unitId: unitIdBin,
                 enrollment: { studentId, courseId, course: { enabled: true } },
               },

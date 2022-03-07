@@ -1216,42 +1216,43 @@ model Message {
 /////////////////////////////////////////////////////////////////////////
 
 model NewUnitTemplate {
-  unitId      Bytes                   @id @db.Binary(16) @map("unit_template_id")
-  courseId    Int                     @db.UnsignedInt @map("course_id")
-  unitLetter  String                  @db.Char(1) @map("unit_letter")
-  title       String?
-  description String?                 @db.Text
-  optional    Boolean                 @default(false)
-  order       Int                     @db.Int
-  created     DateTime                @default(now()) @db.DateTime(0)
-  modified    DateTime?               @db.DateTime(0) @updatedAt
-  course      Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1")
-  assignments NewAssignmentTemplate[]
+  unitId         Bytes                   @id @db.Binary(16) @map("unit_template_id")
+  courseId       Int                     @db.UnsignedInt @map("course_id")
+  unitLetter     String                  @db.Char(1) @map("unit_letter")
+  title          String?
+  description    String?                 @db.Text
+  optional       Boolean                 @default(false)
+  order          Int                     @db.TinyInt @default(0)
+  created        DateTime                @default(now()) @db.DateTime(0)
+  modified       DateTime?               @db.DateTime(0) @updatedAt
+  course         Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1", onDelete: Cascade)
+  newAssignments NewAssignmentTemplate[]
 
   @@map("new_unit_templates")
   @@unique([courseId, unitLetter], map: "course_id_unit")
 }
 
 model NewUnit {
-  unitId        Bytes             @id @db.Binary(16) @map("unit_id")
-  enrollmentId  Int               @db.UnsignedInt @map("student_id")
-  tutorId       Int?              @db.Int @map("tutor_id")
-  unitLetter    String            @db.Char(1) @map("unit_letter")
-  title         String?
-  description   String?           @db.Text
-  optional      Boolean           @default(false)
-  tutorComment  String?           @db.MediumText @map("tutor_comment")
-  adminComment  String?           @db.MediumText @map("admin_comment")
-  submitted     DateTime?         @db.DateTime(0)
-  skipped       DateTime?         @db.DateTime(0)
-  transferred   DateTime?         @db.DateTime(0)
-  marked        DateTime?         @db.DateTime(0)
-  entityVersion Int               @default(0) @db.Int @map("entity_version")
-  created       DateTime          @default(now()) @db.DateTime(0)
-  modified      DateTime?         @db.DateTime(0) @updatedAt
-  enrollment    Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1")
-  tutor         Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
-  assignments   NewAssignment[]
+  unitId         Bytes             @id @db.Binary(16) @map("unit_id")
+  enrollmentId   Int               @db.UnsignedInt @map("student_id")
+  tutorId        Int?              @db.Int @map("tutor_id")
+  unitLetter     String            @db.Char(1) @map("unit_letter")
+  title          String?
+  description    String?           @db.Text
+  optional       Boolean           @default(false)
+  order          Int               @db.TinyInt @default(0)
+  tutorComment   String?           @db.MediumText @map("tutor_comment")
+  adminComment   String?           @db.MediumText @map("admin_comment")
+  submitted      DateTime?         @db.DateTime(0)
+  skipped        DateTime?         @db.DateTime(0)
+  transferred    DateTime?         @db.DateTime(0)
+  marked         DateTime?         @db.DateTime(0)
+  entityVersion  Int               @default(0) @db.Int @map("entity_version")
+  created        DateTime          @default(now()) @db.DateTime(0)
+  modified       DateTime?         @db.DateTime(0) @updatedAt
+  enrollment     Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
+  tutor          Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
+  newAssignments NewAssignment[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
@@ -1267,9 +1268,9 @@ model NewAssignmentTemplate {
   optional         Boolean                             @default(false)
   created          DateTime                            @default(now()) @db.DateTime(0)
   modified         DateTime?                           @db.DateTime(0) @updatedAt
-  unit             NewUnitTemplate                     @relation(fields: [unitId], references: [unitId], map: "new_assignment_templates_ibfk_1")
+  newUnit          NewUnitTemplate                     @relation(fields: [unitId], references: [unitId], map: "new_assignment_templates_ibfk_1", onDelete: Cascade)
   mediaElements    NewAssignmentMediaElementTemplate[]
-  parts            NewPartTemplate[]
+  newParts         NewPartTemplate[]
 
   @@map("new_assignment_templates")
   @@unique([unitId, assignmentNumber], map: "unit_template_id_assignment_number")
@@ -1284,9 +1285,9 @@ model NewAssignment {
   optional         Boolean                     @default(false)
   created          DateTime                    @default(now()) @db.DateTime(0)
   modified         DateTime?                   @db.DateTime(0) @updatedAt
-  unit             NewUnit                     @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1")
+  newUnit          NewUnit                     @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1", onDelete: Cascade)
   mediaElements    NewAssignmentMediaElement[]
-  parts            NewPart[]
+  newParts         NewPart[]
 
   @@map("new_assignments")
   @@unique([unitId, assignmentNumber], map: "unit_id_assignment_number")
@@ -1299,7 +1300,7 @@ model NewAssignmentMediaElementTemplate {
   externalData   String?               @db.VarChar(1024) @map("external_data")
   created        DateTime              @default(now()) @db.DateTime(0)
   modified       DateTime?             @db.DateTime(0) @updatedAt
-  assignment     NewAssignmentTemplate @relation(fields: [assignmentId], references: [assignmentId], map: "new_assignment_media_element_templates_ibfk_1")
+  newAssignment  NewAssignmentTemplate @relation(fields: [assignmentId], references: [assignmentId], map: "new_assignment_media_element_templates_ibfk_1", onDelete: Cascade)
   mimeType       MimeType              @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_assignment_media_element_templates_ibfk_2")
 
   @@map("new_assignment_media_element_templates")
@@ -1314,7 +1315,7 @@ model NewAssignmentMediaElement {
   externalData   String?       @db.VarChar(1024) @map("external_data")
   created        DateTime      @default(now()) @db.DateTime(0)
   modified       DateTime?     @db.DateTime(0) @updatedAt
-  assignment     NewAssignment @relation(fields: [assignmentId], references: [assignmentId], map: "new_assignment_media_elements_ibfk_1")
+  newAssignment  NewAssignment @relation(fields: [assignmentId], references: [assignmentId], map: "new_assignment_media_elements_ibfk_1", onDelete: Cascade)
   mimeType       MimeType      @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_assignment_media_elements_ibfk_2")
 
   @@map("new_assignment_media_elements")
@@ -1323,36 +1324,36 @@ model NewAssignmentMediaElement {
 }
 
 model NewPartTemplate {
-  partId        Bytes                         @id @db.Binary(16) @map("part_template_id")
-  assignmentId  Bytes                         @db.Binary(16) @map("assignment_template_id")
-  partNumber    Int                           @db.UnsignedInt @map("part_number")
-  title         String?
-  description   String?                       @db.Text
-  optional      Boolean                       @default(false)
-  created       DateTime                      @default(now()) @db.DateTime(0)
-  modified      DateTime?                     @db.DateTime(0) @updatedAt
-  assignment    NewAssignmentTemplate         @relation(fields: [assignmentId], references: [assignmentId], map: "new_part_templates_ibfk_1")
-  mediaElements NewPartMediaElementTemplate[]
-  textBoxes     NewTextBoxTemplate[]
-  uploadSlots   NewUploadSlotTemplate[]
+  partId         Bytes                         @id @db.Binary(16) @map("part_template_id")
+  assignmentId   Bytes                         @db.Binary(16) @map("assignment_template_id")
+  partNumber     Int                           @db.UnsignedInt @map("part_number")
+  title          String?
+  description    String?                       @db.Text
+  optional       Boolean                       @default(false)
+  created        DateTime                      @default(now()) @db.DateTime(0)
+  modified       DateTime?                     @db.DateTime(0) @updatedAt
+  newAssignment  NewAssignmentTemplate         @relation(fields: [assignmentId], references: [assignmentId], map: "new_part_templates_ibfk_1", onDelete: Cascade)
+  mediaElements  NewPartMediaElementTemplate[]
+  newTextBoxes   NewTextBoxTemplate[]
+  newUploadSlots NewUploadSlotTemplate[]
 
   @@map("new_part_templates")
   @@unique([assignmentId, partNumber], map: "assignment_template_id_part_number")
 }
 
 model NewPart {
-  partId        Bytes                 @id @db.Binary(16) @map("part_id")
-  assignmentId  Bytes                 @db.Binary(16) @map("assignment_id")
-  partNumber    Int                   @db.UnsignedInt @map("part_number")
-  title         String?
-  description   String?               @db.Text
-  optional      Boolean               @default(false)
-  created       DateTime              @default(now()) @db.DateTime(0)
-  modified      DateTime?             @db.DateTime(0) @updatedAt
-  assignment    NewAssignment         @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1")
-  mediaElements NewPartMediaElement[]
-  textBoxes     NewTextBox[]
-  uploadSlots   NewUploadSlot[]
+  partId         Bytes                 @id @db.Binary(16) @map("part_id")
+  assignmentId   Bytes                 @db.Binary(16) @map("assignment_id")
+  partNumber     Int                   @db.UnsignedInt @map("part_number")
+  title          String?
+  description    String?               @db.Text
+  optional       Boolean               @default(false)
+  created        DateTime              @default(now()) @db.DateTime(0)
+  modified       DateTime?             @db.DateTime(0) @updatedAt
+  newAssignment  NewAssignment         @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
+  mediaElements  NewPartMediaElement[]
+  newTextBoxes   NewTextBox[]
+  newUploadSlots NewUploadSlot[]
 
   @@map("new_parts")
   @@unique([assignmentId, partNumber], map: "assignment_id_part_number")
@@ -1366,7 +1367,7 @@ model NewPartMediaElementTemplate {
   created        DateTime        @default(now()) @db.DateTime(0)
   modified       DateTime?       @db.DateTime(0) @updatedAt
   mimeType       MimeType        @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_part_media_element_templates_ibfk_2")
-  part           NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_part_media_element_templates_ibfk_1")
+  newPart        NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_part_media_element_templates_ibfk_1", onDelete: Cascade)
 
   @@map("new_part_media_element_templates")
   @@index([mimeTypeId], map: "mime_type")
@@ -1381,7 +1382,7 @@ model NewPartMediaElement {
   created        DateTime   @default(now()) @db.DateTime(0)
   modified       DateTime?  @db.DateTime(0) @updatedAt
   mimeType       MimeType   @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_part_media_elements_ibfk_2")
-  part           NewPart    @relation(fields: [partId], references: [partId], map: "new_part_media_elements_ibfk_1")
+  newPart        NewPart    @relation(fields: [partId], references: [partId], map: "new_part_media_elements_ibfk_1", onDelete: Cascade)
 
   @@map("new_part_media_elements")
   @@index([mimeTypeId], map: "mime_type")
@@ -1395,10 +1396,10 @@ model NewTextBoxTemplate {
   lines       Int?            @db.TinyInt
   points      Int             @default(0) @db.UnsignedTinyInt
   optional    Boolean         @default(false)
-  order       Int             @db.UnsignedTinyInt @default(0)
+  order       Int             @db.TinyInt @default(0)
   created     DateTime        @default(now()) @db.DateTime(0)
   modified    DateTime?       @db.DateTime(0) @updatedAt
-  part        NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_text_box_templates_ibfk_1")
+  newPart     NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_text_box_templates_ibfk_1", onDelete: Cascade)
 
   @@map("new_text_box_templates")
   @@index([partId], map: "part_template_id")
@@ -1412,11 +1413,11 @@ model NewTextBox {
   points      Int       @default(0) @db.UnsignedTinyInt
   mark        Int?      @db.UnsignedTinyInt
   optional    Boolean   @default(false)
-  order       Int       @db.UnsignedTinyInt @default(0)
+  order       Int       @db.TinyInt @default(0)
   text        String    @db.Text @default("")
   created     DateTime  @default(now()) @db.DateTime(0)
   modified    DateTime? @db.DateTime(0) @updatedAt
-  part        NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1")
+  newPart     NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1", onDelete: Cascade)
 
   @@map("new_text_boxes")
   @@index([partId], map: "part_id")
@@ -1429,10 +1430,10 @@ model NewUploadSlotTemplate {
   allowedTypes String          @default("image") @map("allowed_types")
   points       Int             @default(0) @db.UnsignedTinyInt
   optional     Boolean         @default(false)
-  order        Int             @db.UnsignedTinyInt @default(0)
+  order        Int             @db.TinyInt @default(0)
   created      DateTime        @default(now()) @db.DateTime(0)
   modified     DateTime?       @db.DateTime(0) @updatedAt
-  part         NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_upload_slot_templates_ibfk_1")
+  newPart      NewPartTemplate @relation(fields: [partId], references: [partId], map: "new_upload_slot_templates_ibfk_1", onDelete: Cascade)
 
   @@map("new_upload_slot_templates")
   @@index([partId], map: "part_template_id")
@@ -1446,13 +1447,13 @@ model NewUploadSlot {
   points       Int       @default(0) @db.UnsignedTinyInt
   mark         Int?      @db.UnsignedTinyInt
   optional     Boolean   @default(false)
-  order        Int       @db.UnsignedTinyInt @default(0)
+  order        Int       @db.TinyInt @default(0)
   filename     String?
   size         Int?      @db.UnsignedInt
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
   created      DateTime  @default(now()) @db.DateTime(0)
   modified     DateTime? @db.DateTime(0) @updatedAt
-  part         NewPart   @relation(fields: [partId], references: [partId], map: "new_upload_slots_ibfk_1")
+  newPart      NewPart   @relation(fields: [partId], references: [partId], map: "new_upload_slots_ibfk_1", onDelete: Cascade)
   mimeType     MimeType? @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_upload_slots_ibfk_2")
 
   @@map("new_upload_slots")

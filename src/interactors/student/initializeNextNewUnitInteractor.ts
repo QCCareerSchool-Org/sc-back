@@ -79,7 +79,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         return Result.fail(new InitializeNextNewUnitNoMoreUnits());
       }
 
-      // this should never happen, but is needed type safety
+      // this should never happen, but is needed for type safety
       if (typeof unitLetter === 'undefined') {
         return Result.fail(new InitializeNextNewUnitCantDetermineUnit());
       }
@@ -88,10 +88,10 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       const nextUnitTemplate = await this.prisma.newUnitTemplate.findFirst({
         where: { courseId: enrollment.courseId, unitLetter },
         include: {
-          assignments: {
+          newAssignments: {
             include: {
-              parts: {
-                include: { textBoxes: true, uploadSlots: true, mediaElements: true },
+              newParts: {
+                include: { newTextBoxes: true, newUploadSlots: true, mediaElements: true },
               },
               mediaElements: true,
             },
@@ -102,20 +102,22 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         return Result.fail(new InitializeNextNewUnitTemplateNotFound());
       }
 
+      console.log(nextUnitTemplate);
+
       // make sure the unit has assignments
-      if (nextUnitTemplate.assignments.length === 0) {
+      if (nextUnitTemplate.newAssignments.length === 0) {
         return Result.fail(new InitializeNextNewUnitNoAssignmentsFound());
       }
 
       // make sure the each assignment has parts
-      for (const assignment of nextUnitTemplate.assignments) {
-        if (assignment.parts.length === 0) {
+      for (const assignment of nextUnitTemplate.newAssignments) {
+        if (assignment.newParts.length === 0) {
           return Result.fail(new InitializeNextNewUnitNoPartsFound());
         }
 
         // make sure each part has inputs
-        for (const part of assignment.parts) {
-          if (part.textBoxes.length === 0 && part.uploadSlots.length === 0) {
+        for (const part of assignment.newParts) {
+          if (part.newTextBoxes.length === 0 && part.newUploadSlots.length === 0) {
             return Result.fail(new InitializeNextNewUnitNoInputsFound());
           }
         }
@@ -131,42 +133,43 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
           title: nextUnitTemplate.title,
           description: nextUnitTemplate.description,
           optional: nextUnitTemplate.optional,
-          assignments: {
-            create: nextUnitTemplate.assignments.map(assignment => ({
+          order: nextUnitTemplate.order,
+          newAssignments: {
+            create: nextUnitTemplate.newAssignments.map(newAssignment => ({
               assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-              assignmentNumber: assignment.assignmentNumber,
-              title: assignment.title,
-              description: assignment.description,
-              optional: assignment.optional,
+              assignmentNumber: newAssignment.assignmentNumber,
+              title: newAssignment.title,
+              description: newAssignment.description,
+              optional: newAssignment.optional,
               parts: {
-                create: assignment.parts.map(part => ({
+                create: newAssignment.newParts.map(newPart => ({
                   partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  partNumber: part.partNumber,
-                  title: part.title,
-                  description: part.description,
-                  optional: part.optional,
+                  partNumber: newPart.partNumber,
+                  title: newPart.title,
+                  description: newPart.description,
+                  optional: newPart.optional,
                   textBoxes: {
-                    create: part.textBoxes.map(textBox => ({
+                    create: newPart.newTextBoxes.map(newTextBox => ({
                       textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      description: textBox.description,
-                      lines: textBox.lines,
-                      points: textBox.points,
-                      optional: textBox.optional,
-                      order: textBox.order,
+                      description: newTextBox.description,
+                      lines: newTextBox.lines,
+                      points: newTextBox.points,
+                      optional: newTextBox.optional,
+                      order: newTextBox.order,
                     })),
                   },
                   uploadSlots: {
-                    create: part.uploadSlots.map(uploadSlot => ({
+                    create: newPart.newUploadSlots.map(newUploadSlot => ({
                       uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      label: uploadSlot.label,
-                      allowedTypes: uploadSlot.allowedTypes,
-                      points: uploadSlot.points,
-                      optional: uploadSlot.optional,
-                      order: uploadSlot.order,
+                      label: newUploadSlot.label,
+                      allowedTypes: newUploadSlot.allowedTypes,
+                      points: newUploadSlot.points,
+                      optional: newUploadSlot.optional,
+                      order: newUploadSlot.order,
                     })),
                   },
                   mediaElements: {
-                    create: part.mediaElements.map(mediaElement => ({
+                    create: newPart.mediaElements.map(mediaElement => ({
                       mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                       mimeTypeId: mediaElement.mimeTypeId,
                       externalData: mediaElement.externalData,
@@ -175,7 +178,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                 })),
               },
               mediaElements: {
-                create: assignment.mediaElements.map(mediaElement => ({
+                create: newAssignment.mediaElements.map(mediaElement => ({
                   mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                   mimeTypeId: mediaElement.mimeTypeId,
                   externalData: mediaElement.externalData,

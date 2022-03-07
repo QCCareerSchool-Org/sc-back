@@ -6,6 +6,7 @@ import { DeleteNewPartTemplateController } from '../../controllers/administrator
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController';
 import { DeleteNewUnitTemplateController } from '../../controllers/administrators/deleteNewUnitTemplateController';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
+import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController';
@@ -13,9 +14,10 @@ import { GetNewTextBoxTemplateController } from '../../controllers/administrator
 import { GetNewUnitTemplateController } from '../../controllers/administrators/getNewUnitTemplateController';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController';
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController';
-import { GetSchoolsController } from '../../controllers/administrators/getSchoolsController';
+import { InsertNewAssignmentTemplateController } from '../../controllers/administrators/insertNewAssignmentTemplateController';
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
+import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
@@ -30,7 +32,7 @@ administratorRouter.use(
 );
 administratorRouter.get(
   '/:administratorId/schools',
-  asyncWrapper(async (req, res) => new GetSchoolsController(req, res).execute()),
+  asyncWrapper(async (req, res) => new GetAllSchoolsController(req, res).execute()),
 );
 administratorRouter.get(
   '/:administratorId/schools/:schoolId',
@@ -42,6 +44,10 @@ administratorRouter.get(
 );
 
 // new unit templates
+administratorRouter.post(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates',
+  asyncWrapper(async (req, res) => new InsertNewUnitTemplateController(req, res).execute()),
+);
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
   asyncWrapper(async (req, res) => new GetNewUnitTemplateController(req, res).execute()),
@@ -52,6 +58,10 @@ administratorRouter.delete(
 );
 
 // new assignment templates
+administratorRouter.post(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments',
+  asyncWrapper(async (req, res) => new InsertNewAssignmentTemplateController(req, res).execute()),
+);
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
   asyncWrapper(async (req, res) => new GetNewAssignmentTemplateController(req, res).execute()),

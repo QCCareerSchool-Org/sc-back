@@ -43,7 +43,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
 
       // find the assignment template
       const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
       });
       if (!assignment) {
         return Result.fail(new InsertNewPartTemplateAssignmentNotFound());

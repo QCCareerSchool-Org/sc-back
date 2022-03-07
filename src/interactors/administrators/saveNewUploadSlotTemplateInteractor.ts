@@ -52,7 +52,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
 
       // find the upload slot
       const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
       if (!uploadSlot) {
         return Result.fail(new SaveNewUploadSlotTemplateNotFound());

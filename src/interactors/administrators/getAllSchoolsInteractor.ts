@@ -5,18 +5,18 @@ import type { SchoolDTO } from '../../domain/schoolDTO';
 import type { ILoggerService } from '../../services/logger';
 import { Result, ResultType } from '../result';
 
-export type GetSchoolsRequestDTO = void;
+export type GetAllSchoolsRequestDTO = void;
 
-export type GetSchoolsResponseDTO = SchoolDTO[];
+export type GetAllSchoolsResponseDTO = SchoolDTO[];
 
-export class GetSchoolsInteractor implements IInteractor<GetSchoolsRequestDTO, GetSchoolsResponseDTO> {
+export class GetAllSchoolsInteractor implements IInteractor<GetAllSchoolsRequestDTO, GetAllSchoolsResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(): Promise<ResultType<GetSchoolsResponseDTO>> {
+  public async execute(): Promise<ResultType<GetAllSchoolsResponseDTO>> {
     try {
       const schools = await this.prisma.school.findMany();
 

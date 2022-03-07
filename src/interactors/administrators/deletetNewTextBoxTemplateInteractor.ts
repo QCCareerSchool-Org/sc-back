@@ -36,7 +36,7 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
 
       // find the text box template
       const part = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
       if (!part) {
         return Result.fail(new DeleteNewTextBoxTemplateNotFound());

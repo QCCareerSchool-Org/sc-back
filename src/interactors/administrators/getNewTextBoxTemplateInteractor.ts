@@ -17,7 +17,7 @@ export type GetNewTextBoxTemplateRequestDTO = {
 };
 
 export type GetNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO & {
-  part: NewPartTemplateDTO;
+  newPartTemplate: NewPartTemplateDTO;
 };
 
 export class GetNewTextBoxTemplateNotFound extends Error { }
@@ -38,8 +38,8 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
       const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
 
       const textBox = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
-        include: { part: true },
+        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: { newPart: true },
       });
       if (!textBox) {
         return Result.fail(new GetNewTextBoxTemplateNotFound());
@@ -55,15 +55,15 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
         order: textBox.order,
         created: textBox.created,
         modified: textBox.modified,
-        part: {
-          partId: this.uuidService.binToUUID(textBox.part.partId),
-          assignmentId: this.uuidService.binToUUID(textBox.part.assignmentId),
-          partNumber: textBox.part.partNumber,
-          title: textBox.part.title,
-          description: textBox.part.description,
-          optional: textBox.part.optional,
-          created: textBox.part.created,
-          modified: textBox.part.modified,
+        newPartTemplate: {
+          partId: this.uuidService.binToUUID(textBox.newPart.partId),
+          assignmentId: this.uuidService.binToUUID(textBox.newPart.assignmentId),
+          partNumber: textBox.newPart.partNumber,
+          title: textBox.newPart.title,
+          description: textBox.newPart.description,
+          optional: textBox.newPart.optional,
+          created: textBox.newPart.created,
+          modified: textBox.newPart.modified,
         },
       });
 

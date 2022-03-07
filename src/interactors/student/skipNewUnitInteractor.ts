@@ -40,7 +40,7 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         },
         include: {
           enrollment: true,
-          assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } },
+          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
         },
       });
 

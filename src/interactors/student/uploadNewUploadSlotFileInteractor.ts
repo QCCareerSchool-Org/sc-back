@@ -55,18 +55,18 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
       const uploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: {
           uploadSlotId: uploadSlotIdBin,
-          part: {
+          newPart: {
             partId: partIdBin,
-            assignment: {
+            newAssignment: {
               assignmentId: assignmentIdBin,
-              unit: {
+              newUnit: {
                 unitId: unitIdBin,
                 enrollment: { studentId, courseId, course: { enabled: true } },
               },
             },
           },
         },
-        include: { part: { include: { assignment: { include: { unit: true } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
       });
 
       if (!uploadSlot) {
@@ -75,11 +75,11 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
-      if (uploadSlot.part.assignment.unit.submitted) {
+      if (uploadSlot.newPart.newAssignment.newUnit.submitted) {
         return Result.fail(new UploadNewUploadSlotFileUnitSubmitted());
       }
 
-      if (uploadSlot.part.assignment.unit.skipped) {
+      if (uploadSlot.newPart.newAssignment.newUnit.skipped) {
         return Result.fail(new UploadNewUploadSlotFileUnitSkipped());
       }
 
@@ -134,7 +134,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         label: data.label,
         allowedTypes: data.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: data.points,
-        mark: uploadSlot.part.assignment.unit.marked ? data.mark : null, // hide mark unless the unit is marked
+        mark: uploadSlot.newPart.newAssignment.newUnit.marked ? data.mark : null, // hide mark unless the unit is marked
         optional: data.optional,
         order: data.order,
         filename: data.filename,

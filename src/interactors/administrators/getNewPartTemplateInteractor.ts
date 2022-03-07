@@ -18,9 +18,9 @@ export type GetNewPartTemplateRequestDTO = {
 };
 
 export type GetNewPartTemplateResponseDTO = NewPartTemplateDTO & {
-  assignment: NewAssignmentTemplateDTO;
-  textBoxes: NewTextBoxTemplateDTO[];
-  uploadSlots: NewUploadSlotTemplateDTO[];
+  newAssignmentTemplate: NewAssignmentTemplateDTO;
+  newTextBoxTemplates: NewTextBoxTemplateDTO[];
+  newUploadSlotTemplates: NewUploadSlotTemplateDTO[];
 };
 
 export class GetNewPartTemplateNotFound extends Error { }
@@ -40,13 +40,13 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
       const partIdBin = this.uuidService.uuidToBin(partId);
 
       const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
         include: {
-          assignment: true,
-          textBoxes: {
+          newAssignment: true,
+          newTextBoxes: {
             orderBy: [ { order: 'asc' } ],
           },
-          uploadSlots: {
+          newUploadSlots: {
             orderBy: [ { order: 'asc' } ],
           },
         },
@@ -64,17 +64,17 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
         optional: part.optional,
         created: part.created,
         modified: part.modified,
-        assignment: {
-          assignmentId: this.uuidService.binToUUID(part.assignment.assignmentId),
-          unitId: this.uuidService.binToUUID(part.assignment.unitId),
-          assignmentNumber: part.assignment.assignmentNumber,
-          title: part.assignment.title,
-          description: part.assignment.description,
-          optional: part.assignment.optional,
-          created: part.assignment.created,
-          modified: part.assignment.modified,
+        newAssignmentTemplate: {
+          assignmentId: this.uuidService.binToUUID(part.newAssignment.assignmentId),
+          unitId: this.uuidService.binToUUID(part.newAssignment.unitId),
+          assignmentNumber: part.newAssignment.assignmentNumber,
+          title: part.newAssignment.title,
+          description: part.newAssignment.description,
+          optional: part.newAssignment.optional,
+          created: part.newAssignment.created,
+          modified: part.newAssignment.modified,
         },
-        textBoxes: part.textBoxes.map(t => ({
+        newTextBoxTemplates: part.newTextBoxes.map(t => ({
           textBoxId: this.uuidService.binToUUID(t.textBoxId),
           partId: this.uuidService.binToUUID(t.partId),
           description: t.description,
@@ -85,7 +85,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           created: t.created,
           modified: t.modified,
         })),
-        uploadSlots: part.uploadSlots.map(u => ({
+        newUploadSlotTemplates: part.newUploadSlots.map(u => ({
           uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
           partId: this.uuidService.binToUUID(u.partId),
           label: u.label,

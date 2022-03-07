@@ -44,18 +44,18 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
       const textBox = await this.prisma.newTextBox.findFirst({
         where: {
           textBoxId: textBoxIdBin,
-          part: {
+          newPart: {
             partId: partIdBin,
-            assignment: {
+            newAssignment: {
               assignmentId: assignmentIdBin,
-              unit: {
+              newUnit: {
                 unitId: unitIdBin,
                 enrollment: { studentId, courseId, course: { enabled: true } },
               },
             },
           },
         },
-        include: { part: { include: { assignment: { include: { unit: true } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
       });
 
       if (!textBox) {
@@ -64,11 +64,11 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
-      if (textBox.part.assignment.unit.submitted) {
+      if (textBox.newPart.newAssignment.newUnit.submitted) {
         return Result.fail(new SaveNewTextBoxTextUnitSubmitted());
       }
 
-      if (textBox.part.assignment.unit.skipped) {
+      if (textBox.newPart.newAssignment.newUnit.skipped) {
         return Result.fail(new SaveNewTextBoxTextUnitSkipped());
       }
 
@@ -83,7 +83,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
-        mark: textBox.part.assignment.unit.marked ? updatedTextBox.mark : null, // hide mark unless the unit is marked
+        mark: textBox.newPart.newAssignment.newUnit.marked ? updatedTextBox.mark : null, // hide mark unless the unit is marked
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,

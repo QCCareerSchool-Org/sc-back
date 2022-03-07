@@ -18,9 +18,9 @@ export type GetNewAssignmentRequestDTO = {
 };
 
 export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
-  parts: Array<NewPartDTO & {
-    textBoxes: NewTextBoxDTO[];
-    uploadSlots: NewUploadSlotDTO[];
+  newParts: Array<NewPartDTO & {
+    newTextBoxes: NewTextBoxDTO[];
+    newUploadSlots: NewUploadSlotDTO[];
   }>;
 };
 
@@ -40,15 +40,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
           unitId: this.uuidService.uuidToBin(unitId),
-          unit: { enrollment: { studentId, courseId, course: { enabled: true } } },
+          newUnit: { enrollment: { studentId, courseId, course: { enabled: true } } },
         },
         include: {
-          unit: true,
-          parts: {
+          newUnit: true,
+          newParts: {
             orderBy: { partNumber: 'asc' },
             include: {
-              textBoxes: { orderBy: { order: 'asc' } },
-              uploadSlots: { orderBy: { order: 'asc' } },
+              newTextBoxes: { orderBy: { order: 'asc' } },
+              newUploadSlots: { orderBy: { order: 'asc' } },
             },
           },
         },
@@ -68,7 +68,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         description: assignment.description,
         optional: assignment.optional,
         created: assignment.created,
-        parts: assignment.parts.map(p => {
+        newParts: assignment.newParts.map(p => {
           let partComplete = true;
           const part = {
             partId: this.uuidService.binToUUID(p.partId),
@@ -77,7 +77,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             title: p.title,
             description: p.description,
             optional: p.optional,
-            textBoxes: p.textBoxes.map(t => {
+            newTextBoxes: p.newTextBoxes.map(t => {
               const textBoxComplete = t.text.length > 0;
               if (!textBoxComplete) {
                 partComplete = false;
@@ -88,14 +88,14 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 description: t.description,
                 lines: t.lines,
                 points: t.points,
-                mark: assignment.unit.marked ? t.mark : null, // hide mark unless the unit is marked
+                mark: assignment.newUnit.marked ? t.mark : null, // hide mark unless the unit is marked
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
                 complete: textBoxComplete,
               };
             }),
-            uploadSlots: p.uploadSlots.map(u => {
+            newUploadSlots: p.newUploadSlots.map(u => {
               const uploadSlotComplete = u.filename !== null;
               if (!uploadSlotComplete) {
                 partComplete = false;
@@ -106,7 +106,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                 points: u.points,
-                mark: assignment.unit.marked ? u.mark : null, // hide mark unless the unit is marked
+                mark: assignment.newUnit.marked ? u.mark : null, // hide mark unless the unit is marked
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,

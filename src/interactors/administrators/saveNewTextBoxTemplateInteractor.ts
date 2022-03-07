@@ -51,7 +51,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
 
       // find the text box
       const textBox = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
       if (!textBox) {
         return Result.fail(new SaveNewTextBoxTemplateNotFound());

@@ -16,7 +16,7 @@ export type GetNewUnitTemplateRequestDTO = {
 
 export type GetNewUnitTemplateResponseDTO = NewUnitTemplateDTO & {
   course: CourseDTO;
-  assignments: NewAssignmentTemplateDTO[];
+  newAssignmentTemplates: NewAssignmentTemplateDTO[];
 };
 
 export class GetNewUnitTemplateNotFound extends Error { }
@@ -37,7 +37,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
         where: { unitId: unitIdBin, course: { courseId, schoolId } },
         include: {
           course: true,
-          assignments: {
+          newAssignments: {
             orderBy: [ { assignmentNumber: 'asc' } ],
           },
         },
@@ -70,7 +70,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           order: unit.course.order,
           entityVersion: unit.course.entityVersion,
         },
-        assignments: unit.assignments.map(a => ({
+        newAssignmentTemplates: unit.newAssignments.map(a => ({
           assignmentId: this.uuidService.binToUUID(a.assignmentId),
           unitId: this.uuidService.binToUUID(a.unitId),
           assignmentNumber: a.assignmentNumber,

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { getSchoolsInteractor } from '../../interactors/administrators';
-import { GetSchoolsResponseDTO } from '../../interactors/administrators/getSchoolsInteractor';
+import { getAllSchoolsInteractor } from '../../interactors/administrators';
+import { GetAllSchoolsResponseDTO } from '../../interactors/administrators/getAllSchoolsInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -11,9 +11,9 @@ type Request = {
   };
 };
 
-type Response = GetSchoolsResponseDTO;
+type Response = GetAllSchoolsResponseDTO;
 
-export class GetSchoolsController extends BaseController<Request, Response> {
+export class GetAllSchoolsController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -37,7 +37,7 @@ export class GetSchoolsController extends BaseController<Request, Response> {
       return this.methodNotAllowed();
     }
 
-    const result = await getSchoolsInteractor.execute();
+    const result = await getAllSchoolsInteractor.execute();
 
     if (result.success) {
       return this.ok(result.value);

@@ -44,7 +44,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         },
         include: {
           enrollment: true,
-          assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } },
+          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
         },
       });
 

@@ -32,7 +32,7 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
 
       // find the assignment template
       const part = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
       });
       if (!part) {
         return Result.fail(new DeleteNewAssignmentTemplateNotFound());

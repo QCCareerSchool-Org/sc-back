@@ -20,10 +20,10 @@ export type GetNewUnitRequestDTO = {
 
 export type GetNewUnitResponseDTO = NewUnitDTO & {
   enrollment: EnrollmentDTO;
-  assignments: Array<NewAssignmentDTO & {
-    parts: Array<NewPartDTO & {
-      textBoxes: NewTextBoxDTO[];
-      uploadSlots: NewUploadSlotDTO[];
+  newAssignments: Array<NewAssignmentDTO & {
+    newParts: Array<NewPartDTO & {
+      newTextBoxes: NewTextBoxDTO[];
+      newUploadSlots: NewUploadSlotDTO[];
     }>;
   }>;
 };
@@ -47,8 +47,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         },
         include: {
           enrollment: true,
-          // assignments: true,
-          assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } },
+          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
         },
       });
 
@@ -91,7 +90,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
           fastTrack: unit.enrollment.fastTrack,
           paymentsDisabled: unit.enrollment.paymentsDisabled,
         },
-        assignments: unit.assignments.map(a => {
+        newAssignments: unit.newAssignments.map(a => {
           let assignmentComplete = true;
           const assignment = {
             assignmentId: this.uuidService.binToUUID(a.assignmentId),
@@ -100,7 +99,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             title: a.title,
             description: a.description,
             optional: a.optional,
-            parts: a.parts.map(p => {
+            newParts: a.newParts.map(p => {
               let partComplete = true;
               const part = {
                 partId: this.uuidService.binToUUID(p.partId),
@@ -109,7 +108,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 title: p.title,
                 description: p.description,
                 optional: p.optional,
-                textBoxes: p.textBoxes.map(t => {
+                newTextBoxes: p.newTextBoxes.map(t => {
                   const textBoxComplete = t.text.length > 0;
                   if (!t.optional && !textBoxComplete) {
                     partComplete = false;
@@ -127,7 +126,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                     complete: textBoxComplete,
                   };
                 }),
-                uploadSlots: p.uploadSlots.map(u => {
+                newUploadSlots: p.newUploadSlots.map(u => {
                   const uploadSlotComplete = u.filename !== null;
                   if (!u.optional && !uploadSlotComplete) {
                     partComplete = false;

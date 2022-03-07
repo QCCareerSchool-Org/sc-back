@@ -59,7 +59,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           // units: { orderBy: { order: 'asc' } },
           // newUnits: { orderBy: { unitLetter: 'asc' } },
           units: true,
-          newUnits: { include: { assignments: { include: { parts: { include: { textBoxes: true, uploadSlots: true } } } } } },
+          newUnits: { include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } } },
         },
       });
 

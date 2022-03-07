@@ -16,8 +16,8 @@ export type GetNewAssignmentTemplateRequestDTO = {
 };
 
 export type GetNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO & {
-  unit: NewUnitTemplateDTO;
-  parts: NewPartTemplateDTO[];
+  newUnitTemplate: NewUnitTemplateDTO;
+  newPartTemplates: NewPartTemplateDTO[];
 };
 
 export class GetNewAssignmentTemplateNotFound extends Error { }
@@ -36,10 +36,10 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
       const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
         include: {
-          unit: true,
-          parts: {
+          newUnit: true,
+          newParts: {
             orderBy: [ { partNumber: 'asc' } ],
           },
         },
@@ -57,17 +57,17 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         optional: assignment.optional,
         created: assignment.created,
         modified: assignment.modified,
-        unit: {
-          unitId: this.uuidService.binToUUID(assignment.unit.unitId),
-          courseId: assignment.unit.courseId,
-          unitLetter: assignment.unit.unitLetter,
-          title: assignment.unit.title,
-          description: assignment.unit.description,
-          optional: assignment.unit.optional,
-          created: assignment.unit.created,
-          modified: assignment.unit.modified,
+        newUnitTemplate: {
+          unitId: this.uuidService.binToUUID(assignment.newUnit.unitId),
+          courseId: assignment.newUnit.courseId,
+          unitLetter: assignment.newUnit.unitLetter,
+          title: assignment.newUnit.title,
+          description: assignment.newUnit.description,
+          optional: assignment.newUnit.optional,
+          created: assignment.newUnit.created,
+          modified: assignment.newUnit.modified,
         },
-        parts: assignment.parts.map(p => ({
+        newPartTemplates: assignment.newParts.map(p => ({
           partId: this.uuidService.binToUUID(p.partId),
           assignmentId: this.uuidService.binToUUID(p.assignmentId),
           partNumber: p.partNumber,

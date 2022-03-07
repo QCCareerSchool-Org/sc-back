@@ -17,7 +17,7 @@ export type GetNewUploadSlotTemplateRequestDTO = {
 };
 
 export type GetNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO & {
-  part: NewPartTemplateDTO;
+  newPartTemplate: NewPartTemplateDTO;
 };
 
 export class GetNewUploadSlotTemplateNotFound extends Error { }
@@ -38,8 +38,8 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, part: { partId: partIdBin, assignment: { assignmentId: assignmentIdBin, unit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
-        include: { part: true },
+        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: { newPart: true },
       });
       if (!uploadSlot) {
         return Result.fail(new GetNewUploadSlotTemplateNotFound());
@@ -55,15 +55,15 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
         order: uploadSlot.order,
         created: uploadSlot.created,
         modified: uploadSlot.modified,
-        part: {
-          partId: this.uuidService.binToUUID(uploadSlot.part.partId),
-          assignmentId: this.uuidService.binToUUID(uploadSlot.part.assignmentId),
-          partNumber: uploadSlot.part.partNumber,
-          title: uploadSlot.part.title,
-          description: uploadSlot.part.description,
-          optional: uploadSlot.part.optional,
-          created: uploadSlot.part.created,
-          modified: uploadSlot.part.modified,
+        newPartTemplate: {
+          partId: this.uuidService.binToUUID(uploadSlot.newPart.partId),
+          assignmentId: this.uuidService.binToUUID(uploadSlot.newPart.assignmentId),
+          partNumber: uploadSlot.newPart.partNumber,
+          title: uploadSlot.newPart.title,
+          description: uploadSlot.newPart.description,
+          optional: uploadSlot.newPart.optional,
+          created: uploadSlot.newPart.created,
+          modified: uploadSlot.newPart.modified,
         },
       });
 
