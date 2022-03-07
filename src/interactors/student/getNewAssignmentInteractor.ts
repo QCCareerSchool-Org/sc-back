@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
+import { NewPartDTO } from '../../domain/newPartDTO';
+import { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
+import { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import { NewAssignmentDTO } from '../../domain/student/newAssignmentDTO';
-import { NewPartDTO } from '../../domain/student/newPartDTO';
-import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
-import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';

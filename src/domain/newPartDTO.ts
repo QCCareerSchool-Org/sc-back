@@ -8,4 +8,6 @@ export type NewPartDTO = {
   description: string | null;
   optional: boolean;
   complete: boolean;
+  created: Date;
+  modified: Date | null;
 };

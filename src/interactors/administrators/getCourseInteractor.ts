@@ -71,6 +71,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           title: u.title,
           description: u.description,
           optional: u.optional,
+          order: u.order,
           created: u.created,
           modified: u.modified,
         })),

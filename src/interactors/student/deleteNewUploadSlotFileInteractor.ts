@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';

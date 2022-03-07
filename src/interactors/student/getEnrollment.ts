@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
 import { CourseDTO } from '../../domain/courseDTO';
+import { EnrollmentDTO } from '../../domain/enrollmentDTO';
+import { NewUnitDTO } from '../../domain/newUnitDTO';
 import { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
-import { NewUnitDTO } from '../../domain/student/newUnitDTO';
-import { OldUnitDTO } from '../../domain/student/oldUnitDTO';
-import { OldUnitTemplateDTO } from '../../domain/student/oldUnitTemplateDTO';
-import { TutorDTO } from '../../domain/student/tutorDTO';
+import { OldUnitDTO } from '../../domain/oldUnitDTO';
+import { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO';
+import { TutorDTO } from '../../domain/tutorDTO';
 import { IConfigService } from '../../services/config';
 import { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -117,6 +117,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             title: unit.title,
             description: unit.description,
             optional: unit.optional,
+            order: unit.order,
             created: unit.created,
             modified: unit.modified,
           })),
@@ -163,6 +164,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           title: unit.title,
           description: unit.description,
           optional: unit.optional,
+          order: unit.order,
           complete: unitIsComplete(unit),
           adminComment: unit.adminComment,
           submitted: unit.submitted,

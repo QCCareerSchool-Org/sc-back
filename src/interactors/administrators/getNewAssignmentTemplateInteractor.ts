@@ -64,6 +64,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           title: assignment.newUnit.title,
           description: assignment.newUnit.description,
           optional: assignment.newUnit.optional,
+          order: assignment.newUnit.order,
           created: assignment.newUnit.created,
           modified: assignment.newUnit.modified,
         },

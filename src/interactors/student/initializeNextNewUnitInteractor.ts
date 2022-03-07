@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
-import { NewUnitDTO } from '../../domain/student/newUnitDTO';
+import { NewUnitDTO } from '../../domain/newUnitDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -197,6 +197,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         title: nextUnit.title,
         description: nextUnit.description,
         optional: nextUnit.optional,
+        order: nextUnit.order,
         adminComment: nextUnit.adminComment,
         submitted: nextUnit.submitted,
         skipped: nextUnit.skipped,

@@ -53,6 +53,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
         title: unit.title,
         description: unit.description,
         optional: unit.optional,
+        order: unit.order,
         created: unit.created,
         modified: unit.modified,
         course: {

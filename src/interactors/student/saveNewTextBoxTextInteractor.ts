@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
-import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
+import { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';

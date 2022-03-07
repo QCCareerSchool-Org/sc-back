@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
+import { EnrollmentDTO } from '../../domain/enrollmentDTO';
+import { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
+import { NewPartDTO } from '../../domain/newPartDTO';
+import { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
+import { NewUnitDTO } from '../../domain/newUnitDTO';
+import { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
-import { NewAssignmentDTO } from '../../domain/student/newAssignmentDTO';
-import { NewPartDTO } from '../../domain/student/newPartDTO';
-import { NewTextBoxDTO } from '../../domain/student/newTextBoxDTO';
-import { NewUnitDTO } from '../../domain/student/newUnitDTO';
-import { NewUploadSlotDTO } from '../../domain/student/newUploadSlotDTO';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -65,6 +65,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         title: unit.title,
         description: unit.description,
         optional: unit.optional,
+        order: unit.order,
         adminComment: unit.adminComment,
         submitted: unit.submitted,
         skipped: unit.skipped,

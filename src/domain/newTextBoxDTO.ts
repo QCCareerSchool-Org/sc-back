@@ -11,4 +11,6 @@ export type NewTextBoxDTO = {
   order: number;
   text: string;
   complete: boolean;
+  created: Date;
+  modified: Date | null;
 };

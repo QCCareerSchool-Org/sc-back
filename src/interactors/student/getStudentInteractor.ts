@@ -2,9 +2,9 @@ import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
 import { CountryDTO } from '../../domain/countryDTO';
+import { EnrollmentDTO } from '../../domain/enrollmentDTO';
 import { ProvinceDTO } from '../../domain/provinceDTO';
-import { EnrollmentDTO } from '../../domain/student/enrollmentDTO';
-import { StudentDTO } from '../../domain/student/studentDTO';
+import { StudentDTO } from '../../domain/studentDTO';
 import type { ILoggerService } from '../../services/logger';
 import { Result, ResultType } from '../result';
 

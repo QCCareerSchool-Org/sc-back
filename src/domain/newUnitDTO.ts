@@ -7,12 +7,14 @@ export type NewUnitDTO = {
   title: string | null;
   description: string | null;
   optional: boolean;
-  complete: boolean;
+  order: number;
   // students should never see `tutorComment`
   adminComment: string | null;
   submitted: Date | null;
   skipped: Date | null;
   transferred: Date | null;
   marked: Date | null;
+  complete: boolean;
   created: Date;
+  modified: Date | null;
 };

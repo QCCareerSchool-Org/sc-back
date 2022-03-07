@@ -1,4 +1,4 @@
-import type { NewUploadSlotAllowedType } from '../newUploadSlotTemplateDTO';
+import type { NewUploadSlotAllowedType } from './newUploadSlotTemplateDTO';
 
 export type NewUploadSlotDTO = {
   /** uuid */
@@ -15,4 +15,6 @@ export type NewUploadSlotDTO = {
   size: number | null;
   mimeTypeId: string | null;
   complete: boolean;
+  created: Date;
+  modified: Date | null;
 };

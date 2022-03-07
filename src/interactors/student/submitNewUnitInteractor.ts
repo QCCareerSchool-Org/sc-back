@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { IInteractor } from '..';
-import { NewUnitDTO } from '../../domain/student/newUnitDTO';
+import { NewUnitDTO } from '../../domain/newUnitDTO';
 import { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import { IUUIDService } from '../../services/uuid';
@@ -93,6 +93,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         title: updatedUnit.title,
         description: updatedUnit.description,
         optional: updatedUnit.optional,
+        order: updatedUnit.order,
         complete: true,
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
