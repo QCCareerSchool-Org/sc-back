@@ -141,6 +141,8 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         size: data.size,
         mimeTypeId: data.mimeTypeId,
         complete: data.filename !== null,
+        created: data.created,
+        modified: data.modified,
       });
 
     } catch (err) {

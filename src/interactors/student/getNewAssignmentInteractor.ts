@@ -68,6 +68,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         description: assignment.description,
         optional: assignment.optional,
         created: assignment.created,
+        modified: assignment.modified,
         newParts: assignment.newParts.map(p => {
           let partComplete = true;
           const part = {
@@ -77,6 +78,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             title: p.title,
             description: p.description,
             optional: p.optional,
+            created: p.created,
+            modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
               const textBoxComplete = t.text.length > 0;
               if (!textBoxComplete) {
@@ -93,6 +96,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 order: t.order,
                 text: t.text,
                 complete: textBoxComplete,
+                created: t.created,
+                modified: t.modified,
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
@@ -113,6 +118,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 size: u.size,
                 mimeTypeId: u.mimeTypeId,
                 complete: uploadSlotComplete,
+                created: u.created,
+                modified: u.modified,
               };
             }),
             complete: partComplete,

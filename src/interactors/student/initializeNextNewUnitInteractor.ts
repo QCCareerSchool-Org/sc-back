@@ -203,8 +203,9 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         skipped: nextUnit.skipped,
         transferred: nextUnit.transferred,
         marked: nextUnit.marked,
-        created: nextUnit.created,
         complete: false,
+        created: nextUnit.created,
+        modified: nextUnit.modified,
       });
 
     } catch (err) {

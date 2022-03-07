@@ -101,6 +101,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         transferred: updatedUnit.transferred,
         marked: updatedUnit.marked,
         created: updatedUnit.created,
+        modified: updatedUnit.modified,
       });
 
     } catch (err) {

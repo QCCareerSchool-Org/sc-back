@@ -88,6 +88,8 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
+        created: updatedTextBox.created,
+        modified: updatedTextBox.modified,
       });
 
     } catch (err) {

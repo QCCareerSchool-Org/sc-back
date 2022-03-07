@@ -84,6 +84,7 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         transferred: updatedUnit.transferred,
         marked: updatedUnit.marked,
         created: updatedUnit.created,
+        modified: updatedUnit.modified,
       });
 
     } catch (err) {

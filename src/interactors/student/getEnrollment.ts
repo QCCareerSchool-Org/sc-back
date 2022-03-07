@@ -172,6 +172,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           transferred: unit.transferred,
           marked: unit.marked,
           created: unit.created,
+          modified: unit.modified,
         })),
       });
 

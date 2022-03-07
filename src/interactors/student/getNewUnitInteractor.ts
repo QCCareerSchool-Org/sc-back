@@ -72,6 +72,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         transferred: unit.transferred,
         marked: unit.marked,
         created: unit.created,
+        modified: unit.modified,
         enrollment: {
           enrollmentId: unit.enrollment.enrollmentId,
           courseId: unit.enrollment.courseId,
@@ -100,6 +101,8 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             title: a.title,
             description: a.description,
             optional: a.optional,
+            created: a.created,
+            modified: a.modified,
             newParts: a.newParts.map(p => {
               let partComplete = true;
               const part = {
@@ -109,6 +112,8 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 title: p.title,
                 description: p.description,
                 optional: p.optional,
+                created: p.created,
+                modified: p.modified,
                 newTextBoxes: p.newTextBoxes.map(t => {
                   const textBoxComplete = t.text.length > 0;
                   if (!t.optional && !textBoxComplete) {
@@ -125,6 +130,8 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                     order: t.order,
                     text: t.text,
                     complete: textBoxComplete,
+                    created: t.created,
+                    modified: t.modified,
                   };
                 }),
                 newUploadSlots: p.newUploadSlots.map(u => {
@@ -145,6 +152,8 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                     size: u.size,
                     mimeTypeId: u.mimeTypeId,
                     complete: uploadSlotComplete,
+                    created: u.created,
+                    modified: u.modified,
                   };
                 }),
                 complete: partComplete,

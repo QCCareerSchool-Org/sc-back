@@ -114,6 +114,8 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
         size: data.size,
         mimeTypeId: data.mimeTypeId,
         complete: data.filename !== null,
+        created: data.created,
+        modified: data.modified,
       });
 
     } catch (err) {
