@@ -50,7 +50,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
 
-      // find the upload slot
+      // find the upload slot template
       const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
         where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
@@ -86,7 +86,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         return Result.fail(new SaveNewUploadSlotTemplateOrderTooLarge());
       }
 
-      // update the upload slot
+      // update the upload slot template
       const updatedUploadSlot = await this.prisma.newUploadSlotTemplate.update({
         data: {
           label,

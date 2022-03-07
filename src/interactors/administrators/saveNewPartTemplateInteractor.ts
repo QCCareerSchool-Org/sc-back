@@ -15,7 +15,7 @@ export type SaveNewPartTemplateRequestDTO = {
   partId: string;
   data: {
     partNumber: number;
-    title: string;
+    title: string | null;
     description: string | null;
     optional: boolean;
   };
@@ -24,6 +24,8 @@ export type SaveNewPartTemplateRequestDTO = {
 export type SaveNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class SaveNewPartTemplateNotFound extends Error { }
+export class SaveNewPartTemplatePartNumberLessThanOne extends Error { }
+export class SaveNewPartTemplatePartNumberTooLarge extends Error { }
 export class SaveNewPartTemplatePartNumberAlreadyInUse extends Error { }
 
 export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTemplateRequestDTO, SaveNewPartTemplateResponseDTO> {
@@ -41,7 +43,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
 
-      // find the part
+      // find the part template
       const part = await this.prisma.newPartTemplate.findFirst({
         where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
       });
@@ -50,12 +52,23 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       }
 
       // validate the data
+      if (partNumber < 1) {
+        return Result.fail(new SaveNewPartTemplatePartNumberLessThanOne());
+      }
+      if (partNumber > 127) {
+        return Result.fail(new SaveNewPartTemplatePartNumberTooLarge());
+      }
 
-      // update the part
+      // update the part template
       let updatedPart: NewPartTemplate;
       try {
         updatedPart = await this.prisma.newPartTemplate.update({
-          data: { partNumber, title, description, optional },
+          data: {
+            partNumber,
+            title: title?.length ? title : null,
+            description: description?.length ? description : null,
+            optional,
+          },
           where: { partId: partIdBin },
         });
       } catch (err) {

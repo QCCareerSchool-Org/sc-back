@@ -1229,7 +1229,7 @@ model NewUnitTemplate {
   newAssignments NewAssignmentTemplate[]
 
   @@map("new_unit_templates")
-  @@unique([courseId, unitLetter], map: "course_id_unit")
+  @@unique([courseId, unitLetter], map: "course_id_unit_letter")
 }
 
 model NewUnit {

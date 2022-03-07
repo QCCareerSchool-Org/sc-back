@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { insertNewPartTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -81,6 +81,8 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
         return this.badRequest('Part number must be greater than or equal to 1');
       case InsertNewPartTemplatePartNumberTooLarge:
         return this.badRequest('Part number value exceeds maximum');
+      case InsertNewPartTemplatePartNumberAlreadyInUse:
+        return this.badRequest('Part number already in use for this assignment');
       default:
         return this.internalServerError(result.error.message);
     }

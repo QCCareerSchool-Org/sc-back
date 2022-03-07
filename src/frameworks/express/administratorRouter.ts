@@ -19,6 +19,7 @@ import { InsertNewPartTemplateController } from '../../controllers/administrator
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
 import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
+import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController';
@@ -65,6 +66,10 @@ administratorRouter.post(
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
   asyncWrapper(async (req, res) => new GetNewAssignmentTemplateController(req, res).execute()),
+);
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
+  asyncWrapper(async (req, res) => new SaveNewAssignmentTemplateController(req, res).execute()),
 );
 administratorRouter.delete(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',

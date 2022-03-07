@@ -1,4 +1,5 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewUnitTemplate, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
@@ -26,6 +27,7 @@ export class InsertNewUnitTemplateUnitLetterTooLong extends Error { }
 export class InsertNewUnitTemplateInvalidUnitLetter extends Error { }
 export class InsertNewUnitTemplateOrderLessThanZero extends Error { }
 export class InsertNewUnitTemplateOrderTooLarge extends Error { }
+export class InsertNewUnitTemplateUnitLetterAlreadyInUse extends Error { }
 
 export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUnitTemplateRequestDTO, InsertNewUnitTemplateResponseDTO> {
 
@@ -65,18 +67,29 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         return Result.fail(new InsertNewUnitTemplateOrderTooLarge());
       }
 
-      // insert the unit
-      const insertedUnit = await this.prisma.newUnitTemplate.create({
-        data: {
-          unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId,
-          unitLetter,
-          title: title?.length ? title : null,
-          description: description?.length ? description : null,
-          optional,
-          order,
-        },
-      });
+      // insert the assignment
+      let insertedUnit: NewUnitTemplate;
+      try {
+        insertedUnit = await this.prisma.newUnitTemplate.create({
+          data: {
+            unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            courseId,
+            unitLetter,
+            title: title?.length ? title : null,
+            description: description?.length ? description : null,
+            optional,
+            order,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+          const meta = err.meta as { target: string };
+          if (meta.target === 'course_id_unit_letter') {
+            return Result.fail(new InsertNewUnitTemplateUnitLetterAlreadyInUse());
+          }
+        }
+        throw err;
+      }
 
       return Result.success({
         unitId: this.uuidService.binToUUID(insertedUnit.unitId),

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { insertNewUnitTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateResponseDTO, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
+import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateResponseDTO, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -82,6 +82,8 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
         return this.badRequest('Order must be greater than or equal to 1');
       case InsertNewUnitTemplateOrderTooLarge:
         return this.badRequest('Order value exceeds maximum');
+      case InsertNewUnitTemplateUnitLetterAlreadyInUse:
+        return this.badRequest('Unit letter is already in use for this course');
       default:
         return this.internalServerError(result.error.message);
     }

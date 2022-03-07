@@ -1,4 +1,5 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
@@ -23,6 +24,7 @@ export type InsertNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 export class InsertNewAssignmentTemplateUnitNotFound extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
+export class InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
 
 export class InsertNewAssignmentTemplateInteractor implements IInteractor<InsertNewAssignmentTemplateRequestDTO, InsertNewAssignmentTemplateResponseDTO> {
 
@@ -46,6 +48,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewAssignmentTemplateUnitNotFound());
       }
 
+      // validate the data
       if (assignmentNumber < 1) {
         return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberLessThanOne());
       }
@@ -54,16 +57,27 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       }
 
       // insert the assignment
-      const insertedAssignment = await this.prisma.newAssignmentTemplate.create({
-        data: {
-          assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          unitId: unitIdBin,
-          assignmentNumber,
-          title: title?.length ? title : null,
-          description: description?.length ? description : null,
-          optional,
-        },
-      });
+      let insertedAssignment: NewAssignmentTemplate;
+      try {
+        insertedAssignment = await this.prisma.newAssignmentTemplate.create({
+          data: {
+            assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            unitId: unitIdBin,
+            assignmentNumber,
+            title: title?.length ? title : null,
+            description: description?.length ? description : null,
+            optional,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+          const meta = err.meta as { target: string };
+          if (meta.target === 'unit_template_id_assignment_number') {
+            return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse());
+          }
+        }
+        throw err;
+      }
 
       return Result.success({
         assignmentId: this.uuidService.binToUUID(insertedAssignment.assignmentId),

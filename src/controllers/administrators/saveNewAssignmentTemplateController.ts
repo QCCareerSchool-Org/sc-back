@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { insertNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateResponseDTO, InsertNewAssignmentTemplateUnitNotFound } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
+import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -14,18 +14,20 @@ type Request = {
     courseId: string;
     /** uuid */
     unitId: string;
+    /** uuid */
+    assignmentId: string;
   };
   body: {
     assignmentNumber: number;
-    title: string | null;
+    title: string;
     description: string | null;
     optional: boolean;
   };
 };
 
-type Response = InsertNewAssignmentTemplateResponseDTO;
+type Response = SaveNewAssignmentTemplateResponseDTO;
 
-export class InsertNewAssignmentTemplateController extends BaseController<Request, Response> {
+export class SaveNewAssignmentTemplateController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -33,11 +35,12 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
       schoolId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      title: yup.string().nullable(true).defined(),
-      description: yup.string().nullable(true).defined(),
       assignmentNumber: yup.number().defined(),
+      title: yup.string().defined(),
+      description: yup.string().nullable().defined(),
       optional: yup.boolean().defined(),
     });
     try {
@@ -57,28 +60,28 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
   }
 
   protected async executeImpl({ params, body }: Request): Promise<void> {
-    if (!this.isPostMethod()) {
+    if (!this.isPutMethod()) {
       return this.methodNotAllowed();
     }
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId } = params;
+    const { unitId, assignmentId } = params;
 
-    const result = await insertNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, data: body });
+    const result = await saveNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, data: body });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case InsertNewAssignmentTemplateUnitNotFound:
-        return this.notFound('Unit template not found');
-      case InsertNewAssignmentTemplateAssignmentNumberLessThanOne:
-        return this.badRequest('Assignment number must be greater than or equal to 1');
-      case InsertNewAssignmentTemplateAssignmentNumberTooLarge:
+      case SaveNewAssignmentTemplateNotFound:
+        return this.notFound('Part template not found');
+      case SaveNewAssignmentTemplateAssignmentNumberLessThanOne:
+        return this.badRequest('Assignment number must be greater than or equal to one');
+      case SaveNewAssignmentTemplateAssignmentNumberTooLarge:
         return this.badRequest('Assignment number value exceeds maximum');
-      case InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse:
+      case SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse:
         return this.badRequest('Assignment number already in use for this unit');
       default:
         return this.internalServerError(result.error.message);

@@ -1,7 +1,8 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewPartTemplate, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
-import { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
+import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -24,6 +25,7 @@ export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
 export class InsertNewPartTemplateAssignmentNotFound extends Error { }
 export class InsertNewPartTemplatePartNumberLessThanOne extends Error { }
 export class InsertNewPartTemplatePartNumberTooLarge extends Error { }
+export class InsertNewPartTemplatePartNumberAlreadyInUse extends Error { }
 
 export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPartTemplateRequestDTO, InsertNewPartTemplateResponseDTO> {
 
@@ -48,6 +50,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         return Result.fail(new InsertNewPartTemplateAssignmentNotFound());
       }
 
+      // validate the data
       if (partNumber < 1) {
         return Result.fail(new InsertNewPartTemplatePartNumberLessThanOne());
       }
@@ -55,17 +58,28 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         return Result.fail(new InsertNewPartTemplatePartNumberTooLarge());
       }
 
-      // insert the part
-      const insertedPart = await this.prisma.newPartTemplate.create({
-        data: {
-          partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          assignmentId: assignmentIdBin,
-          partNumber,
-          title: title?.length ? title : null,
-          description: description?.length ? description : null,
-          optional,
-        },
-      });
+      // update the part
+      let insertedPart: NewPartTemplate;
+      try {
+        insertedPart = await this.prisma.newPartTemplate.create({
+          data: {
+            partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            assignmentId: assignmentIdBin,
+            partNumber,
+            title: title?.length ? title : null,
+            description: description?.length ? description : null,
+            optional,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+          const meta = err.meta as { target: string };
+          if (meta.target === 'assignment_template_id_part_number') {
+            return Result.fail(new InsertNewPartTemplatePartNumberAlreadyInUse());
+          }
+        }
+        throw err;
+      }
 
       return Result.success({
         partId: this.uuidService.binToUUID(insertedPart.partId),

@@ -49,7 +49,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
-      // find the text box
+      // find the text box template
       const textBox = await this.prisma.newTextBoxTemplate.findFirst({
         where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
       });
@@ -81,7 +81,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
         return Result.fail(new SaveNewTextBoxTemplateOrderTooLarge());
       }
 
-      // update the text box
+      // update the text box template
       const updatedTextBox = await this.prisma.newTextBoxTemplate.update({
         data: { description, lines, points, optional, order },
         where: { textBoxId: textBoxIdBin },

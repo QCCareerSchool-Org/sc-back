@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import { SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -80,6 +80,10 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case SaveNewPartTemplateNotFound:
         return this.notFound('Part template not found');
+      case SaveNewPartTemplatePartNumberLessThanOne:
+        return this.badRequest('Part number must be greater than or equal to one');
+      case SaveNewPartTemplatePartNumberTooLarge:
+        return this.badRequest('Part number value exceeds maximum');
       case SaveNewPartTemplatePartNumberAlreadyInUse:
         return this.badRequest('Part number already in use for this assignment');
       default:

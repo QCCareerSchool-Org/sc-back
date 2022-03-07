@@ -18,6 +18,7 @@ import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteract
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor';
+import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor';
 import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor';
 import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplateInteractor';
@@ -34,6 +35,7 @@ export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteract
 
 export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewAssignmentTemplateInteractor = new SaveNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 
 export const insertNewPartTemplateInteractor = new InsertNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
