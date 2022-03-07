@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import { v1 } from 'uuid';
 
 import type { IInteractor } from '..';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
@@ -87,7 +86,7 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
       // insert the text box
       const insertedTextBox = await this.prisma.newUploadSlotTemplate.create({
         data: {
-          uploadSlotId: this.uuidService.uuidToBin(v1()),
+          uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           partId: partIdBin,
           label,
           allowedTypes: allowedTypes.join(','),

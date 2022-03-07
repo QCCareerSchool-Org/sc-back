@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import { v1 } from 'uuid';
 
 import type { IInteractor } from '..';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
@@ -82,7 +81,7 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
       // insert the text box
       const insertedTextBox = await this.prisma.newTextBoxTemplate.create({
         data: {
-          textBoxId: this.uuidService.uuidToBin(v1()),
+          textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           partId: partIdBin,
           description,
           lines,

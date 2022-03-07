@@ -1,17 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { CourseDTO } from '../../domain/courseDTO';
-import { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import { NewUnitDTO } from '../../domain/newUnitDTO';
-import { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import { OldUnitDTO } from '../../domain/oldUnitDTO';
-import { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO';
-import { TutorDTO } from '../../domain/tutorDTO';
-import { IConfigService } from '../../services/config';
-import { IFileService } from '../../services/file';
+import type { IInteractor } from '..';
+import type { CourseDTO } from '../../domain/courseDTO';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
+import type { NewUnitDTO } from '../../domain/newUnitDTO';
+import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
+import type { OldUnitDTO } from '../../domain/oldUnitDTO';
+import type { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO';
+import type { TutorDTO } from '../../domain/tutorDTO';
+import type { IConfigService } from '../../services/config';
+import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 import { unitIsComplete } from './unitIsComplete';
 

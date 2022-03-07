@@ -1,12 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
-import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import { IConfigService } from '../../services/config';
-import { IFileService } from '../../services/file';
+import type { IInteractor } from '..';
+import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
+import type { IConfigService } from '../../services/config';
+import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 export type DeleteNewUploadSlotFileRequestDTO = {

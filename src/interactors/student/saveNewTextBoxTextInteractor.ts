@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
+import type { IInteractor } from '..';
+import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 export type SaveNewTextBoxTextRequestDTO = {

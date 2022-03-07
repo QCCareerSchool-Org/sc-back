@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { NewUnitDTO } from '../../domain/newUnitDTO';
-import { IDateService } from '../../services/date';
+import type { IInteractor } from '..';
+import type { NewUnitDTO } from '../../domain/newUnitDTO';
+import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 export type SkipNewUnitRequestDTO = {

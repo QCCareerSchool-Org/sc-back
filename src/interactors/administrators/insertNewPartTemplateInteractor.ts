@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import { v1 } from 'uuid';
 
 import type { IInteractor } from '..';
 import { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
@@ -59,7 +58,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       // insert the part
       const insertedPart = await this.prisma.newPartTemplate.create({
         data: {
-          partId: this.uuidService.uuidToBin(v1()),
+          partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           assignmentId: assignmentIdBin,
           partNumber,
           title: title?.length ? title : null,

@@ -1,19 +1,18 @@
-import { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
+import type { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime';
-import { v1 } from 'uuid';
 
-import { IInteractor } from '..';
-import { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { AccountType } from '../../domain/accountType';
+import type { IInteractor } from '..';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import type { AccountType } from '../../domain/accountType';
 import { isValidStudentType } from '../../domain/studentType';
 import type { IConfigService } from '../../services/config';
 import type { ICryptoService } from '../../services/crypto';
-import { IDateService } from '../../services/date';
+import type { IDateService } from '../../services/date';
 import type { IIPAddressService } from '../../services/ipaddress';
 import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
-import { IStudentService } from '../../services/student';
-import { IUUIDService } from '../../services/uuid';
+import type { IStudentService } from '../../services/student';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 type LoginRequestDTO = {
@@ -119,7 +118,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       // store a the refresh token in the database
       await this.prisma.refreshToken.create({
         data: {
-          refreshTokenId: this.uuidService.uuidToBin(v1()),
+          refreshTokenId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           studentId: accountType === 'student' ? accountId : null,
           tutorId: accountType === 'tutor' ? accountId : null,
           administratorId: accountType === 'admin' ? accountId : null,

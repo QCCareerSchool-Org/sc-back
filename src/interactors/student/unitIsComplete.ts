@@ -1,4 +1,4 @@
-import { NewAssignment, NewPart, NewTextBox, NewUnit, NewUploadSlot } from '@prisma/client';
+import type { NewAssignment, NewPart, NewTextBox, NewUnit, NewUploadSlot } from '@prisma/client';
 
 type UnitWithChildren = NewUnit & {
   newAssignments: Array<NewAssignment & {

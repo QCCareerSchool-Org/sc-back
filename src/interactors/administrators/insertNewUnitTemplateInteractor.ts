@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import { v1 } from 'uuid';
 
 import type { IInteractor } from '..';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
@@ -69,7 +68,7 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
       // insert the unit
       const insertedUnit = await this.prisma.newUnitTemplate.create({
         data: {
-          unitId: this.uuidService.uuidToBin(v1()),
+          unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           courseId,
           unitLetter,
           title: title?.length ? title : null,

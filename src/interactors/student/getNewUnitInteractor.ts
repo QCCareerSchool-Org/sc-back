@@ -1,15 +1,15 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
-import { NewPartDTO } from '../../domain/newPartDTO';
-import { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
-import { NewUnitDTO } from '../../domain/newUnitDTO';
-import { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
-import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
+import type { IInteractor } from '..';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
+import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
+import type { NewPartDTO } from '../../domain/newPartDTO';
+import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
+import type { NewUnitDTO } from '../../domain/newUnitDTO';
+import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
-import { IUUIDService } from '../../services/uuid';
+import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
 
 export type GetNewUnitRequestDTO = {

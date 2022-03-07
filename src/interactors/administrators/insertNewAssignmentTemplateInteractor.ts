@@ -1,5 +1,4 @@
 import type { PrismaClient } from '@prisma/client';
-import { v1 } from 'uuid';
 
 import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
@@ -57,7 +56,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       // insert the assignment
       const insertedAssignment = await this.prisma.newAssignmentTemplate.create({
         data: {
-          assignmentId: this.uuidService.uuidToBin(v1()),
+          assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           unitId: unitIdBin,
           assignmentNumber,
           title: title?.length ? title : null,
