@@ -22,6 +22,7 @@ import { InsertNewUploadSlotTemplateController } from '../../controllers/adminis
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
+import { SaveNewUnitTemplateController } from '../../controllers/administrators/saveNewUnitTemplateController';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController';
 import { asyncWrapper } from './asyncWrapper';
 
@@ -52,6 +53,10 @@ administratorRouter.post(
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
   asyncWrapper(async (req, res) => new GetNewUnitTemplateController(req, res).execute()),
+);
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
+  asyncWrapper(async (req, res) => new SaveNewUnitTemplateController(req, res).execute()),
 );
 administratorRouter.delete(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',

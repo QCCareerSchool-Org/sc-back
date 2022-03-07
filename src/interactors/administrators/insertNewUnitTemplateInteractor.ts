@@ -50,13 +50,14 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         return Result.fail(new InsertNewUnitTemplateCourseNotFound());
       }
 
+      // validate the data
       if (unitLetter.length === 0) {
         return Result.fail(new InsertNewUnitTemplateUnitLetterEmpty());
       }
       if (unitLetter.length > 1) {
         return Result.fail(new InsertNewUnitTemplateUnitLetterTooLong());
       }
-      if (!/^[a-z]$/iu.test(unitLetter)) {
+      if (!/^[a-z0-9]$/iu.test(unitLetter)) {
         return Result.fail(new InsertNewUnitTemplateInvalidUnitLetter());
       }
 

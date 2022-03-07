@@ -91,7 +91,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       });
 
     } catch (err) {
-      this.logger.error('error saving part template', err instanceof Error ? err.message : err);
+      this.logger.error('error saving assignment template', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

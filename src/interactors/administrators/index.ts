@@ -21,6 +21,7 @@ import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemp
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor';
 import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor';
+import { SaveNewUnitTemplateInteractor } from './saveNewUnitTemplateInteractor';
 import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplateInteractor';
 
 // use-case interactor singletons
@@ -31,6 +32,7 @@ export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, 
 
 export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewUnitTemplateInteractor = new SaveNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 
 export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
