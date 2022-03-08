@@ -33,15 +33,15 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      const partTemplate = await this.prisma.newPartTemplate.findFirst({
+        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
       });
-      if (!part) {
+      if (!partTemplate) {
         return Result.fail(new DeleteNewPartTemplateNotFound());
       }
 
       // delete the part template
-      await this.prisma.newPartTemplate.delete({ where: { partId: partIdBin } });
+      await this.prisma.newPartTemplate.delete({ where: { partTemplateId: partIdBin } });
 
       return Result.success(undefined);
 

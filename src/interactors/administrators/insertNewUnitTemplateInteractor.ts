@@ -68,12 +68,12 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         return Result.fail(new InsertNewUnitTemplateOrderTooLarge());
       }
 
-      // insert the assignment
-      let insertedUnit: NewUnitTemplate;
+      // insert the unit template
+      let insertedUnitTemplate: NewUnitTemplate;
       try {
-        insertedUnit = await this.prisma.newUnitTemplate.create({
+        insertedUnitTemplate = await this.prisma.newUnitTemplate.create({
           data: {
-            unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            unitTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
             courseId,
             unitLetter,
             title: title?.length ? title : null,
@@ -93,15 +93,15 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
       }
 
       return Result.success({
-        unitId: this.uuidService.binToUUID(insertedUnit.unitId),
-        courseId: insertedUnit.courseId,
-        unitLetter: insertedUnit.unitLetter,
-        title: insertedUnit.title,
-        description: insertedUnit.description,
-        optional: insertedUnit.optional,
-        order: insertedUnit.order,
-        created: insertedUnit.created,
-        modified: insertedUnit.modified,
+        unitTemplateId: this.uuidService.binToUUID(insertedUnitTemplate.unitTemplateId),
+        courseId: insertedUnitTemplate.courseId,
+        unitLetter: insertedUnitTemplate.unitLetter,
+        title: insertedUnitTemplate.title,
+        description: insertedUnitTemplate.description,
+        optional: insertedUnitTemplate.optional,
+        order: insertedUnitTemplate.order,
+        created: insertedUnitTemplate.created,
+        modified: insertedUnitTemplate.modified,
       });
 
     } catch (err) {

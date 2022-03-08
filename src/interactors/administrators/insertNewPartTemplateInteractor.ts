@@ -43,10 +43,10 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
-      const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+      const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
+        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
       });
-      if (!assignment) {
+      if (!assignmentTemplate) {
         return Result.fail(new InsertNewPartTemplateAssignmentNotFound());
       }
 
@@ -58,13 +58,13 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         return Result.fail(new InsertNewPartTemplatePartNumberTooLarge());
       }
 
-      // update the part
-      let insertedPart: NewPartTemplate;
+      // insert the part template
+      let insertedPartTemplate: NewPartTemplate;
       try {
-        insertedPart = await this.prisma.newPartTemplate.create({
+        insertedPartTemplate = await this.prisma.newPartTemplate.create({
           data: {
-            partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-            assignmentId: assignmentIdBin,
+            partTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            assignmentTemplateId: assignmentIdBin,
             partNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
@@ -82,14 +82,14 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       }
 
       return Result.success({
-        partId: this.uuidService.binToUUID(insertedPart.partId),
-        assignmentId: this.uuidService.binToUUID(insertedPart.assignmentId),
-        partNumber: insertedPart.partNumber,
-        title: insertedPart.title,
-        description: insertedPart.description,
-        optional: insertedPart.optional,
-        created: insertedPart.created,
-        modified: insertedPart.modified,
+        partTemplateId: this.uuidService.binToUUID(insertedPartTemplate.partTemplateId),
+        assignmentTemplateId: this.uuidService.binToUUID(insertedPartTemplate.assignmentTemplateId),
+        partNumber: insertedPartTemplate.partNumber,
+        title: insertedPartTemplate.title,
+        description: insertedPartTemplate.description,
+        optional: insertedPartTemplate.optional,
+        created: insertedPartTemplate.created,
+        modified: insertedPartTemplate.modified,
       });
 
     } catch (err) {

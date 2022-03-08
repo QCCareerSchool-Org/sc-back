@@ -39,44 +39,45 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
 
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      // find the part template
+      const partTemplate = await this.prisma.newPartTemplate.findFirst({
+        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
         include: {
-          newAssignment: true,
-          newTextBoxes: {
+          newAssignmentTemplate: true,
+          newTextBoxTemplates: {
             orderBy: [ { order: 'asc' } ],
           },
-          newUploadSlots: {
+          newUploadSlotTemplates: {
             orderBy: [ { order: 'asc' } ],
           },
         },
       });
-      if (!part) {
+      if (!partTemplate) {
         return Result.fail(new GetNewPartTemplateNotFound());
       }
 
       return Result.success({
-        partId: this.uuidService.binToUUID(part.partId),
-        assignmentId: this.uuidService.binToUUID(part.assignmentId),
-        partNumber: part.partNumber,
-        title: part.title,
-        description: part.description,
-        optional: part.optional,
-        created: part.created,
-        modified: part.modified,
+        partTemplateId: this.uuidService.binToUUID(partTemplate.partTemplateId),
+        assignmentTemplateId: this.uuidService.binToUUID(partTemplate.assignmentTemplateId),
+        partNumber: partTemplate.partNumber,
+        title: partTemplate.title,
+        description: partTemplate.description,
+        optional: partTemplate.optional,
+        created: partTemplate.created,
+        modified: partTemplate.modified,
         newAssignmentTemplate: {
-          assignmentId: this.uuidService.binToUUID(part.newAssignment.assignmentId),
-          unitId: this.uuidService.binToUUID(part.newAssignment.unitId),
-          assignmentNumber: part.newAssignment.assignmentNumber,
-          title: part.newAssignment.title,
-          description: part.newAssignment.description,
-          optional: part.newAssignment.optional,
-          created: part.newAssignment.created,
-          modified: part.newAssignment.modified,
+          assignmentTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.assignmentTemplateId),
+          unitTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.unitTemplateId),
+          assignmentNumber: partTemplate.newAssignmentTemplate.assignmentNumber,
+          title: partTemplate.newAssignmentTemplate.title,
+          description: partTemplate.newAssignmentTemplate.description,
+          optional: partTemplate.newAssignmentTemplate.optional,
+          created: partTemplate.newAssignmentTemplate.created,
+          modified: partTemplate.newAssignmentTemplate.modified,
         },
-        newTextBoxTemplates: part.newTextBoxes.map(t => ({
-          textBoxId: this.uuidService.binToUUID(t.textBoxId),
-          partId: this.uuidService.binToUUID(t.partId),
+        newTextBoxTemplates: partTemplate.newTextBoxTemplates.map(t => ({
+          textBoxTemplateId: this.uuidService.binToUUID(t.textBoxTemplateId),
+          partTemplateId: this.uuidService.binToUUID(t.partTemplateId),
           description: t.description,
           lines: t.lines,
           points: t.points,
@@ -85,9 +86,9 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           created: t.created,
           modified: t.modified,
         })),
-        newUploadSlotTemplates: part.newUploadSlots.map(u => ({
-          uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
-          partId: this.uuidService.binToUUID(u.partId),
+        newUploadSlotTemplates: partTemplate.newUploadSlotTemplates.map(u => ({
+          uploadSlotTemplateId: this.uuidService.binToUUID(u.uploadSlotTemplateId),
+          partTemplateId: this.uuidService.binToUUID(u.partTemplateId),
           label: u.label,
           allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
           points: u.points,

@@ -1,8 +1,8 @@
 export type NewPartTemplateDTO = {
   /** uuid */
-  partId: string;
+  partTemplateId: string;
   /** uuid */
-  assignmentId: string;
+  assignmentTemplateId: string;
   partNumber: number;
   title: string | null;
   description: string | null;

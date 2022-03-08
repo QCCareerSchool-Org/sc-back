@@ -49,10 +49,10 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      const partTemplate = await this.prisma.newPartTemplate.findFirst({
+        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
       });
-      if (!part) {
+      if (!partTemplate) {
         return Result.fail(new InsertNewUploadSlotTemplatePartNotFound());
       }
 
@@ -83,11 +83,11 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewUploadSlotTemplateOrderTooLarge());
       }
 
-      // insert the text box
-      const insertedTextBox = await this.prisma.newUploadSlotTemplate.create({
+      // insert the text box template
+      const insertedTextBoxTemplate = await this.prisma.newUploadSlotTemplate.create({
         data: {
-          uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          partId: partIdBin,
+          uploadSlotTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+          partTemplateId: partIdBin,
           label,
           allowedTypes: allowedTypes.join(','),
           points,
@@ -97,15 +97,15 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
       });
 
       return Result.success({
-        uploadSlotId: this.uuidService.binToUUID(insertedTextBox.uploadSlotId),
-        partId: this.uuidService.binToUUID(insertedTextBox.partId),
-        label: insertedTextBox.label,
-        allowedTypes: insertedTextBox.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-        points: insertedTextBox.points,
-        optional: insertedTextBox.optional,
-        order: insertedTextBox.order,
-        created: insertedTextBox.created,
-        modified: insertedTextBox.modified,
+        uploadSlotTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.uploadSlotTemplateId),
+        partTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.partTemplateId),
+        label: insertedTextBoxTemplate.label,
+        allowedTypes: insertedTextBoxTemplate.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+        points: insertedTextBoxTemplate.points,
+        optional: insertedTextBoxTemplate.optional,
+        order: insertedTextBoxTemplate.order,
+        created: insertedTextBoxTemplate.created,
+        modified: insertedTextBoxTemplate.modified,
       });
 
     } catch (err) {

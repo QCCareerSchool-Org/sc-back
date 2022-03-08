@@ -41,10 +41,10 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
-      const unit = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitId: unitIdBin, course: { courseId, schoolId } },
+      const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
+        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
       });
-      if (!unit) {
+      if (!unitTemplate) {
         return Result.fail(new InsertNewAssignmentTemplateUnitNotFound());
       }
 
@@ -56,13 +56,13 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberTooLarge());
       }
 
-      // insert the assignment
-      let insertedAssignment: NewAssignmentTemplate;
+      // insert the assignment template
+      let insertedAssignmentTemplate: NewAssignmentTemplate;
       try {
-        insertedAssignment = await this.prisma.newAssignmentTemplate.create({
+        insertedAssignmentTemplate = await this.prisma.newAssignmentTemplate.create({
           data: {
-            assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-            unitId: unitIdBin,
+            assignmentTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            unitTemplateId: unitIdBin,
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
@@ -80,14 +80,14 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       }
 
       return Result.success({
-        assignmentId: this.uuidService.binToUUID(insertedAssignment.assignmentId),
-        unitId: this.uuidService.binToUUID(insertedAssignment.unitId),
-        assignmentNumber: insertedAssignment.assignmentNumber,
-        title: insertedAssignment.title,
-        description: insertedAssignment.description,
-        optional: insertedAssignment.optional,
-        created: insertedAssignment.created,
-        modified: insertedAssignment.modified,
+        assignmentTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.assignmentTemplateId),
+        unitTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.unitTemplateId),
+        assignmentNumber: insertedAssignmentTemplate.assignmentNumber,
+        title: insertedAssignmentTemplate.title,
+        description: insertedAssignmentTemplate.description,
+        optional: insertedAssignmentTemplate.optional,
+        created: insertedAssignmentTemplate.created,
+        modified: insertedAssignmentTemplate.modified,
       });
 
     } catch (err) {

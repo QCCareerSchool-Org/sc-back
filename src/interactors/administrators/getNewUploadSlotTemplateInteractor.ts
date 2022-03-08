@@ -37,33 +37,34 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
-      const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
-        include: { newPart: true },
+      // find the upload slot template
+      const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
+        where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: { newPartTemplate: true },
       });
-      if (!uploadSlot) {
+      if (!uploadSlotTemplate) {
         return Result.fail(new GetNewUploadSlotTemplateNotFound());
       }
 
       return Result.success({
-        uploadSlotId: this.uuidService.binToUUID(uploadSlot.uploadSlotId),
-        partId: this.uuidService.binToUUID(uploadSlot.partId),
-        label: uploadSlot.label,
-        allowedTypes: uploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-        points: uploadSlot.points,
-        optional: uploadSlot.optional,
-        order: uploadSlot.order,
-        created: uploadSlot.created,
-        modified: uploadSlot.modified,
+        uploadSlotTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.uploadSlotTemplateId),
+        partTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.partTemplateId),
+        label: uploadSlotTemplate.label,
+        allowedTypes: uploadSlotTemplate.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+        points: uploadSlotTemplate.points,
+        optional: uploadSlotTemplate.optional,
+        order: uploadSlotTemplate.order,
+        created: uploadSlotTemplate.created,
+        modified: uploadSlotTemplate.modified,
         newPartTemplate: {
-          partId: this.uuidService.binToUUID(uploadSlot.newPart.partId),
-          assignmentId: this.uuidService.binToUUID(uploadSlot.newPart.assignmentId),
-          partNumber: uploadSlot.newPart.partNumber,
-          title: uploadSlot.newPart.title,
-          description: uploadSlot.newPart.description,
-          optional: uploadSlot.newPart.optional,
-          created: uploadSlot.newPart.created,
-          modified: uploadSlot.newPart.modified,
+          partTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.newPartTemplate.partTemplateId),
+          assignmentTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.newPartTemplate.assignmentTemplateId),
+          partNumber: uploadSlotTemplate.newPartTemplate.partNumber,
+          title: uploadSlotTemplate.newPartTemplate.title,
+          description: uploadSlotTemplate.newPartTemplate.description,
+          optional: uploadSlotTemplate.newPartTemplate.optional,
+          created: uploadSlotTemplate.newPartTemplate.created,
+          modified: uploadSlotTemplate.newPartTemplate.modified,
         },
       });
 

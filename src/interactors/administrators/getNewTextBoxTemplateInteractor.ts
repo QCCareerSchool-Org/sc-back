@@ -37,33 +37,34 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
       const partIdBin = this.uuidService.uuidToBin(partId);
       const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
 
-      const textBox = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
-        include: { newPart: true },
+      // find the text box template
+      const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
+        where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: { newPartTemplate: true },
       });
-      if (!textBox) {
+      if (!textBoxTemplate) {
         return Result.fail(new GetNewTextBoxTemplateNotFound());
       }
 
       return Result.success({
-        textBoxId: this.uuidService.binToUUID(textBox.textBoxId),
-        partId: this.uuidService.binToUUID(textBox.partId),
-        description: textBox.description,
-        lines: textBox.lines,
-        points: textBox.points,
-        optional: textBox.optional,
-        order: textBox.order,
-        created: textBox.created,
-        modified: textBox.modified,
+        textBoxTemplateId: this.uuidService.binToUUID(textBoxTemplate.textBoxTemplateId),
+        partTemplateId: this.uuidService.binToUUID(textBoxTemplate.partTemplateId),
+        description: textBoxTemplate.description,
+        lines: textBoxTemplate.lines,
+        points: textBoxTemplate.points,
+        optional: textBoxTemplate.optional,
+        order: textBoxTemplate.order,
+        created: textBoxTemplate.created,
+        modified: textBoxTemplate.modified,
         newPartTemplate: {
-          partId: this.uuidService.binToUUID(textBox.newPart.partId),
-          assignmentId: this.uuidService.binToUUID(textBox.newPart.assignmentId),
-          partNumber: textBox.newPart.partNumber,
-          title: textBox.newPart.title,
-          description: textBox.newPart.description,
-          optional: textBox.newPart.optional,
-          created: textBox.newPart.created,
-          modified: textBox.newPart.modified,
+          partTemplateId: this.uuidService.binToUUID(textBoxTemplate.newPartTemplate.partTemplateId),
+          assignmentTemplateId: this.uuidService.binToUUID(textBoxTemplate.newPartTemplate.assignmentTemplateId),
+          partNumber: textBoxTemplate.newPartTemplate.partNumber,
+          title: textBoxTemplate.newPartTemplate.title,
+          description: textBoxTemplate.newPartTemplate.description,
+          optional: textBoxTemplate.newPartTemplate.optional,
+          created: textBoxTemplate.newPartTemplate.created,
+          modified: textBoxTemplate.newPartTemplate.modified,
         },
       });
 

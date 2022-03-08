@@ -1,6 +1,6 @@
 export type NewUnitTemplateDTO = {
   /** uuid */
-  unitId: string;
+  unitTemplateId: string;
   courseId: number;
   unitLetter: string;
   title: string | null;

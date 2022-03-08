@@ -1,8 +1,8 @@
 export type NewTextBoxTemplateDTO = {
   /** uuid */
-  textBoxId: string;
+  textBoxTemplateId: string;
   /** uuid */
-  partId: string;
+  partTemplateId: string;
   description: string | null;
   lines: number | null;
   points: number;

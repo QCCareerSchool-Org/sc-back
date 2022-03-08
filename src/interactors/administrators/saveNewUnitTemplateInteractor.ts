@@ -44,10 +44,10 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
       // find the unit template
-      const unit = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitId: unitIdBin, course: { courseId, schoolId } },
+      const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
+        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
       });
-      if (!unit) {
+      if (!unitTemplate) {
         return Result.fail(new SaveNewUnitTemplateNotFound());
       }
 
@@ -70,16 +70,16 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
       }
 
       // update the unit template
-      let updatedUnit: NewUnitTemplate;
+      let updatedUnitTemplate: NewUnitTemplate;
       try {
-        updatedUnit = await this.prisma.newUnitTemplate.update({
+        updatedUnitTemplate = await this.prisma.newUnitTemplate.update({
           data: {
             unitLetter,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
             optional,
           },
-          where: { unitId: unitIdBin },
+          where: { unitTemplateId: unitIdBin },
         });
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
@@ -92,15 +92,15 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
       }
 
       return Result.success({
-        unitId: this.uuidService.binToUUID(updatedUnit.unitId),
-        courseId: updatedUnit.courseId,
-        unitLetter: updatedUnit.unitLetter,
-        title: updatedUnit.title,
-        description: updatedUnit.description,
-        optional: updatedUnit.optional,
-        order: updatedUnit.order,
-        created: updatedUnit.created,
-        modified: updatedUnit.modified,
+        unitTemplateId: this.uuidService.binToUUID(updatedUnitTemplate.unitTemplateId),
+        courseId: updatedUnitTemplate.courseId,
+        unitLetter: updatedUnitTemplate.unitLetter,
+        title: updatedUnitTemplate.title,
+        description: updatedUnitTemplate.description,
+        optional: updatedUnitTemplate.optional,
+        order: updatedUnitTemplate.order,
+        created: updatedUnitTemplate.created,
+        modified: updatedUnitTemplate.modified,
       });
 
     } catch (err) {

@@ -65,7 +65,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           entityVersion: course.school.entityVersion,
         },
         newUnitTemplates: course.newUnits.map(u => ({
-          unitId: this.uuidService.binToUUID(u.unitId),
+          unitTemplateId: this.uuidService.binToUUID(u.unitTemplateId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,
           title: u.title,

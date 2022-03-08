@@ -88,12 +88,16 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       const nextUnitTemplate = await this.prisma.newUnitTemplate.findFirst({
         where: { courseId: enrollment.courseId, unitLetter },
         include: {
-          newAssignments: {
+          newAssignmentTemplates: {
             include: {
-              newParts: {
-                include: { newTextBoxes: true, newUploadSlots: true, mediaElements: true },
+              newPartTemplates: {
+                include: {
+                  newTextBoxTemplates: true,
+                  newUploadSlotTemplates: true,
+                  newPartMedia: true,
+                },
               },
-              mediaElements: true,
+              newAssignmentMedia: true,
             },
           },
         },
@@ -105,19 +109,19 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       console.log(nextUnitTemplate);
 
       // make sure the unit has assignments
-      if (nextUnitTemplate.newAssignments.length === 0) {
+      if (nextUnitTemplate.newAssignmentTemplates.length === 0) {
         return Result.fail(new InitializeNextNewUnitNoAssignmentsFound());
       }
 
       // make sure the each assignment has parts
-      for (const assignment of nextUnitTemplate.newAssignments) {
-        if (assignment.newParts.length === 0) {
+      for (const assignment of nextUnitTemplate.newAssignmentTemplates) {
+        if (assignment.newPartTemplates.length === 0) {
           return Result.fail(new InitializeNextNewUnitNoPartsFound());
         }
 
         // make sure each part has inputs
-        for (const part of assignment.newParts) {
-          if (part.newTextBoxes.length === 0 && part.newUploadSlots.length === 0) {
+        for (const part of assignment.newPartTemplates) {
+          if (part.newTextBoxTemplates.length === 0 && part.newUploadSlotTemplates.length === 0) {
             return Result.fail(new InitializeNextNewUnitNoInputsFound());
           }
         }
@@ -135,55 +139,68 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
           optional: nextUnitTemplate.optional,
           order: nextUnitTemplate.order,
           newAssignments: {
-            create: nextUnitTemplate.newAssignments.map(newAssignment => ({
+            create: nextUnitTemplate.newAssignmentTemplates.map(newAssignmentTemplate => ({
               assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-              assignmentNumber: newAssignment.assignmentNumber,
-              title: newAssignment.title,
-              description: newAssignment.description,
-              optional: newAssignment.optional,
-              parts: {
-                create: newAssignment.newParts.map(newPart => ({
+              assignmentNumber: newAssignmentTemplate.assignmentNumber,
+              title: newAssignmentTemplate.title,
+              description: newAssignmentTemplate.description,
+              optional: newAssignmentTemplate.optional,
+              newParts: {
+                create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => ({
                   partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  partNumber: newPart.partNumber,
-                  title: newPart.title,
-                  description: newPart.description,
-                  optional: newPart.optional,
-                  textBoxes: {
-                    create: newPart.newTextBoxes.map(newTextBox => ({
+                  partNumber: newPartTemplate.partNumber,
+                  title: newPartTemplate.title,
+                  description: newPartTemplate.description,
+                  optional: newPartTemplate.optional,
+                  newTextBoxes: {
+                    create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => ({
                       textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      description: newTextBox.description,
-                      lines: newTextBox.lines,
-                      points: newTextBox.points,
-                      optional: newTextBox.optional,
-                      order: newTextBox.order,
+                      description: newTextBoxTemplate.description,
+                      lines: newTextBoxTemplate.lines,
+                      points: newTextBoxTemplate.points,
+                      optional: newTextBoxTemplate.optional,
+                      order: newTextBoxTemplate.order,
                     })),
                   },
-                  uploadSlots: {
-                    create: newPart.newUploadSlots.map(newUploadSlot => ({
+                  newUploadSlots: {
+                    create: newPartTemplate.newUploadSlotTemplates.map(newUploadSlotTemplate => ({
                       uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      label: newUploadSlot.label,
-                      allowedTypes: newUploadSlot.allowedTypes,
-                      points: newUploadSlot.points,
-                      optional: newUploadSlot.optional,
-                      order: newUploadSlot.order,
+                      label: newUploadSlotTemplate.label,
+                      allowedTypes: newUploadSlotTemplate.allowedTypes,
+                      points: newUploadSlotTemplate.points,
+                      optional: newUploadSlotTemplate.optional,
+                      order: newUploadSlotTemplate.order,
                     })),
                   },
-                  mediaElements: {
-                    create: newPart.mediaElements.map(mediaElement => ({
-                      mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      mimeTypeId: mediaElement.mimeTypeId,
-                      externalData: mediaElement.externalData,
+                  newPartMedia: {
+                    create: newPartTemplate.newPartMedia.map(newPartMedium => ({
+                      order: newPartMedium.order,
+                      newPartMedium: {
+                        connect: {
+                          partMediumId: newPartMedium.partMediumId,
+                        },
+                      },
                     })),
                   },
                 })),
               },
-              mediaElements: {
-                create: newAssignment.mediaElements.map(mediaElement => ({
-                  mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  mimeTypeId: mediaElement.mimeTypeId,
-                  externalData: mediaElement.externalData,
+              newAssignmentMedia: {
+                create: newAssignmentTemplate.newAssignmentMedia.map(newAssignmentMedia => ({
+                  order: newAssignmentMedia.order,
+                  newAssignmentMedium: {
+                    connect: {
+                      assignmentMediumId: newAssignmentMedia.assignmentMediumId,
+                    },
+                  },
                 })),
               },
+              // mediaElements: {
+              //   create: newAssignment.mediaElements.map(mediaElement => ({
+              //     mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+              //     mimeTypeId: mediaElement.mimeTypeId,
+              //     externalData: mediaElement.externalData,
+              //   })),
+              // },
             })),
           },
         },

@@ -31,15 +31,15 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
-      const part = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+      const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
+        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
       });
-      if (!part) {
+      if (!assignmentTemplate) {
         return Result.fail(new DeleteNewAssignmentTemplateNotFound());
       }
 
       // delete the assignment template
-      await this.prisma.newAssignmentTemplate.delete({ where: { assignmentId: assignmentIdBin } });
+      await this.prisma.newAssignmentTemplate.delete({ where: { assignmentTemplateId: assignmentIdBin } });
 
       return Result.success(undefined);
 

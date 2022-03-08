@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
+import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
@@ -18,6 +19,7 @@ export type GetNewAssignmentTemplateRequestDTO = {
 export type GetNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO & {
   newUnitTemplate: NewUnitTemplateDTO;
   newPartTemplates: NewPartTemplateDTO[];
+  newAssignmentMedia: NewAssignmentMediumDTO[];
 };
 
 export class GetNewAssignmentTemplateNotFound extends Error { }
@@ -35,48 +37,61 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
-      const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+      // find the assignment template
+      const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
+        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
         include: {
-          newUnit: true,
-          newParts: {
+          newUnitTemplate: true,
+          newPartTemplates: {
             orderBy: [ { partNumber: 'asc' } ],
           },
+          newAssignmentMedia: true,
         },
       });
-      if (!assignment) {
+      if (!assignmentTemplate) {
         return Result.fail(new GetNewAssignmentTemplateNotFound());
       }
 
       return Result.success({
-        assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
-        unitId: this.uuidService.binToUUID(assignment.unitId),
-        assignmentNumber: assignment.assignmentNumber,
-        title: assignment.title,
-        description: assignment.description,
-        optional: assignment.optional,
-        created: assignment.created,
-        modified: assignment.modified,
+        assignmentTemplateId: this.uuidService.binToUUID(assignmentTemplate.assignmentTemplateId),
+        unitTemplateId: this.uuidService.binToUUID(assignmentTemplate.unitTemplateId),
+        assignmentNumber: assignmentTemplate.assignmentNumber,
+        title: assignmentTemplate.title,
+        description: assignmentTemplate.description,
+        optional: assignmentTemplate.optional,
+        created: assignmentTemplate.created,
+        modified: assignmentTemplate.modified,
         newUnitTemplate: {
-          unitId: this.uuidService.binToUUID(assignment.newUnit.unitId),
-          courseId: assignment.newUnit.courseId,
-          unitLetter: assignment.newUnit.unitLetter,
-          title: assignment.newUnit.title,
-          description: assignment.newUnit.description,
-          optional: assignment.newUnit.optional,
-          order: assignment.newUnit.order,
-          created: assignment.newUnit.created,
-          modified: assignment.newUnit.modified,
+          unitTemplateId: this.uuidService.binToUUID(assignmentTemplate.newUnitTemplate.unitTemplateId),
+          courseId: assignmentTemplate.newUnitTemplate.courseId,
+          unitLetter: assignmentTemplate.newUnitTemplate.unitLetter,
+          title: assignmentTemplate.newUnitTemplate.title,
+          description: assignmentTemplate.newUnitTemplate.description,
+          optional: assignmentTemplate.newUnitTemplate.optional,
+          order: assignmentTemplate.newUnitTemplate.order,
+          created: assignmentTemplate.newUnitTemplate.created,
+          modified: assignmentTemplate.newUnitTemplate.modified,
         },
-        newPartTemplates: assignment.newParts.map(p => ({
-          partId: this.uuidService.binToUUID(p.partId),
-          assignmentId: this.uuidService.binToUUID(p.assignmentId),
+        newPartTemplates: assignmentTemplate.newPartTemplates.map(p => ({
+          partTemplateId: this.uuidService.binToUUID(p.partTemplateId),
+          assignmentTemplateId: this.uuidService.binToUUID(p.assignmentTemplateId),
           partNumber: p.partNumber,
           title: p.title,
           description: p.description,
           optional: p.optional,
           created: p.created,
           modified: p.modified,
+        })),
+        newAssignmentMedia: assignmentTemplate.newAssignmentMedia.map(m => ({
+          assignmentMediumId: this.uuidService.binToUUID(m.assignmentMediumId),
+          assignmentTemplateId: m.assignmentTemplateId === null ? null : this.uuidService.binToUUID(m.assignmentTemplateId),
+          mimeTypeId: m.mimeTypeId,
+          type: m.type,
+          caption: m.caption,
+          externalData: m.externalData,
+          order: m.order,
+          created: m.created,
+          modified: m.modified,
         })),
       });
 

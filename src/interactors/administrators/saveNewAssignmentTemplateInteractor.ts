@@ -42,10 +42,10 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
       // find the assignment template
-      const assignment = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } },
+      const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
+        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
       });
-      if (!assignment) {
+      if (!assignmentTemplate) {
         return Result.fail(new SaveNewAssignmentTemplateNotFound());
       }
 
@@ -58,16 +58,16 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       }
 
       // update the assignment template
-      let updatedAssignment: NewAssignmentTemplate;
+      let updatedAssignmentTemplate: NewAssignmentTemplate;
       try {
-        updatedAssignment = await this.prisma.newAssignmentTemplate.update({
+        updatedAssignmentTemplate = await this.prisma.newAssignmentTemplate.update({
           data: {
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
             optional,
           },
-          where: { assignmentId: assignmentIdBin },
+          where: { assignmentTemplateId: assignmentIdBin },
         });
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
@@ -80,14 +80,14 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       }
 
       return Result.success({
-        assignmentId: this.uuidService.binToUUID(updatedAssignment.assignmentId),
-        unitId: this.uuidService.binToUUID(updatedAssignment.unitId),
-        assignmentNumber: updatedAssignment.assignmentNumber,
-        title: updatedAssignment.title,
-        description: updatedAssignment.description,
-        optional: updatedAssignment.optional,
-        created: updatedAssignment.created,
-        modified: updatedAssignment.modified,
+        assignmentTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.assignmentTemplateId),
+        unitTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.unitTemplateId),
+        assignmentNumber: updatedAssignmentTemplate.assignmentNumber,
+        title: updatedAssignmentTemplate.title,
+        description: updatedAssignmentTemplate.description,
+        optional: updatedAssignmentTemplate.optional,
+        created: updatedAssignmentTemplate.created,
+        modified: updatedAssignmentTemplate.modified,
       });
 
     } catch (err) {

@@ -50,10 +50,10 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
       // find the text box template
-      const textBox = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+      const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
+        where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
       });
-      if (!textBox) {
+      if (!textBoxTemplate) {
         return Result.fail(new SaveNewTextBoxTemplateNotFound());
       }
 
@@ -82,21 +82,27 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
       }
 
       // update the text box template
-      const updatedTextBox = await this.prisma.newTextBoxTemplate.update({
-        data: { description, lines, points, optional, order },
-        where: { textBoxId: textBoxIdBin },
+      const updatedTextBoxTemplate = await this.prisma.newTextBoxTemplate.update({
+        data: {
+          description: description?.length ? description : null,
+          lines,
+          points,
+          optional,
+          order,
+        },
+        where: { textBoxTemplateId: textBoxIdBin },
       });
 
       return Result.success({
-        textBoxId: this.uuidService.binToUUID(updatedTextBox.textBoxId),
-        partId: this.uuidService.binToUUID(updatedTextBox.partId),
-        description: updatedTextBox.description,
-        lines: updatedTextBox.lines,
-        points: updatedTextBox.points,
-        optional: updatedTextBox.optional,
-        order: updatedTextBox.order,
-        created: updatedTextBox.created,
-        modified: updatedTextBox.modified,
+        textBoxTemplateId: this.uuidService.binToUUID(updatedTextBoxTemplate.textBoxTemplateId),
+        partTemplateId: this.uuidService.binToUUID(updatedTextBoxTemplate.partTemplateId),
+        description: updatedTextBoxTemplate.description,
+        lines: updatedTextBoxTemplate.lines,
+        points: updatedTextBoxTemplate.points,
+        optional: updatedTextBoxTemplate.optional,
+        order: updatedTextBoxTemplate.order,
+        created: updatedTextBoxTemplate.created,
+        modified: updatedTextBoxTemplate.modified,
       });
 
     } catch (err) {

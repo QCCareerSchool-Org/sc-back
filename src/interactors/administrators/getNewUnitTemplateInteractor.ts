@@ -33,47 +33,48 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
-      const unit = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitId: unitIdBin, course: { courseId, schoolId } },
+      // find the unit template
+      const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
+        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
         include: {
           course: true,
-          newAssignments: {
+          newAssignmentTemplates: {
             orderBy: [ { assignmentNumber: 'asc' } ],
           },
         },
       });
-      if (!unit) {
+      if (!unitTemplate) {
         return Result.fail(new GetNewUnitTemplateNotFound());
       }
 
       return Result.success({
-        unitId: this.uuidService.binToUUID(unit.unitId),
-        courseId: unit.courseId,
-        unitLetter: unit.unitLetter,
-        title: unit.title,
-        description: unit.description,
-        optional: unit.optional,
-        order: unit.order,
-        created: unit.created,
-        modified: unit.modified,
+        unitTemplateId: this.uuidService.binToUUID(unitTemplate.unitTemplateId),
+        courseId: unitTemplate.courseId,
+        unitLetter: unitTemplate.unitLetter,
+        title: unitTemplate.title,
+        description: unitTemplate.description,
+        optional: unitTemplate.optional,
+        order: unitTemplate.order,
+        created: unitTemplate.created,
+        modified: unitTemplate.modified,
         course: {
-          courseId: unit.course.courseId,
-          schoolId: unit.course.schoolId,
-          code: unit.course.code,
-          version: unit.course.version,
-          studentTypeId: unit.course.studentTypeId,
-          name: unit.course.name,
-          courseGuide: unit.course.courseGuide,
-          quizzesEnabled: unit.course.quizzesEnabled,
-          noTutor: unit.course.noTutor,
-          unitType: unit.course.unitType,
-          enabled: unit.course.enabled,
-          order: unit.course.order,
-          entityVersion: unit.course.entityVersion,
+          courseId: unitTemplate.course.courseId,
+          schoolId: unitTemplate.course.schoolId,
+          code: unitTemplate.course.code,
+          version: unitTemplate.course.version,
+          studentTypeId: unitTemplate.course.studentTypeId,
+          name: unitTemplate.course.name,
+          courseGuide: unitTemplate.course.courseGuide,
+          quizzesEnabled: unitTemplate.course.quizzesEnabled,
+          noTutor: unitTemplate.course.noTutor,
+          unitType: unitTemplate.course.unitType,
+          enabled: unitTemplate.course.enabled,
+          order: unitTemplate.course.order,
+          entityVersion: unitTemplate.course.entityVersion,
         },
-        newAssignmentTemplates: unit.newAssignments.map(a => ({
-          assignmentId: this.uuidService.binToUUID(a.assignmentId),
-          unitId: this.uuidService.binToUUID(a.unitId),
+        newAssignmentTemplates: unitTemplate.newAssignmentTemplates.map(a => ({
+          assignmentTemplateId: this.uuidService.binToUUID(a.assignmentTemplateId),
+          unitTemplateId: this.uuidService.binToUUID(a.unitTemplateId),
           assignmentNumber: a.assignmentNumber,
           title: a.title,
           description: a.description,

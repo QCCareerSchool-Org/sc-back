@@ -29,15 +29,15 @@ export class DeleteNewUnitTemplateInteractor implements IInteractor<DeleteNewUni
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
-      const part = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitId: unitIdBin, course: { courseId, schoolId } },
+      const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
+        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
       });
-      if (!part) {
+      if (!unitTemplate) {
         return Result.fail(new DeleteNewUnitTemplateNotFound());
       }
 
       // delete the unit template
-      await this.prisma.newUnitTemplate.delete({ where: { unitId: unitIdBin } });
+      await this.prisma.newUnitTemplate.delete({ where: { unitTemplateId: unitIdBin } });
 
       return Result.success(undefined);
 

@@ -51,10 +51,10 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
       const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
 
       // find the upload slot template
-      const uploadSlot = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+      const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
+        where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
       });
-      if (!uploadSlot) {
+      if (!uploadSlotTemplate) {
         return Result.fail(new SaveNewUploadSlotTemplateNotFound());
       }
 
@@ -87,7 +87,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
       }
 
       // update the upload slot template
-      const updatedUploadSlot = await this.prisma.newUploadSlotTemplate.update({
+      const updatedUploadSlotTemplate = await this.prisma.newUploadSlotTemplate.update({
         data: {
           label,
           allowedTypes: allowedTypes.join(','),
@@ -95,19 +95,19 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
           optional,
           order,
         },
-        where: { uploadSlotId: uploadSlotIdBin },
+        where: { uploadSlotTemplateId: uploadSlotIdBin },
       });
 
       return Result.success({
-        uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
-        partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
-        label: updatedUploadSlot.label,
-        allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-        points: updatedUploadSlot.points,
-        optional: updatedUploadSlot.optional,
-        order: updatedUploadSlot.order,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        uploadSlotTemplateId: this.uuidService.binToUUID(updatedUploadSlotTemplate.uploadSlotTemplateId),
+        partTemplateId: this.uuidService.binToUUID(updatedUploadSlotTemplate.partTemplateId),
+        label: updatedUploadSlotTemplate.label,
+        allowedTypes: updatedUploadSlotTemplate.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+        points: updatedUploadSlotTemplate.points,
+        optional: updatedUploadSlotTemplate.optional,
+        order: updatedUploadSlotTemplate.order,
+        created: updatedUploadSlotTemplate.created,
+        modified: updatedUploadSlotTemplate.modified,
       });
 
     } catch (err) {

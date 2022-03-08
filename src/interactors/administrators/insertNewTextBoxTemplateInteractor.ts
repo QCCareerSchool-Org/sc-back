@@ -48,10 +48,10 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      const partTemplate = await this.prisma.newPartTemplate.findFirst({
+        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
       });
-      if (!part) {
+      if (!partTemplate) {
         return Result.fail(new InsertNewTextBoxTemplatePartNotFound());
       }
 
@@ -78,12 +78,12 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
         return Result.fail(new InsertNewTextBoxTemplateOrderTooLarge());
       }
 
-      // insert the text box
-      const insertedTextBox = await this.prisma.newTextBoxTemplate.create({
+      // insert the text box template
+      const insertedTextBoxTemplate = await this.prisma.newTextBoxTemplate.create({
         data: {
-          textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          partId: partIdBin,
-          description,
+          textBoxTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+          partTemplateId: partIdBin,
+          description: description?.length ? description : null,
           lines,
           points,
           optional,
@@ -92,15 +92,15 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
       });
 
       return Result.success({
-        textBoxId: this.uuidService.binToUUID(insertedTextBox.textBoxId),
-        partId: this.uuidService.binToUUID(insertedTextBox.partId),
-        description: insertedTextBox.description,
-        lines: insertedTextBox.lines,
-        points: insertedTextBox.points,
-        optional: insertedTextBox.optional,
-        order: insertedTextBox.order,
-        created: insertedTextBox.created,
-        modified: insertedTextBox.modified,
+        textBoxTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.textBoxTemplateId),
+        partTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.partTemplateId),
+        description: insertedTextBoxTemplate.description,
+        lines: insertedTextBoxTemplate.lines,
+        points: insertedTextBoxTemplate.points,
+        optional: insertedTextBoxTemplate.optional,
+        order: insertedTextBoxTemplate.order,
+        created: insertedTextBoxTemplate.created,
+        modified: insertedTextBoxTemplate.modified,
       });
 
     } catch (err) {

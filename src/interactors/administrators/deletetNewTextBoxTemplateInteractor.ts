@@ -35,15 +35,15 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
       // find the text box template
-      const part = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } } },
+      const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
+        where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
       });
-      if (!part) {
+      if (!textBoxTemplate) {
         return Result.fail(new DeleteNewTextBoxTemplateNotFound());
       }
 
       // delete the text box template
-      await this.prisma.newTextBoxTemplate.delete({ where: { textBoxId: textBoxIdBin } });
+      await this.prisma.newTextBoxTemplate.delete({ where: { textBoxTemplateId: textBoxIdBin } });
 
       return Result.success(undefined);
 

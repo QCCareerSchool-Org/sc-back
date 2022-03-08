@@ -44,10 +44,10 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       const partIdBin = this.uuidService.uuidToBin(partId);
 
       // find the part template
-      const part = await this.prisma.newPartTemplate.findFirst({
-        where: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, course: { courseId, schoolId } } } },
+      const partTemplate = await this.prisma.newPartTemplate.findFirst({
+        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
       });
-      if (!part) {
+      if (!partTemplate) {
         return Result.fail(new SaveNewPartTemplateNotFound());
       }
 
@@ -60,16 +60,16 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       }
 
       // update the part template
-      let updatedPart: NewPartTemplate;
+      let updatedPartTemplate: NewPartTemplate;
       try {
-        updatedPart = await this.prisma.newPartTemplate.update({
+        updatedPartTemplate = await this.prisma.newPartTemplate.update({
           data: {
             partNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
             optional,
           },
-          where: { partId: partIdBin },
+          where: { partTemplateId: partIdBin },
         });
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
@@ -82,14 +82,14 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       }
 
       return Result.success({
-        partId: this.uuidService.binToUUID(updatedPart.partId),
-        assignmentId: this.uuidService.binToUUID(updatedPart.assignmentId),
-        partNumber: updatedPart.partNumber,
-        title: updatedPart.title,
-        description: updatedPart.description,
-        optional: updatedPart.optional,
-        created: updatedPart.created,
-        modified: updatedPart.modified,
+        partTemplateId: this.uuidService.binToUUID(updatedPartTemplate.partTemplateId),
+        assignmentTemplateId: this.uuidService.binToUUID(updatedPartTemplate.assignmentTemplateId),
+        partNumber: updatedPartTemplate.partNumber,
+        title: updatedPartTemplate.title,
+        description: updatedPartTemplate.description,
+        optional: updatedPartTemplate.optional,
+        created: updatedPartTemplate.created,
+        modified: updatedPartTemplate.modified,
       });
 
     } catch (err) {

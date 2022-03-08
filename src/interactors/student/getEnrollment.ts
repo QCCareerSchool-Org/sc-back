@@ -111,7 +111,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             optionalUpload: unit.optionalUpload,
           })),
           newUnits: enrollment.course.newUnits.map(unit => ({
-            unitId: this.uuidService.binToUUID(unit.unitId),
+            unitTemplateId: this.uuidService.binToUUID(unit.unitTemplateId),
             courseId: unit.courseId,
             unitLetter: unit.unitLetter,
             title: unit.title,
