@@ -7,7 +7,8 @@ export type NewAssignmentMediumDTO = {
   assignmentTemplateId: string | null;
   mimeTypeId: string;
   type: NewMediumType;
-  caption: string | null;
+  filename: string;
+  caption: string;
   externalData: string | null;
   order: number;
   created: Date;

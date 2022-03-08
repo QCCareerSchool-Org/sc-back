@@ -87,6 +87,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           assignmentTemplateId: m.assignmentTemplateId === null ? null : this.uuidService.binToUUID(m.assignmentTemplateId),
           mimeTypeId: m.mimeTypeId,
           type: m.type,
+          filename: m.filename,
           caption: m.caption,
           externalData: m.externalData,
           order: m.order,

@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma';
-import { uuidService, winstonLoggerService } from '../../services';
+import { axiosHttpService, uuidService, winstonLoggerService } from '../../services';
 import { DeleteNewAssignmentTemplateInteractor } from './deletetNewAssignmentTemplateInteractor';
 import { DeleteNewPartTemplateInteractor } from './deletetNewPartTemplateInteractor';
 import { DeleteNewTextBoxTemplateInteractor } from './deletetNewTextBoxTemplateInteractor';
@@ -13,6 +13,7 @@ import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteract
 import { GetNewUnitTemplateInteractor } from './getNewUnitTemplateInteractor';
 import { GetNewUploadSlotTemplateInteractor } from './getNewUploadSlotTemplateInteractor';
 import { GetSchoolInteractor } from './getSchoolInteractor';
+import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor';
 import { InsertNewAssignmentTemplateInteractor } from './insertNewAssignmentTemplateInteractor';
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
@@ -39,6 +40,8 @@ export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemp
 export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewAssignmentTemplateInteractor = new SaveNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
+
+export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, winstonLoggerService);
 
 export const insertNewPartTemplateInteractor = new InsertNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewPartTemplateInteractor = new GetNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);

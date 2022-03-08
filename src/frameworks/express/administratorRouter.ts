@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController';
@@ -14,6 +15,7 @@ import { GetNewTextBoxTemplateController } from '../../controllers/administrator
 import { GetNewUnitTemplateController } from '../../controllers/administrators/getNewUnitTemplateController';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController';
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController';
+import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController';
 import { InsertNewAssignmentTemplateController } from '../../controllers/administrators/insertNewAssignmentTemplateController';
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
@@ -79,6 +81,13 @@ administratorRouter.put(
 administratorRouter.delete(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
   asyncWrapper(async (req, res) => new DeleteNewAssignmentTemplateController(req, res).execute()),
+);
+
+// new assignment media
+administratorRouter.post(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media',
+  multer().single('file'),
+  asyncWrapper(async (req, res) => new InsertNewAssignmentMediumController(req, res).execute()),
 );
 
 // new part templates
