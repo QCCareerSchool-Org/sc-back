@@ -17,8 +17,8 @@ type Request = {
     /** uuid */
     assignmentId: string;
   };
-  query?: {
-    inputs: string;
+  query: {
+    inputs?: string;
   };
 };
 
@@ -35,18 +35,14 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const querySchema: yup.SchemaOf<Request['query']> = yup.object({
-      inputs: yup.string().defined(),
+      inputs: yup.string(),
     });
     try {
-      if (this.req.query) {
-        const [ params, query ] = await Promise.all([
-          paramsSchema.validate(this.req.params),
-          querySchema.validate(this.req.query),
-        ]);
-        return { params, query };
-      }
-      const params = await paramsSchema.validate(this.req.params);
-      return { params };
+      const [ params, query ] = await Promise.all([
+        paramsSchema.validate(this.req.params),
+        querySchema.validate(this.req.query),
+      ]);
+      return { params, query };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -66,7 +62,7 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
     const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId } = params;
 
-    const result = await getNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, withInputs: !!query?.inputs });
+    const result = await getNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, withInputs: !!query.inputs });
 
     if (result.success) {
       return this.ok(result.value);
