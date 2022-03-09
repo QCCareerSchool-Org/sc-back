@@ -38,11 +38,15 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
       inputs: yup.string().defined(),
     });
     try {
-      const [ params, query ] = await Promise.all([
-        paramsSchema.validate(this.req.params),
-        querySchema.validate(this.req.query),
-      ]);
-      return { params, query };
+      if (this.req.query) {
+        const [ params, query ] = await Promise.all([
+          paramsSchema.validate(this.req.params),
+          querySchema.validate(this.req.query),
+        ]);
+        return { params, query };
+      }
+      const params = await paramsSchema.validate(this.req.params);
+      return { params };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
