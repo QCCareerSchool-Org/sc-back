@@ -1329,7 +1329,7 @@ model NewPartTemplate {
   partTemplateId         Bytes                   @id @db.Binary(16) @map("part_template_id")
   assignmentTemplateId   Bytes                   @db.Binary(16) @map("assignment_template_id")
   partNumber             Int                     @db.UnsignedInt @map("part_number")
-  title                  String?
+  title                  String
   description            String?                 @db.Text
   optional               Boolean                 @default(false)
   created                DateTime                @default(now()) @db.DateTime(0)
@@ -1347,7 +1347,7 @@ model NewPart {
   partId         Bytes                    @id @db.Binary(16) @map("part_id")
   assignmentId   Bytes                    @db.Binary(16) @map("assignment_id")
   partNumber     Int                      @db.UnsignedInt @map("part_number")
-  title          String?
+  title          String
   description    String?                  @db.Text
   optional       Boolean                  @default(false)
   created        DateTime                 @default(now()) @db.DateTime(0)

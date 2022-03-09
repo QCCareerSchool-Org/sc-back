@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -20,9 +20,9 @@ type Request = {
     partId: string;
   };
   body: {
-    partNumber: number;
     title: string;
     description: string | null;
+    partNumber: number;
     optional: boolean;
   };
 };
@@ -41,9 +41,9 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      partNumber: yup.number().defined(),
       title: yup.string().defined(),
       description: yup.string().nullable().defined(),
+      partNumber: yup.number().defined(),
       optional: yup.boolean().defined(),
     });
     try {
@@ -80,6 +80,12 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case SaveNewPartTemplateNotFound:
         return this.notFound('Part template not found');
+      case SaveNewPartTemplatePartTitleEmpty:
+        return this.badRequest('Title is empty');
+      case SaveNewPartTemplatePartTitleTooLong:
+        return this.badRequest('Title exceeds maximum length');
+      case SaveNewPartTemplateDescriptionTooLong:
+        return this.badRequest('Description exceeds maximum length');
       case SaveNewPartTemplatePartNumberLessThanOne:
         return this.badRequest('Part number must be greater than or equal to one');
       case SaveNewPartTemplatePartNumberTooLarge:

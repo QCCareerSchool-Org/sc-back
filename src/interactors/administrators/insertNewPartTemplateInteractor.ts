@@ -14,7 +14,7 @@ export type InsertNewPartTemplateRequestDTO = {
   assignmentId: string;
   data: {
     partNumber: number;
-    title: string | null;
+    title: string;
     description: string | null;
     optional: boolean;
   };
@@ -23,6 +23,9 @@ export type InsertNewPartTemplateRequestDTO = {
 export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class InsertNewPartTemplateAssignmentNotFound extends Error { }
+export class InsertNewPartTemplatePartTitleEmpty extends Error { }
+export class InsertNewPartTemplatePartTitleTooLong extends Error { }
+export class InsertNewPartTemplateDescriptionTooLong extends Error { }
 export class InsertNewPartTemplatePartNumberLessThanOne extends Error { }
 export class InsertNewPartTemplatePartNumberTooLarge extends Error { }
 export class InsertNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -51,6 +54,19 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       }
 
       // validate the data
+      if (title.length === 0) {
+        return Result.fail(new InsertNewPartTemplatePartTitleEmpty());
+      }
+      if (new TextEncoder().encode(title).length > 191) {
+        return Result.fail(new InsertNewPartTemplatePartTitleTooLong());
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new InsertNewPartTemplateDescriptionTooLong());
+        }
+      }
+
       if (partNumber < 1) {
         return Result.fail(new InsertNewPartTemplatePartNumberLessThanOne());
       }
@@ -65,9 +81,9 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
           data: {
             partTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
             assignmentTemplateId: assignmentIdBin,
-            partNumber,
-            title: title?.length ? title : null,
+            title: title,
             description: description?.length ? description : null,
+            partNumber,
             optional,
           },
         });

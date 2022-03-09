@@ -15,7 +15,7 @@ export type SaveNewPartTemplateRequestDTO = {
   partId: string;
   data: {
     partNumber: number;
-    title: string | null;
+    title: string;
     description: string | null;
     optional: boolean;
   };
@@ -24,6 +24,9 @@ export type SaveNewPartTemplateRequestDTO = {
 export type SaveNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class SaveNewPartTemplateNotFound extends Error { }
+export class SaveNewPartTemplatePartTitleEmpty extends Error { }
+export class SaveNewPartTemplatePartTitleTooLong extends Error { }
+export class SaveNewPartTemplateDescriptionTooLong extends Error { }
 export class SaveNewPartTemplatePartNumberLessThanOne extends Error { }
 export class SaveNewPartTemplatePartNumberTooLarge extends Error { }
 export class SaveNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -52,6 +55,19 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       }
 
       // validate the data
+      if (title.length === 0) {
+        return Result.fail(new SaveNewPartTemplatePartTitleEmpty());
+      }
+      if (new TextEncoder().encode(title).length > 191) {
+        return Result.fail(new SaveNewPartTemplatePartTitleTooLong());
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new SaveNewPartTemplateDescriptionTooLong());
+        }
+      }
+
       if (partNumber < 1) {
         return Result.fail(new SaveNewPartTemplatePartNumberLessThanOne());
       }
@@ -64,9 +80,9 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       try {
         updatedPartTemplate = await this.prisma.newPartTemplate.update({
           data: {
-            partNumber,
-            title: title?.length ? title : null,
+            title: title,
             description: description?.length ? description : null,
+            partNumber,
             optional,
           },
           where: { partTemplateId: partIdBin },
