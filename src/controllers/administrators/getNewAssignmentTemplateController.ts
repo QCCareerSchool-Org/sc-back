@@ -17,6 +17,9 @@ type Request = {
     /** uuid */
     assignmentId: string;
   };
+  query?: {
+    inputs: string;
+  };
 };
 
 type Response = GetNewAssignmentTemplateResponseDTO;
@@ -31,9 +34,15 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
+    const querySchema: yup.SchemaOf<Request['query']> = yup.object({
+      inputs: yup.string().defined(),
+    });
     try {
-      const params = await paramsSchema.validate(this.req.params);
-      return { params };
+      const [ params, query ] = await Promise.all([
+        paramsSchema.validate(this.req.params),
+        querySchema.validate(this.req.query),
+      ]);
+      return { params, query };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -44,7 +53,7 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl({ params, query }: Request): Promise<void> {
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
@@ -53,7 +62,7 @@ export class GetNewAssignmentTemplateController extends BaseController<Request, 
     const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId } = params;
 
-    const result = await getNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId });
+    const result = await getNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, withInputs: !!query?.inputs });
 
     if (result.success) {
       return this.ok(result.value);

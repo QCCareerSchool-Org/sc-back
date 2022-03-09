@@ -17,7 +17,7 @@ type Request = {
   };
   body: {
     unitLetter: string;
-    title: string;
+    title: string | null;
     description: string | null;
     order: number;
     optional: boolean;
@@ -37,7 +37,7 @@ export class SaveNewUnitTemplateController extends BaseController<Request, Respo
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       unitLetter: yup.string().defined(),
-      title: yup.string().defined(),
+      title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
       order: yup.number().defined(),
       optional: yup.boolean().defined(),

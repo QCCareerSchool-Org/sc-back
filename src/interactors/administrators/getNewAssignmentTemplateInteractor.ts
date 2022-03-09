@@ -1,10 +1,11 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewTextBoxTemplate, NewUploadSlotTemplate, PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
+import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result, ResultType } from '../result';
@@ -14,11 +15,15 @@ export type GetNewAssignmentTemplateRequestDTO = {
   courseId: number;
   unitId: string;
   assignmentId: string;
+  withInputs: boolean;
 };
 
 export type GetNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO & {
   newUnitTemplate: NewUnitTemplateDTO;
-  newPartTemplates: NewPartTemplateDTO[];
+  newPartTemplates: NewPartTemplateDTO[] | Array<NewPartTemplateDTO & {
+    newTextBoxTemplates: NewTextBoxTemplate[];
+    newUploadSlotTemplates: NewUploadSlotTemplate[];
+  }>;
   newAssignmentMedia: NewAssignmentMediumDTO[];
 };
 
@@ -32,7 +37,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId }: GetNewAssignmentTemplateRequestDTO): Promise<ResultType<GetNewAssignmentTemplateResponseDTO>> {
+  public async execute({ schoolId, courseId, unitId, assignmentId, withInputs }: GetNewAssignmentTemplateRequestDTO): Promise<ResultType<GetNewAssignmentTemplateResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
@@ -43,6 +48,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         include: {
           newUnitTemplate: true,
           newPartTemplates: {
+            include: { newTextBoxTemplates: true, newUploadSlotTemplates: true },
             orderBy: [ { partNumber: 'asc' } ],
           },
           newAssignmentMedia: true,
@@ -81,6 +87,28 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           optional: p.optional,
           created: p.created,
           modified: p.modified,
+          newTextBoxTemplates: withInputs ? p.newTextBoxTemplates.map(t => ({
+            textBoxTemplateId: this.uuidService.binToUUID(t.textBoxTemplateId),
+            partTemplateId: this.uuidService.binToUUID(t.partTemplateId),
+            description: t.description,
+            lines: t.lines,
+            points: t.points,
+            optional: t.optional,
+            order: t.order,
+            created: t.created,
+            modified: t.modified,
+          })) : undefined,
+          newUploadSlotTemplates: withInputs ? p.newUploadSlotTemplates.map(u => ({
+            uploadSlotTemplateId: this.uuidService.binToUUID(u.uploadSlotTemplateId),
+            partTemplateId: this.uuidService.binToUUID(u.partTemplateId),
+            label: u.label,
+            allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+            points: u.points,
+            optional: u.optional,
+            order: u.order,
+            created: u.created,
+            modified: u.modified,
+          })) : undefined,
         })),
         newAssignmentMedia: assignmentTemplate.newAssignmentMedia.map(m => ({
           assignmentMediumId: this.uuidService.binToUUID(m.assignmentMediumId),
