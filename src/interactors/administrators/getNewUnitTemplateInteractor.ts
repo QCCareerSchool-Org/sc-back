@@ -55,6 +55,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
         description: unitTemplate.description,
         optional: unitTemplate.optional,
         order: unitTemplate.order,
+        enabled: unitTemplate.enabled,
         created: unitTemplate.created,
         modified: unitTemplate.modified,
         course: {
@@ -70,6 +71,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           unitType: unitTemplate.course.unitType,
           enabled: unitTemplate.course.enabled,
           order: unitTemplate.course.order,
+          newUnitsEnabled: unitTemplate.course.newUnitsEnabled,
           entityVersion: unitTemplate.course.entityVersion,
         },
         newAssignmentTemplates: unitTemplate.newAssignmentTemplates.map(a => ({

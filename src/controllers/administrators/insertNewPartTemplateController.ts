@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { insertNewPartTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -20,8 +20,8 @@ type Request = {
   body: {
     title: string;
     description: string | null;
+    descriptionType: string;
     partNumber: number;
-    optional: boolean;
   };
 };
 
@@ -40,8 +40,8 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       title: yup.string().defined(),
       description: yup.string().nullable(true).defined(),
+      descriptionType: yup.string().defined(),
       partNumber: yup.number().defined(),
-      optional: yup.boolean().defined(),
     });
     try {
       const [ params, body ] = await Promise.all([
@@ -83,6 +83,10 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
         return this.badRequest('Title exceeds maximum length');
       case InsertNewPartTemplateDescriptionTooLong:
         return this.badRequest('Description exceeds maximum length');
+      case InsertNewPartTemplateDescriptionTypeEmpty:
+        return this.badRequest('Description type is empty');
+      case InsertNewPartTemplateInvalidDescriptionType:
+        return this.badRequest('Invalid description type');
       case InsertNewPartTemplatePartNumberLessThanOne:
         return this.badRequest('Part number must be greater than or equal to 1');
       case InsertNewPartTemplatePartNumberTooLarge:

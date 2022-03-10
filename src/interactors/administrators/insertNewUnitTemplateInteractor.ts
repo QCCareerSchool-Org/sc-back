@@ -100,6 +100,7 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         description: insertedUnitTemplate.description,
         optional: insertedUnitTemplate.optional,
         order: insertedUnitTemplate.order,
+        enabled: insertedUnitTemplate.enabled,
         created: insertedUnitTemplate.created,
         modified: insertedUnitTemplate.modified,
       });

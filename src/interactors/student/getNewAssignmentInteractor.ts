@@ -77,7 +77,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             partNumber: p.partNumber,
             title: p.title,
             description: p.description,
-            optional: p.optional,
+            descriptionType: p.descriptionType,
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {

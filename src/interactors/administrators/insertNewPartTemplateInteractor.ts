@@ -2,6 +2,7 @@ import type { NewPartTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
+import { isNewDescriptionType } from '../../domain/newDescriptionType';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
@@ -16,7 +17,7 @@ export type InsertNewPartTemplateRequestDTO = {
     partNumber: number;
     title: string;
     description: string | null;
-    optional: boolean;
+    descriptionType: string;
   };
 };
 
@@ -26,6 +27,8 @@ export class InsertNewPartTemplateAssignmentNotFound extends Error { }
 export class InsertNewPartTemplatePartTitleEmpty extends Error { }
 export class InsertNewPartTemplatePartTitleTooLong extends Error { }
 export class InsertNewPartTemplateDescriptionTooLong extends Error { }
+export class InsertNewPartTemplateDescriptionTypeEmpty extends Error { }
+export class InsertNewPartTemplateInvalidDescriptionType extends Error { }
 export class InsertNewPartTemplatePartNumberLessThanOne extends Error { }
 export class InsertNewPartTemplatePartNumberTooLarge extends Error { }
 export class InsertNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -41,7 +44,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
   public async execute(request: InsertNewPartTemplateRequestDTO): Promise<ResultType<InsertNewPartTemplateResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
-      const { partNumber, title, description, optional } = request.data;
+      const { partNumber, title, description, descriptionType } = request.data;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
@@ -66,6 +69,12 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
           return Result.fail(new InsertNewPartTemplateDescriptionTooLong());
         }
       }
+      if (descriptionType.length === 0) {
+        return Result.fail(new InsertNewPartTemplateDescriptionTypeEmpty());
+      }
+      if (!isNewDescriptionType(descriptionType)) {
+        return Result.fail(new InsertNewPartTemplateInvalidDescriptionType());
+      }
 
       if (partNumber < 1) {
         return Result.fail(new InsertNewPartTemplatePartNumberLessThanOne());
@@ -83,8 +92,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
             assignmentTemplateId: assignmentIdBin,
             title: title,
             description: description?.length ? description : null,
+            descriptionType,
             partNumber,
-            optional,
           },
         });
       } catch (err) {
@@ -103,7 +112,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         partNumber: insertedPartTemplate.partNumber,
         title: insertedPartTemplate.title,
         description: insertedPartTemplate.description,
-        optional: insertedPartTemplate.optional,
+        descriptionType: insertedPartTemplate.descriptionType,
         created: insertedPartTemplate.created,
         modified: insertedPartTemplate.modified,
       });

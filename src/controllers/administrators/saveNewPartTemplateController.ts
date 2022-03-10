@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -22,8 +22,8 @@ type Request = {
   body: {
     title: string;
     description: string | null;
+    descriptionType: string;
     partNumber: number;
-    optional: boolean;
   };
 };
 
@@ -43,8 +43,8 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       title: yup.string().defined(),
       description: yup.string().nullable().defined(),
+      descriptionType: yup.string().defined(),
       partNumber: yup.number().defined(),
-      optional: yup.boolean().defined(),
     });
     try {
       const [ params, body ] = await Promise.all([
@@ -86,6 +86,10 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
         return this.badRequest('Title exceeds maximum length');
       case SaveNewPartTemplateDescriptionTooLong:
         return this.badRequest('Description exceeds maximum length');
+      case SaveNewPartTemplateDescriptionTypeEmpty:
+        return this.badRequest('Description type is empty');
+      case SaveNewPartTemplateInvalidDescriptionType:
+        return this.badRequest('Invalid description type');
       case SaveNewPartTemplatePartNumberLessThanOne:
         return this.badRequest('Part number must be greater than or equal to one');
       case SaveNewPartTemplatePartNumberTooLarge:

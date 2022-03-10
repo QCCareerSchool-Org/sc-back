@@ -99,6 +99,7 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
         description: updatedUnitTemplate.description,
         optional: updatedUnitTemplate.optional,
         order: updatedUnitTemplate.order,
+        enabled: updatedUnitTemplate.enabled,
         created: updatedUnitTemplate.created,
         modified: updatedUnitTemplate.modified,
       });

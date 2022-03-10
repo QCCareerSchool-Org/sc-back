@@ -98,6 +98,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           unitType: enrollment.course.unitType,
           enabled: enrollment.course.enabled,
           order: enrollment.course.order,
+          newUnitsEnabled: enrollment.course.newUnitsEnabled,
           entityVersion: enrollment.course.entityVersion,
           units: enrollment.course.units.map(unit => ({
             unitId: unit.unitId,
@@ -118,6 +119,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             description: unit.description,
             optional: unit.optional,
             order: unit.order,
+            enabled: unit.enabled,
             created: unit.created,
             modified: unit.modified,
           })),

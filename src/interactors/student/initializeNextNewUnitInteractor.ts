@@ -151,7 +151,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                   partNumber: newPartTemplate.partNumber,
                   title: newPartTemplate.title,
                   description: newPartTemplate.description,
-                  optional: newPartTemplate.optional,
                   newTextBoxes: {
                     create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => ({
                       textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),

@@ -11,5 +11,6 @@ export type CourseDTO = {
   unitType: number;
   enabled: boolean;
   order: number;
+  newUnitsEnabled: boolean;
   entityVersion: number;
 };

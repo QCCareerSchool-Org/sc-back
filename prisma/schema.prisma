@@ -409,6 +409,7 @@ model Course {
   unitType          Int               @db.UnsignedTinyInt @default(0) @map("unit_type")
   enabled           Boolean           @default(true)
   order             Int               @default(0) @db.TinyInt
+  newUnitsEnabled   Boolean           @default(false) @map("new_units_enabled")
   entityVersion     Int               @default(0) @map("entity_version")
   school            School            @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
   studentType       StudentType       @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
@@ -1223,6 +1224,7 @@ model NewUnitTemplate {
   description            String?                 @db.Text
   optional               Boolean                 @default(false)
   order                  Int                     @db.TinyInt @default(0)
+  enabled                Boolean                 @default(false)
   created                DateTime                @default(now()) @db.DateTime(0)
   modified               DateTime?               @db.DateTime(0) @updatedAt
   course                 Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1", onDelete: Cascade)
@@ -1331,7 +1333,7 @@ model NewPartTemplate {
   partNumber             Int                     @db.UnsignedInt @map("part_number")
   title                  String
   description            String?                 @db.Text
-  optional               Boolean                 @default(false)
+  descriptionType        NewDescriptionType      @default(text) @map("description_type")
   created                DateTime                @default(now()) @db.DateTime(0)
   modified               DateTime?               @db.DateTime(0) @updatedAt
   newAssignmentTemplate  NewAssignmentTemplate   @relation(fields: [assignmentTemplateId], references: [assignmentTemplateId], map: "new_part_templates_ibfk_1", onDelete: Cascade)
@@ -1344,18 +1346,18 @@ model NewPartTemplate {
 }
 
 model NewPart {
-  partId         Bytes                    @id @db.Binary(16) @map("part_id")
-  assignmentId   Bytes                    @db.Binary(16) @map("assignment_id")
-  partNumber     Int                      @db.UnsignedInt @map("part_number")
-  title          String
-  description    String?                  @db.Text
-  optional       Boolean                  @default(false)
-  created        DateTime                 @default(now()) @db.DateTime(0)
-  modified       DateTime?                @db.DateTime(0) @updatedAt
-  newAssignment  NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
-  newTextBoxes   NewTextBox[]
-  newUploadSlots NewUploadSlot[]
-  newPartMedia   NewPartsOnNewPartMedia[]
+  partId          Bytes                    @id @db.Binary(16) @map("part_id")
+  assignmentId    Bytes                    @db.Binary(16) @map("assignment_id")
+  partNumber      Int                      @db.UnsignedInt @map("part_number")
+  title           String
+  description     String?                  @db.Text
+  descriptionType NewDescriptionType       @default(text) @map("description_type")
+  created         DateTime                 @default(now()) @db.DateTime(0)
+  modified        DateTime?                @db.DateTime(0) @updatedAt
+  newAssignment   NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
+  newTextBoxes    NewTextBox[]
+  newUploadSlots  NewUploadSlot[]
+  newPartMedia    NewPartsOnNewPartMedia[]
 
   @@map("new_parts")
   @@unique([assignmentId, partNumber], map: "assignment_id_part_number")
@@ -1462,6 +1464,11 @@ model NewUploadSlot {
 
   @@map("new_upload_slots")
   @@index([partId], map: "part_id")
+}
+
+enum NewDescriptionType {
+  text
+  html
 }
 
 enum NewMediaType {

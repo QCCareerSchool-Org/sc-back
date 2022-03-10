@@ -1,3 +1,5 @@
+import type { NewDescriptionType } from './newDescriptionType';
+
 export type NewPartDTO = {
   /** uuid */
   partId: string;
@@ -6,7 +8,7 @@ export type NewPartDTO = {
   partNumber: number;
   title: string | null;
   description: string | null;
-  optional: boolean;
+  descriptionType: NewDescriptionType;
   complete: boolean;
   created: Date;
   modified: Date | null;

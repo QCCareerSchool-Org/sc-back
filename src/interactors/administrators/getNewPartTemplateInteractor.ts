@@ -62,7 +62,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
         partNumber: partTemplate.partNumber,
         title: partTemplate.title,
         description: partTemplate.description,
-        optional: partTemplate.optional,
+        descriptionType: partTemplate.descriptionType,
         created: partTemplate.created,
         modified: partTemplate.modified,
         newAssignmentTemplate: {

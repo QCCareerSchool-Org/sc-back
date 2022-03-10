@@ -111,7 +111,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 partNumber: p.partNumber,
                 title: p.title,
                 description: p.description,
-                optional: p.optional,
+                descriptionType: p.descriptionType,
                 created: p.created,
                 modified: p.modified,
                 newTextBoxes: p.newTextBoxes.map(t => {
@@ -158,7 +158,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 }),
                 complete: partComplete,
               };
-              if (!p.optional && !partComplete) {
+              if (!partComplete) {
                 assignmentComplete = false;
               }
               return part;

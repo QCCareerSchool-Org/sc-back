@@ -2,6 +2,7 @@ import type { NewPartTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
+import { isNewDescriptionType } from '../../domain/newDescriptionType';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
@@ -17,7 +18,7 @@ export type SaveNewPartTemplateRequestDTO = {
     partNumber: number;
     title: string;
     description: string | null;
-    optional: boolean;
+    descriptionType: string;
   };
 };
 
@@ -27,6 +28,8 @@ export class SaveNewPartTemplateNotFound extends Error { }
 export class SaveNewPartTemplatePartTitleEmpty extends Error { }
 export class SaveNewPartTemplatePartTitleTooLong extends Error { }
 export class SaveNewPartTemplateDescriptionTooLong extends Error { }
+export class SaveNewPartTemplateDescriptionTypeEmpty extends Error { }
+export class SaveNewPartTemplateInvalidDescriptionType extends Error { }
 export class SaveNewPartTemplatePartNumberLessThanOne extends Error { }
 export class SaveNewPartTemplatePartNumberTooLarge extends Error { }
 export class SaveNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -41,7 +44,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
 
   public async execute({ schoolId, courseId, unitId, assignmentId, partId, data }: SaveNewPartTemplateRequestDTO): Promise<ResultType<SaveNewPartTemplateResponseDTO>> {
     try {
-      const { partNumber, title, description, optional } = data;
+      const { partNumber, title, description, descriptionType } = data;
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
@@ -67,6 +70,12 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
           return Result.fail(new SaveNewPartTemplateDescriptionTooLong());
         }
       }
+      if (descriptionType.length === 0) {
+        return Result.fail(new SaveNewPartTemplateDescriptionTypeEmpty());
+      }
+      if (!isNewDescriptionType(descriptionType)) {
+        return Result.fail(new SaveNewPartTemplateInvalidDescriptionType());
+      }
 
       if (partNumber < 1) {
         return Result.fail(new SaveNewPartTemplatePartNumberLessThanOne());
@@ -82,8 +91,8 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
           data: {
             title: title,
             description: description?.length ? description : null,
+            descriptionType,
             partNumber,
-            optional,
           },
           where: { partTemplateId: partIdBin },
         });
@@ -103,7 +112,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         partNumber: updatedPartTemplate.partNumber,
         title: updatedPartTemplate.title,
         description: updatedPartTemplate.description,
-        optional: updatedPartTemplate.optional,
+        descriptionType: updatedPartTemplate.descriptionType,
         created: updatedPartTemplate.created,
         modified: updatedPartTemplate.modified,
       });

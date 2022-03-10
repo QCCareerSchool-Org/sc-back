@@ -56,6 +56,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         unitType: course.unitType,
         enabled: course.enabled,
         order: course.order,
+        newUnitsEnabled: course.newUnitsEnabled,
         entityVersion: course.entityVersion,
         school: {
           schoolId: course.school.schoolId,
@@ -72,6 +73,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           description: u.description,
           optional: u.optional,
           order: u.order,
+          enabled: u.enabled,
           created: u.created,
           modified: u.modified,
         })),

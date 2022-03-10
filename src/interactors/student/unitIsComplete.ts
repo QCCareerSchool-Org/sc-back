@@ -11,7 +11,7 @@ type UnitWithChildren = NewUnit & {
 
 export const unitIsComplete = (unit: UnitWithChildren): boolean => {
   return unit.newAssignments.filter(a => !a.optional).every(a => {
-    return a.newParts.filter(p => !p.optional).every(p => {
+    return a.newParts.every(p => {
       return p.newTextBoxes.filter(t => !t.optional).every(t => t.text.length > 0)
         && p.newUploadSlots.filter(u => !u.optional).every(u => u.filename !== null);
     });
