@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getStudentInteractor } from '../../interactors';
-import { GetStudentNotFound, GetStudentResponseDTO } from '../../interactors/student/getStudentInteractor';
+import type { GetStudentResponseDTO } from '../../interactors/student/getStudentInteractor';
+import { GetStudentNotFound } from '../../interactors/student/getStudentInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

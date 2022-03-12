@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import type { RequestHandler } from 'express';
-import maxmind, { CityResponse } from 'maxmind';
+import type { CityResponse } from 'maxmind';
+import maxmind from 'maxmind';
 
 import { winstonLoggerService } from '../../services';
 import { asyncWrapper } from './asyncWrapper';

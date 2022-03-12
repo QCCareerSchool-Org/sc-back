@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { insertNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateResponseDTO, InsertNewAssignmentTemplateUnitNotFound } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
+import type { InsertNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
+import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateUnitNotFound, InsertNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -74,6 +75,8 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
     switch (result.error.constructor) {
       case InsertNewAssignmentTemplateUnitNotFound:
         return this.notFound('Unit template not found');
+      case InsertNewAssignmentTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case InsertNewAssignmentTemplateAssignmentNumberLessThanOne:
         return this.badRequest('Assignment number must be greater than or equal to 1');
       case InsertNewAssignmentTemplateAssignmentNumberTooLarge:

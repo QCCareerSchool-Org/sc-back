@@ -1,12 +1,14 @@
-import { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
-import { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { AccountType } from '../../domain/accountType';
+import type { PrismaClient } from '@prisma/client';
+
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import type { AccountType } from '../../domain/accountType';
 import { isValidStudentType } from '../../domain/studentType';
-import { IInteractor } from '../../interactors/';
-import { Result, ResultType } from '../../interactors/result';
+import type { IInteractor } from '../../interactors/';
+import type { ResultType } from '../../interactors/result';
+import { Result } from '../../interactors/result';
 import type { IConfigService } from '../../services/config';
 import type { ICryptoService } from '../../services/crypto';
-import { IDateService } from '../../services/date';
+import type { IDateService } from '../../services/date';
 import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
 

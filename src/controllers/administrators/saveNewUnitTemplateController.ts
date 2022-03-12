@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { saveNewUnitTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateResponseDTO, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
+import type { SaveNewUnitTemplateResponseDTO } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
+import { SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong, SaveNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -76,6 +77,8 @@ export class SaveNewUnitTemplateController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case SaveNewUnitTemplateNotFound:
         return this.notFound('Part template not found');
+      case SaveNewUnitTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case SaveNewUnitTemplateUnitLetterEmpty:
         return this.badRequest('Unit letter cannot be empty');
       case SaveNewUnitTemplateUnitLetterTooLong:

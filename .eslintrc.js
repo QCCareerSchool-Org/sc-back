@@ -18,6 +18,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
@@ -143,6 +144,7 @@ module.exports = {
     'yield-star-spacing': 'error',
 
     // @typescript-eslint rules
+    '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off', // included in "overrides" section
     '@typescript-eslint/explicit-member-accessibility': 'off', // included in "overrides" section
     '@typescript-eslint/member-delimiter-style': 'error',

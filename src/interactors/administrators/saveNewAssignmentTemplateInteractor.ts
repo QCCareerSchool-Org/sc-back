@@ -5,7 +5,8 @@ import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type SaveNewAssignmentTemplateRequestDTO = {
   schoolId: number;
@@ -23,6 +24,7 @@ export type SaveNewAssignmentTemplateRequestDTO = {
 export type SaveNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 
 export class SaveNewAssignmentTemplateNotFound extends Error { }
+export class SaveNewAssignmentTemplateUnitsEnabled extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
@@ -44,9 +46,16 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        include: {
+          newUnitTemplate: { include: { course: true } },
+        },
       });
       if (!assignmentTemplate) {
         return Result.fail(new SaveNewAssignmentTemplateNotFound());
+      }
+
+      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new SaveNewAssignmentTemplateUnitsEnabled());
       }
 
       // validate the data

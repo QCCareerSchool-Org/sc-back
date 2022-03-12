@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { deleteNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/deletetNewAssignmentTemplateInteractor';
-import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewAssignmentTemplateInteractor';
+import { deleteNewAssignmentMediumInteractor } from '../../interactors/administrators';
+import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deletetNewAssignmentMediumInteractor';
+import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deletetNewAssignmentMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -17,12 +17,14 @@ type Request = {
     unitId: string;
     /** uuid */
     assignmentId: string;
+    /** uuid */
+    mediumId: string;
   };
 };
 
-type Response = DeleteNewAssignmentTemplateResponseDTO;
+type Response = DeleteNewAssignmentMediumResponseDTO;
 
-export class DeleteNewAssignmentTemplateController extends BaseController<Request, Response> {
+export class DeleteNewAssignmentMediumController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -31,6 +33,7 @@ export class DeleteNewAssignmentTemplateController extends BaseController<Reques
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -52,19 +55,21 @@ export class DeleteNewAssignmentTemplateController extends BaseController<Reques
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
+    const { unitId, assignmentId, mediumId } = params;
 
-    const result = await deleteNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId });
+    const result = await deleteNewAssignmentMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, mediumId });
 
     if (result.success) {
       return this.noContent();
     }
 
     switch (result.error.constructor) {
-      case DeleteNewAssignmentTemplateNotFound:
-        return this.notFound('Assignment template not found');
-      case DeleteNewAssignmentTemplateUnitsEnabled:
+      case DeleteNewAssignmentMediumNotFound:
+        return this.notFound('Assignment medium not found');
+      case DeleteNewAssignmentMediumUnitsEnabled:
         return this.badRequest('Units must be disabled');
+      case DeleteNewAssignmentMediumUnlinkError:
+        return this.internalServerError('Could not unlink file');
       default:
         return this.internalServerError(result.error.message);
     }

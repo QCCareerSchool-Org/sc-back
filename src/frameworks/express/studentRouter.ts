@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { DeleteNewUploadSlotFileController } from '../../controllers/student/deleteNewUploadSlotFileController';
+import { DownloadNewAssignmentMediumFileController } from '../../controllers/student/downloadNewAssignmentMediumFileController';
 import { DownloadNewUploadSlotFileController } from '../../controllers/student/downloadNewUploadSlotFileController';
 import { GetEnrollmentController } from '../../controllers/student/getEnrollmentController';
 import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
@@ -57,13 +58,18 @@ studentRouter.get(
   asyncWrapper(async (req, res) => new GetNewAssignmentController(req, res).execute()),
 );
 
+studentRouter.get(
+  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/media/:mediumId/file',
+  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumFileController(req, res).execute()),
+);
+
 studentRouter.put(
   '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
   asyncWrapper(async (req, res) => new SaveNewTextBoxTextController(req, res).execute()),
 );
 
 studentRouter.get(
-  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
+  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file',
   asyncWrapper(async (req, res) => new DownloadNewUploadSlotFileController(req, res).execute()),
 );
 

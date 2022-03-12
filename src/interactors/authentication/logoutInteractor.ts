@@ -1,9 +1,10 @@
-import { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
+import type { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
 
-import { IInteractor } from '..';
-import { AccountType } from '../../domain/accountType';
+import type { IInteractor } from '..';
+import type { AccountType } from '../../domain/accountType';
 import type { ILoggerService } from '../../services/logger';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 type LogoutRequestDTO = {
   id?: bigint;

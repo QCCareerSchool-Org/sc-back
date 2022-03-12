@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import { GetNewAssignmentTemplateNotFound, GetNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/getNewAssignmentTemplateInteractor';
+import type { GetNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/getNewAssignmentTemplateInteractor';
+import { GetNewAssignmentTemplateNotFound } from '../../interactors/administrators/getNewAssignmentTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

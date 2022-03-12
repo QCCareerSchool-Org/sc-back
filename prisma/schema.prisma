@@ -1308,7 +1308,7 @@ model NewAssignmentMedium {
   modified              DateTime?                            @db.DateTime(0) @updatedAt
   newAssignmentTemplate NewAssignmentTemplate?               @relation(fields: [assignmentTemplateId], references: [assignmentTemplateId], map: "new_assignment_media_ibfk_1", onDelete: SetNull)
   mimeType              MimeType                             @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_assignment_media_ibfk_2")
-  newAssignment         NewAssignmentsOnNewAssignmentMedia[]
+  newAssignments        NewAssignmentsOnNewAssignmentMedia[]
 
   @@map("new_assignment_media")
   @@index([assignmentTemplateId], map: "assignment_template_id")

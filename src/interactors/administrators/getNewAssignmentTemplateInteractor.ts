@@ -5,10 +5,11 @@ import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type GetNewAssignmentTemplateRequestDTO = {
   schoolId: number;

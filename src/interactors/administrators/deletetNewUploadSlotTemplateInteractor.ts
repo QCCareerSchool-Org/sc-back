@@ -3,7 +3,8 @@ import type { PrismaClient } from '@prisma/client';
 import type { IInteractor } from '..';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type DeleteNewUploadSlotTemplateRequestDTO = {
   schoolId: number;
@@ -17,6 +18,7 @@ export type DeleteNewUploadSlotTemplateRequestDTO = {
 export type DeleteNewUploadSlotTemplateResponseDTO = void;
 
 export class DeleteNewUploadSlotTemplateNotFound extends Error { }
+export class DeleteNewUploadSlotTemplateUnitsEnabled extends Error { }
 
 export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<DeleteNewUploadSlotTemplateRequestDTO, DeleteNewUploadSlotTemplateResponseDTO> {
 
@@ -37,9 +39,16 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
       // find the upload slot template
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
         where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: {
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+        },
       });
       if (!uploadSlotTemplate) {
         return Result.fail(new DeleteNewUploadSlotTemplateNotFound());
+      }
+
+      if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new DeleteNewUploadSlotTemplateUnitsEnabled());
       }
 
       // delete the upload slot template

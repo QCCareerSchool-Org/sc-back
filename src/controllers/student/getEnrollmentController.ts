@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getEnrollmentInteractor } from '../../interactors';
-import { GetEnrollmentNotFound, GetEnrollmentResponseDTO } from '../../interactors/student/getEnrollment';
+import type { GetEnrollmentResponseDTO } from '../../interactors/student/getEnrollment';
+import { GetEnrollmentNotFound } from '../../interactors/student/getEnrollment';
 import { BaseController } from '../baseController';
 
 type Request = {

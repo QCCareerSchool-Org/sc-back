@@ -5,7 +5,8 @@ import type { IInteractor } from '..';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type SaveNewUnitTemplateRequestDTO = {
   schoolId: number;
@@ -23,6 +24,7 @@ export type SaveNewUnitTemplateRequestDTO = {
 export type SaveNewUnitTemplateResponseDTO = NewUnitTemplateDTO;
 
 export class SaveNewUnitTemplateNotFound extends Error { }
+export class SaveNewUnitTemplateUnitsEnabled extends Error { }
 export class SaveNewUnitTemplateUnitLetterEmpty extends Error { }
 export class SaveNewUnitTemplateUnitLetterTooLong extends Error { }
 export class SaveNewUnitTemplateInvalidUnitLetter extends Error { }
@@ -46,9 +48,16 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
       // find the unit template
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
         where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
+        include: {
+          course: true,
+        },
       });
       if (!unitTemplate) {
         return Result.fail(new SaveNewUnitTemplateNotFound());
+      }
+
+      if (unitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new SaveNewUnitTemplateUnitsEnabled());
       }
 
       // validate the data
@@ -77,6 +86,7 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
             unitLetter,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            order,
             optional,
           },
           where: { unitTemplateId: unitIdBin },

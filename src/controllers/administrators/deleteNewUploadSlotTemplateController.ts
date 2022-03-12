@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/deletetNewUploadSlotTemplateInteractor';
+import type { DeleteNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/deletetNewUploadSlotTemplateInteractor';
+import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewUploadSlotTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -68,6 +69,8 @@ export class DeleteNewUploadSlotTemplateController extends BaseController<Reques
     switch (result.error.constructor) {
       case DeleteNewUploadSlotTemplateNotFound:
         return this.notFound('Upload slot template not found');
+      case DeleteNewUploadSlotTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

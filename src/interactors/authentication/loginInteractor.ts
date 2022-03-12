@@ -13,7 +13,8 @@ import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
 import type { IStudentService } from '../../services/student';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 type LoginRequestDTO = {
   username: string;

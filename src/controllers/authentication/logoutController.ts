@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { AccountType } from '../../domain/accountType';
+import type { AccountType } from '../../domain/accountType';
 import { logoutInteractor } from '../../interactors';
 import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor';
 import { environmentConfigService } from '../../services';

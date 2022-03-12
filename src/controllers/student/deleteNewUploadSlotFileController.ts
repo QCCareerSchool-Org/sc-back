@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewUploadSlotFileInteractor } from '../../interactors';
-import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileResponseDTO, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
+import type { DeleteNewUploadSlotFileResponseDTO } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
+import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

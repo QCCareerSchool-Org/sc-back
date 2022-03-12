@@ -3,7 +3,8 @@ import type { PrismaClient } from '@prisma/client';
 import type { IInteractor } from '..';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type DeleteNewTextBoxTemplateRequestDTO = {
   schoolId: number;
@@ -17,6 +18,7 @@ export type DeleteNewTextBoxTemplateRequestDTO = {
 export type DeleteNewTextBoxTemplateResponseDTO = void;
 
 export class DeleteNewTextBoxTemplateNotFound extends Error { }
+export class DeleteNewTextBoxTemplateUnitsEnabled extends Error { }
 
 export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNewTextBoxTemplateRequestDTO, DeleteNewTextBoxTemplateResponseDTO> {
 
@@ -37,9 +39,16 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
       // find the text box template
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
         where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: {
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+        },
       });
       if (!textBoxTemplate) {
         return Result.fail(new DeleteNewTextBoxTemplateNotFound());
+      }
+
+      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new DeleteNewTextBoxTemplateUnitsEnabled());
       }
 
       // delete the text box template

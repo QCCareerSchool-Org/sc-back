@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import { GetNewUploadSlotTemplateNotFound, GetNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor';
+import type { GetNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor';
+import { GetNewUploadSlotTemplateNotFound } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

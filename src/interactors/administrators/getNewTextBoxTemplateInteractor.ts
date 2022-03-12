@@ -5,7 +5,8 @@ import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type GetNewTextBoxTemplateRequestDTO = {
   schoolId: number;

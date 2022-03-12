@@ -4,7 +4,8 @@ import type { IInteractor } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InitializeNextNewUnitRequestDTO = {
   studentId: number;
@@ -56,7 +57,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         return Result.fail(new InitializeNextNewUnitNotReady());
       }
 
-      // Now we need to determine what the next unit will be
+      // determine what the next unit should be
       const unitTemplates = await this.prisma.newUnitTemplate.findMany({
         where: { courseId: enrollment.courseId },
         orderBy: [
@@ -105,8 +106,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       if (!nextUnitTemplate) {
         return Result.fail(new InitializeNextNewUnitTemplateNotFound());
       }
-
-      console.log(nextUnitTemplate);
 
       // make sure the unit has assignments
       if (nextUnitTemplate.newAssignmentTemplates.length === 0) {

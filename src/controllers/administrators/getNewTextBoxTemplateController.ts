@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import { GetNewTextBoxTemplateNotFound, GetNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/getNewTextBoxTemplateInteractor';
+import type { GetNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/getNewTextBoxTemplateInteractor';
+import { GetNewTextBoxTemplateNotFound } from '../../interactors/administrators/getNewTextBoxTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

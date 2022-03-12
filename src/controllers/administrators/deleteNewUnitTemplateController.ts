@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewUnitTemplateInteractor } from '../../interactors/administrators';
-import { DeleteNewUnitTemplateNotFound, DeleteNewUnitTemplateResponseDTO } from '../../interactors/administrators/deletetNewUnitTemplateInteractor';
+import type { DeleteNewUnitTemplateResponseDTO } from '../../interactors/administrators/deletetNewUnitTemplateInteractor';
+import { DeleteNewUnitTemplateNotFound, DeleteNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -59,6 +60,8 @@ export class DeleteNewUnitTemplateController extends BaseController<Request, Res
     switch (result.error.constructor) {
       case DeleteNewUnitTemplateNotFound:
         return this.notFound('Unit template not found');
+      case DeleteNewUnitTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

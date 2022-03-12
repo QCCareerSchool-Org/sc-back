@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getNewUnitTemplateInteractor } from '../../interactors/administrators';
-import { GetNewUnitTemplateNotFound, GetNewUnitTemplateResponseDTO } from '../../interactors/administrators/getNewUnitTemplateInteractor';
+import type { GetNewUnitTemplateResponseDTO } from '../../interactors/administrators/getNewUnitTemplateInteractor';
+import { GetNewUnitTemplateNotFound } from '../../interactors/administrators/getNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

@@ -1,9 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
+import type { IConfigService } from '../../services/config';
+import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type DeleteNewPartTemplateRequestDTO = {
   schoolId: number;
@@ -16,12 +19,15 @@ export type DeleteNewPartTemplateRequestDTO = {
 export type DeleteNewPartTemplateResponseDTO = void;
 
 export class DeleteNewPartTemplateNotFound extends Error { }
+export class DeleteNewPartTemplateUnitsEnabled extends Error { }
 
 export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPartTemplateRequestDTO, DeleteNewPartTemplateResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly fileService: IFileService,
+    private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -35,9 +41,16 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        include: {
+          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+        },
       });
       if (!partTemplate) {
         return Result.fail(new DeleteNewPartTemplateNotFound());
+      }
+
+      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new DeleteNewPartTemplateUnitsEnabled());
       }
 
       // delete the part template

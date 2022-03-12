@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import type { SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -80,6 +81,8 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case SaveNewPartTemplateNotFound:
         return this.notFound('Part template not found');
+      case SaveNewPartTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case SaveNewPartTemplatePartTitleEmpty:
         return this.badRequest('Title is empty');
       case SaveNewPartTemplatePartTitleTooLong:

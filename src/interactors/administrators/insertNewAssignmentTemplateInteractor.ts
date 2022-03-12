@@ -5,7 +5,8 @@ import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InsertNewAssignmentTemplateRequestDTO = {
   schoolId: number;
@@ -22,6 +23,7 @@ export type InsertNewAssignmentTemplateRequestDTO = {
 export type InsertNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 
 export class InsertNewAssignmentTemplateUnitNotFound extends Error { }
+export class InsertNewAssignmentTemplateUnitsEnabled extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
@@ -43,9 +45,16 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       // find the unit template
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
         where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
+        include: {
+          course: true,
+        },
       });
       if (!unitTemplate) {
         return Result.fail(new InsertNewAssignmentTemplateUnitNotFound());
+      }
+
+      if (unitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new InsertNewAssignmentTemplateUnitsEnabled());
       }
 
       // validate the data

@@ -2,13 +2,16 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware';
+import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController';
 import { DeleteNewPartTemplateController } from '../../controllers/administrators/deleteNewPartTemplateController';
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController';
 import { DeleteNewUnitTemplateController } from '../../controllers/administrators/deleteNewUnitTemplateController';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
+import { DownloadNewAssignmentMediumFileController } from '../../controllers/administrators/downloadNewAssignmentMediumFileController';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
+import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController';
@@ -88,6 +91,18 @@ administratorRouter.post(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media',
   multer().single('file'),
   asyncWrapper(async (req, res) => new InsertNewAssignmentMediumController(req, res).execute()),
+);
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
+  asyncWrapper(async (req, res) => new GetNewAssignmentMediumController(req, res).execute()),
+);
+administratorRouter.delete(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
+  asyncWrapper(async (req, res) => new DeleteNewAssignmentMediumController(req, res).execute()),
+);
+administratorRouter.get(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId/file',
+  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumFileController(req, res).execute()),
 );
 
 // new part templates

@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { insertNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewTextBoxTemplateLinesLessThanOne, InsertNewTextBoxTemplateLinesTooLarge, InsertNewTextBoxTemplateOrderLessThanZero, InsertNewTextBoxTemplateOrderTooLarge, InsertNewTextBoxTemplatePartNotFound, InsertNewTextBoxTemplatePointsLessThanZero, InsertNewTextBoxTemplatePointsTooLarge, InsertNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor';
+import type { InsertNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor';
+import { InsertNewTextBoxTemplateLinesLessThanOne, InsertNewTextBoxTemplateLinesTooLarge, InsertNewTextBoxTemplateOrderLessThanZero, InsertNewTextBoxTemplateOrderTooLarge, InsertNewTextBoxTemplatePartNotFound, InsertNewTextBoxTemplatePointsLessThanZero, InsertNewTextBoxTemplatePointsTooLarge, InsertNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -82,6 +83,8 @@ export class InsertNewTextBoxTemplateController extends BaseController<Request, 
     switch (result.error.constructor) {
       case InsertNewTextBoxTemplatePartNotFound:
         return this.notFound('Part template not found');
+      case InsertNewTextBoxTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case InsertNewTextBoxTemplateLinesLessThanOne:
         return this.badRequest('Lines must be greater than or equal to 1');
       case InsertNewTextBoxTemplateLinesTooLarge:

@@ -1,6 +1,7 @@
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import cors, { CorsOptions } from 'cors';
+import type { CorsOptions } from 'cors';
+import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 
@@ -32,6 +33,11 @@ app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+  next();
+});
 
 app.use('/v1/auth', authenticationRouter);
 

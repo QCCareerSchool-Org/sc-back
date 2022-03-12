@@ -3,7 +3,8 @@ import type { PrismaClient } from '@prisma/client';
 import type { IInteractor } from '..';
 import type { SchoolDTO } from '../../domain/schoolDTO';
 import type { ILoggerService } from '../../services/logger';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type GetAllSchoolsRequestDTO = void;
 

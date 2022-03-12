@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { deleteNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/deletetNewAssignmentTemplateInteractor';
-import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewAssignmentTemplateInteractor';
+import { getNewAssignmentMediumInteractor } from '../../interactors/administrators';
+import type { GetNewAssignmentMediumResponseDTO } from '../../interactors/administrators/getNewAssignmentMediumInteractor';
+import { GetNewAssignmentMediumNotFound } from '../../interactors/administrators/getNewAssignmentMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -17,12 +17,14 @@ type Request = {
     unitId: string;
     /** uuid */
     assignmentId: string;
+    /** uuid */
+    mediumId: string;
   };
 };
 
-type Response = DeleteNewAssignmentTemplateResponseDTO;
+type Response = GetNewAssignmentMediumResponseDTO;
 
-export class DeleteNewAssignmentTemplateController extends BaseController<Request, Response> {
+export class GetNewAssignmentMediumController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -31,6 +33,7 @@ export class DeleteNewAssignmentTemplateController extends BaseController<Reques
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -46,25 +49,23 @@ export class DeleteNewAssignmentTemplateController extends BaseController<Reques
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isDeleteMethod()) {
+    if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
+    const { unitId, assignmentId, mediumId } = params;
 
-    const result = await deleteNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId });
+    const result = await getNewAssignmentMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, mediumId });
 
     if (result.success) {
-      return this.noContent();
+      return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case DeleteNewAssignmentTemplateNotFound:
-        return this.notFound('Assignment template not found');
-      case DeleteNewAssignmentTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case GetNewAssignmentMediumNotFound:
+        return this.notFound('Assignment medium not found');
       default:
         return this.internalServerError(result.error.message);
     }

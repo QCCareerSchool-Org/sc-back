@@ -6,7 +6,8 @@ import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
 import type { ProvinceDTO } from '../../domain/provinceDTO';
 import type { StudentDTO } from '../../domain/studentDTO';
 import type { ILoggerService } from '../../services/logger';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type GetStudentRequestDTO = {
   studentId: number;

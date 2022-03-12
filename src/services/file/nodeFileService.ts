@@ -1,7 +1,8 @@
-import fs, { ReadStream } from 'fs';
+import type { ReadStream } from 'fs';
+import fs from 'fs';
 import path from 'path';
 
-import { FileStats, IFileService } from '.';
+import type { FileStats, IFileService } from '.';
 
 export class NodeFileService implements IFileService {
 

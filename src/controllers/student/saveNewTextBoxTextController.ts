@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { saveNewTextBoxTextInteractor } from '../../interactors';
-import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextResponseDTO, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/student/saveNewTextBoxTextInteractor';
+import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/student/saveNewTextBoxTextInteractor';
+import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/student/saveNewTextBoxTextInteractor';
 
 import { BaseController } from '../baseController';
 

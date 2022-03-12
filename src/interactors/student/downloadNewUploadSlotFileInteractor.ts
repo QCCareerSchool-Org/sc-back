@@ -7,7 +7,8 @@ import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import type { ISanitizerService } from '../../services/sanitizer';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type DownloadNewUploadSlotFileRequestDTO = {
   studentId: number;

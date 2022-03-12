@@ -1,7 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
-import { IInteractor } from '../../interactors';
-import { Result, ResultType } from '../../interactors/result';
+import type { IInteractor } from '../../interactors';
+import type { ResultType } from '../../interactors/result';
+import { Result } from '../../interactors/result';
 import type { ILoggerService } from '../../services/logger';
 
 type GetPasswordResetRequestDTO = {

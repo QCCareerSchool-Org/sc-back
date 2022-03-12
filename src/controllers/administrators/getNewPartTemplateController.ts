@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { getNewPartTemplateInteractor } from '../../interactors/administrators';
-import { GetNewPartTemplateNotFound, GetNewPartTemplateResponseDTO } from '../../interactors/administrators/getNewPartTemplateInteractor';
+import type { GetNewPartTemplateResponseDTO } from '../../interactors/administrators/getNewPartTemplateInteractor';
+import { GetNewPartTemplateNotFound } from '../../interactors/administrators/getNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

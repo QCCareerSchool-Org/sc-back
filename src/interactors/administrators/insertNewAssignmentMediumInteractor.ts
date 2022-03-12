@@ -2,10 +2,13 @@ import type { NewAssignmentMedium, PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFile } from '..';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
+import type { IConfigService } from '../../services/config';
+import type { IFileService } from '../../services/file';
 import type { IHttpService } from '../../services/http';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InsertNewAssignmentMediumRequestDTO = {
   schoolId: number;
@@ -23,6 +26,7 @@ export type InsertNewAssignmentMediumRequestDTO = {
 export type InsertNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO;
 
 export class InsertNewAssignmentMediumAssignmentNotFound extends Error { }
+export class InsertNewAssignmentMediumUnitsEnabled extends Error { }
 export class InsertNewAssignmentMediumCaptionEmpty extends Error { }
 export class InsertNewAssignmentMediCaptionTooLong extends Error { }
 export class InsertNewAssignmentMediumOrderLessThanZero extends Error { }
@@ -31,6 +35,7 @@ export class InsertNewAssignmentMediumExternalDataInvalid extends Error { }
 export class InsertNewAssignmentMediumDataMissing extends Error { }
 export class InsertNewAssignmentInvalidMimeType extends Error { }
 export class InsertNewAssignmentUnacceptableMimeType extends Error { }
+export class InsertNewAssignmentUnacceptableFileSaveError extends Error { }
 export class InsertNewAssignmentUnableToFetchExternalData extends Error { }
 export class InsertNewAssignmentMissingContentType extends Error { }
 
@@ -40,6 +45,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
     private readonly prisma: PrismaClient,
     private readonly httpService: IHttpService,
     private readonly uuidService: IUUIDService,
+    private readonly fileService: IFileService,
+    private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -53,9 +60,14 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        include: { newUnitTemplate: { include: { course: true } } },
       });
       if (!assignmentTemplate) {
         return Result.fail(new InsertNewAssignmentMediumAssignmentNotFound());
+      }
+
+      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new InsertNewAssignmentMediumUnitsEnabled());
       }
 
       // validate the data
@@ -79,7 +91,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         }
       }
 
-      // insert the assignment template
+      // insert the assignment medium
       let insertedAssignmentMedium: NewAssignmentMedium;
       if (file) {
         insertedAssignmentMedium = await this.insertWithFile(assignmentIdBin, caption, order, file);
@@ -141,7 +153,13 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       });
 
       // save the file
-      // TODO: save file
+      const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(insertedAssignmentMedium.assignmentMediumId)}`;
+      try {
+        await this.fileService.writeFile(filePath, file.data);
+      } catch (err) {
+        this.logger.error('Could not save file', err);
+        throw new InsertNewAssignmentUnacceptableFileSaveError();
+      }
 
       return insertedAssignmentMedium;
     });

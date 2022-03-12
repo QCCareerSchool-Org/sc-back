@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { insertNewPartTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
+import type { InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -77,6 +78,8 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
     switch (result.error.constructor) {
       case InsertNewPartTemplateAssignmentNotFound:
         return this.notFound('Assignment template not found');
+      case InsertNewPartTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case InsertNewPartTemplatePartTitleEmpty:
         return this.badRequest('Title is empty');
       case InsertNewPartTemplatePartTitleTooLong:

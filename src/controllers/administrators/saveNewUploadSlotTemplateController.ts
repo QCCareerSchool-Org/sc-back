@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { saveNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewUploadSlotTemplateAllowedTypesEmpty, SaveNewUploadSlotTemplateInvalidAllowedType, SaveNewUploadSlotTemplateLabelEmpty, SaveNewUploadSlotTemplateNotFound, SaveNewUploadSlotTemplateOrderLessThanZero, SaveNewUploadSlotTemplateOrderTooLarge, SaveNewUploadSlotTemplatePointsLessThanZero, SaveNewUploadSlotTemplatePointsTooLarge, SaveNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/saveNewUploadSlotTemplateInteractor';
+import type { SaveNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/saveNewUploadSlotTemplateInteractor';
+import { SaveNewUploadSlotTemplateAllowedTypesEmpty, SaveNewUploadSlotTemplateInvalidAllowedType, SaveNewUploadSlotTemplateLabelEmpty, SaveNewUploadSlotTemplateNotFound, SaveNewUploadSlotTemplateOrderLessThanZero, SaveNewUploadSlotTemplateOrderTooLarge, SaveNewUploadSlotTemplatePointsLessThanZero, SaveNewUploadSlotTemplatePointsTooLarge, SaveNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUploadSlotTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -85,6 +86,8 @@ export class SaveNewUploadSlotTemplateController extends BaseController<Request,
     switch (result.error.constructor) {
       case SaveNewUploadSlotTemplateNotFound:
         return this.notFound('Upload slot template not found');
+      case SaveNewUploadSlotTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case SaveNewUploadSlotTemplateLabelEmpty:
         return this.badRequest('Label must not be empty');
       case SaveNewUploadSlotTemplateAllowedTypesEmpty:

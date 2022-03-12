@@ -5,7 +5,8 @@ import type { IInteractor } from '..';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InsertNewUnitTemplateRequestDTO = {
   schoolId: number;
@@ -22,6 +23,7 @@ export type InsertNewUnitTemplateRequestDTO = {
 export type InsertNewUnitTemplateResponseDTO = NewUnitTemplateDTO;
 
 export class InsertNewUnitTemplateCourseNotFound extends Error { }
+export class InsertNewUnitTemplateUnitsEnabled extends Error { }
 export class InsertNewUnitTemplateUnitLetterEmpty extends Error { }
 export class InsertNewUnitTemplateUnitLetterTooLong extends Error { }
 export class InsertNewUnitTemplateInvalidUnitLetter extends Error { }
@@ -48,6 +50,10 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
       });
       if (!course) {
         return Result.fail(new InsertNewUnitTemplateCourseNotFound());
+      }
+
+      if (course.newUnitsEnabled) {
+        return Result.fail(new InsertNewUnitTemplateUnitsEnabled());
       }
 
       // validate the data
@@ -78,8 +84,8 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
             unitLetter,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
-            optional,
             order,
+            optional,
           },
         });
       } catch (err) {

@@ -4,7 +4,8 @@ import type { IInteractor } from '..';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type SaveNewUploadSlotTemplateRequestDTO = {
   schoolId: number;
@@ -25,6 +26,7 @@ export type SaveNewUploadSlotTemplateRequestDTO = {
 export type SaveNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO;
 
 export class SaveNewUploadSlotTemplateNotFound extends Error { }
+export class SaveNewUploadSlotTemplateUnitsEnabled extends Error { }
 export class SaveNewUploadSlotTemplateLabelEmpty extends Error { }
 export class SaveNewUploadSlotTemplateAllowedTypesEmpty extends Error { }
 export class SaveNewUploadSlotTemplateInvalidAllowedType extends Error { }
@@ -53,9 +55,16 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
       // find the upload slot template
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
         where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: {
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+        },
       });
       if (!uploadSlotTemplate) {
         return Result.fail(new SaveNewUploadSlotTemplateNotFound());
+      }
+
+      if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new SaveNewUploadSlotTemplateUnitsEnabled());
       }
 
       // validate the data

@@ -1,12 +1,13 @@
 import * as yup from 'yup';
 
-import { IInteractor } from '..';
-import { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { AccountType } from '../../domain/accountType';
-import { StudentTypeType } from '../../domain/studentType';
+import type { IInteractor } from '..';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
+import type { AccountType } from '../../domain/accountType';
+import type { StudentTypeType } from '../../domain/studentType';
 import type { IJWTService } from '../../services/jwt';
 import type { ILoggerService } from '../../services/logger';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 type CheckAuthenticationRequestDTO = {
   accessToken: string;
@@ -30,7 +31,7 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
 
   public async execute({ accessToken, xsrfToken, checkXsrf }: CheckAuthenticationRequestDTO): Promise<ResultType<AccessTokenPayload>> {
     try {
-      let decoded;
+      let decoded: unknown;
       try {
         decoded = await this.jwtService.verify(accessToken);
       } catch (err: unknown) {

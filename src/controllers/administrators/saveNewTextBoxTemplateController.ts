@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { saveNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewTextBoxTemplateLinesLessThanOne, SaveNewTextBoxTemplateLinesTooLarge, SaveNewTextBoxTemplateNotFound, SaveNewTextBoxTemplateOrderLessThanZero, SaveNewTextBoxTemplateOrderTooLarge, SaveNewTextBoxTemplatePointsLessThanZero, SaveNewTextBoxTemplatePointsTooLarge, SaveNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor';
+import type { SaveNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor';
+import { SaveNewTextBoxTemplateLinesLessThanOne, SaveNewTextBoxTemplateLinesTooLarge, SaveNewTextBoxTemplateNotFound, SaveNewTextBoxTemplateOrderLessThanZero, SaveNewTextBoxTemplateOrderTooLarge, SaveNewTextBoxTemplatePointsLessThanZero, SaveNewTextBoxTemplatePointsTooLarge, SaveNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -85,6 +86,8 @@ export class SaveNewTextBoxTemplateController extends BaseController<Request, Re
     switch (result.error.constructor) {
       case SaveNewTextBoxTemplateNotFound:
         return this.notFound('Text box template not found');
+      case SaveNewTextBoxTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case SaveNewTextBoxTemplateLinesLessThanOne:
         return this.badRequest('Lines must be greater than or equal to 1');
       case SaveNewTextBoxTemplateLinesTooLarge:

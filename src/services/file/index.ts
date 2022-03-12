@@ -1,4 +1,4 @@
-import { ReadStream } from 'fs';
+import type { ReadStream } from 'fs';
 
 export type FileStats = {
   size: number;

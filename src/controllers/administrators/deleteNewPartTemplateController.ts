@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewPartTemplateInteractor } from '../../interactors/administrators';
-import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deletetNewPartTemplateInteractor';
+import type { DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deletetNewPartTemplateInteractor';
+import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -65,6 +66,8 @@ export class DeleteNewPartTemplateController extends BaseController<Request, Res
     switch (result.error.constructor) {
       case DeleteNewPartTemplateNotFound:
         return this.notFound('Part template not found');
+      case DeleteNewPartTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

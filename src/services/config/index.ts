@@ -18,6 +18,8 @@ export type Config = {
     courseBannersPath: string;
     unitResponsesPath: string;
     tutorIntroductionPath: string;
+    assignmentMediaPath: string;
+    partMediaPath: string;
   };
   auth: {
     cookieDomain: string;

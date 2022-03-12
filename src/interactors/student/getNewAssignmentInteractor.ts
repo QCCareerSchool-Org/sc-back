@@ -2,13 +2,15 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
+import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
 import type { NewPartDTO } from '../../domain/newPartDTO';
 import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type GetNewAssignmentRequestDTO = {
   studentId: number;
@@ -18,6 +20,7 @@ export type GetNewAssignmentRequestDTO = {
 };
 
 export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
+  newAssignmentMedia: NewAssignmentMediumDTO[];
   newParts: Array<NewPartDTO & {
     newTextBoxes: NewTextBoxDTO[];
     newUploadSlots: NewUploadSlotDTO[];
@@ -44,6 +47,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         },
         include: {
           newUnit: true,
+          newAssignmentMedia: { include: { newAssignmentMedium: true } },
           newParts: {
             orderBy: { partNumber: 'asc' },
             include: {
@@ -69,6 +73,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         optional: assignment.optional,
         created: assignment.created,
         modified: assignment.modified,
+        newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
+          assignmentMediumId: this.uuidService.binToUUID(m.newAssignmentMedium.assignmentMediumId),
+          assignmentTemplateId: m.newAssignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(m.newAssignmentMedium.assignmentTemplateId),
+          mimeTypeId: m.newAssignmentMedium.mimeTypeId,
+          type: m.newAssignmentMedium.type,
+          filename: m.newAssignmentMedium.filename,
+          caption: m.newAssignmentMedium.caption,
+          externalData: m.newAssignmentMedium.externalData,
+          order: m.newAssignmentMedium.order,
+          created: m.newAssignmentMedium.created,
+          modified: m.newAssignmentMedium.modified,
+        })),
         newParts: assignment.newParts.map(p => {
           let partComplete = true;
           const part = {

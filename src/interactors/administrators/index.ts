@@ -1,12 +1,15 @@
 import { prisma } from '../../frameworks/prisma';
-import { axiosHttpService, uuidService, winstonLoggerService } from '../../services';
+import { axiosHttpService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services';
+import { DeleteNewAssignmentMediumInteractor } from './deletetNewAssignmentMediumInteractor';
 import { DeleteNewAssignmentTemplateInteractor } from './deletetNewAssignmentTemplateInteractor';
 import { DeleteNewPartTemplateInteractor } from './deletetNewPartTemplateInteractor';
 import { DeleteNewTextBoxTemplateInteractor } from './deletetNewTextBoxTemplateInteractor';
 import { DeleteNewUnitTemplateInteractor } from './deletetNewUnitTemplateInteractor';
 import { DeleteNewUploadSlotTemplateInteractor } from './deletetNewUploadSlotTemplateInteractor';
+import { DownloadNewAssignmentMediumFileInteractor } from './downloadNewAssignmentMediumFileInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
+import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor';
@@ -34,19 +37,22 @@ export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, 
 export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewUnitTemplateInteractor = new SaveNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewAssignmentTemplateInteractor = new SaveNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
-export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, winstonLoggerService);
+export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const getNewAssignmentMediumInteractor = new GetNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewAssignmentMediumInteractor = new DeleteNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadNewAssignmentMediumFileInteractor = new DownloadNewAssignmentMediumFileInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
 
 export const insertNewPartTemplateInteractor = new InsertNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewPartTemplateInteractor = new GetNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewPartTemplateInteractor = new SaveNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteNewPartTemplateInteractor = new DeleteNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewPartTemplateInteractor = new DeleteNewPartTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const insertNewTextBoxTemplateInteractor = new InsertNewTextBoxTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewTextBoxTemplateInteractor = new GetNewTextBoxTemplateInteractor(prisma, uuidService, winstonLoggerService);

@@ -4,7 +4,8 @@ import type { IInteractor } from '..';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type SaveNewTextBoxTemplateRequestDTO = {
   schoolId: number;
@@ -25,6 +26,7 @@ export type SaveNewTextBoxTemplateRequestDTO = {
 export type SaveNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
 
 export class SaveNewTextBoxTemplateNotFound extends Error { }
+export class SaveNewTextBoxTemplateUnitsEnabled extends Error { }
 export class SaveNewTextBoxTemplateLinesLessThanOne extends Error { }
 export class SaveNewTextBoxTemplateLinesTooLarge extends Error { }
 export class SaveNewTextBoxTemplatePointsLessThanZero extends Error { }
@@ -52,9 +54,16 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
       // find the text box template
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
         where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        include: {
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+        },
       });
       if (!textBoxTemplate) {
         return Result.fail(new SaveNewTextBoxTemplateNotFound());
+      }
+
+      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new SaveNewTextBoxTemplateUnitsEnabled());
       }
 
       // validate the data

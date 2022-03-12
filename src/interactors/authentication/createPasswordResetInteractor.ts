@@ -1,14 +1,15 @@
-import { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
+import type { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
-import { AccountType } from '../../domain/accountType';
-import { IInteractor } from '../../interactors';
-import { Result, ResultType } from '../../interactors/result';
+import type { AccountType } from '../../domain/accountType';
+import type { IInteractor } from '../../interactors';
+import type { ResultType } from '../../interactors/result';
+import { Result } from '../../interactors/result';
 import type { ICryptoService } from '../../services/crypto';
-import { IDateService } from '../../services/date';
+import type { IDateService } from '../../services/date';
 import type { IEmailService } from '../../services/email';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
-import { IStudentService } from '../../services/student';
+import type { IStudentService } from '../../services/student';
 import type { ITelephoneNumberService } from '../../services/telephoneNumber';
 
 type CreatePasswordResetRequestDTO = {

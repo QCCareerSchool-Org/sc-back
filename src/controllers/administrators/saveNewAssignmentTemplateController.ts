@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
+import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -19,7 +20,7 @@ type Request = {
   };
   body: {
     assignmentNumber: number;
-    title: string;
+    title: string | null;
     description: string | null;
     optional: boolean;
   };
@@ -39,7 +40,7 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       assignmentNumber: yup.number().defined(),
-      title: yup.string().defined(),
+      title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
       optional: yup.boolean().defined(),
     });
@@ -77,6 +78,8 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
     switch (result.error.constructor) {
       case SaveNewAssignmentTemplateNotFound:
         return this.notFound('Part template not found');
+      case SaveNewAssignmentTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case SaveNewAssignmentTemplateAssignmentNumberLessThanOne:
         return this.badRequest('Assignment number must be greater than or equal to one');
       case SaveNewAssignmentTemplateAssignmentNumberTooLarge:

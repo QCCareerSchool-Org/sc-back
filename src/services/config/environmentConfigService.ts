@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-import { Config, IConfigService } from '.';
+import type { Config, IConfigService } from '.';
 
 dotenv.config();
 
@@ -63,6 +63,8 @@ export class EnvironmentConfigService implements IConfigService {
         courseBannersPath: process.env.COURSE_BANNERS_PATH ?? basePath + '/course-banners',
         unitResponsesPath: process.env.UNIT_RESPONSES_PATH ?? basePath + '/audio replies',
         tutorIntroductionPath: process.env.TUTOR_INTRODUCTION_PATH ?? basePath + '/tutor introductions',
+        assignmentMediaPath: basePath + '/course-materials/assignment-media',
+        partMediaPath: basePath + '/course-materials/part-media',
       },
       auth: {
         cookieDomain: process.env.COOKIE_DOMAIN ?? 'sc.qccareerschool.com',

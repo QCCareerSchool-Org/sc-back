@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { insertNewUnitTemplateInteractor } from '../../interactors/administrators';
-import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateResponseDTO, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
+import type { InsertNewUnitTemplateResponseDTO } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
+import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong, InsertNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -72,6 +73,8 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
     switch (result.error.constructor) {
       case InsertNewUnitTemplateCourseNotFound:
         return this.notFound('Course not found');
+      case InsertNewUnitTemplateUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case InsertNewUnitTemplateUnitLetterEmpty:
         return this.badRequest('Unit letter cannot be empty');
       case InsertNewUnitTemplateUnitLetterTooLong:

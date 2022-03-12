@@ -6,7 +6,8 @@ import { isNewDescriptionType } from '../../domain/newDescriptionType';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InsertNewPartTemplateRequestDTO = {
   schoolId: number;
@@ -24,6 +25,7 @@ export type InsertNewPartTemplateRequestDTO = {
 export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class InsertNewPartTemplateAssignmentNotFound extends Error { }
+export class InsertNewPartTemplateUnitsEnabled extends Error { }
 export class InsertNewPartTemplatePartTitleEmpty extends Error { }
 export class InsertNewPartTemplatePartTitleTooLong extends Error { }
 export class InsertNewPartTemplateDescriptionTooLong extends Error { }
@@ -51,9 +53,16 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        include: {
+          newUnitTemplate: { include: { course: true } },
+        },
       });
       if (!assignmentTemplate) {
         return Result.fail(new InsertNewPartTemplateAssignmentNotFound());
+      }
+
+      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new InsertNewPartTemplateUnitsEnabled());
       }
 
       // validate the data

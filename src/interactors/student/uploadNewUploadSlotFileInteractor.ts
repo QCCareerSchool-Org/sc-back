@@ -8,7 +8,8 @@ import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type UploadNewUploadSlotFileRequestDTO = {
   studentId: number;

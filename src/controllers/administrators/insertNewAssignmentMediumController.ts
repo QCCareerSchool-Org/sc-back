@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { insertNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import { InsertNewAssignmentInvalidMimeType, InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumResponseDTO, InsertNewAssignmentMissingContentType, InsertNewAssignmentUnableToFetchExternalData, InsertNewAssignmentUnacceptableMimeType } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
+import type { InsertNewAssignmentMediumResponseDTO } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
+import { InsertNewAssignmentInvalidMimeType, InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnitsEnabled, InsertNewAssignmentMissingContentType, InsertNewAssignmentUnableToFetchExternalData, InsertNewAssignmentUnacceptableFileSaveError, InsertNewAssignmentUnacceptableMimeType } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -109,6 +110,8 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
     switch (result.error.constructor) {
       case InsertNewAssignmentMediumAssignmentNotFound:
         return this.badRequest('Assignment template not found');
+      case InsertNewAssignmentMediumUnitsEnabled:
+        return this.badRequest('Units must be disabled');
       case InsertNewAssignmentMediumCaptionEmpty:
         return this.badRequest('Caption cannot be empty');
       case InsertNewAssignmentMediCaptionTooLong:
@@ -125,6 +128,8 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
         return this.badRequest('Invalid mime type');
       case InsertNewAssignmentUnacceptableMimeType:
         return this.badRequest('Unacceptable mime type');
+      case InsertNewAssignmentUnacceptableFileSaveError:
+        return this.internalServerError('Unable to save file');
       case InsertNewAssignmentUnableToFetchExternalData:
         return this.badRequest('Could not fetch external data');
       case InsertNewAssignmentMissingContentType:

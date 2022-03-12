@@ -4,7 +4,8 @@ import type { IInteractor } from '..';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import { Result, ResultType } from '../result';
+import type { ResultType } from '../result';
+import { Result } from '../result';
 
 export type InsertNewTextBoxTemplateRequestDTO = {
   schoolId: number;
@@ -24,6 +25,7 @@ export type InsertNewTextBoxTemplateRequestDTO = {
 export type InsertNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
 
 export class InsertNewTextBoxTemplatePartNotFound extends Error { }
+export class InsertNewTextBoxTemplateUnitsEnabled extends Error { }
 export class InsertNewTextBoxTemplateLinesLessThanOne extends Error { }
 export class InsertNewTextBoxTemplateLinesTooLarge extends Error { }
 export class InsertNewTextBoxTemplatePointsLessThanZero extends Error { }
@@ -50,11 +52,19 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        include: {
+          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+        },
       });
       if (!partTemplate) {
         return Result.fail(new InsertNewTextBoxTemplatePartNotFound());
       }
 
+      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
+        return Result.fail(new InsertNewTextBoxTemplateUnitsEnabled());
+      }
+
+      // validate the data
       if (lines !== null) {
         if (lines < 1) {
           return Result.fail(new InsertNewTextBoxTemplateLinesLessThanOne());

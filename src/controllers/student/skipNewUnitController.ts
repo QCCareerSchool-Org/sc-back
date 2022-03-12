@@ -1,7 +1,8 @@
 import * as yup from 'yup';
 
 import { skipNewUnitInteractor } from '../../interactors';
-import { SkipNewUnitAlreadySkipped, SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound, SkipNewUnitResponseDTO } from '../../interactors/student/skipNewUnitInteractor';
+import type { SkipNewUnitResponseDTO } from '../../interactors/student/skipNewUnitInteractor';
+import { SkipNewUnitAlreadySkipped, SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/student/skipNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
