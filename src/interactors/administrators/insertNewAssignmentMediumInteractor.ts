@@ -183,7 +183,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: headerMimeType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentInvalidMimeType();
+        throw new InsertNewAssignmentInvalidMimeType(headerMimeType);
       }
 
       let type: 'image' | 'video' | 'audio';
@@ -194,7 +194,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
       } else {
-        throw new InsertNewAssignmentUnacceptableMimeType();
+        throw new InsertNewAssignmentUnacceptableMimeType(headerMimeType);
       }
 
       // store the data in the database
@@ -204,7 +204,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           assignmentTemplateId: assignmentIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: externalData.substring(externalData.lastIndexOf('/')),
+          filename: externalData.substring(externalData.lastIndexOf('/') + 1),
           caption,
           order,
           externalData,

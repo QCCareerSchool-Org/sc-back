@@ -18,7 +18,7 @@ export type DownloadNewAssignmentMediumRequestDTO = {
   mediumId: string;
 };
 
-export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream | string;
 
 export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
@@ -52,6 +52,10 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       });
       if (!assignmentMedium) {
         return Result.fail(new DownloadNewAssignmentMediumNotFound());
+      }
+
+      if (assignmentMedium.externalData !== null) {
+        return Result.success(assignmentMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;

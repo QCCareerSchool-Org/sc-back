@@ -125,9 +125,9 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
       case InsertNewAssignmentMediumDataMissing:
         return this.badRequest('Data missing');
       case InsertNewAssignmentInvalidMimeType:
-        return this.badRequest('Invalid mime type');
+        return this.badRequest('Invalid mime type ' + result.error.message);
       case InsertNewAssignmentUnacceptableMimeType:
-        return this.badRequest('Unacceptable mime type');
+        return this.badRequest('Unacceptable mime type ' + result.error.message);
       case InsertNewAssignmentUnacceptableFileSaveError:
         return this.internalServerError('Unable to save file');
       case InsertNewAssignmentUnableToFetchExternalData:

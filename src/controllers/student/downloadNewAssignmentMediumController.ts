@@ -57,6 +57,10 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
     const result = await downloadNewAssignmentMediumInteractor.execute({ studentId, courseId, unitId, assignmentId, mediumId });
 
     if (result.success) {
+      if (typeof result.value === 'string') {
+        this.res.setHeader('Location', result.value);
+        return this.found();
+      }
       const { stream, filename, mimeType, size, lastModified, maxAge } = result.value;
       this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
       if (typeof size !== 'undefined') {
