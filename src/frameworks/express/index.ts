@@ -18,26 +18,18 @@ import { studentRouter } from './studentRouter';
 const { port } = environmentConfigService.config;
 
 const corsOptions: CorsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://studentcenter.qccareerschool.com',
-  ],
+  origin: process.env.NODE_ENV === 'production' ? 'https://studentcenter.qccareerschool.com' : 'http://localhost:3000',
   credentials: true,
   exposedHeaders: [ 'Content-Disposition' ],
 };
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
-
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
-  next();
-});
 
 app.use('/v1/auth', authenticationRouter);
 
