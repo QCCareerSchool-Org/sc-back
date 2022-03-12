@@ -11,7 +11,7 @@ import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
 
-export type UploadNewUploadSlotFileRequestDTO = {
+export type UploadNewUploadSlotRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
@@ -25,17 +25,17 @@ export type UploadNewUploadSlotFileRequestDTO = {
   file: InteractorFile;
 };
 
-export type UploadNewUploadSlotFileResponseDTO = NewUploadSlotDTO;
+export type UploadNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
-export class UploadNewUploadSlotFileNotFound extends Error { }
-export class UploadNewUploadSlotFileUnitSubmitted extends Error { }
-export class UploadNewUploadSlotFileUnitSkipped extends Error { }
+export class UploadNewUploadSlotNotFound extends Error { }
+export class UploadNewUploadSlotUnitSubmitted extends Error { }
+export class UploadNewUploadSlotUnitSkipped extends Error { }
 export class UploadNewUploadSlotFileTooLarge extends Error { }
-export class UploadNewUploadSlotFileInvalidType extends Error { }
-export class UploadNewUploadSlotFileEntityNotFound extends Error { }
-export class UploadNewUploadSlotFileSaveError extends Error { }
+export class UploadNewUploadSlotInvalidFileType extends Error { }
+export class UploadNewUploadSlotEntityNotFound extends Error { }
+export class UploadNewUploadSlotSaveError extends Error { }
 
-export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewUploadSlotFileRequestDTO, UploadNewUploadSlotFileResponseDTO> {
+export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploadSlotRequestDTO, UploadNewUploadSlotResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -46,7 +46,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotFileRequestDTO): Promise<ResultType<UploadNewUploadSlotFileResponseDTO>> {
+  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotRequestDTO): Promise<ResultType<UploadNewUploadSlotResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
@@ -71,17 +71,17 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
       });
 
       if (!uploadSlot) {
-        return Result.fail(new UploadNewUploadSlotFileNotFound());
+        return Result.fail(new UploadNewUploadSlotNotFound());
       }
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
       if (uploadSlot.newPart.newAssignment.newUnit.submitted) {
-        return Result.fail(new UploadNewUploadSlotFileUnitSubmitted());
+        return Result.fail(new UploadNewUploadSlotUnitSubmitted());
       }
 
       if (uploadSlot.newPart.newAssignment.newUnit.skipped) {
-        return Result.fail(new UploadNewUploadSlotFileUnitSkipped());
+        return Result.fail(new UploadNewUploadSlotUnitSkipped());
       }
 
       if (file.size > this.configService.config.uploadSlotMaxFilesize) {
@@ -89,7 +89,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
       }
 
       if (!this.allowedType(file.mimeType, uploadSlot.allowedTypes.split(','))) {
-        return Result.fail(new UploadNewUploadSlotFileInvalidType());
+        return Result.fail(new UploadNewUploadSlotInvalidFileType());
       }
 
       const data = await this.prisma.$transaction(async transaction => {
@@ -99,7 +99,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         });
         if (!mimeType) {
           this.logger.error(`Could not find mime type "${file.mimeType}"`);
-          throw new UploadNewUploadSlotFileEntityNotFound();
+          throw new UploadNewUploadSlotEntityNotFound();
         }
 
         // update the upload slot
@@ -122,7 +122,7 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
           }
         } catch (err) {
           this.logger.error('Could not save file', err);
-          throw new UploadNewUploadSlotFileSaveError();
+          throw new UploadNewUploadSlotSaveError();
         }
 
         // return the upload slot from the start of the transaction
@@ -162,11 +162,11 @@ export class UploadNewUploadSlotFileInteractor implements IInteractor<UploadNewU
         if (mimeType === 'application/pdf') {
           return true;
         }
-      } else if (allowedType === 'Word document') {
+      } else if (allowedType === 'word') {
         if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword') {
           return true;
         }
-      } else if (allowedType === 'Excel spreadsheet') {
+      } else if (allowedType === 'excel') {
         if (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || mimeType === 'application/vnd.ms-excel') {
           return true;
         }

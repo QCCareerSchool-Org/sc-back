@@ -1,4 +1,4 @@
-import type { ReadStream } from 'fs';
+import type { Stream } from 'stream';
 import type { ResultType } from './result';
 
 export interface IInteractor<RequestDTO, ResponseDTO> {
@@ -13,10 +13,10 @@ export type InteractorFile = {
 };
 
 export type InteractorFileStream = {
-  stream: ReadStream;
+  stream: Stream;
   filename: string;
   mimeType: string;
-  size: number;
+  size?: number;
   lastModified: Date;
   maxAge: number;
 };

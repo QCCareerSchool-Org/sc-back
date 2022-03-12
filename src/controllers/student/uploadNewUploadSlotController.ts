@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { uploadNewUploadSlotFileInteractor } from '../../interactors';
-import type { UploadNewUploadSlotFileResponseDTO } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
-import { UploadNewUploadSlotFileEntityNotFound, UploadNewUploadSlotFileInvalidType, UploadNewUploadSlotFileNotFound, UploadNewUploadSlotFileSaveError, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotFileUnitSkipped, UploadNewUploadSlotFileUnitSubmitted } from '../../interactors/student/uploadNewUploadSlotFileInteractor';
+import { uploadNewUploadSlotInteractor } from '../../interactors';
+import type { UploadNewUploadSlotResponseDTO } from '../../interactors/student/uploadNewUploadSlotInteractor';
+import { UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSkipped, UploadNewUploadSlotUnitSubmitted } from '../../interactors/student/uploadNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -30,9 +30,9 @@ type Request = {
   };
 };
 
-type Response = UploadNewUploadSlotFileResponseDTO;
+type Response = UploadNewUploadSlotResponseDTO;
 
-export class UploadNewUploadSlotFileController extends BaseController<Request, Response> {
+export class UploadNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -76,7 +76,7 @@ export class UploadNewUploadSlotFileController extends BaseController<Request, R
     const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await uploadNewUploadSlotFileInteractor.execute({
+    const result = await uploadNewUploadSlotInteractor.execute({
       studentId,
       courseId,
       unitId,
@@ -96,19 +96,19 @@ export class UploadNewUploadSlotFileController extends BaseController<Request, R
     }
 
     switch (result.error.constructor) {
-      case UploadNewUploadSlotFileNotFound:
+      case UploadNewUploadSlotNotFound:
         return this.notFound('Upload slot not found');
-      case UploadNewUploadSlotFileUnitSubmitted:
+      case UploadNewUploadSlotUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case UploadNewUploadSlotFileUnitSkipped:
+      case UploadNewUploadSlotUnitSkipped:
         return this.badRequest('Unit already skipped');
       case UploadNewUploadSlotFileTooLarge:
         return this.badRequest('File too large');
-      case UploadNewUploadSlotFileInvalidType:
+      case UploadNewUploadSlotInvalidFileType:
         return this.badRequest('Invalid file type');
-      case UploadNewUploadSlotFileEntityNotFound:
+      case UploadNewUploadSlotEntityNotFound:
         return this.internalServerError('Associated entity not found');
-      case UploadNewUploadSlotFileSaveError:
+      case UploadNewUploadSlotSaveError:
         return this.internalServerError('Can\'t save file');
       default:
         return this.internalServerError(result.error.message);

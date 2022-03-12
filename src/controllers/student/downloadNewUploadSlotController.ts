@@ -1,8 +1,7 @@
 import * as yup from 'yup';
 
-import { downloadNewAssignmentMediumFileInteractor } from '../../interactors/student';
-import type { DownloadNewAssignmentMediumFileResponseDTO } from '../../interactors/student/downloadNewAssignmentMediumFileInteractor';
-import { DownloadNewAssignmentMediumFileFileNotFound, DownloadNewAssignmentMediumFileNotFound, DownloadNewAssignmentMediumFileReadError } from '../../interactors/student/downloadNewAssignmentMediumFileInteractor';
+import { downloadNewUploadSlotInteractor } from '../../interactors';
+import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/student/downloadNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -16,13 +15,15 @@ type Request = {
     /** uuid */
     assignmentId: string;
     /** uuid */
-    mediumId: string;
+    partId: string;
+    /** uuid */
+    uploadSlotId: string;
   };
 };
 
-type Response = DownloadNewAssignmentMediumFileResponseDTO;
+type Response = void;
 
-export class DownloadNewAssignmentMediumFileController extends BaseController<Request, Response> {
+export class DownloadNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -30,7 +31,8 @@ export class DownloadNewAssignmentMediumFileController extends BaseController<Re
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -52,15 +54,23 @@ export class DownloadNewAssignmentMediumFileController extends BaseController<Re
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, mediumId } = params;
+    const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await downloadNewAssignmentMediumFileInteractor.execute({ studentId, courseId, unitId, assignmentId, mediumId });
+    const result = await downloadNewUploadSlotInteractor.execute({
+      studentId,
+      courseId,
+      unitId,
+      assignmentId,
+      partId,
+      uploadSlotId,
+    });
 
     if (result.success) {
       const { stream, filename, mimeType, size, lastModified, maxAge } = result.value;
-      // return this.sendFile(data, filename, mimeType, size);
       this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
-      this.res.setHeader('Content-Length', size);
+      if (typeof size !== 'undefined') {
+        this.res.setHeader('Content-Length', size);
+      }
       this.res.setHeader('Content-Type', mimeType);
       this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
@@ -69,12 +79,12 @@ export class DownloadNewAssignmentMediumFileController extends BaseController<Re
     }
 
     switch (result.error.constructor) {
-      case DownloadNewAssignmentMediumFileNotFound:
-        return this.notFound('Assignment medium not found');
-      case DownloadNewAssignmentMediumFileFileNotFound:
+      case DownloadNewUploadSlotNotFound:
+        return this.notFound('Upload slot not found');
+      case DownloadNewUploadSlotFileNotFound:
         return this.internalServerError('File not found');
-      case DownloadNewAssignmentMediumFileReadError:
-        return this.internalServerError('Can\'t read file');
+      case DownloadNewUploadSlotFileReadError:
+        return this.internalServerError('File read error');
       default:
         return this.internalServerError(result.error.message);
     }

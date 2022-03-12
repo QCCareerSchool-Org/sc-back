@@ -1,5 +1,6 @@
+import type { Transform } from 'stream';
 import zlib from 'zlib';
-import { ICompressionService } from '.';
+import type { ICompressionService } from '.';
 
 export class ZLibCompressionService implements ICompressionService {
 
@@ -23,5 +24,9 @@ export class ZLibCompressionService implements ICompressionService {
         return resolve(result);
       });
     });
+  }
+
+  public createGunzip(): Transform {
+    return zlib.createGunzip();
   }
 }

@@ -10,7 +10,7 @@ import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
 
-export type DownloadNewAssignmentMediumFileRequestDTO = {
+export type DownloadNewAssignmentMediumRequestDTO = {
   studentId: number;
   courseId: number;
   unitId: string;
@@ -18,14 +18,13 @@ export type DownloadNewAssignmentMediumFileRequestDTO = {
   mediumId: string;
 };
 
-export type DownloadNewAssignmentMediumFileResponseDTO = InteractorFileStream;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream;
 
+export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
-export class DownloadNewAssignmentMediumFileFileNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileReadError extends Error { }
 
-export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<DownloadNewAssignmentMediumFileRequestDTO, DownloadNewAssignmentMediumFileResponseDTO> {
-
+export class DownloadNewAssignmentMediumInteractor implements IInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds
 
   public constructor(
@@ -37,7 +36,7 @@ export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<Do
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DownloadNewAssignmentMediumFileRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumFileResponseDTO>> {
+  public async execute(request: DownloadNewAssignmentMediumRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumResponseDTO>> {
     try {
       const { studentId, courseId } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
@@ -65,32 +64,33 @@ export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<Do
         },
       });
       if (!assignmentMedium) {
-        return Result.fail(new DownloadNewAssignmentMediumFileNotFound());
+        return Result.fail(new DownloadNewAssignmentMediumNotFound());
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
 
+      // check if the file exists
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadNewAssignmentMediumFileFileNotFound(filePath));
+        return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
       }
 
       // read the file
-      let stream: ReadStream;
+      let fileStream: ReadStream;
       try {
-        stream = this.fileService.createReadStream(filePath);
+        fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error('Could not read file', err);
-        return Result.fail(new DownloadNewAssignmentMediumFileReadError());
+        return Result.fail(new DownloadNewAssignmentMediumFileReadError(filePath));
       }
 
       return Result.success({
-        stream,
+        stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
         size: stats.size,
         lastModified: stats.lastModified,
         mimeType: assignmentMedium.mimeTypeId ?? 'application/octet-stream',
-        maxAge: DownloadNewAssignmentMediumFileInteractor.maxAge,
+        maxAge: DownloadNewAssignmentMediumInteractor.maxAge,
       });
 
     } catch (err) {

@@ -8,7 +8,7 @@ import { DeleteNewPartTemplateController } from '../../controllers/administrator
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController';
 import { DeleteNewUnitTemplateController } from '../../controllers/administrators/deleteNewUnitTemplateController';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
-import { DownloadNewAssignmentMediumFileController } from '../../controllers/administrators/downloadNewAssignmentMediumFileController';
+import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController';
@@ -102,7 +102,7 @@ administratorRouter.delete(
 );
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumFileController(req, res).execute()),
+  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
 );
 
 // new part templates

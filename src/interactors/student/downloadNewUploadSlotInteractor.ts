@@ -1,6 +1,7 @@
+import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileStream } from '..';
 import type { ICompressionService } from '../../services/compression';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
@@ -10,7 +11,7 @@ import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
 
-export type DownloadNewUploadSlotFileRequestDTO = {
+export type DownloadNewUploadSlotRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
@@ -23,12 +24,14 @@ export type DownloadNewUploadSlotFileRequestDTO = {
   uploadSlotId: string;
 };
 
-export type DownloadNewUploadSlotFileResponseDTO = InteractorFile;
+export type DownloadNewUploadSlotResponseDTO = InteractorFileStream;
 
+export class DownloadNewUploadSlotNotFound extends Error { }
 export class DownloadNewUploadSlotFileNotFound extends Error { }
 export class DownloadNewUploadSlotFileReadError extends Error { }
 
-export class DownloadNewUploadSlotFileInteractor implements IInteractor<DownloadNewUploadSlotFileRequestDTO, DownloadNewUploadSlotFileResponseDTO> {
+export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewUploadSlotRequestDTO, DownloadNewUploadSlotResponseDTO> {
+  private static readonly maxAge = 300;
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -40,7 +43,7 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId }: DownloadNewUploadSlotFileRequestDTO): Promise<ResultType<DownloadNewUploadSlotFileResponseDTO>> {
+  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId }: DownloadNewUploadSlotRequestDTO): Promise<ResultType<DownloadNewUploadSlotResponseDTO>> {
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
@@ -65,27 +68,41 @@ export class DownloadNewUploadSlotFileInteractor implements IInteractor<Download
       });
 
       if (!uploadSlot) {
-        return Result.fail(new DownloadNewUploadSlotFileNotFound());
+        return Result.fail(new DownloadNewUploadSlotNotFound());
       }
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
-      // read the file
-      let fileData: Buffer;
-      const path = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(uploadSlot.uploadSlotId);
-      try {
-        fileData = await this.fileService.readFile(path);
-      } catch (err) {
-        this.logger.error('Could not read file', err);
-        return Result.fail(new DownloadNewUploadSlotFileReadError());
+      const filePath = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(uploadSlot.uploadSlotId);
+
+      // check if the file exists
+      const stats = await this.fileService.stat(filePath);
+      if (!stats) {
+        return Result.fail(new DownloadNewUploadSlotFileNotFound(filePath));
       }
 
-      const data = uploadSlot.mimeType?.compress ? await this.compressionService.gunzip(fileData) : fileData;
+      // read the file
+      let fileStream: ReadStream;
+      try {
+        fileStream = this.fileService.createReadStream(filePath);
+      } catch (err) {
+        this.logger.error('Could not read file', err);
+        return Result.fail(new DownloadNewUploadSlotFileReadError(filePath));
+      }
+
+      const compressed = uploadSlot.mimeType?.compress;
+
+      const stream = compressed
+        ? fileStream.pipe(this.compressionService.createGunzip()).on('error', err => this.logger.error('Error in unzip pipe', err))
+        : fileStream;
+
       return Result.success({
-        data,
+        stream,
         filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
-        size: data.length,
+        size: compressed ? undefined : stats.size,
+        lastModified: stats.lastModified,
         mimeType: uploadSlot.mimeTypeId ?? 'application/octet-stream',
+        maxAge: DownloadNewUploadSlotInteractor.maxAge,
       });
 
     } catch (err) {

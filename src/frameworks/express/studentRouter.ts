@@ -2,8 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { DeleteNewUploadSlotFileController } from '../../controllers/student/deleteNewUploadSlotFileController';
-import { DownloadNewAssignmentMediumFileController } from '../../controllers/student/downloadNewAssignmentMediumFileController';
-import { DownloadNewUploadSlotFileController } from '../../controllers/student/downloadNewUploadSlotFileController';
+import { DownloadNewAssignmentMediumController } from '../../controllers/student/downloadNewAssignmentMediumController';
+import { DownloadNewUploadSlotController } from '../../controllers/student/downloadNewUploadSlotController';
 import { GetEnrollmentController } from '../../controllers/student/getEnrollmentController';
 import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/student/getNewUnitController';
@@ -13,7 +13,7 @@ import { SaveNewTextBoxTextController } from '../../controllers/student/saveNewT
 import { SkipNewUnitController } from '../../controllers/student/skipNewUnitController';
 import { StudentGuardMiddleware } from '../../controllers/student/studentGuardMiddleware';
 import { SubmitNewUnitController } from '../../controllers/student/submitNewUnitController';
-import { UploadNewUploadSlotFileController } from '../../controllers/student/uploadNewUploadSlotFileController';
+import { UploadNewUploadSlotController } from '../../controllers/student/uploadNewUploadSlotController';
 import { asyncWrapper } from './asyncWrapper';
 
 export const studentRouter = Router();
@@ -60,7 +60,7 @@ studentRouter.get(
 
 studentRouter.get(
   '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/media/:mediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumFileController(req, res).execute()),
+  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
 );
 
 studentRouter.put(
@@ -70,13 +70,13 @@ studentRouter.put(
 
 studentRouter.get(
   '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file',
-  asyncWrapper(async (req, res) => new DownloadNewUploadSlotFileController(req, res).execute()),
+  asyncWrapper(async (req, res) => new DownloadNewUploadSlotController(req, res).execute()),
 );
 
 studentRouter.put(
-  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
+  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file',
   multer().single('file'),
-  asyncWrapper(async (req, res) => new UploadNewUploadSlotFileController(req, res).execute()),
+  asyncWrapper(async (req, res) => new UploadNewUploadSlotController(req, res).execute()),
 );
 
 studentRouter.delete(

@@ -1,6 +1,7 @@
+import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileStream } from '..';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -9,7 +10,7 @@ import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
 
-export type DownloadNewAssignmentMediumFileRequestDTO = {
+export type DownloadNewAssignmentMediumRequestDTO = {
   schoolId: number;
   courseId: number;
   unitId: string;
@@ -17,12 +18,14 @@ export type DownloadNewAssignmentMediumFileRequestDTO = {
   mediumId: string;
 };
 
-export type DownloadNewAssignmentMediumFileResponseDTO = InteractorFile;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream;
 
+export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileReadError extends Error { }
 
-export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<DownloadNewAssignmentMediumFileRequestDTO, DownloadNewAssignmentMediumFileResponseDTO> {
+export class DownloadNewAssignmentMediumInteractor implements IInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
+  private static readonly maxAge = 300;
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -33,7 +36,7 @@ export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<Do
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DownloadNewAssignmentMediumFileRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumFileResponseDTO>> {
+  public async execute(request: DownloadNewAssignmentMediumRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
@@ -48,24 +51,32 @@ export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<Do
         },
       });
       if (!assignmentMedium) {
-        return Result.fail(new DownloadNewAssignmentMediumFileNotFound());
+        return Result.fail(new DownloadNewAssignmentMediumNotFound());
+      }
+
+      const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
+
+      const stats = await this.fileService.stat(filePath);
+      if (!stats) {
+        return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
       }
 
       // read the file
-      let fileData: Buffer;
-      const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
+      let fileStream: ReadStream;
       try {
-        fileData = await this.fileService.readFile(filePath);
+        fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error('Could not read file', err);
-        return Result.fail(new DownloadNewAssignmentMediumFileReadError());
+        return Result.fail(new DownloadNewAssignmentMediumFileReadError(filePath));
       }
 
       return Result.success({
-        data: fileData,
+        stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
-        size: fileData.length,
+        size: stats.size,
+        lastModified: stats.lastModified,
         mimeType: assignmentMedium.mimeTypeId ?? 'application/octet-stream',
+        maxAge: DownloadNewAssignmentMediumInteractor.maxAge,
       });
 
     } catch (err) {

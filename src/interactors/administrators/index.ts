@@ -6,7 +6,7 @@ import { DeleteNewPartTemplateInteractor } from './deletetNewPartTemplateInterac
 import { DeleteNewTextBoxTemplateInteractor } from './deletetNewTextBoxTemplateInteractor';
 import { DeleteNewUnitTemplateInteractor } from './deletetNewUnitTemplateInteractor';
 import { DeleteNewUploadSlotTemplateInteractor } from './deletetNewUploadSlotTemplateInteractor';
-import { DownloadNewAssignmentMediumFileInteractor } from './downloadNewAssignmentMediumFileInteractor';
+import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
@@ -47,7 +47,7 @@ export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemp
 export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const getNewAssignmentMediumInteractor = new GetNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentMediumInteractor = new DeleteNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
-export const downloadNewAssignmentMediumFileInteractor = new DownloadNewAssignmentMediumFileInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
 
 export const insertNewPartTemplateInteractor = new InsertNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewPartTemplateInteractor = new GetNewPartTemplateInteractor(prisma, uuidService, winstonLoggerService);
