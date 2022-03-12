@@ -1,6 +1,7 @@
+import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileStream } from '..';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -17,12 +18,15 @@ export type DownloadNewAssignmentMediumFileRequestDTO = {
   mediumId: string;
 };
 
-export type DownloadNewAssignmentMediumFileResponseDTO = InteractorFile;
+export type DownloadNewAssignmentMediumFileResponseDTO = InteractorFileStream;
 
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
+export class DownloadNewAssignmentMediumFileFileNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileReadError extends Error { }
 
 export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<DownloadNewAssignmentMediumFileRequestDTO, DownloadNewAssignmentMediumFileResponseDTO> {
+
+  private static readonly maxAge = 86_400; // one day in seconds
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -64,21 +68,29 @@ export class DownloadNewAssignmentMediumFileInteractor implements IInteractor<Do
         return Result.fail(new DownloadNewAssignmentMediumFileNotFound());
       }
 
-      // read the file
-      let fileData: Buffer;
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
+
+      const stats = await this.fileService.stat(filePath);
+      if (!stats) {
+        return Result.fail(new DownloadNewAssignmentMediumFileFileNotFound(filePath));
+      }
+
+      // read the file
+      let stream: ReadStream;
       try {
-        fileData = await this.fileService.readFile(filePath);
+        stream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error('Could not read file', err);
         return Result.fail(new DownloadNewAssignmentMediumFileReadError());
       }
 
       return Result.success({
-        data: fileData,
+        stream,
         filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
-        size: fileData.length,
+        size: stats.size,
+        lastModified: stats.lastModified,
         mimeType: assignmentMedium.mimeTypeId ?? 'application/octet-stream',
+        maxAge: DownloadNewAssignmentMediumFileInteractor.maxAge,
       });
 
     } catch (err) {
