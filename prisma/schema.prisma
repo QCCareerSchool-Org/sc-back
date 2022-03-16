@@ -1475,6 +1475,7 @@ enum NewMediaType {
   image
   video
   audio
+  download
 }
 
 

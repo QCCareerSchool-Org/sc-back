@@ -1,4 +1,4 @@
-export type NewMediumType = 'image' | 'video' | 'audio';
+export type NewMediumType = 'image' | 'video' | 'audio' | 'download';
 
 export type NewAssignmentMediumDTO = {
   /** uuid */

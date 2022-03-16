@@ -1,4 +1,4 @@
-export type NewMediumType = 'image' | 'video' | 'audio';
+import type { NewMediumType } from './newAssignmentMediumDTO';
 
 export type NewPartMediumDTO = {
   /** uuid */

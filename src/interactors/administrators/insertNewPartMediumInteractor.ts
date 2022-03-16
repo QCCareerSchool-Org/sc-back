@@ -1,6 +1,7 @@
 import type { NewPartMedium, PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFile } from '..';
+import type { NewMediumType } from '../../domain/newAssignmentMediumDTO';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
@@ -130,13 +131,15 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         throw new InsertNewPartInvalidMimeType();
       }
 
-      let type: 'image' | 'video' | 'audio';
+      let type: NewMediumType;
       if (mimeType.mimeTypeId.startsWith('image/')) {
         type = 'image';
       } else if (mimeType.mimeTypeId.startsWith('video/')) {
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
+      } else if (mimeType.mimeTypeId === 'application/pdf') {
+        type = 'download';
       } else {
         throw new InsertNewPartUnacceptableMimeType();
       }
@@ -188,13 +191,15 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         throw new InsertNewPartInvalidMimeType(headerMimeType);
       }
 
-      let type: 'image' | 'video' | 'audio';
+      let type: NewMediumType;
       if (mimeType.mimeTypeId.startsWith('image/')) {
         type = 'image';
       } else if (mimeType.mimeTypeId.startsWith('video/')) {
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
+      } else if (mimeType.mimeTypeId === 'application/pdf') {
+        type = 'download';
       } else {
         throw new InsertNewPartUnacceptableMimeType(headerMimeType);
       }
