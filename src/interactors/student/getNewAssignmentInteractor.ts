@@ -4,6 +4,7 @@ import type { IInteractor } from '..';
 import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
 import type { NewPartDTO } from '../../domain/newPartDTO';
+import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO';
 import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
@@ -24,6 +25,7 @@ export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
   newParts: Array<NewPartDTO & {
     newTextBoxes: NewTextBoxDTO[];
     newUploadSlots: NewUploadSlotDTO[];
+    newPartMedia: NewPartMediumDTO[];
   }>;
 };
 
@@ -47,12 +49,13 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         },
         include: {
           newUnit: true,
-          newAssignmentMedia: { include: { newAssignmentMedium: true } },
+          newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
             include: {
               newTextBoxes: { orderBy: { order: 'asc' } },
               newUploadSlots: { orderBy: { order: 'asc' } },
+              newPartMedia: { include: { newPartMedium: true }, orderBy: { order: 'asc' } },
             },
           },
         },
@@ -81,7 +84,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           filename: m.newAssignmentMedium.filename,
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
-          order: m.newAssignmentMedium.order,
+          order: m.order, // from the join table
           created: m.newAssignmentMedium.created,
           modified: m.newAssignmentMedium.modified,
         })),
@@ -138,6 +141,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 modified: u.modified,
               };
             }),
+            newPartMedia: p.newPartMedia.map(m => ({
+              partMediumId: this.uuidService.binToUUID(m.partMediumId),
+              partTemplateId: m.newPartMedium.partTemplateId === null ? null : this.uuidService.binToUUID(m.newPartMedium.partTemplateId),
+              mimeTypeId: m.newPartMedium.mimeTypeId,
+              type: m.newPartMedium.type,
+              filename: m.newPartMedium.filename,
+              caption: m.newPartMedium.caption,
+              externalData: m.newPartMedium.externalData,
+              order: m.order, // from the join table
+              created: m.newPartMedium.created,
+              modified: m.newPartMedium.modified,
+            })),
             complete: partComplete,
           };
           if (!partComplete) {

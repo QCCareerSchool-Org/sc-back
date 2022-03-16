@@ -192,13 +192,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                   },
                 })),
               },
-              // mediaElements: {
-              //   create: newAssignment.mediaElements.map(mediaElement => ({
-              //     mediaElementId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-              //     mimeTypeId: mediaElement.mimeTypeId,
-              //     externalData: mediaElement.externalData,
-              //   })),
-              // },
             })),
           },
         },
