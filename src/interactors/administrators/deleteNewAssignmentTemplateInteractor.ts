@@ -79,29 +79,29 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
             });
           }
         }
-        // delete any part media that's not currently linked to any parts
-        for (const partTemplate of assignmentTemplate.newPartTemplates) {
-          for (const partMedium of partTemplate.newPartMedia) {
-            if (partMedium.newParts.length === 0) {
-              if (partMedium.externalData === null) {
-                const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
-                try {
-                  await this.prisma.$transaction(async transaction => {
-                    await transaction.newPartMedium.delete({
-                      where: { partMediumId: partMedium.partMediumId },
-                    });
-                    await this.fileService.unlink(filePath);
+      }
+      // delete any part media that's not currently linked to any parts
+      for (const partTemplate of assignmentTemplate.newPartTemplates) {
+        for (const partMedium of partTemplate.newPartMedia) {
+          if (partMedium.newParts.length === 0) {
+            if (partMedium.externalData === null) {
+              const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
+              try {
+                await this.prisma.$transaction(async transaction => {
+                  await transaction.newPartMedium.delete({
+                    where: { partMediumId: partMedium.partMediumId },
                   });
-                } catch (err) {
-                  this.logger.error(`Could not unlink file ${filePath}`);
-                  // swallow the error and continue
-                  // we might be left with orphaned files, but that's acceptable
-                }
-              } else {
-                await this.prisma.newPartMedium.delete({
-                  where: { partMediumId: partMedium.partMediumId },
+                  await this.fileService.unlink(filePath);
                 });
+              } catch (err) {
+                this.logger.error(`Could not unlink file ${filePath}`);
+                // swallow the error and continue
+                // we might be left with orphaned files, but that's acceptable
               }
+            } else {
+              await this.prisma.newPartMedium.delete({
+                where: { partMediumId: partMedium.partMediumId },
+              });
             }
           }
         }

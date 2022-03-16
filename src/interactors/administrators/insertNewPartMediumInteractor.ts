@@ -96,9 +96,9 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       // insert the part medium
       let insertedPartMedium: NewPartMedium;
       if (file) {
-        insertedPartMedium = await this.insertWithFile(assignmentIdBin, caption, order, file);
+        insertedPartMedium = await this.insertWithFile(partIdBin, caption, order, file);
       } else if (externalData) {
-        insertedPartMedium = await this.insertWithExternalData(assignmentIdBin, caption, order, externalData);
+        insertedPartMedium = await this.insertWithExternalData(partIdBin, caption, order, externalData);
       } else {
         return Result.fail(new InsertNewPartMediumDataMissing());
       }
