@@ -3,6 +3,7 @@ import multer from 'multer';
 
 import { DeleteNewUploadSlotFileController } from '../../controllers/student/deleteNewUploadSlotFileController';
 import { DownloadNewAssignmentMediumController } from '../../controllers/student/downloadNewAssignmentMediumController';
+import { DownloadNewPartMediumController } from '../../controllers/student/downloadNewPartMediumController';
 import { DownloadNewUploadSlotController } from '../../controllers/student/downloadNewUploadSlotController';
 import { GetEnrollmentController } from '../../controllers/student/getEnrollmentController';
 import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
@@ -61,6 +62,11 @@ studentRouter.get(
 studentRouter.get(
   '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/media/:mediumId/file',
   asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
+);
+
+studentRouter.get(
+  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId/file',
+  asyncWrapper(async (req, res) => new DownloadNewPartMediumController(req, res).execute()),
 );
 
 studentRouter.put(

@@ -2,6 +2,7 @@ import { prisma } from '../../frameworks/prisma';
 import { dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services';
 import { DeleteNewUploadSlotFileInteractor } from './deleteNewUploadSlotFileInteractor';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
+import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
 import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor';
 import { GetEnrollmentInteractor } from './getEnrollment';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor';
@@ -26,3 +27,4 @@ export const submitNewUnitInteractor = new SubmitNewUnitInteractor(prisma, uuidS
 export const skipNewUnitInteractor = new SkipNewUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const initializeNextNewUnitInteractor = new InitializeNextNewUnitInteractor(prisma, uuidService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
