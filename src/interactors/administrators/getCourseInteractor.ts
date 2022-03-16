@@ -6,8 +6,8 @@ import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { SchoolDTO } from '../../domain/schoolDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type GetCourseRequestDTO = {
   schoolId: number;

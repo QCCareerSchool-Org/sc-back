@@ -1,16 +1,19 @@
 import { prisma } from '../../frameworks/prisma';
-import { axiosHttpService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services';
-import { DeleteNewAssignmentMediumInteractor } from './deletetNewAssignmentMediumInteractor';
-import { DeleteNewAssignmentTemplateInteractor } from './deletetNewAssignmentTemplateInteractor';
-import { DeleteNewPartTemplateInteractor } from './deletetNewPartTemplateInteractor';
-import { DeleteNewTextBoxTemplateInteractor } from './deletetNewTextBoxTemplateInteractor';
-import { DeleteNewUnitTemplateInteractor } from './deletetNewUnitTemplateInteractor';
-import { DeleteNewUploadSlotTemplateInteractor } from './deletetNewUploadSlotTemplateInteractor';
+import { axiosHttpService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
+import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor';
+import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor';
+import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor';
+import { DeleteNewPartTemplateInteractor } from './deleteNewPartTemplateInteractor';
+import { DeleteNewTextBoxTemplateInteractor } from './deleteNewTextBoxTemplateInteractor';
+import { DeleteNewUnitTemplateInteractor } from './deleteNewUnitTemplateInteractor';
+import { DeleteNewUploadSlotTemplateInteractor } from './deleteNewUploadSlotTemplateInteractor';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
+import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor';
+import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor';
 import { GetNewUnitTemplateInteractor } from './getNewUnitTemplateInteractor';
@@ -18,6 +21,7 @@ import { GetNewUploadSlotTemplateInteractor } from './getNewUploadSlotTemplateIn
 import { GetSchoolInteractor } from './getSchoolInteractor';
 import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor';
 import { InsertNewAssignmentTemplateInteractor } from './insertNewAssignmentTemplateInteractor';
+import { InsertNewPartMediumInteractor } from './insertNewPartMediumInteractor';
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor';
@@ -63,3 +67,8 @@ export const insertNewUploadSlotTemplateInteractor = new InsertNewUploadSlotTemp
 export const getNewUploadSlotTemplateInteractor = new GetNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewUploadSlotTemplateInteractor = new SaveNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewUploadSlotTemplateInteractor = new DeleteNewUploadSlotTemplateInteractor(prisma, uuidService, winstonLoggerService);
+
+export const insertNewPartMediumInteractor = new InsertNewPartMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const getNewPartMediumInteractor = new GetNewPartMediumInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewPartMediumInteractor = new DeleteNewPartMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);

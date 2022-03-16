@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { downloadNewAssignmentMediumInteractor } from '../../interactors/administrators';
+import { downloadNewPartMediumInteractor } from '../../interactors/administrators';
 import type { DownloadNewAssignmentMediumResponseDTO } from '../../interactors/administrators/downloadNewAssignmentMediumInteractor';
-import { DownloadNewAssignmentMediumFileNotFound, DownloadNewAssignmentMediumFileReadError, DownloadNewAssignmentMediumNotFound } from '../../interactors/administrators/downloadNewAssignmentMediumInteractor';
+import { DownloadNewPartMediumFileNotFound, DownloadNewPartMediumFileReadError, DownloadNewPartMediumNotFound } from '../../interactors/administrators/downloadNewPartMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -18,13 +18,15 @@ type Request = {
     /** uuid */
     assignmentId: string;
     /** uuid */
+    partId: string;
+    /** uuid */
     mediumId: string;
   };
 };
 
 type Response = DownloadNewAssignmentMediumResponseDTO;
 
-export class DownloadNewAssignmentMediumController extends BaseController<Request, Response> {
+export class DownloadNewPartMediumController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -33,6 +35,7 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -55,9 +58,9 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, mediumId } = params;
+    const { unitId, assignmentId, partId, mediumId } = params;
 
-    const result = await downloadNewAssignmentMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, mediumId });
+    const result = await downloadNewPartMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, mediumId });
 
     if (result.success) {
       if (typeof result.value === 'string') {
@@ -77,11 +80,11 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
     }
 
     switch (result.error.constructor) {
-      case DownloadNewAssignmentMediumNotFound:
-        return this.notFound('Assignment medium not found');
-      case DownloadNewAssignmentMediumFileNotFound:
+      case DownloadNewPartMediumNotFound:
+        return this.notFound('Part medium not found');
+      case DownloadNewPartMediumFileNotFound:
         return this.internalServerError('File not found');
-      case DownloadNewAssignmentMediumFileReadError:
+      case DownloadNewPartMediumFileReadError:
         return this.internalServerError('File read error');
       default:
         return this.internalServerError(result.error.message);

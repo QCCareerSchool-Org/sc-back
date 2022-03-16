@@ -2,13 +2,14 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
+import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type GetNewPartTemplateRequestDTO = {
   schoolId: number;
@@ -22,6 +23,7 @@ export type GetNewPartTemplateResponseDTO = NewPartTemplateDTO & {
   newAssignmentTemplate: NewAssignmentTemplateDTO;
   newTextBoxTemplates: NewTextBoxTemplateDTO[];
   newUploadSlotTemplates: NewUploadSlotTemplateDTO[];
+  newPartMedia: NewPartMediumDTO[];
 };
 
 export class GetNewPartTemplateNotFound extends Error { }
@@ -51,6 +53,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           newUploadSlotTemplates: {
             orderBy: [ { order: 'asc' } ],
           },
+          newPartMedia: true,
         },
       });
       if (!partTemplate) {
@@ -97,6 +100,18 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           order: u.order,
           created: u.created,
           modified: u.modified,
+        })),
+        newPartMedia: partTemplate.newPartMedia.map(m => ({
+          partMediumId: this.uuidService.binToUUID(m.partMediumId),
+          partTemplateId: m.partTemplateId === null ? null : this.uuidService.binToUUID(m.partTemplateId),
+          mimeTypeId: m.mimeTypeId,
+          type: m.type,
+          filename: m.filename,
+          caption: m.caption,
+          externalData: m.externalData,
+          order: m.order,
+          created: m.created,
+          modified: m.modified,
         })),
       });
 

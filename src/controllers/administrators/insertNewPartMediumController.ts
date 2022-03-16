@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { insertNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import type { InsertNewAssignmentMediumResponseDTO } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
-import { InsertNewAssignmentFileSaveError, InsertNewAssignmentInvalidMimeType, InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnitsEnabled, InsertNewAssignmentMissingContentType, InsertNewAssignmentUnableToFetchExternalData, InsertNewAssignmentUnacceptableMimeType } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
+import { insertNewPartMediumInteractor } from '../../interactors/administrators';
+import type { InsertNewPartMediumResponseDTO } from '../../interactors/administrators/insertNewPartMediumInteractor';
+import { InsertNewPartFileSaveError, InsertNewPartInvalidMimeType, InsertNewPartMediCaptionTooLong, InsertNewPartMediumCaptionEmpty, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnitsEnabled, InsertNewPartMissingContentType, InsertNewPartUnableToFetchExternalData, InsertNewPartUnacceptableMimeType } from '../../interactors/administrators/insertNewPartMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -17,6 +17,8 @@ type Request = {
     unitId: string;
     /** uuid */
     assignmentId: string;
+    /** uuid */
+    partId: string;
   };
   body: {
     caption: string;
@@ -33,9 +35,9 @@ type Request = {
   };
 };
 
-type Response = InsertNewAssignmentMediumResponseDTO;
+type Response = InsertNewPartMediumResponseDTO;
 
-export class InsertNewAssignmentMediumController extends BaseController<Request, Response> {
+export class InsertNewPartMediumController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -44,6 +46,7 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
       courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     }).required();
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       caption: yup.string().defined(),
@@ -89,7 +92,7 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
 
     const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
+    const { unitId, assignmentId, partId } = params;
 
     const data = {
       ...body,
@@ -101,38 +104,38 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
       } : undefined,
     };
 
-    const result = await insertNewAssignmentMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, data });
+    const result = await insertNewPartMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, data });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case InsertNewAssignmentMediumAssignmentNotFound:
-        return this.badRequest('Assignment template not found');
-      case InsertNewAssignmentMediumUnitsEnabled:
+      case InsertNewPartMediumPartNotFound:
+        return this.badRequest('Part template not found');
+      case InsertNewPartMediumUnitsEnabled:
         return this.badRequest('Units must be disabled');
-      case InsertNewAssignmentMediumCaptionEmpty:
+      case InsertNewPartMediumCaptionEmpty:
         return this.badRequest('Caption cannot be empty');
-      case InsertNewAssignmentMediCaptionTooLong:
+      case InsertNewPartMediCaptionTooLong:
         return this.badRequest('Caption value exceeds maximum length');
-      case InsertNewAssignmentMediumOrderLessThanZero:
+      case InsertNewPartMediumOrderLessThanZero:
         return this.badRequest('Order must be greater than or equal to zero');
-      case InsertNewAssignmentMediumOrderTooLarge:
+      case InsertNewPartMediumOrderTooLarge:
         return this.badRequest('Order value exceeds maximum');
-      case InsertNewAssignmentMediumExternalDataInvalid:
+      case InsertNewPartMediumExternalDataInvalid:
         return this.badRequest('Invalid url for external data');
-      case InsertNewAssignmentMediumDataMissing:
+      case InsertNewPartMediumDataMissing:
         return this.badRequest('Data missing');
-      case InsertNewAssignmentInvalidMimeType:
+      case InsertNewPartInvalidMimeType:
         return this.badRequest('Invalid mime type ' + result.error.message);
-      case InsertNewAssignmentUnacceptableMimeType:
+      case InsertNewPartUnacceptableMimeType:
         return this.badRequest('Unacceptable mime type ' + result.error.message);
-      case InsertNewAssignmentFileSaveError:
+      case InsertNewPartFileSaveError:
         return this.internalServerError('Unable to save file');
-      case InsertNewAssignmentUnableToFetchExternalData:
+      case InsertNewPartUnableToFetchExternalData:
         return this.badRequest('Could not fetch external data');
-      case InsertNewAssignmentMissingContentType:
+      case InsertNewPartMissingContentType:
         return this.badRequest('Could not determine mime type');
       default:
         return this.internalServerError(result.error.message);

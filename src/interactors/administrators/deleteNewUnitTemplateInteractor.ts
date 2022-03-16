@@ -5,8 +5,8 @@ import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type DeleteNewUnitTemplateRequestDTO = {
   schoolId: number;
@@ -38,7 +38,10 @@ export class DeleteNewUnitTemplateInteractor implements IInteractor<DeleteNewUni
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
         where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
         include: {
-          newAssignmentTemplates: { include: { newAssignmentMedia: { include: { newAssignments: true } } } },
+          newAssignmentTemplates: { include: {
+            newAssignmentMedia: { include: { newAssignments: true } },
+            newPartTemplates: { include: { newPartMedia: { include: { newParts: true } } } },
+          } },
           course: true,
         },
       });
@@ -53,7 +56,7 @@ export class DeleteNewUnitTemplateInteractor implements IInteractor<DeleteNewUni
       // delete the unit template
       await this.prisma.newUnitTemplate.delete({ where: { unitTemplateId: unitIdBin } });
 
-      // delete any assignment media that's not currently linked to any assignments
+      // delete any assignment medium that's not currently linked to any assignments
       for (const assignmentTemplate of unitTemplate.newAssignmentTemplates) {
         for (const assignmentMedium of assignmentTemplate.newAssignmentMedia) {
           if (assignmentMedium.newAssignments.length === 0) {
@@ -75,6 +78,32 @@ export class DeleteNewUnitTemplateInteractor implements IInteractor<DeleteNewUni
               await this.prisma.newAssignmentMedium.delete({
                 where: { assignmentMediumId: assignmentMedium.assignmentMediumId },
               });
+            }
+          }
+        }
+        // delete any part medium that's not currently linked to any parts
+        for (const partTemplate of assignmentTemplate.newPartTemplates) {
+          for (const partMedium of partTemplate.newPartMedia) {
+            if (partMedium.newParts.length === 0) {
+              if (partMedium.externalData === null) {
+                const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
+                try {
+                  await this.prisma.$transaction(async transaction => {
+                    await transaction.newPartMedium.delete({
+                      where: { partMediumId: partMedium.partMediumId },
+                    });
+                    await this.fileService.unlink(filePath);
+                  });
+                } catch (err) {
+                  this.logger.error(`Could not unlink file ${filePath}`);
+                  // swallow the error and continue
+                  // we might be left with orphaned files, but that's acceptable
+                }
+              } else {
+                await this.prisma.newPartMedium.delete({
+                  where: { partMediumId: partMedium.partMediumId },
+                });
+              }
             }
           }
         }

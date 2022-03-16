@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewPartTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deletetNewPartTemplateInteractor';
-import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewPartTemplateInteractor';
+import type { DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deleteNewPartTemplateInteractor';
+import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

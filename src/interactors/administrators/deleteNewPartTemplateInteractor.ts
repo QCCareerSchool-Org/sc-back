@@ -5,8 +5,8 @@ import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type DeleteNewPartTemplateRequestDTO = {
   schoolId: number;
@@ -42,6 +42,7 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
         include: {
+          newPartMedia: { include: { newParts: true } },
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
         },
       });
@@ -55,6 +56,31 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
 
       // delete the part template
       await this.prisma.newPartTemplate.delete({ where: { partTemplateId: partIdBin } });
+
+      // delete any part media that's not currently linked to any parts
+      for (const partMedium of partTemplate.newPartMedia) {
+        if (partMedium.newParts.length === 0) {
+          if (partMedium.externalData === null) {
+            const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
+            try {
+              await this.prisma.$transaction(async transaction => {
+                await transaction.newPartMedium.delete({
+                  where: { partMediumId: partMedium.partMediumId },
+                });
+                await this.fileService.unlink(filePath);
+              });
+            } catch (err) {
+              this.logger.error(`Could not unlink file ${filePath}`);
+              // swallow the error and continue
+              // we might be left with orphaned files, but that's acceptable
+            }
+          } else {
+            await this.prisma.newPartMedium.delete({
+              where: { partMediumId: partMedium.partMediumId },
+            });
+          }
+        }
+      }
 
       return Result.success(undefined);
 

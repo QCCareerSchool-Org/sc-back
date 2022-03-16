@@ -7,8 +7,8 @@ import type { IFileService } from '../../services/file';
 import type { IHttpService } from '../../services/http';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type InsertNewAssignmentMediumRequestDTO = {
   schoolId: number;
@@ -35,7 +35,7 @@ export class InsertNewAssignmentMediumExternalDataInvalid extends Error { }
 export class InsertNewAssignmentMediumDataMissing extends Error { }
 export class InsertNewAssignmentInvalidMimeType extends Error { }
 export class InsertNewAssignmentUnacceptableMimeType extends Error { }
-export class InsertNewAssignmentUnacceptableFileSaveError extends Error { }
+export class InsertNewAssignmentFileSaveError extends Error { }
 export class InsertNewAssignmentUnableToFetchExternalData extends Error { }
 export class InsertNewAssignmentMissingContentType extends Error { }
 
@@ -158,7 +158,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         await this.fileService.writeFile(filePath, file.data);
       } catch (err) {
         this.logger.error('Could not save file', err);
-        throw new InsertNewAssignmentUnacceptableFileSaveError();
+        throw new InsertNewAssignmentFileSaveError();
       }
 
       return insertedAssignmentMedium;

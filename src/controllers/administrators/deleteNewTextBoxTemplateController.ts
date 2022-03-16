@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deletetNewTextBoxTemplateInteractor';
-import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/deletetNewTextBoxTemplateInteractor';
+import type { DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor';
+import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

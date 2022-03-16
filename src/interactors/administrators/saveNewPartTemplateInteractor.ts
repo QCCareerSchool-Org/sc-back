@@ -6,8 +6,8 @@ import { isNewDescriptionType } from '../../domain/newDescriptionType';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type SaveNewPartTemplateRequestDTO = {
   schoolId: number;

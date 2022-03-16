@@ -10,21 +10,22 @@ import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
 import type { ResultType } from '../result';
 
-export type DownloadNewAssignmentMediumRequestDTO = {
+export type DownloadNewPartMediumRequestDTO = {
   schoolId: number;
   courseId: number;
   unitId: string;
   assignmentId: string;
+  partId: string;
   mediumId: string;
 };
 
-export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream | string;
+export type DownloadNewPartMediumResponseDTO = InteractorFileStream | string;
 
-export class DownloadNewAssignmentMediumNotFound extends Error { }
-export class DownloadNewAssignmentMediumFileNotFound extends Error { }
-export class DownloadNewAssignmentMediumFileReadError extends Error { }
+export class DownloadNewPartMediumNotFound extends Error { }
+export class DownloadNewPartMediumFileNotFound extends Error { }
+export class DownloadNewPartMediumFileReadError extends Error { }
 
-export class DownloadNewAssignmentMediumInteractor implements IInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
+export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewPartMediumRequestDTO, DownloadNewPartMediumResponseDTO> {
   private static readonly maxAge = 300;
 
   public constructor(
@@ -36,33 +37,34 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DownloadNewAssignmentMediumRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumResponseDTO>> {
+  public async execute(request: DownloadNewPartMediumRequestDTO): Promise<ResultType<DownloadNewPartMediumResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
+      const partIdBin = this.uuidService.uuidToBin(request.partId);
       const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
 
       // find the assignment medium
-      const assignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
-        where: { assignmentMediumId: mediumIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+      const partMedium = await this.prisma.newPartMedium.findFirst({
+        where: { partMediumId: mediumIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
         include: {
           mimeType: true,
         },
       });
-      if (!assignmentMedium) {
-        return Result.fail(new DownloadNewAssignmentMediumNotFound());
+      if (!partMedium) {
+        return Result.fail(new DownloadNewPartMediumNotFound());
       }
 
-      if (assignmentMedium.externalData !== null) {
-        return Result.success(assignmentMedium.externalData);
+      if (partMedium.externalData !== null) {
+        return Result.success(partMedium.externalData);
       }
 
-      const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
+      const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
 
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
+        return Result.fail(new DownloadNewPartMediumFileNotFound(filePath));
       }
 
       // read the file
@@ -71,16 +73,16 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error('Could not read file', err);
-        return Result.fail(new DownloadNewAssignmentMediumFileReadError(filePath));
+        return Result.fail(new DownloadNewPartMediumFileReadError(filePath));
       }
 
       return Result.success({
         stream: fileStream,
-        filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
+        filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
         size: stats.size,
         lastModified: stats.lastModified,
-        mimeType: assignmentMedium.mimeTypeId ?? 'application/octet-stream',
-        maxAge: DownloadNewAssignmentMediumInteractor.maxAge,
+        mimeType: partMedium.mimeTypeId ?? 'application/octet-stream',
+        maxAge: DownloadNewPartMediumInteractor.maxAge,
       });
 
     } catch (err) {

@@ -4,8 +4,8 @@ import type { IInteractor } from '..';
 import type { CourseDTO } from '../../domain/courseDTO';
 import type { SchoolDTO } from '../../domain/schoolDTO';
 import type { ILoggerService } from '../../services/logger';
-import type { ResultType } from '../result';
 import { Result } from '../result';
+import type { ResultType } from '../result';
 
 export type GetSchoolRequestDTO = {
   schoolId: number;

@@ -1,6 +1,7 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
-import { HttpServiceError, IHttpService } from '.';
+import type { IHttpService } from '.';
+import { HttpServiceError } from '.';
 
 export class AxiosHttpService implements IHttpService {
 
@@ -9,7 +10,7 @@ export class AxiosHttpService implements IHttpService {
       const response = await axios.head(url);
       return response.headers;
     } catch (err) {
-      if (isAxiosError(err) && err.response) {
+      if (axios.isAxiosError(err) && err.response) {
         throw new HttpServiceError(err.response.statusText, err.response.status);
       } else if (err instanceof Error) {
         throw new HttpServiceError(err.message, 0);
@@ -19,5 +20,3 @@ export class AxiosHttpService implements IHttpService {
     }
   }
 }
-
-const isAxiosError = (err: any): err is AxiosError => !!err.isAxiosError?.();

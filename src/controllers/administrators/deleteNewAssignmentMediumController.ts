@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
 import { deleteNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deletetNewAssignmentMediumInteractor';
-import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deletetNewAssignmentMediumInteractor';
+import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor';
+import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
