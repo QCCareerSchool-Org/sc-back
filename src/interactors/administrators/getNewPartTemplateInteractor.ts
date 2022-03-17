@@ -109,6 +109,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           filename: m.filename,
           caption: m.caption,
           externalData: m.externalData,
+          size: m.size,
           order: m.order,
           created: m.created,
           modified: m.modified,

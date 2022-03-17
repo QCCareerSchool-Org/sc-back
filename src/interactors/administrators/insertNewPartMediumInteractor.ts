@@ -40,6 +40,8 @@ export class InsertNewPartUnacceptableMimeType extends Error { }
 export class InsertNewPartFileSaveError extends Error { }
 export class InsertNewPartUnableToFetchExternalData extends Error { }
 export class InsertNewPartMissingContentType extends Error { }
+export class InsertNewPartMissingContentLength extends Error { }
+export class InsertNewPartInvalidContentLength extends Error { }
 
 export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartMediumRequestDTO, InsertNewPartMediumResponseDTO> {
   private static readonly downloadMimeTypes = [
@@ -118,6 +120,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         type: insertedPartMedium.type,
         filename: insertedPartMedium.filename,
         caption: insertedPartMedium.caption,
+        size: insertedPartMedium.size,
         order: insertedPartMedium.order,
         externalData: insertedPartMedium.externalData,
         created: insertedPartMedium.created,
@@ -135,7 +138,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
       if (!mimeType) {
-        throw new InsertNewPartInvalidMimeType();
+        throw new InsertNewPartInvalidMimeType(file.mimeType);
       }
 
       let type: NewMediumType;
@@ -148,7 +151,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewPartUnacceptableMimeType();
+        throw new InsertNewPartUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -160,6 +163,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           type,
           filename: file.filename,
           caption,
+          size: file.size,
           order,
         },
       });
@@ -189,13 +193,21 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     if (typeof headers['content-type'] === 'undefined') {
       throw new InsertNewPartMissingContentType();
     }
-    const headerMimeType = headers['content-type'];
+    const contentType = headers['content-type'];
+
+    if (typeof headers['content-length'] === 'undefined') {
+      throw new InsertNewPartMissingContentLength();
+    }
+    const contentLength = parseInt(headers['content-length'], 10);
+    if (isNaN(contentLength)) {
+      throw new InsertNewPartInvalidContentLength();
+    }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
-      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: headerMimeType } });
+      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
       if (!mimeType) {
-        throw new InsertNewPartInvalidMimeType(headerMimeType);
+        throw new InsertNewPartInvalidMimeType(contentType);
       }
 
       let type: NewMediumType;
@@ -208,7 +220,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewPartUnacceptableMimeType(headerMimeType);
+        throw new InsertNewPartUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -220,6 +232,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           type,
           filename: externalData.substring(externalData.lastIndexOf('/') + 1),
           caption,
+          size: contentLength,
           order,
           externalData,
         },

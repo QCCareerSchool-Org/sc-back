@@ -10,6 +10,7 @@ export type NewPartMediumDTO = {
   filename: string;
   caption: string;
   externalData: string | null;
+  size: number;
   order: number;
   created: Date;
   modified: Date | null;

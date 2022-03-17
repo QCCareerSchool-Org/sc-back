@@ -38,6 +38,8 @@ export class InsertNewAssignmentUnacceptableMimeType extends Error { }
 export class InsertNewAssignmentFileSaveError extends Error { }
 export class InsertNewAssignmentUnableToFetchExternalData extends Error { }
 export class InsertNewAssignmentMissingContentType extends Error { }
+export class InsertNewAssignmentMissingContentLength extends Error { }
+export class InsertNewAssignmentInvalidContentLength extends Error { }
 
 export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNewAssignmentMediumRequestDTO, InsertNewAssignmentMediumResponseDTO> {
   private static readonly downloadMimeTypes = [
@@ -115,6 +117,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         type: insertedAssignmentMedium.type,
         filename: insertedAssignmentMedium.filename,
         caption: insertedAssignmentMedium.caption,
+        size: insertedAssignmentMedium.size,
         order: insertedAssignmentMedium.order,
         externalData: insertedAssignmentMedium.externalData,
         created: insertedAssignmentMedium.created,
@@ -132,7 +135,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentInvalidMimeType();
+        throw new InsertNewAssignmentInvalidMimeType(file.mimeType);
       }
 
       let type: NewMediumType;
@@ -145,7 +148,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewAssignmentUnacceptableMimeType();
+        throw new InsertNewAssignmentUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -157,6 +160,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           type,
           filename: file.filename,
           caption,
+          size: file.size,
           order,
         },
       });
@@ -186,13 +190,21 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
     if (typeof headers['content-type'] === 'undefined') {
       throw new InsertNewAssignmentMissingContentType();
     }
-    const headerMimeType = headers['content-type'];
+    const contentType = headers['content-type'];
+
+    if (typeof headers['content-length'] === 'undefined') {
+      throw new InsertNewAssignmentMissingContentLength();
+    }
+    const contentLength = parseInt(headers['content-length'], 10);
+    if (isNaN(contentLength)) {
+      throw new InsertNewAssignmentInvalidContentLength();
+    }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
-      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: headerMimeType } });
+      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentInvalidMimeType(headerMimeType);
+        throw new InsertNewAssignmentInvalidMimeType(contentType);
       }
 
       let type: NewMediumType;
@@ -205,7 +217,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewAssignmentUnacceptableMimeType(headerMimeType);
+        throw new InsertNewAssignmentUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -217,6 +229,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           type,
           filename: externalData.substring(externalData.lastIndexOf('/') + 1),
           caption,
+          size: contentLength,
           order,
           externalData,
         },

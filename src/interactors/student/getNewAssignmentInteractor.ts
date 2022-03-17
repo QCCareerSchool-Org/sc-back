@@ -84,6 +84,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           filename: m.newAssignmentMedium.filename,
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
+          size: m.newAssignmentMedium.size,
           order: m.order, // from the join table
           created: m.newAssignmentMedium.created,
           modified: m.newAssignmentMedium.modified,
@@ -149,6 +150,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               filename: m.newPartMedium.filename,
               caption: m.newPartMedium.caption,
               externalData: m.newPartMedium.externalData,
+              size: m.newPartMedium.size,
               order: m.order, // from the join table
               created: m.newPartMedium.created,
               modified: m.newPartMedium.modified,

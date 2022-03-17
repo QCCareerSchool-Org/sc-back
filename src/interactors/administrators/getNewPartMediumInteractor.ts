@@ -60,6 +60,7 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
         type: partMedium.type,
         filename: partMedium.filename,
         caption: partMedium.caption,
+        size: partMedium.size,
         order: partMedium.order,
         externalData: partMedium.externalData,
         created: partMedium.created,

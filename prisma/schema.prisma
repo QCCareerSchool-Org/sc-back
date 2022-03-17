@@ -1303,6 +1303,7 @@ model NewAssignmentMedium {
   filename              String                               @db.VarChar(4095)
   caption               String                               @db.VarChar(191)
   externalData          String?                              @db.VarChar(1024) @map("external_data")
+  size                  Int                                  @db.Int
   order                 Int                                  @db.TinyInt @default(0)
   created               DateTime                             @default(now()) @db.DateTime(0)
   modified              DateTime?                            @db.DateTime(0) @updatedAt
@@ -1371,6 +1372,7 @@ model NewPartMedium {
   filename        String                   @db.VarChar(4095)
   caption         String                   @db.VarChar(191)
   externalData    String?                  @db.VarChar(1024) @map("external_data")
+  size            Int                      @db.Int
   order           Int                      @db.TinyInt @default(0)
   created         DateTime                 @default(now()) @db.DateTime(0)
   modified        DateTime?                @db.DateTime(0) @updatedAt

@@ -58,6 +58,7 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         type: assignmentMedium.type,
         filename: assignmentMedium.filename,
         caption: assignmentMedium.caption,
+        size: assignmentMedium.size,
         order: assignmentMedium.order,
         externalData: assignmentMedium.externalData,
         created: assignmentMedium.created,
