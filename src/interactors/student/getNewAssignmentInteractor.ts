@@ -102,7 +102,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
               const textBoxComplete = t.text.length > 0;
-              if (!textBoxComplete) {
+              if (!textBoxComplete && !t.optional) {
                 partComplete = false;
               }
               return {
@@ -122,7 +122,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
               const uploadSlotComplete = u.filename !== null;
-              if (!uploadSlotComplete) {
+              if (!uploadSlotComplete && !u.optional) {
                 partComplete = false;
               }
               return {
