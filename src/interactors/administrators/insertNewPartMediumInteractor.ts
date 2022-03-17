@@ -42,6 +42,13 @@ export class InsertNewPartUnableToFetchExternalData extends Error { }
 export class InsertNewPartMissingContentType extends Error { }
 
 export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartMediumRequestDTO, InsertNewPartMediumResponseDTO> {
+  private static readonly downloadMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+  ];
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -138,7 +145,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
-      } else if (mimeType.mimeTypeId === 'application/pdf') {
+      } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
         throw new InsertNewPartUnacceptableMimeType();
@@ -198,7 +205,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
-      } else if (mimeType.mimeTypeId === 'application/pdf') {
+      } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
         throw new InsertNewPartUnacceptableMimeType(headerMimeType);

@@ -1,7 +1,7 @@
-import type { NewAssignmentMedium, PrismaClient } from '@prisma/client';
+import type { NewAssignmentMedium, NewMediaType, PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFile } from '..';
-import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
+import type { NewAssignmentMediumDTO, NewMediumType } from '../../domain/newAssignmentMediumDTO';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { IHttpService } from '../../services/http';
@@ -40,6 +40,13 @@ export class InsertNewAssignmentUnableToFetchExternalData extends Error { }
 export class InsertNewAssignmentMissingContentType extends Error { }
 
 export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNewAssignmentMediumRequestDTO, InsertNewAssignmentMediumResponseDTO> {
+  private static readonly downloadMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+  ];
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -128,13 +135,15 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         throw new InsertNewAssignmentInvalidMimeType();
       }
 
-      let type: 'image' | 'video' | 'audio';
+      let type: NewMediumType;
       if (mimeType.mimeTypeId.startsWith('image/')) {
         type = 'image';
       } else if (mimeType.mimeTypeId.startsWith('video/')) {
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
+      } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
+        type = 'download';
       } else {
         throw new InsertNewAssignmentUnacceptableMimeType();
       }
@@ -186,13 +195,15 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         throw new InsertNewAssignmentInvalidMimeType(headerMimeType);
       }
 
-      let type: 'image' | 'video' | 'audio';
+      let type: NewMediumType;
       if (mimeType.mimeTypeId.startsWith('image/')) {
         type = 'image';
       } else if (mimeType.mimeTypeId.startsWith('video/')) {
         type = 'video';
       } else if (mimeType.mimeTypeId.startsWith('audio/')) {
         type = 'audio';
+      } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
+        type = 'download';
       } else {
         throw new InsertNewAssignmentUnacceptableMimeType(headerMimeType);
       }
