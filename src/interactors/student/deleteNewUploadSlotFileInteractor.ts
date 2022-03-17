@@ -90,12 +90,13 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
         });
 
         // delete the file
-        const path = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId);
+        const paddedStudentId = studentId.toString().padStart(8, '0');
+        const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId)}`;
         try {
-          await this.fileService.unlink(path);
+          await this.fileService.unlink(filePath);
         } catch (err) {
           this.logger.error('Could not delete file', err);
-          throw new DeleteNewUploadSlotFileUnlinkError();
+          throw new DeleteNewUploadSlotFileUnlinkError(filePath);
         }
 
         // return the upload slot from the beginning of the transaction

@@ -63,7 +63,6 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
             },
           },
         },
-        include: { mimeType: true },
       });
 
       if (!uploadSlot) {
@@ -72,7 +71,8 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
 
       // we can now trust all values for unitId, assignmentId, partId, and textBoxId
 
-      const filePath = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(uploadSlot.uploadSlotId);
+      const paddedStudentId = studentId.toString().padStart(8, '0');
+      const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(uploadSlot.uploadSlotId)}`;
 
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
@@ -89,8 +89,6 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         return Result.fail(new DownloadNewUploadSlotFileReadError(filePath));
       }
 
-      const compressed = uploadSlot.mimeType?.compress;
-
       return Result.success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
@@ -98,7 +96,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         lastModified: stats.lastModified,
         mimeType: uploadSlot.mimeTypeId ?? 'application/octet-stream',
         maxAge: DownloadNewUploadSlotInteractor.maxAge,
-        contentEncoding: compressed ? 'gzip' : undefined,
+        contentEncoding: uploadSlot.compressed ? 'gzip' : undefined,
       });
 
     } catch (err) {

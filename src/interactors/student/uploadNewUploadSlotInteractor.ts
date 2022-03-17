@@ -33,6 +33,7 @@ export class UploadNewUploadSlotUnitSkipped extends Error { }
 export class UploadNewUploadSlotFileTooLarge extends Error { }
 export class UploadNewUploadSlotInvalidFileType extends Error { }
 export class UploadNewUploadSlotEntityNotFound extends Error { }
+export class UploadNewUploadSlotCouldNotCreateDirectory extends Error { }
 export class UploadNewUploadSlotSaveError extends Error { }
 
 export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploadSlotRequestDTO, UploadNewUploadSlotResponseDTO> {
@@ -108,17 +109,50 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
             filename: file.filename,
             size: file.size,
             mimeTypeId: mimeType.mimeTypeId,
+            compressed: mimeType.compress,
           },
           where: { uploadSlotId: uploadSlotIdBin },
         });
 
+        const paddedStudentId = studentId.toString().padStart(8, '0');
+
+        const partialPath1 = this.configService.config.paths.assignmentsPath;
+        try {
+          if (!await this.fileService.stat(partialPath1)) {
+            await this.fileService.mkdir(partialPath1);
+          }
+        } catch (err) {
+          this.logger.error('Could not create directory', err);
+          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath1);
+        }
+
+        const partialPath2 = `${partialPath1}/${paddedStudentId.substring(0, 4)}`;
+        try {
+          if (!await this.fileService.stat(partialPath2)) {
+            await this.fileService.mkdir(partialPath2);
+          }
+        } catch (err) {
+          this.logger.error('Could not create directory', err);
+          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath2);
+        }
+
+        const partialPath3 = `${partialPath2}/${paddedStudentId.substring(4, 8)}`;
+        try {
+          if (!await this.fileService.stat(partialPath3)) {
+            await this.fileService.mkdir(partialPath3);
+          }
+        } catch (err) {
+          this.logger.error('Could not create directory', err);
+          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath3);
+        }
+
         // save the file
-        const path = this.configService.config.paths.assignmentsPath + '/upload-slots/' + this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId);
+        const filePath = `${partialPath3}/${this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId)}`;
         try {
           if (mimeType.compress) {
-            await this.fileService.writeFile(path, await this.compressionService.gzip(file.data));
+            await this.fileService.writeFile(filePath, await this.compressionService.gzip(file.data));
           } else {
-            await this.fileService.writeFile(path, file.data);
+            await this.fileService.writeFile(filePath, file.data);
           }
         } catch (err) {
           this.logger.error('Could not save file', err);

@@ -1,6 +1,6 @@
 import { v1 } from 'uuid';
 
-import { IUUIDService } from '.';
+import type { IUUIDService } from '.';
 
 export class UUIDService implements IUUIDService {
 

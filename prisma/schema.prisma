@@ -1459,6 +1459,7 @@ model NewUploadSlot {
   filename     String?
   size         Int?      @db.UnsignedInt
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
+  compressed   Boolean   @default(false)
   created      DateTime  @default(now()) @db.DateTime(0)
   modified     DateTime? @db.DateTime(0) @updatedAt
   newPart      NewPart   @relation(fields: [partId], references: [partId], map: "new_upload_slots_ibfk_1", onDelete: Cascade)
