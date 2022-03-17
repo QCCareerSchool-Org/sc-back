@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewAssignmentMediumInteractor } from '../../interactors/administrators';
 import type { InsertNewAssignmentMediumResponseDTO } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
-import { InsertNewAssignmentFileSaveError, InsertNewAssignmentInvalidMimeType, InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnitsEnabled, InsertNewAssignmentMissingContentType, InsertNewAssignmentUnableToFetchExternalData, InsertNewAssignmentUnacceptableMimeType } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
+import { InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumFileSaveError, InsertNewAssignmentMediumFileTooLarge, InsertNewAssignmentMediumInvalidContentLength, InsertNewAssignmentMediumInvalidMimeType, InsertNewAssignmentMediumMissingContentLength, InsertNewAssignmentMediumMissingContentType, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnableToFetchExternalData, InsertNewAssignmentMediumUnacceptableMimeType, InsertNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -124,16 +124,22 @@ export class InsertNewAssignmentMediumController extends BaseController<Request,
         return this.badRequest('Invalid url for external data');
       case InsertNewAssignmentMediumDataMissing:
         return this.badRequest('Data missing');
-      case InsertNewAssignmentInvalidMimeType:
+      case InsertNewAssignmentMediumFileTooLarge:
+        return this.badRequest('File too large');
+      case InsertNewAssignmentMediumInvalidMimeType:
         return this.badRequest('Invalid mime type ' + result.error.message);
-      case InsertNewAssignmentUnacceptableMimeType:
+      case InsertNewAssignmentMediumUnacceptableMimeType:
         return this.badRequest('Unacceptable mime type ' + result.error.message);
-      case InsertNewAssignmentFileSaveError:
+      case InsertNewAssignmentMediumFileSaveError:
         return this.internalServerError('Unable to save file');
-      case InsertNewAssignmentUnableToFetchExternalData:
+      case InsertNewAssignmentMediumUnableToFetchExternalData:
         return this.badRequest('Could not fetch external data');
-      case InsertNewAssignmentMissingContentType:
-        return this.badRequest('Could not determine mime type');
+      case InsertNewAssignmentMediumMissingContentType:
+        return this.badRequest('Could not determine content type');
+      case InsertNewAssignmentMediumMissingContentLength:
+        return this.badRequest('Could not determine content length');
+      case InsertNewAssignmentMediumInvalidContentLength:
+        return this.badRequest('Invalid content length');
       default:
         return this.internalServerError(result.error.message);
     }

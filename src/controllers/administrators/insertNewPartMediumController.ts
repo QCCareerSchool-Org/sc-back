@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewPartMediumInteractor } from '../../interactors/administrators';
 import type { InsertNewPartMediumResponseDTO } from '../../interactors/administrators/insertNewPartMediumInteractor';
-import { InsertNewPartFileSaveError, InsertNewPartInvalidMimeType, InsertNewPartMediCaptionTooLong, InsertNewPartMediumCaptionEmpty, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnitsEnabled, InsertNewPartMissingContentType, InsertNewPartUnableToFetchExternalData, InsertNewPartUnacceptableMimeType } from '../../interactors/administrators/insertNewPartMediumInteractor';
+import { InsertNewPartMediumCaptionEmpty, InsertNewPartMediumCaptionTooLong, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumFileSaveError, InsertNewPartMediumInvalidContentLength, InsertNewPartMediumInvalidMimeType, InsertNewPartMediumMissingContentLength, InsertNewPartMediumMissingContentType, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnableToFetchExternalData, InsertNewPartMediumUnacceptableMimeType, InsertNewPartMediumUnitsEnabled } from '../../interactors/administrators/insertNewPartMediumInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -117,7 +117,7 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
         return this.badRequest('Units must be disabled');
       case InsertNewPartMediumCaptionEmpty:
         return this.badRequest('Caption cannot be empty');
-      case InsertNewPartMediCaptionTooLong:
+      case InsertNewPartMediumCaptionTooLong:
         return this.badRequest('Caption value exceeds maximum length');
       case InsertNewPartMediumOrderLessThanZero:
         return this.badRequest('Order must be greater than or equal to zero');
@@ -127,16 +127,20 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
         return this.badRequest('Invalid url for external data');
       case InsertNewPartMediumDataMissing:
         return this.badRequest('Data missing');
-      case InsertNewPartInvalidMimeType:
+      case InsertNewPartMediumInvalidMimeType:
         return this.badRequest('Invalid mime type ' + result.error.message);
-      case InsertNewPartUnacceptableMimeType:
+      case InsertNewPartMediumUnacceptableMimeType:
         return this.badRequest('Unacceptable mime type ' + result.error.message);
-      case InsertNewPartFileSaveError:
+      case InsertNewPartMediumFileSaveError:
         return this.internalServerError('Unable to save file');
-      case InsertNewPartUnableToFetchExternalData:
+      case InsertNewPartMediumUnableToFetchExternalData:
         return this.badRequest('Could not fetch external data');
-      case InsertNewPartMissingContentType:
-        return this.badRequest('Could not determine mime type');
+      case InsertNewPartMediumMissingContentType:
+        return this.badRequest('Could not determine content type');
+      case InsertNewPartMediumMissingContentLength:
+        return this.badRequest('Could not determine content length');
+      case InsertNewPartMediumInvalidContentLength:
+        return this.badRequest('Invalid content length');
       default:
         return this.internalServerError(result.error.message);
     }

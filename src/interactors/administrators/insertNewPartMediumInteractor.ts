@@ -30,20 +30,22 @@ export type InsertNewPartMediumResponseDTO = NewPartMediumDTO;
 export class InsertNewPartMediumPartNotFound extends Error { }
 export class InsertNewPartMediumUnitsEnabled extends Error { }
 export class InsertNewPartMediumCaptionEmpty extends Error { }
-export class InsertNewPartMediCaptionTooLong extends Error { }
+export class InsertNewPartMediumCaptionTooLong extends Error { }
 export class InsertNewPartMediumOrderLessThanZero extends Error { }
 export class InsertNewPartMediumOrderTooLarge extends Error { }
 export class InsertNewPartMediumExternalDataInvalid extends Error { }
 export class InsertNewPartMediumDataMissing extends Error { }
-export class InsertNewPartInvalidMimeType extends Error { }
-export class InsertNewPartUnacceptableMimeType extends Error { }
-export class InsertNewPartFileSaveError extends Error { }
-export class InsertNewPartUnableToFetchExternalData extends Error { }
-export class InsertNewPartMissingContentType extends Error { }
-export class InsertNewPartMissingContentLength extends Error { }
-export class InsertNewPartInvalidContentLength extends Error { }
+export class InsertNewPartMediumFileTooLarge extends Error { }
+export class InsertNewPartMediumInvalidMimeType extends Error { }
+export class InsertNewPartMediumUnacceptableMimeType extends Error { }
+export class InsertNewPartMediumFileSaveError extends Error { }
+export class InsertNewPartMediumUnableToFetchExternalData extends Error { }
+export class InsertNewPartMediumMissingContentType extends Error { }
+export class InsertNewPartMediumMissingContentLength extends Error { }
+export class InsertNewPartMediumInvalidContentLength extends Error { }
 
 export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartMediumRequestDTO, InsertNewPartMediumResponseDTO> {
+  private static readonly maxFilesize = 33_554_432; // 32 MB
   private static readonly downloadMimeTypes = [
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -87,7 +89,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         return Result.fail(new InsertNewPartMediumCaptionEmpty());
       }
       if (new TextEncoder().encode(caption).length > 191) {
-        return Result.fail(new InsertNewPartMediCaptionTooLong());
+        return Result.fail(new InsertNewPartMediumCaptionTooLong());
       }
 
       if (order < 0) {
@@ -134,11 +136,15 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
   }
 
   private async insertWithFile(partIdBin: Buffer, caption: string, order: number, file: InteractorFile): Promise<NewPartMedium> {
+    if (file.size >= InsertNewPartMediumInteractor.maxFilesize) {
+      throw new InsertNewPartMediumFileTooLarge(file.size.toString());
+    }
+
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
       if (!mimeType) {
-        throw new InsertNewPartInvalidMimeType(file.mimeType);
+        throw new InsertNewPartMediumInvalidMimeType(file.mimeType);
       }
 
       let type: NewMediumType;
@@ -151,7 +157,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewPartUnacceptableMimeType(mimeType.mimeTypeId);
+        throw new InsertNewPartMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -174,7 +180,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         await this.fileService.writeFile(filePath, file.data);
       } catch (err) {
         this.logger.error('Could not save file', err);
-        throw new InsertNewPartFileSaveError();
+        throw new InsertNewPartMediumFileSaveError();
       }
 
       return insertedPartMedium;
@@ -187,27 +193,27 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {
-      throw new InsertNewPartUnableToFetchExternalData();
+      throw new InsertNewPartMediumUnableToFetchExternalData();
     }
 
     if (typeof headers['content-type'] === 'undefined') {
-      throw new InsertNewPartMissingContentType();
+      throw new InsertNewPartMediumMissingContentType();
     }
     const contentType = headers['content-type'];
 
     if (typeof headers['content-length'] === 'undefined') {
-      throw new InsertNewPartMissingContentLength();
+      throw new InsertNewPartMediumMissingContentLength();
     }
     const contentLength = parseInt(headers['content-length'], 10);
     if (isNaN(contentLength)) {
-      throw new InsertNewPartInvalidContentLength();
+      throw new InsertNewPartMediumInvalidContentLength();
     }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
       if (!mimeType) {
-        throw new InsertNewPartInvalidMimeType(contentType);
+        throw new InsertNewPartMediumInvalidMimeType(contentType);
       }
 
       let type: NewMediumType;
@@ -220,7 +226,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       } else if (InsertNewPartMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewPartUnacceptableMimeType(mimeType.mimeTypeId);
+        throw new InsertNewPartMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database

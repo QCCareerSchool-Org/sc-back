@@ -1,4 +1,4 @@
-import type { NewAssignmentMedium, NewMediaType, PrismaClient } from '@prisma/client';
+import type { NewAssignmentMedium, PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFile } from '..';
 import type { NewAssignmentMediumDTO, NewMediumType } from '../../domain/newAssignmentMediumDTO';
@@ -33,15 +33,17 @@ export class InsertNewAssignmentMediumOrderLessThanZero extends Error { }
 export class InsertNewAssignmentMediumOrderTooLarge extends Error { }
 export class InsertNewAssignmentMediumExternalDataInvalid extends Error { }
 export class InsertNewAssignmentMediumDataMissing extends Error { }
-export class InsertNewAssignmentInvalidMimeType extends Error { }
-export class InsertNewAssignmentUnacceptableMimeType extends Error { }
-export class InsertNewAssignmentFileSaveError extends Error { }
-export class InsertNewAssignmentUnableToFetchExternalData extends Error { }
-export class InsertNewAssignmentMissingContentType extends Error { }
-export class InsertNewAssignmentMissingContentLength extends Error { }
-export class InsertNewAssignmentInvalidContentLength extends Error { }
+export class InsertNewAssignmentMediumFileTooLarge extends Error { }
+export class InsertNewAssignmentMediumInvalidMimeType extends Error { }
+export class InsertNewAssignmentMediumUnacceptableMimeType extends Error { }
+export class InsertNewAssignmentMediumFileSaveError extends Error { }
+export class InsertNewAssignmentMediumUnableToFetchExternalData extends Error { }
+export class InsertNewAssignmentMediumMissingContentType extends Error { }
+export class InsertNewAssignmentMediumMissingContentLength extends Error { }
+export class InsertNewAssignmentMediumInvalidContentLength extends Error { }
 
 export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNewAssignmentMediumRequestDTO, InsertNewAssignmentMediumResponseDTO> {
+  private static readonly maxFilesize = 33_554_432; // 32 MB
   private static readonly downloadMimeTypes = [
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -131,11 +133,15 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
   }
 
   private async insertWithFile(assignmentIdBin: Buffer, caption: string, order: number, file: InteractorFile): Promise<NewAssignmentMedium> {
+    if (file.size >= InsertNewAssignmentMediumInteractor.maxFilesize) {
+      throw new InsertNewAssignmentMediumFileTooLarge(file.size.toString());
+    }
+
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentInvalidMimeType(file.mimeType);
+        throw new InsertNewAssignmentMediumInvalidMimeType(file.mimeType);
       }
 
       let type: NewMediumType;
@@ -148,7 +154,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewAssignmentUnacceptableMimeType(mimeType.mimeTypeId);
+        throw new InsertNewAssignmentMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
@@ -171,7 +177,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         await this.fileService.writeFile(filePath, file.data);
       } catch (err) {
         this.logger.error('Could not save file', err);
-        throw new InsertNewAssignmentFileSaveError();
+        throw new InsertNewAssignmentMediumFileSaveError();
       }
 
       return insertedAssignmentMedium;
@@ -184,27 +190,27 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {
-      throw new InsertNewAssignmentUnableToFetchExternalData();
+      throw new InsertNewAssignmentMediumUnableToFetchExternalData();
     }
 
     if (typeof headers['content-type'] === 'undefined') {
-      throw new InsertNewAssignmentMissingContentType();
+      throw new InsertNewAssignmentMediumMissingContentType();
     }
     const contentType = headers['content-type'];
 
     if (typeof headers['content-length'] === 'undefined') {
-      throw new InsertNewAssignmentMissingContentLength();
+      throw new InsertNewAssignmentMediumMissingContentLength();
     }
     const contentLength = parseInt(headers['content-length'], 10);
     if (isNaN(contentLength)) {
-      throw new InsertNewAssignmentInvalidContentLength();
+      throw new InsertNewAssignmentMediumInvalidContentLength();
     }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentInvalidMimeType(contentType);
+        throw new InsertNewAssignmentMediumInvalidMimeType(contentType);
       }
 
       let type: NewMediumType;
@@ -217,7 +223,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (InsertNewAssignmentMediumInteractor.downloadMimeTypes.includes(mimeType.mimeTypeId)) {
         type = 'download';
       } else {
-        throw new InsertNewAssignmentUnacceptableMimeType(mimeType.mimeTypeId);
+        throw new InsertNewAssignmentMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
       // store the data in the database
