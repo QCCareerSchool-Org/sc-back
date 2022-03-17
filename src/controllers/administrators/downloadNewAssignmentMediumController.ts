@@ -64,16 +64,7 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
         this.res.setHeader('Location', result.value);
         return this.found();
       }
-      const { stream, filename, mimeType, size, lastModified, maxAge } = result.value;
-      this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
-      if (typeof size !== 'undefined') {
-        this.res.setHeader('Content-Length', size);
-      }
-      this.res.setHeader('Content-Type', mimeType);
-      this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
-      stream.pipe(this.res);
-      return;
+      return this.sendInteractorFileStream(result.value);
     }
 
     switch (result.error.constructor) {

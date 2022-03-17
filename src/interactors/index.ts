@@ -19,6 +19,7 @@ export type InteractorFileStream = {
   size?: number;
   lastModified: Date;
   maxAge: number;
+  contentEncoding?: string;
 };
 
 export * from './authentication';

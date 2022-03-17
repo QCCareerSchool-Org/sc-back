@@ -37,7 +37,6 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
-    private readonly compressionService: ICompressionService,
     private readonly sanitizerService: ISanitizerService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
@@ -92,17 +91,14 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
 
       const compressed = uploadSlot.mimeType?.compress;
 
-      const stream = compressed
-        ? fileStream.pipe(this.compressionService.createGunzip()).on('error', err => this.logger.error('Error in unzip pipe', err))
-        : fileStream;
-
       return Result.success({
-        stream,
+        stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
-        size: compressed ? undefined : stats.size,
+        size: stats.size,
         lastModified: stats.lastModified,
         mimeType: uploadSlot.mimeTypeId ?? 'application/octet-stream',
         maxAge: DownloadNewUploadSlotInteractor.maxAge,
+        contentEncoding: compressed ? 'gzip' : undefined,
       });
 
     } catch (err) {

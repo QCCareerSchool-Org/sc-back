@@ -1,4 +1,5 @@
 import type { CookieOptions, Request, Response } from 'express';
+import type { InteractorFileStream } from '../interactors';
 
 export abstract class BaseController<RequestDTO, ResponseDTO> {
 
@@ -98,7 +99,7 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
   }
 
   protected sendCookie(name: string, value: string, maxAge?: number, path?: string, domain?: string, secure?: boolean, httpOnly?: boolean, sameSite?: 'strict' | 'lax' | 'none'): void {
-    const options: CookieOptions = { };
+    const options: CookieOptions = {};
     if (typeof maxAge !== 'undefined') {
       options.maxAge = maxAge;
     }
@@ -118,6 +119,21 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
       options.sameSite = sameSite;
     }
     this.res.cookie(name, value, options);
+  }
+
+  protected sendInteractorFileStream(interactorFileStream: InteractorFileStream): void {
+    const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding } = interactorFileStream;
+    this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
+    if (typeof size !== 'undefined') {
+      this.res.setHeader('Content-Length', size);
+    }
+    this.res.setHeader('Content-Type', mimeType);
+    if (typeof contentEncoding !== 'undefined') {
+      this.res.setHeader('Content-Encoding', contentEncoding);
+    }
+    this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
+    stream.pipe(this.res);
   }
 
   protected sendFile(data: Buffer, filename: string, mimeType: string, size: number): void {
