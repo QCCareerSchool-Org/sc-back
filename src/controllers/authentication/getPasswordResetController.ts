@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { getPasswordResetInteractor } from '../../interactors';
+import { getPasswordResetInteractor } from '../../interactors/authentication';
 import { BaseController } from '../baseController';
 
 type Request = {

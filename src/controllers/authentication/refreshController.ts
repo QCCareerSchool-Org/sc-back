@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { refreshInteractor } from '../../interactors';
+import { refreshInteractor } from '../../interactors/authentication';
 import { RefreshStudentInvalidType, RefreshStudentNotFound, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
 import { BaseController } from '../baseController';
 

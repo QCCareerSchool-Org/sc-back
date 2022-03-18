@@ -28,7 +28,9 @@ import { InsertNewPartTemplateController } from '../../controllers/administrator
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
 import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
+import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController';
+import { SaveNewPartMediumController } from '../../controllers/administrators/saveNewPartMediumController';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
 import { SaveNewUnitTemplateController } from '../../controllers/administrators/saveNewUnitTemplateController';
@@ -99,6 +101,10 @@ administratorRouter.post(
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
   asyncWrapper(async (req, res) => new GetNewAssignmentMediumController(req, res).execute()),
+);
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
+  asyncWrapper(async (req, res) => new SaveNewAssignmentMediumController(req, res).execute()),
 );
 administratorRouter.delete(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
@@ -172,6 +178,10 @@ administratorRouter.post(
 administratorRouter.get(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',
   asyncWrapper(async (req, res) => new GetNewPartMediumController(req, res).execute()),
+);
+administratorRouter.put(
+  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',
+  asyncWrapper(async (req, res) => new SaveNewPartMediumController(req, res).execute()),
 );
 administratorRouter.delete(
   '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',

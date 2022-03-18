@@ -1,8 +1,8 @@
 import * as yup from 'yup';
-import { saveNewTextBoxTextInteractor } from '../../interactors';
-import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/student/saveNewTextBoxTextInteractor';
-import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/student/saveNewTextBoxTextInteractor';
 
+import { deleteNewUploadSlotFileInteractor } from '../../interactors/students';
+import type { DeleteNewUploadSlotFileResponseDTO } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
+import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -18,16 +18,13 @@ type Request = {
     /** uuid */
     partId: string;
     /** uuid */
-    textBoxId: string;
-  };
-  body: {
-    text: string;
+    uploadSlotId: string;
   };
 };
 
-type Response = SaveNewTextBoxTextResponseDTO;
+type Response = DeleteNewUploadSlotFileResponseDTO;
 
-export class SaveNewTextBoxTextController extends BaseController<Request, Response> {
+export class DeleteNewUploadSlotFileController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -36,17 +33,11 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      textBoxId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-    });
-    const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      text: yup.string().defined(),
+      uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
-      const [ params, body ] = await Promise.all([
-        paramsSchema.validate(this.req.params),
-        bodySchema.validate(this.req.body),
-      ]);
-      return { params, body };
+      const params = await paramsSchema.validate(this.req.params);
+      return { params };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -57,29 +48,30 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
-    if (!this.isPutMethod()) {
+  protected async executeImpl({ params }: Request): Promise<void> {
+    if (!this.isDeleteMethod()) {
       return this.methodNotAllowed();
     }
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, textBoxId } = params;
-    const { text } = body;
+    const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await saveNewTextBoxTextInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, textBoxId, text });
+    const result = await deleteNewUploadSlotFileInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case SaveNewTextBoxTextNotFound:
-        return this.notFound('Text box not found');
-      case SaveNewTextBoxTextUnitSubmitted:
+      case DeleteNewUploadSlotFileNotFound:
+        return this.notFound('Upload slot not found');
+      case DeleteNewUploadSlotFileUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case SaveNewTextBoxTextUnitSkipped:
+      case DeleteNewUploadSlotFileUnitSkipped:
         return this.badRequest('Unit already skipped');
+      case DeleteNewUploadSlotFileUnlinkError:
+        return this.internalServerError('Can\'t delete file');
       default:
         return this.internalServerError(result.error.message);
     }

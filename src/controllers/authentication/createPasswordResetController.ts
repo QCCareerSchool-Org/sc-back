@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { createPasswordResetInteractor } from '../../interactors';
+import { createPasswordResetInteractor } from '../../interactors/authentication';
 import { CreatePasswordResetCountryNotFound, CreatePasswordResetNoEmailAddress, CreatePasswordResetUserNotFound } from '../../interactors/authentication/createPasswordResetInteractor';
 import { BaseController } from '../baseController';
 

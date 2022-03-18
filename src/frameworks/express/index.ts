@@ -14,6 +14,7 @@ import { authenticationRouter } from './authenticationRouter';
 import { globalErrorHandler } from './globalErrorHandler';
 import { multerErrorHandler } from './multerErrorHandler';
 import { studentRouter } from './studentRouter';
+import { tutorRouter } from './tutorRouter';
 
 const { port } = environmentConfigService.config;
 
@@ -40,6 +41,7 @@ app.use(asyncWrapper(async (req, res, next) => {
 }));
 
 app.use('/v1/administrators', administratorRouter);
+app.use('/v1/tutors', tutorRouter);
 app.use('/v1/students', studentRouter);
 
 // all other routes return 404

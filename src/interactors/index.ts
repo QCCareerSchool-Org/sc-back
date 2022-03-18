@@ -21,6 +21,3 @@ export type InteractorFileStream = {
   maxAge: number;
   contentEncoding?: string;
 };
-
-export * from './authentication';
-export * from './student';

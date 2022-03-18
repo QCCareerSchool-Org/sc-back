@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { uploadNewUploadSlotInteractor } from '../../interactors';
-import type { UploadNewUploadSlotResponseDTO } from '../../interactors/student/uploadNewUploadSlotInteractor';
-import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSkipped, UploadNewUploadSlotUnitSubmitted } from '../../interactors/student/uploadNewUploadSlotInteractor';
+import { uploadNewUploadSlotInteractor } from '../../interactors/students';
+import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor';
+import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSkipped, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

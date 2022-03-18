@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { submitNewUnitInteractor } from '../../interactors';
-import type { SubmitNewUnitResponseDTO } from '../../interactors/student/submitNewUnitInteractor';
-import { SubmitNewUnitAlreadySkipped, SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/student/submitNewUnitInteractor';
+import { submitNewUnitInteractor } from '../../interactors/students';
+import type { SubmitNewUnitResponseDTO } from '../../interactors/students/submitNewUnitInteractor';
+import { SubmitNewUnitAlreadySkipped, SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

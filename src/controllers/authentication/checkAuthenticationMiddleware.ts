@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { checkAuthenticationInteractor } from '../../interactors';
+import { checkAuthenticationInteractor } from '../../interactors/authentication';
 import { CheckAuthenticationInvalidPayload, CheckAuthenticationInvalidXSRF, CheckAuthenticationMissingXSRF, CheckAuthenticationVerifyError } from '../../interactors/authentication/checkAuthenticationInteractor';
 import { BaseMiddleware } from '../baseMiddleware';
 

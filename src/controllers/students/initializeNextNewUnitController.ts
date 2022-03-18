@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { initializeNextNewUnitInteractor } from '../../interactors';
-import type { InitializeNextNewUnitResponseDTO } from '../../interactors/student/initializeNextNewUnitInteractor';
-import { InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/student/initializeNextNewUnitInteractor';
+import { initializeNextNewUnitInteractor } from '../../interactors/students';
+import type { InitializeNextNewUnitResponseDTO } from '../../interactors/students/initializeNextNewUnitInteractor';
+import { InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {

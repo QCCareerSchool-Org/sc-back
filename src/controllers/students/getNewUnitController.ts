@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { skipNewUnitInteractor } from '../../interactors';
-import type { SkipNewUnitResponseDTO } from '../../interactors/student/skipNewUnitInteractor';
-import { SkipNewUnitAlreadySkipped, SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/student/skipNewUnitInteractor';
+import { getNewUnitInteractor } from '../../interactors/students';
+import type { GetNewUnitResponseDTO } from '../../interactors/students/getNewUnitInteractor';
+import { GetNewUnitNotFound } from '../../interactors/students/getNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -16,9 +16,9 @@ type Request = {
   };
 };
 
-type Response = SkipNewUnitResponseDTO;
+type Response = GetNewUnitResponseDTO;
 
-export class SkipNewUnitController extends BaseController<Request, Response> {
+export class GetNewUnitController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -40,7 +40,7 @@ export class SkipNewUnitController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isPostMethod()) {
+    if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
 
@@ -48,21 +48,15 @@ export class SkipNewUnitController extends BaseController<Request, Response> {
     const courseId = parseInt(params.courseId, 10);
     const { unitId } = params;
 
-    const result = await skipNewUnitInteractor.execute({ studentId, courseId, unitId });
+    const result = await getNewUnitInteractor.execute({ studentId, courseId, unitId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case SkipNewUnitNotFound:
+      case GetNewUnitNotFound:
         return this.notFound('Unit not found');
-      case SkipNewUnitEnrollmentOnHold:
-        return this.badRequest('Course is on hold');
-      case SkipNewUnitAlreadySubmitted:
-        return this.badRequest('Unit has already been submitted');
-      case SkipNewUnitAlreadySkipped:
-        return this.badRequest('Unit has already been skipped');
       default:
         return this.internalServerError(result.error.message);
     }

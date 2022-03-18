@@ -1,20 +1,20 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { DeleteNewUploadSlotFileController } from '../../controllers/student/deleteNewUploadSlotFileController';
-import { DownloadNewAssignmentMediumController } from '../../controllers/student/downloadNewAssignmentMediumController';
-import { DownloadNewPartMediumController } from '../../controllers/student/downloadNewPartMediumController';
-import { DownloadNewUploadSlotController } from '../../controllers/student/downloadNewUploadSlotController';
-import { GetEnrollmentController } from '../../controllers/student/getEnrollmentController';
-import { GetNewAssignmentController } from '../../controllers/student/getNewAssignmentController';
-import { GetNewUnitController } from '../../controllers/student/getNewUnitController';
-import { GetStudentController } from '../../controllers/student/getStudentController';
-import { InitializeNextNewUnitController } from '../../controllers/student/initializeNextNewUnitController';
-import { SaveNewTextBoxTextController } from '../../controllers/student/saveNewTextBoxTextController';
-import { SkipNewUnitController } from '../../controllers/student/skipNewUnitController';
-import { StudentGuardMiddleware } from '../../controllers/student/studentGuardMiddleware';
-import { SubmitNewUnitController } from '../../controllers/student/submitNewUnitController';
-import { UploadNewUploadSlotController } from '../../controllers/student/uploadNewUploadSlotController';
+import { DeleteNewUploadSlotFileController } from '../../controllers/students/deleteNewUploadSlotFileController';
+import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController';
+import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController';
+import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController';
+import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController';
+import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController';
+import { GetNewUnitController } from '../../controllers/students/getNewUnitController';
+import { GetStudentController } from '../../controllers/students/getStudentController';
+import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController';
+import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController';
+import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController';
+import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware';
+import { SubmitNewUnitController } from '../../controllers/students/submitNewUnitController';
+import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController';
 import { asyncWrapper } from './asyncWrapper';
 
 export const studentRouter = Router();

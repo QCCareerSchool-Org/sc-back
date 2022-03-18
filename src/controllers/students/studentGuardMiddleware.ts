@@ -5,15 +5,15 @@ import { BaseMiddleware } from '../baseMiddleware';
 type Request = {
   params: {
     /** numeric string */
-    administratorId: string;
+    studentId: string;
   };
 };
 
-export class AdministratorGuardMiddleware extends BaseMiddleware<Request, void> {
+export class StudentGuardMiddleware extends BaseMiddleware<Request, void> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
-      administratorId: yup.string().matches(/^\d+$/u).defined(),
+      studentId: yup.string().matches(/^\d+$/u).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -30,17 +30,22 @@ export class AdministratorGuardMiddleware extends BaseMiddleware<Request, void> 
 
   // eslint-disable-next-line @typescript-eslint/require-await
   protected async executeImpl({ params }: Request): Promise<void> {
-    const administratorId = parseInt(params.administratorId, 10);
-    if (this.isAllowed(administratorId)) {
+    const studentId = parseInt(params.studentId, 10);
+    if (this.isAllowed(studentId)) {
       return this.next();
     }
     this.forbidden();
   }
 
-  private isAllowed(administratorId: number): boolean {
+  private isAllowed(studentId: number): boolean {
     if (typeof this.res.locals.jwt === 'object' && this.res.locals.jwt !== null) {
       const jwt = this.res.locals.jwt as Record<string, unknown>;
-      return jwt.type === 'admin' && jwt.id === administratorId;
+      if (jwt.type === 'student' && jwt.id === studentId) {
+        return true;
+      }
+      if (jwt.type === 'admin') {
+        return true;
+      }
     }
     return false;
   }

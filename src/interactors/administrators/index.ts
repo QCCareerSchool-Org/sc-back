@@ -26,7 +26,9 @@ import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteract
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor';
+import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor';
+import { SaveNewPartMediumInteractor } from './saveNewPartMediumInteractor';
 import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor';
 import { SaveNewUnitTemplateInteractor } from './saveNewUnitTemplateInteractor';
@@ -50,6 +52,7 @@ export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemp
 
 export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const getNewAssignmentMediumInteractor = new GetNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewAssignmentMediumInteractor = new SaveNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentMediumInteractor = new DeleteNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
 
@@ -70,5 +73,6 @@ export const deleteNewUploadSlotTemplateInteractor = new DeleteNewUploadSlotTemp
 
 export const insertNewPartMediumInteractor = new InsertNewPartMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const getNewPartMediumInteractor = new GetNewPartMediumInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewPartMediumInteractor = new SaveNewPartMediumInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewPartMediumInteractor = new DeleteNewPartMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);

@@ -1,8 +1,7 @@
 import * as yup from 'yup';
 
-import { deleteNewUploadSlotFileInteractor } from '../../interactors';
-import type { DeleteNewUploadSlotFileResponseDTO } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
-import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/student/deleteNewUploadSlotFileInteractor';
+import { downloadNewUploadSlotInteractor } from '../../interactors/students';
+import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/students/downloadNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -22,9 +21,9 @@ type Request = {
   };
 };
 
-type Response = DeleteNewUploadSlotFileResponseDTO;
+type Response = void;
 
-export class DeleteNewUploadSlotFileController extends BaseController<Request, Response> {
+export class DownloadNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -49,7 +48,7 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isDeleteMethod()) {
+    if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
 
@@ -57,21 +56,26 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
     const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await deleteNewUploadSlotFileInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId });
+    const result = await downloadNewUploadSlotInteractor.execute({
+      studentId,
+      courseId,
+      unitId,
+      assignmentId,
+      partId,
+      uploadSlotId,
+    });
 
     if (result.success) {
-      return this.ok(result.value);
+      return this.sendInteractorFileStream(result.value);
     }
 
     switch (result.error.constructor) {
-      case DeleteNewUploadSlotFileNotFound:
+      case DownloadNewUploadSlotNotFound:
         return this.notFound('Upload slot not found');
-      case DeleteNewUploadSlotFileUnitSubmitted:
-        return this.badRequest('Unit already submitted');
-      case DeleteNewUploadSlotFileUnitSkipped:
-        return this.badRequest('Unit already skipped');
-      case DeleteNewUploadSlotFileUnlinkError:
-        return this.internalServerError('Can\'t delete file');
+      case DownloadNewUploadSlotFileNotFound:
+        return this.internalServerError('File not found');
+      case DownloadNewUploadSlotFileReadError:
+        return this.internalServerError('File read error');
       default:
         return this.internalServerError(result.error.message);
     }

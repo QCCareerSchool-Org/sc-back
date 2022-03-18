@@ -3,7 +3,7 @@ import type { CityResponse } from 'maxmind';
 import * as yup from 'yup';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { loginInteractor } from '../../interactors';
+import { loginInteractor } from '../../interactors/authentication';
 import { LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
 import { BaseController } from '../baseController';
 

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { AccountType } from '../../domain/accountType';
-import { logoutInteractor } from '../../interactors';
+import { logoutInteractor } from '../../interactors/authentication';
 import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor';
 import { environmentConfigService } from '../../services';
 import { BaseController } from '../baseController';

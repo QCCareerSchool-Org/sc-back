@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getEnrollmentInteractor } from '../../interactors';
-import type { GetEnrollmentResponseDTO } from '../../interactors/student/getEnrollment';
-import { GetEnrollmentNotFound } from '../../interactors/student/getEnrollment';
+import { skipNewUnitInteractor } from '../../interactors/students';
+import type { SkipNewUnitResponseDTO } from '../../interactors/students/skipNewUnitInteractor';
+import { SkipNewUnitAlreadySkipped, SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/students/skipNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -11,17 +11,20 @@ type Request = {
     studentId: string;
     /** numeric string */
     courseId: string;
+    /** uuid */
+    unitId: string;
   };
 };
 
-type Response = GetEnrollmentResponseDTO;
+type Response = SkipNewUnitResponseDTO;
 
-export class GetEnrollmentController extends BaseController<Request, Response> {
+export class SkipNewUnitController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
+      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -37,22 +40,29 @@ export class GetEnrollmentController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isGetMethod()) {
+    if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
+    const { unitId } = params;
 
-    const result = await getEnrollmentInteractor.execute({ studentId, courseId });
+    const result = await skipNewUnitInteractor.execute({ studentId, courseId, unitId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetEnrollmentNotFound:
-        return this.notFound('Enrollment not found');
+      case SkipNewUnitNotFound:
+        return this.notFound('Unit not found');
+      case SkipNewUnitEnrollmentOnHold:
+        return this.badRequest('Course is on hold');
+      case SkipNewUnitAlreadySubmitted:
+        return this.badRequest('Unit has already been submitted');
+      case SkipNewUnitAlreadySkipped:
+        return this.badRequest('Unit has already been skipped');
       default:
         return this.internalServerError(result.error.message);
     }
