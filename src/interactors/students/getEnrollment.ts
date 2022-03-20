@@ -7,7 +7,7 @@ import type { NewUnitDTO } from '../../domain/newUnitDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { OldUnitDTO } from '../../domain/oldUnitDTO';
 import type { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO';
-import type { StudentDTO } from '../../domain/studentDTO';
+import type { StudentDTO } from '../../domain/students/studentDTO';
 import type { TutorDTO } from '../../domain/tutorDTO';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
@@ -15,7 +15,6 @@ import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
-import { unitIsComplete } from './unitIsComplete';
 
 export type GetEnrollmentRequestDTO = {
   studentId: number;
@@ -188,24 +187,88 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           timestamp: unit.timestamp,
           entityVersion: unit.entityVersion,
         })),
-        newUnits: enrollment.newUnits.map(unit => ({
-          unitId: this.uuidService.binToUUID(unit.unitId),
-          enrollmentId: unit.enrollmentId,
-          tutorId: unit.tutorId,
-          unitLetter: unit.unitLetter,
-          title: unit.title,
-          description: unit.description,
-          optional: unit.optional,
-          order: unit.order,
-          complete: unitIsComplete(unit),
-          adminComment: unit.adminComment,
-          submitted: unit.submitted,
-          skipped: unit.skipped,
-          transferred: unit.transferred,
-          marked: unit.marked,
-          created: unit.created,
-          modified: unit.modified,
-        })),
+        newUnits: enrollment.newUnits.map(newUnit => {
+          // let unitComplete = true;
+          // let unitPoints = 0;
+          // let unitMark = 0;
+          // for (const newAssignment of newUnit.newAssignments) {
+          //   let assignmentComplete = true;
+          //   let assignmentMarked = true;
+          //   let assignmentPoints = 0;
+          //   let assignmentMark = 0;
+          //   for (const newPart of newAssignment.newParts) {
+          //     let partComplete = true;
+          //     let partMarked = true;
+          //     let partPoints = 0;
+          //     let partMark = 0;
+          //     for (const newTextBox of newPart.newTextBoxes) {
+          //       const textBoxComplete = newTextBox.text.length > 0;
+          //       if (!textBoxComplete && !newTextBox.optional) {
+          //         partComplete = false;
+          //       }
+          //       if (textBoxComplete && newTextBox.mark === null) {
+          //         partMarked = false;
+          //       }
+          //       // ignore incomplete, optional inputs
+          //       if (textBoxComplete || !newTextBox.optional) {
+          //         partPoints += newTextBox.points;
+          //         partMark += newTextBox.mark ?? 0;
+          //       }
+          //     }
+          //     for (const newUploadSlot of newPart.newUploadSlots) {
+          //       const uploadSlotComplete = newUploadSlot.filename !== null;
+          //       if (!uploadSlotComplete && !newUploadSlot.optional) {
+          //         partComplete = false;
+          //       }
+          //       if (uploadSlotComplete && newUploadSlot.mark === null) {
+          //         partMarked = false;
+          //       }
+          //       // ignore incomplete, optional inputs
+          //       if (uploadSlotComplete || !newUploadSlot.optional) {
+          //         partPoints += newUploadSlot.points;
+          //         partMark += newUploadSlot.mark ?? 0;
+          //       }
+          //     }
+          //     if (!partComplete) {
+          //       assignmentComplete = false;
+          //     }
+          //     if (!partMarked) {
+          //       assignmentMarked = false;
+          //     }
+          //     // parts can't be optional, so we always add these
+          //     assignmentPoints += partPoints;
+          //     assignmentMark += partMark;
+          //   }
+          //   if (!assignmentComplete && !newAssignment.optional) {
+          //     unitComplete = false;
+          //   }
+          //   if (assignmentComplete || !newAssignment.optional) {
+          //     unitPoints += assignmentPoints;
+          //     unitMark += assignmentMark;
+          //   }
+          // }
+          return {
+            unitId: this.uuidService.binToUUID(newUnit.unitId),
+            enrollmentId: newUnit.enrollmentId,
+            tutorId: newUnit.tutorId,
+            unitLetter: newUnit.unitLetter,
+            title: newUnit.title,
+            description: newUnit.description,
+            optional: newUnit.optional,
+            order: newUnit.order,
+            complete: newUnit.complete,
+            tutorComment: null, // students should never see the tutor comment
+            adminComment: newUnit.adminComment,
+            submitted: newUnit.submitted,
+            skipped: newUnit.skipped,
+            transferred: newUnit.transferred,
+            marked: newUnit.marked,
+            points: newUnit.points,
+            mark: newUnit.marked ? newUnit.mark : null, // hide the mark unles the unit is marked
+            created: newUnit.created,
+            modified: newUnit.modified,
+          };
+        }),
       });
 
     } catch (err) {

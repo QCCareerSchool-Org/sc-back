@@ -79,11 +79,14 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         complete: true,
+        tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
         skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
         marked: updatedUnit.marked,
+        points: 0, // we're not going to calculate this
+        mark: null, // we're not going to calculate this
         created: updatedUnit.created,
         modified: updatedUnit.modified,
       });

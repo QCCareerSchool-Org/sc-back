@@ -80,7 +80,9 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
           title: a.newAssignment.title,
           description: a.newAssignment.description,
           optional: a.newAssignment.optional,
-          complete: false, // we aren't going to calculate this, because we'd have to retreive all the parts and inputs for each one
+          complete: a.newAssignment.complete,
+          points: a.newAssignment.points,
+          mark: a.newAssignment.mark,
           created: a.newAssignment.created,
           modified: a.newAssignment.modified,
         })),

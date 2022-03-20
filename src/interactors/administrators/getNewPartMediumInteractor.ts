@@ -82,7 +82,9 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
           title: p.newPart.title,
           description: p.newPart.description,
           descriptionType: p.newPart.descriptionType,
-          complete: false, // we aren't going to calculate this, because we'd have to retreive all the inputs for each one
+          complete: p.newPart.complete,
+          points: p.newPart.points,
+          mark: p.newPart.mark,
           created: p.newPart.created,
           modified: p.newPart.modified,
         })),

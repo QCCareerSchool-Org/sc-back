@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
+import { attemptOCCTransaction } from '../../attemptOCCTransaction';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { IConfigService } from '../../services/config';
@@ -47,77 +48,215 @@ export class DeleteNewUploadSlotFileInteractor implements IInteractor<DeleteNewU
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
-      const uploadSlot = await this.prisma.newUploadSlot.findFirst({
-        where: {
-          uploadSlotId: uploadSlotIdBin,
-          newPart: {
-            partId: partIdBin,
-            newAssignment: {
-              assignmentId: assignmentIdBin,
-              newUnit: {
-                unitId: unitIdBin,
-                enrollment: { studentId, courseId, course: { enabled: true } },
-              },
-            },
-          },
-        },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
-      });
-
-      if (!uploadSlot) {
-        return Result.fail(new DeleteNewUploadSlotFileNotFound());
-      }
-
-      // we can now trust all values for unitId, assignmentId, partId, and uploadSlotId
-
-      if (uploadSlot.newPart.newAssignment.newUnit.submitted) {
-        return Result.fail(new DeleteNewUploadSlotFileUnitSubmitted());
-      }
-
-      if (uploadSlot.newPart.newAssignment.newUnit.skipped) {
-        return Result.fail(new DeleteNewUploadSlotFileUnitSkipped());
-      }
-
-      const data = await this.prisma.$transaction(async transaction => {
-        // update the upload slot
-        const updatedUploadSlot = await transaction.newUploadSlot.update({
-          data: {
-            filename: null,
-            size: null,
-            mimeTypeId: null,
-          },
-          where: { uploadSlotId: uploadSlotIdBin },
+      const updatedUploadSlot = await attemptOCCTransaction(async () => {
+        const newUnit = await this.prisma.newUnit.findFirst({
+          where: { unitId: unitIdBin, enrollment: { studentId, courseId, course: { enabled: true } } },
+          include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
         });
-
-        // delete the file
-        const paddedStudentId = studentId.toString().padStart(8, '0');
-        const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId)}`;
-        try {
-          await this.fileService.unlink(filePath);
-        } catch (err) {
-          this.logger.error('Could not delete file', err);
-          throw new DeleteNewUploadSlotFileUnlinkError(filePath);
+        if (!newUnit) {
+          throw new DeleteNewUploadSlotFileNotFound();
         }
 
-        // return the upload slot from the beginning of the transaction
-        return updatedUploadSlot;
+        if (newUnit.submitted) {
+          throw new DeleteNewUploadSlotFileUnitSubmitted();
+        }
+
+        if (newUnit.skipped) {
+          throw new DeleteNewUploadSlotFileUnitSkipped();
+        }
+
+        const newAssignment = newUnit.newAssignments.find(a => a.assignmentId.compare(assignmentIdBin) === 0);
+        if (!newAssignment) {
+          throw new DeleteNewUploadSlotFileNotFound();
+        }
+
+        const newPart = newAssignment.newParts.find(p => p.partId.compare(partIdBin) === 0);
+        if (!newPart) {
+          throw new DeleteNewUploadSlotFileNotFound();
+        }
+
+        const newUploadSlot = newPart.newUploadSlots.find(u => u.uploadSlotId.compare(uploadSlotIdBin) === 0);
+        if (!newUploadSlot) {
+          throw new DeleteNewUploadSlotFileNotFound();
+        }
+
+        let unitComplete = true;
+        let unitMarked = true;
+        let unitPoints = 0;
+        let unitMark = 0;
+        let assignmentComplete = true;
+        let assignmentMarked = true;
+        let assignmentPoints = 0;
+        let assignmentMark = 0;
+        let partComplete = true;
+        let partMarked = true;
+        let partPoints = 0;
+        let partMark = 0;
+        const uploadSlotComplete = false;
+
+        for (const a of newUnit.newAssignments) {
+          if (a.assignmentId.compare(assignmentIdBin) === 0) { // this assignment
+            for (const p of a.newParts) {
+              if (p.partId.compare(partIdBin) === 0) { // this part
+                for (const t of p.newTextBoxes) {
+                  if (!t.complete && !t.optional) {
+                    partComplete = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (t.complete || !t.optional) {
+                    if (t.mark === null) {
+                      partMarked = false;
+                    }
+                    partPoints += t.points;
+                    partMark += t.mark ?? 0;
+                  }
+                }
+                for (const u of p.newUploadSlots) {
+                  if (u.uploadSlotId.compare(uploadSlotIdBin) === 0) { // this upload slot
+                    if (!uploadSlotComplete && !u.optional) {
+                      partComplete = false;
+                    }
+                    // ignore incomplete, optional inputs
+                    if (uploadSlotComplete || !u.optional) {
+                      if (u.mark === null) {
+                        partMarked = false;
+                      }
+                      partPoints += u.points;
+                      partMark += u.mark ?? 0;
+                    }
+                  } else { // other upload slots
+                    if (!u.complete && !u.optional) {
+                      partComplete = false;
+                    }
+                    // ignore incomplete, optional inputs
+                    if (u.complete || !u.optional) {
+                      if (u.mark === null) {
+                        partMarked = false;
+                      }
+                      partPoints += u.points;
+                      partMark += u.mark ?? 0;
+                    }
+                  }
+                }
+                if (!partComplete) {
+                  assignmentComplete = false;
+                }
+                if (!partMarked) {
+                  assignmentMarked = false;
+                }
+                assignmentPoints += partPoints;
+                assignmentMark += partMark;
+              } else { // other parts
+                if (!p.complete) {
+                  assignmentComplete = false;
+                }
+                if (p.mark === null) {
+                  assignmentMarked = false;
+                }
+                assignmentPoints += p.points;
+                assignmentMark += p.mark ?? 0;
+              }
+            }
+            if (!assignmentComplete && !a.optional) {
+              unitComplete = false;
+            }
+            // ignore incomplete, optional assignments
+            if (assignmentComplete || !a.optional) {
+              if (!assignmentMarked) {
+                unitMarked = false;
+              }
+              unitPoints += assignmentPoints;
+              unitMark += assignmentMark;
+            }
+          } else { // other assignments
+            if (!a.complete && !a.optional) {
+              unitComplete = false;
+            }
+            if (a.complete || !a.optional) {
+              if (a.mark === null) {
+                unitMarked = false;
+              }
+              unitPoints += a.points;
+              unitMark += a.mark ?? 0;
+            }
+          }
+        }
+
+        await this.prisma.$executeRaw`SET TRANSACTION ISOLATION LEVEL READ COMMITTED`;
+
+        return this.prisma.$transaction(async transaction => {
+          const updated = await transaction.newUploadSlot.update({
+            data: {
+              filename: null,
+              size: null,
+              mimeTypeId: null,
+              complete: uploadSlotComplete,
+            },
+            where: { uploadSlotId: uploadSlotIdBin },
+            include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+          });
+
+          await transaction.newPart.update({
+            data: {
+              complete: partComplete,
+              points: partPoints,
+              mark: partMarked ? partMark : null,
+            },
+            where: { partId: partIdBin },
+          });
+
+          await transaction.newAssignment.update({
+            data: {
+              complete: assignmentComplete,
+              points: assignmentPoints,
+              mark: assignmentMarked ? assignmentMark : null,
+            },
+            where: { assignmentId: assignmentIdBin },
+          });
+
+          const batchPayload = await transaction.newUnit.updateMany({
+            data: {
+              complete: unitComplete,
+              points: unitPoints,
+              mark: unitMarked ? unitMark : null,
+              entityVersion: { increment: 1 },
+            },
+            where: { unitId: unitIdBin, entityVersion: newUnit.entityVersion },
+          });
+
+          if (batchPayload.count === 0) {
+            return false;
+          }
+
+          // delete the file
+          const paddedStudentId = studentId.toString().padStart(8, '0');
+          const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${uploadSlotId}`;
+          try {
+            await this.fileService.unlink(filePath);
+          } catch (err) {
+            this.logger.error('Could not delete file', err);
+            throw new DeleteNewUploadSlotFileUnlinkError(filePath);
+          }
+
+          return updated;
+        });
       });
 
       return Result.success({
-        uploadSlotId: this.uuidService.binToUUID(data.uploadSlotId),
-        partId: this.uuidService.binToUUID(data.partId),
-        label: data.label,
-        allowedTypes: data.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-        points: data.points,
-        mark: uploadSlot.newPart.newAssignment.newUnit.marked ? data.mark : null, // hide mark unless the unit is marked
-        optional: data.optional,
-        order: data.order,
-        filename: data.filename,
-        size: data.size,
-        mimeTypeId: data.mimeTypeId,
-        complete: data.filename !== null,
-        created: data.created,
-        modified: data.modified,
+        uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
+        partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
+        label: updatedUploadSlot.label,
+        allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+        optional: updatedUploadSlot.optional,
+        order: updatedUploadSlot.order,
+        filename: updatedUploadSlot.filename,
+        size: updatedUploadSlot.size,
+        mimeTypeId: updatedUploadSlot.mimeTypeId,
+        complete: updatedUploadSlot.complete,
+        points: updatedUploadSlot.points,
+        mark: updatedUploadSlot.newPart.newAssignment.newUnit.marked ? updatedUploadSlot.mark : null, // hide mark unless the unit is marked
+        created: updatedUploadSlot.created,
+        modified: updatedUploadSlot.modified,
       });
 
     } catch (err) {

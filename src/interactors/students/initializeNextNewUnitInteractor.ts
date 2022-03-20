@@ -126,6 +126,11 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         }
       }
 
+      let unitComplete = true;
+      let unitMarked = true;
+      let unitPoints = 0;
+      const unitMark = 0;
+
       // copy the template data into a concrete unit
       const nextUnit = await this.prisma.newUnit.create({
         data: {
@@ -138,63 +143,118 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
           optional: nextUnitTemplate.optional,
           order: nextUnitTemplate.order,
           newAssignments: {
-            create: nextUnitTemplate.newAssignmentTemplates.map(newAssignmentTemplate => ({
-              assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-              assignmentNumber: newAssignmentTemplate.assignmentNumber,
-              title: newAssignmentTemplate.title,
-              description: newAssignmentTemplate.description,
-              optional: newAssignmentTemplate.optional,
-              newParts: {
-                create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => ({
-                  partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  partNumber: newPartTemplate.partNumber,
-                  title: newPartTemplate.title,
-                  description: newPartTemplate.description,
-                  newTextBoxes: {
-                    create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => ({
-                      textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      description: newTextBoxTemplate.description,
-                      lines: newTextBoxTemplate.lines,
-                      points: newTextBoxTemplate.points,
-                      optional: newTextBoxTemplate.optional,
-                      order: newTextBoxTemplate.order,
-                    })),
-                  },
-                  newUploadSlots: {
-                    create: newPartTemplate.newUploadSlotTemplates.map(newUploadSlotTemplate => ({
-                      uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                      label: newUploadSlotTemplate.label,
-                      allowedTypes: newUploadSlotTemplate.allowedTypes,
-                      points: newUploadSlotTemplate.points,
-                      optional: newUploadSlotTemplate.optional,
-                      order: newUploadSlotTemplate.order,
-                    })),
-                  },
-                  newPartMedia: {
-                    create: newPartTemplate.newPartMedia.map(newPartMedium => ({
-                      order: newPartMedium.order,
-                      newPartMedium: {
-                        connect: {
-                          partMediumId: newPartMedium.partMediumId,
-                        },
+            create: nextUnitTemplate.newAssignmentTemplates.map(newAssignmentTemplate => {
+              let assignmentComplete = true;
+              let assignmentMarked = true;
+              let assignmentPoints = 0;
+              let assignmentMark = 0;
+              const assignment = {
+                assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                assignmentNumber: newAssignmentTemplate.assignmentNumber,
+                title: newAssignmentTemplate.title,
+                description: newAssignmentTemplate.description,
+                optional: newAssignmentTemplate.optional,
+                newParts: {
+                  create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => {
+                    let partComplete = true;
+                    let partMarked = true;
+                    let partPoints = 0;
+                    const partMark = 0;
+                    const part = {
+                      partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                      partNumber: newPartTemplate.partNumber,
+                      title: newPartTemplate.title,
+                      description: newPartTemplate.description,
+                      newTextBoxes: {
+                        create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => {
+                          if (!newTextBoxTemplate.optional) {
+                            partComplete = false;
+                            partMarked = false;
+                            partPoints += newTextBoxTemplate.points;
+                          }
+                          return {
+                            textBoxId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                            description: newTextBoxTemplate.description,
+                            lines: newTextBoxTemplate.lines,
+                            optional: newTextBoxTemplate.optional,
+                            order: newTextBoxTemplate.order,
+                            points: newTextBoxTemplate.points,
+                          };
+                        }),
                       },
-                    })),
-                  },
-                })),
-              },
-              newAssignmentMedia: {
-                create: newAssignmentTemplate.newAssignmentMedia.map(newAssignmentMedia => ({
-                  order: newAssignmentMedia.order,
-                  newAssignmentMedium: {
-                    connect: {
-                      assignmentMediumId: newAssignmentMedia.assignmentMediumId,
+                      newUploadSlots: {
+                        create: newPartTemplate.newUploadSlotTemplates.map(newUploadSlotTemplate => {
+                          if (!newUploadSlotTemplate.optional) {
+                            partComplete = false;
+                            partMarked = false;
+                            partPoints += newUploadSlotTemplate.points;
+                          }
+                          return {
+                            uploadSlotId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                            label: newUploadSlotTemplate.label,
+                            allowedTypes: newUploadSlotTemplate.allowedTypes,
+                            optional: newUploadSlotTemplate.optional,
+                            order: newUploadSlotTemplate.order,
+                            points: newUploadSlotTemplate.points,
+                          };
+                        }),
+                      },
+                      newPartMedia: {
+                        create: newPartTemplate.newPartMedia.map(newPartMedium => ({
+                          order: newPartMedium.order,
+                          newPartMedium: {
+                            connect: {
+                              partMediumId: newPartMedium.partMediumId,
+                            },
+                          },
+                        })),
+                      },
+                      complete: partComplete,
+                      points: partPoints,
+                      mark: partMarked ? partMark : null,
+                    };
+                    if (!partComplete) {
+                      assignmentComplete = false;
+                    }
+                    if (!partMarked) {
+                      assignmentMarked = false;
+                    }
+                    assignmentPoints += partPoints;
+                    assignmentMark += partMark;
+                    return part;
+                  }),
+                },
+                newAssignmentMedia: {
+                  create: newAssignmentTemplate.newAssignmentMedia.map(newAssignmentMedia => ({
+                    order: newAssignmentMedia.order,
+                    newAssignmentMedium: {
+                      connect: {
+                        assignmentMediumId: newAssignmentMedia.assignmentMediumId,
+                      },
                     },
-                  },
-                })),
-              },
-            })),
+                  })),
+                },
+                complete: assignmentComplete,
+                points: assignmentPoints,
+                mark: assignmentMarked ? assignmentMark : null,
+              };
+              if (!assignmentComplete && !newAssignmentTemplate.optional) {
+                unitComplete = false;
+              }
+              if (assignmentComplete || !newAssignmentTemplate.optional) {
+                if (!assignmentMarked) {
+                  unitMarked = false;
+                }
+                unitPoints += assignmentPoints;
+              }
+              return assignment;
+            }),
           },
+          complete: unitComplete,
+          points: unitPoints,
+          mark: unitMarked ? unitMark : null,
         },
+        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });
 
       return Result.success({
@@ -206,12 +266,15 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         description: nextUnit.description,
         optional: nextUnit.optional,
         order: nextUnit.order,
+        tutorComment: null, // students should never see the tutor comment
         adminComment: nextUnit.adminComment,
         submitted: nextUnit.submitted,
         skipped: nextUnit.skipped,
         transferred: nextUnit.transferred,
         marked: nextUnit.marked,
-        complete: false,
+        complete: nextUnit.complete,
+        points: nextUnit.points,
+        mark: nextUnit.marked ? nextUnit.mark : null,
         created: nextUnit.created,
         modified: nextUnit.modified,
       });

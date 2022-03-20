@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
   previewFeatures = ["interactiveTransactions"]
@@ -6,6 +7,31 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+/////////////////////////////////////////////////////////////////////////
+// Testing
+/////////////////////////////////////////////////////////////////////////
+
+
+model Family {
+  familyId       Bytes    @id @db.Binary(16) @map("family_id")
+  combinedIncome Decimal  @db.Decimal(10, 2) @default(0) @map("combined_income")
+  entityVersion  Int      @default(0) @map("entity_version")
+  persons        Person[]
+
+  @@map("families")
+  @@unique([familyId, entityVersion], name: "familyIdEntityVersion", map: "family_id_entity_version")
+}
+
+model Person {
+  personId Bytes   @id @db.Binary(16) @map("person_id")
+  familyId Bytes   @db.Binary(16) @map("family_id")
+  income   Decimal @db.Decimal(10, 2) @default(0)
+  family   Family  @relation(fields: [familyId], references: [familyId], onDelete: Cascade, map: "FK_persons_families")
+
+  @@map("persons")
+  @@index([familyId], map: "family_id")
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -1249,6 +1275,9 @@ model NewUnit {
   skipped        DateTime?         @db.DateTime(0)
   transferred    DateTime?         @db.DateTime(0)
   marked         DateTime?         @db.DateTime(0)
+  complete       Boolean           @default(false)
+  points         Int               @default(0)
+  mark           Int?
   entityVersion  Int               @default(0) @db.Int @map("entity_version")
   created        DateTime          @default(now()) @db.DateTime(0)
   modified       DateTime?         @db.DateTime(0) @updatedAt
@@ -1285,6 +1314,9 @@ model NewAssignment {
   title              String?
   description        String?                              @db.Text
   optional           Boolean                              @default(false)
+  complete           Boolean                              @default(false)
+  points             Int                                  @default(0)
+  mark               Int?
   created            DateTime                             @default(now()) @db.DateTime(0)
   modified           DateTime?                            @db.DateTime(0) @updatedAt
   newUnit            NewUnit                              @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1", onDelete: Cascade)
@@ -1353,6 +1385,9 @@ model NewPart {
   title           String
   description     String?                  @db.Text
   descriptionType NewDescriptionType       @default(text) @map("description_type")
+  complete        Boolean                  @default(false)
+  points          Int                      @default(0)
+  mark            Int?
   created         DateTime                 @default(now()) @db.DateTime(0)
   modified        DateTime?                @db.DateTime(0) @updatedAt
   newAssignment   NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
@@ -1418,11 +1453,12 @@ model NewTextBox {
   partId      Bytes     @db.Binary(16) @map("part_id")
   description String?   @db.Text
   lines       Int?      @db.TinyInt
-  points      Int       @default(0) @db.UnsignedTinyInt
-  mark        Int?      @db.UnsignedTinyInt
   optional    Boolean   @default(false)
   order       Int       @db.TinyInt @default(0)
   text        String    @db.Text @default("")
+  complete    Boolean   @default(false)
+  points      Int       @default(0) @db.Int
+  mark        Int?      @db.Int
   created     DateTime  @default(now()) @db.DateTime(0)
   modified    DateTime? @db.DateTime(0) @updatedAt
   newPart     NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1", onDelete: Cascade)
@@ -1452,13 +1488,14 @@ model NewUploadSlot {
   partId       Bytes     @db.Binary(16) @map("part_id")
   label        String
   allowedTypes String    @default("image") @map("allowed_types")
-  points       Int       @default(0) @db.UnsignedTinyInt
-  mark         Int?      @db.UnsignedTinyInt
   optional     Boolean   @default(false)
   order        Int       @db.TinyInt @default(0)
   filename     String?
   size         Int?      @db.UnsignedInt
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
+  complete     Boolean   @default(false)
+  points       Int       @default(0) @db.Int
+  mark         Int?      @db.Int
   compressed   Boolean   @default(false)
   created      DateTime  @default(now()) @db.DateTime(0)
   modified     DateTime? @db.DateTime(0) @updatedAt

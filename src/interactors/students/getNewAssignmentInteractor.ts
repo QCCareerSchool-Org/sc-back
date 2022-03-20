@@ -65,7 +65,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentNotFound());
       }
 
-      let assignmentComplete = true;
+      // let assignmentComplete = true;
+      // let assignmentMarked = true;
+      // let assignmentPoints = 0;
+      // let assignmentMark = 0;
 
       return Result.success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
@@ -74,6 +77,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         title: assignment.title,
         description: assignment.description,
         optional: assignment.optional,
+        complete: assignment.complete,
+        points: assignment.points,
+        mark: assignment.newUnit.marked ? assignment.mark : null, // hide the mark unless the unit is marked
         created: assignment.created,
         modified: assignment.modified,
         newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
@@ -90,7 +96,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           modified: m.newAssignmentMedium.modified,
         })),
         newParts: assignment.newParts.map(p => {
-          let partComplete = true;
+          // let partComplete = true;
+          // let partMarked = true;
+          // let partPoints = 0;
+          // let partMark = 0;
           const part = {
             partId: this.uuidService.binToUUID(p.partId),
             assignmentId: this.uuidService.binToUUID(p.assignmentId),
@@ -98,46 +107,67 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             title: p.title,
             description: p.description,
             descriptionType: p.descriptionType,
+            complete: p.complete,
+            points: p.points,
+            mark: assignment.newUnit.marked ? p.mark : null, // hide the mark unless the unit is marked
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
-              const textBoxComplete = t.text.length > 0;
-              if (!textBoxComplete && !t.optional) {
-                partComplete = false;
-              }
+              // const textBoxComplete = t.text.length > 0;
+              // if (!textBoxComplete && !t.optional) {
+              //   partComplete = false;
+              // }
+              // if (textBoxComplete && t.mark === null) {
+              //   partMarked = false;
+              // }
+              // // ignore incomplete, optional inputs
+              // if (textBoxComplete || !t.optional) {
+              //   partPoints += t.points;
+              //   partMark += t.mark ?? 0;
+              // }
               return {
                 textBoxId: this.uuidService.binToUUID(t.textBoxId),
                 partId: this.uuidService.binToUUID(t.partId),
                 description: t.description,
                 lines: t.lines,
-                points: t.points,
-                mark: assignment.newUnit.marked ? t.mark : null, // hide mark unless the unit is marked
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
-                complete: textBoxComplete,
+                // complete: textBoxComplete,
+                complete: t.complete,
+                points: t.points,
+                mark: assignment.newUnit.marked ? t.mark : null, // hide the mark unless the unit is marked
                 created: t.created,
                 modified: t.modified,
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
-              const uploadSlotComplete = u.filename !== null;
-              if (!uploadSlotComplete && !u.optional) {
-                partComplete = false;
-              }
+              // const uploadSlotComplete = u.filename !== null;
+              // if (!uploadSlotComplete && !u.optional) {
+              //   partComplete = false;
+              // }
+              // if (uploadSlotComplete && u.mark === null) {
+              //   partMarked = false;
+              // }
+              // // ignore incomplete, optional inputs
+              // if (uploadSlotComplete || !u.optional) {
+              //   partPoints += u.points;
+              //   partMark += u.mark ?? 0;
+              // }
               return {
                 uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
                 partId: this.uuidService.binToUUID(u.partId),
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-                points: u.points,
-                mark: assignment.newUnit.marked ? u.mark : null, // hide mark unless the unit is marked
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,
                 size: u.size,
                 mimeTypeId: u.mimeTypeId,
-                complete: uploadSlotComplete,
+                // complete: uploadSlotComplete,
+                complete: u.complete,
+                points: u.points,
+                mark: assignment.newUnit.marked ? u.mark : null, // hide the mark unless the unit is marked
                 created: u.created,
                 modified: u.modified,
               };
@@ -155,14 +185,22 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               created: m.newPartMedium.created,
               modified: m.newPartMedium.modified,
             })),
-            complete: partComplete,
+            // complete: partComplete,
           };
-          if (!partComplete) {
-            assignmentComplete = false;
-          }
+          // if (!partComplete) {
+          //   assignmentComplete = false;
+          // }
+          // if (!partMarked) {
+          //   assignmentMarked = false;
+          // }
+          // // parts can't be optional, so we always add these
+          // assignmentPoints += partPoints;
+          // assignmentMark += partMark;
           return part;
         }),
-        complete: assignmentComplete,
+        // complete: assignmentComplete,
+        // points: assignmentPoints,
+        // mark: assignment.newUnit.marked && assignmentMarked ? assignmentMark : null,
       });
 
     } catch (err) {

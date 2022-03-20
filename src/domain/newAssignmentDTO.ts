@@ -8,6 +8,8 @@ export type NewAssignmentDTO = {
   description: string | null;
   optional: boolean;
   complete: boolean;
+  points: number;
+  mark: number | null;
   created: Date;
   modified: Date | null;
 };

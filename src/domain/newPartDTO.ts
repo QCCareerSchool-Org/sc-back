@@ -10,6 +10,8 @@ export type NewPartDTO = {
   description: string | null;
   descriptionType: NewDescriptionType;
   complete: boolean;
+  points: number;
+  mark: number | null;
   created: Date;
   modified: Date | null;
 };

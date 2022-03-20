@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 
+import { OCCConflict } from '../../attemptOCCTransaction';
 import { deleteNewUploadSlotFileInteractor } from '../../interactors/students';
 import type { DeleteNewUploadSlotFileResponseDTO } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
 import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
@@ -72,6 +73,8 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
         return this.badRequest('Unit already skipped');
       case DeleteNewUploadSlotFileUnlinkError:
         return this.internalServerError('Can\'t delete file');
+      case OCCConflict:
+        return this.conflict('Entity conflict');
       default:
         return this.internalServerError(result.error.message);
     }

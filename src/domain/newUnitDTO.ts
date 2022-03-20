@@ -8,13 +8,16 @@ export type NewUnitDTO = {
   description: string | null;
   optional: boolean;
   order: number;
-  // students should never see `tutorComment`
+  /** students should never see this */
+  tutorComment: string | null;
   adminComment: string | null;
   submitted: Date | null;
   skipped: Date | null;
   transferred: Date | null;
   marked: Date | null;
   complete: boolean;
+  points: number;
+  mark: number | null;
   created: Date;
   modified: Date | null;
 };

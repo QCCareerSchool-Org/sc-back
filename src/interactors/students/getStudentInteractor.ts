@@ -4,7 +4,7 @@ import type { IInteractor } from '..';
 import type { CountryDTO } from '../../domain/countryDTO';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
 import type { ProvinceDTO } from '../../domain/provinceDTO';
-import type { StudentDTO } from '../../domain/studentDTO';
+import type { StudentDTO } from '../../domain/students/studentDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { ResultType } from '../result';
 import { Result } from '../result';
