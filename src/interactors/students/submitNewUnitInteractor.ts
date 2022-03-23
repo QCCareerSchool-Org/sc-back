@@ -15,7 +15,7 @@ export type SubmitNewUnitRequestDTO = {
   unitId: string;
 };
 
-export type SubmitNewUnitResponseDTO = NewUnitDTO;
+export type SubmitNewUnitResponseDTO = Omit<NewUnitDTO, 'complete' | 'points' | 'mark'>;
 
 export class SubmitNewUnitNotFound extends Error { }
 export class SubmitNewUnitEnrollmentOnHold extends Error { }
@@ -84,6 +84,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
           tutorId: unit.enrollment.tutorId,
         },
         where: { unitId: unitIdBin },
+        include: { enrollment: { include: { course: true } } },
       });
 
       return Result.success({
@@ -95,15 +96,14 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         description: updatedUnit.description,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
-        complete: true,
         tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
         skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
         marked: updatedUnit.marked,
-        points: 0, // we're not going to calculate this
-        mark: null, // we're not going to calculate this
+        responseFilename: updatedUnit.responseFilename === null ? null : `${updatedUnit.enrollment.course.code}${updatedUnit.enrollment.enrollmentId} Unit ${updatedUnit.unitLetter}.mp3`,
+        responseFilesize: updatedUnit.responseFilesize,
         created: updatedUnit.created,
         modified: updatedUnit.modified,
       });

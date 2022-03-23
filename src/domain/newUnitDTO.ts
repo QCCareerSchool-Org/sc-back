@@ -15,6 +15,8 @@ export type NewUnitDTO = {
   skipped: Date | null;
   transferred: Date | null;
   marked: Date | null;
+  responseFilename: string | null;
+  responseFilesize: number | null;
   complete: boolean;
   points: number;
   mark: number | null;

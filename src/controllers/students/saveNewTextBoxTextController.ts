@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 
-import { OCCConflict } from '../../attemptOCCTransaction';
 import { saveNewTextBoxTextInteractor } from '../../interactors/students';
 import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/students/saveNewTextBoxTextInteractor';
 import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/students/saveNewTextBoxTextInteractor';
@@ -81,8 +80,6 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
         return this.badRequest('Unit already submitted');
       case SaveNewTextBoxTextUnitSkipped:
         return this.badRequest('Unit already skipped');
-      case OCCConflict:
-        return this.conflict('Entity conflict');
       default:
         return this.internalServerError(result.error.message);
     }

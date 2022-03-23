@@ -188,65 +188,69 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           entityVersion: unit.entityVersion,
         })),
         newUnits: enrollment.newUnits.map(newUnit => {
-          // let unitComplete = true;
-          // let unitPoints = 0;
-          // let unitMark = 0;
-          // for (const newAssignment of newUnit.newAssignments) {
-          //   let assignmentComplete = true;
-          //   let assignmentMarked = true;
-          //   let assignmentPoints = 0;
-          //   let assignmentMark = 0;
-          //   for (const newPart of newAssignment.newParts) {
-          //     let partComplete = true;
-          //     let partMarked = true;
-          //     let partPoints = 0;
-          //     let partMark = 0;
-          //     for (const newTextBox of newPart.newTextBoxes) {
-          //       const textBoxComplete = newTextBox.text.length > 0;
-          //       if (!textBoxComplete && !newTextBox.optional) {
-          //         partComplete = false;
-          //       }
-          //       if (textBoxComplete && newTextBox.mark === null) {
-          //         partMarked = false;
-          //       }
-          //       // ignore incomplete, optional inputs
-          //       if (textBoxComplete || !newTextBox.optional) {
-          //         partPoints += newTextBox.points;
-          //         partMark += newTextBox.mark ?? 0;
-          //       }
-          //     }
-          //     for (const newUploadSlot of newPart.newUploadSlots) {
-          //       const uploadSlotComplete = newUploadSlot.filename !== null;
-          //       if (!uploadSlotComplete && !newUploadSlot.optional) {
-          //         partComplete = false;
-          //       }
-          //       if (uploadSlotComplete && newUploadSlot.mark === null) {
-          //         partMarked = false;
-          //       }
-          //       // ignore incomplete, optional inputs
-          //       if (uploadSlotComplete || !newUploadSlot.optional) {
-          //         partPoints += newUploadSlot.points;
-          //         partMark += newUploadSlot.mark ?? 0;
-          //       }
-          //     }
-          //     if (!partComplete) {
-          //       assignmentComplete = false;
-          //     }
-          //     if (!partMarked) {
-          //       assignmentMarked = false;
-          //     }
-          //     // parts can't be optional, so we always add these
-          //     assignmentPoints += partPoints;
-          //     assignmentMark += partMark;
-          //   }
-          //   if (!assignmentComplete && !newAssignment.optional) {
-          //     unitComplete = false;
-          //   }
-          //   if (assignmentComplete || !newAssignment.optional) {
-          //     unitPoints += assignmentPoints;
-          //     unitMark += assignmentMark;
-          //   }
-          // }
+          let unitComplete = true;
+          let unitMarked = true;
+          let unitPoints = 0;
+          let unitMark = 0;
+          for (const newAssignment of newUnit.newAssignments) {
+            let assignmentComplete = true;
+            let assignmentMarked = true;
+            let assignmentPoints = 0;
+            let assignmentMark = 0;
+            for (const newPart of newAssignment.newParts) {
+              let partComplete = true;
+              let partMarked = true;
+              let partPoints = 0;
+              let partMark = 0;
+              for (const newTextBox of newPart.newTextBoxes) {
+                const textBoxComplete = newTextBox.text.length > 0;
+                if (!textBoxComplete && !newTextBox.optional) {
+                  partComplete = false;
+                }
+                if (textBoxComplete && newTextBox.mark === null && newTextBox.points > 0) {
+                  partMarked = false;
+                }
+                // ignore incomplete, optional inputs
+                if (textBoxComplete || !newTextBox.optional) {
+                  partPoints += newTextBox.points;
+                  partMark += newTextBox.mark ?? 0;
+                }
+              }
+              for (const newUploadSlot of newPart.newUploadSlots) {
+                const uploadSlotComplete = newUploadSlot.filename !== null;
+                if (!uploadSlotComplete && !newUploadSlot.optional) {
+                  partComplete = false;
+                }
+                if (uploadSlotComplete && newUploadSlot.mark === null && newUploadSlot.points > 0) {
+                  partMarked = false;
+                }
+                // ignore incomplete, optional inputs
+                if (uploadSlotComplete || !newUploadSlot.optional) {
+                  partPoints += newUploadSlot.points;
+                  partMark += newUploadSlot.mark ?? 0;
+                }
+              }
+              if (!partComplete) {
+                assignmentComplete = false;
+              }
+              if (partComplete && !partMarked) {
+                assignmentMarked = false;
+              }
+              // parts can't be optional, so we always add these
+              assignmentPoints += partPoints;
+              assignmentMark += partMark;
+            }
+            if (!assignmentComplete && !newAssignment.optional) {
+              unitComplete = false;
+            }
+            if (assignmentComplete && !assignmentMarked) {
+              unitMarked = false;
+            }
+            if (assignmentComplete || !newAssignment.optional) {
+              unitPoints += assignmentPoints;
+              unitMark += assignmentMark;
+            }
+          }
           return {
             unitId: this.uuidService.binToUUID(newUnit.unitId),
             enrollmentId: newUnit.enrollmentId,
@@ -256,15 +260,20 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             description: newUnit.description,
             optional: newUnit.optional,
             order: newUnit.order,
-            complete: newUnit.complete,
             tutorComment: null, // students should never see the tutor comment
             adminComment: newUnit.adminComment,
             submitted: newUnit.submitted,
             skipped: newUnit.skipped,
             transferred: newUnit.transferred,
             marked: newUnit.marked,
-            points: newUnit.points,
-            mark: newUnit.marked ? newUnit.mark : null, // hide the mark unles the unit is marked
+            responseFilename: newUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${newUnit.unitLetter}.mp3`,
+            responseFilesize: newUnit.responseFilesize,
+            // complete: newUnit.complete,
+            // points: newUnit.points,
+            // mark: newUnit.marked ? newUnit.mark : null, // hide the mark unles the unit is marked
+            complete: unitComplete,
+            points: unitPoints,
+            mark: newUnit.marked && unitMarked ? unitMark : null,
             created: newUnit.created,
             modified: newUnit.modified,
           };

@@ -47,7 +47,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
           unitId: this.uuidService.uuidToBin(unitId),
         },
         include: {
-          enrollment: true,
+          enrollment: { include: { course: true } },
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
         },
       });
@@ -56,9 +56,10 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         return Result.fail(new GetNewUnitNotFound());
       }
 
-      // let unitComplete = true;
-      // let unitPoints = 0;
-      // let unitMark = 0;
+      let unitComplete = true;
+      let unitMarked = true;
+      let unitPoints = 0;
+      let unitMark = 0;
 
       return Result.success({
         unitId: this.uuidService.binToUUID(unit.unitId),
@@ -75,9 +76,11 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         skipped: unit.skipped,
         transferred: unit.transferred,
         marked: unit.marked,
-        complete: unit.complete,
-        points: unit.points,
-        mark: unit.marked ? unit.mark : null, // hide the mark unless the unit is marked
+        responseFilename: unit.responseFilename === null ? null : `${unit.enrollment.course.code}${unit.enrollment.enrollmentId} Unit ${unit.unitLetter}.mp3`,
+        responseFilesize: unit.responseFilesize,
+        // complete: unit.complete,
+        // points: unit.points,
+        // mark: unit.marked ? unit.mark : null, // hide the mark unless the unit is marked
         created: unit.created,
         modified: unit.modified,
         enrollment: {
@@ -100,10 +103,10 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
           paymentsDisabled: unit.enrollment.paymentsDisabled,
         },
         newAssignments: unit.newAssignments.map(a => {
-          // let assignmentComplete = true;
-          // let assignmentMarked = false;
-          // let assignmentPoints = 0;
-          // let assignmentMark = 0;
+          let assignmentComplete = true;
+          let assignmentMarked = false;
+          let assignmentPoints = 0;
+          let assignmentMark = 0;
           const assignment = {
             assignmentId: this.uuidService.binToUUID(a.assignmentId),
             unitId: this.uuidService.binToUUID(a.unitId),
@@ -111,16 +114,16 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             title: a.title,
             description: a.description,
             optional: a.optional,
-            complete: a.complete,
-            points: a.points,
-            mark: unit.marked ? a.mark : null, // hide the mark unless the unit is marked
+            // complete: a.complete,
+            // points: a.points,
+            // mark: unit.marked ? a.mark : null, // hide the mark unless the unit is marked
             created: a.created,
             modified: a.modified,
             newParts: a.newParts.map(p => {
-              // let partComplete = true;
-              // let partMarked = true;
-              // let partPoints = 0;
-              // let partMark = 0;
+              let partComplete = true;
+              let partMarked = true;
+              let partPoints = 0;
+              let partMark = 0;
               const part = {
                 partId: this.uuidService.binToUUID(p.partId),
                 assignmentId: this.uuidService.binToUUID(p.assignmentId),
@@ -128,101 +131,106 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 title: p.title,
                 description: p.description,
                 descriptionType: p.descriptionType,
-                complete: p.complete,
-                points: p.points,
-                mark: unit.marked ? p.mark : null, // hide the mark unless the unit is marked
+                // complete: p.complete,
+                // points: p.points,
+                // mark: unit.marked ? p.mark : null, // hide the mark unless the unit is marked
                 created: p.created,
                 modified: p.modified,
                 newTextBoxes: p.newTextBoxes.map(t => {
-                  // const textBoxComplete = t.text.length > 0;
-                  // if (!t.optional && !textBoxComplete) {
-                  //   partComplete = false;
-                  // }
-                  // if (textBoxComplete && t.mark === null) {
-                  //   partMarked = false;
-                  // }
-                  // // ignore incomplete, optional inputs
-                  // if (textBoxComplete || !t.optional) {
-                  //   partPoints += t.points;
-                  //   partMark += t.mark ?? 0;
-                  // }
+                  const textBoxComplete = t.text.length > 0;
+                  if (!t.optional && !textBoxComplete) {
+                    partComplete = false;
+                  }
+                  if (textBoxComplete && t.mark === null && t.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (textBoxComplete || !t.optional) {
+                    partPoints += t.points;
+                    partMark += t.mark ?? 0;
+                  }
                   return {
                     textBoxId: this.uuidService.binToUUID(t.textBoxId),
                     partId: this.uuidService.binToUUID(t.partId),
                     description: t.description,
                     lines: t.lines,
-                    points: t.points,
-                    mark: t.mark,
                     optional: t.optional,
                     order: t.order,
                     text: t.text,
-                    // complete: textBoxComplete,
-                    complete: t.complete,
+                    complete: textBoxComplete,
+                    points: t.points,
+                    mark: t.mark,
+                    // complete: t.complete,
                     created: t.created,
                     modified: t.modified,
                   };
                 }),
                 newUploadSlots: p.newUploadSlots.map(u => {
-                  // const uploadSlotComplete = u.filename !== null;
-                  // if (!u.optional && !uploadSlotComplete) {
-                  //   partComplete = false;
-                  // }
-                  // if (uploadSlotComplete && u.mark === null) {
-                  //   partMarked = false;
-                  // }
-                  // // ignore incomplete, optional inputs
-                  // if (uploadSlotComplete || !u.optional) {
-                  //   partPoints += u.points;
-                  //   partMark += u.mark ?? 0;
-                  // }
+                  const uploadSlotComplete = u.filename !== null;
+                  if (!u.optional && !uploadSlotComplete) {
+                    partComplete = false;
+                  }
+                  if (uploadSlotComplete && u.mark === null && u.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (uploadSlotComplete || !u.optional) {
+                    partPoints += u.points;
+                    partMark += u.mark ?? 0;
+                  }
                   return {
                     uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
                     partId: this.uuidService.binToUUID(u.partId),
                     label: u.label,
                     allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
-                    points: u.points,
-                    mark: u.mark,
                     optional: u.optional,
                     order: u.order,
                     filename: u.filename,
-                    size: u.size,
+                    filesize: u.filesize,
                     mimeTypeId: u.mimeTypeId,
-                    // complete: uploadSlotComplete,
-                    complete: u.complete,
+                    complete: uploadSlotComplete,
+                    points: u.points,
+                    mark: u.mark,
+                    // complete: u.complete,
                     created: u.created,
                     modified: u.modified,
                   };
                 }),
-                // complete: partComplete,
+                complete: partComplete,
+                points: partPoints,
+                mark: unit.marked && partMark,
               };
-              // if (!partComplete) {
-              //   assignmentComplete = false;
-              // }
-              // if (!partMarked) {
-              //   assignmentMarked = false;
-              // }
-              // // parts can't be optional, so we always add these
-              // assignmentPoints += partPoints;
-              // assignmentMark += partMark;
+              if (!partComplete) {
+                assignmentComplete = false;
+              }
+              if (partComplete && !partMarked) {
+                assignmentMarked = false;
+              }
+              // parts can't be optional, so we always add these
+              assignmentPoints += partPoints;
+              assignmentMark += partMark;
               return part;
             }),
-            // complete: assignmentComplete,
-            // points: assignmentPoints,
-            // mark: unit.marked && assignmentMarked ? assignmentMark : null,
+            complete: assignmentComplete,
+            points: assignmentPoints,
+            mark: unit.marked && assignmentMarked ? assignmentMark : null,
           };
-          // if (!a.optional && !assignmentComplete) {
-          //   unitComplete = false;
-          // }
-          // // ignore incomplete, optional assignments
-          // if (assignmentComplete || !a.optional) {
-          //   unitPoints += assignmentPoints;
-          //   unitMark += assignmentMark;
-          // }
+          if (!a.optional && !assignmentComplete) {
+            unitComplete = false;
+          }
+          // ignore incomplete, optional assignments
+          if (assignmentComplete || !a.optional) {
+            unitPoints += assignmentPoints;
+            unitMark += assignmentMark;
+          }
+          if (assignmentComplete && !assignmentMarked) {
+            unitMarked = false;
+          }
           return assignment;
         }),
-        // complete: unitComplete,
-        // points: unitPoints,
-        // mark: unit.marked ? unitMark : null,
+        complete: unitComplete,
+        points: unitPoints,
+        mark: unit.marked && unitMarked ? unitMark : null,
       });
 
     } catch (err) {

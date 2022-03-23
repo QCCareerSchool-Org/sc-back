@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 
-import { OCCConflict } from '../../attemptOCCTransaction';
 import { uploadNewUploadSlotInteractor } from '../../interactors/students';
 import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor';
 import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSkipped, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor';
@@ -113,8 +112,6 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
         return this.internalServerError('Can\'t save file');
       case UploadNewUploadSlotSaveError:
         return this.internalServerError('Can\'t save file');
-      case OCCConflict:
-        return this.conflict('Entity conflict');
       default:
         return this.internalServerError(result.error.message);
     }

@@ -14,7 +14,7 @@ export type SkipNewUnitRequestDTO = {
   unitId: string;
 };
 
-export type SkipNewUnitResponseDTO = NewUnitDTO;
+export type SkipNewUnitResponseDTO = Omit<NewUnitDTO, 'complete' | 'points' | 'mark'>;
 
 export class SkipNewUnitNotFound extends Error { }
 export class SkipNewUnitEnrollmentOnHold extends Error { }
@@ -67,6 +67,7 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
           tutorId: unit.enrollment.tutorId,
         },
         where: { unitId: unitIdBin },
+        include: { enrollment: { include: { course: true } } },
       });
 
       return Result.success({
@@ -78,15 +79,14 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         description: updatedUnit.description,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
-        complete: true,
         tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
         skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
         marked: updatedUnit.marked,
-        points: 0, // we're not going to calculate this
-        mark: null, // we're not going to calculate this
+        responseFilename: updatedUnit.responseFilename === null ? null : `${updatedUnit.enrollment.course.code}${updatedUnit.enrollment.enrollmentId} Unit ${updatedUnit.unitLetter}.mp3`,
+        responseFilesize: updatedUnit.responseFilesize,
         created: updatedUnit.created,
         modified: updatedUnit.modified,
       });

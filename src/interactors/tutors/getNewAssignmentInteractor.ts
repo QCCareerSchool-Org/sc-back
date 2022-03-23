@@ -22,7 +22,7 @@ export type GetNewAssignmentRequestDTO = {
 };
 
 export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
-  newUnit: NewUnitDTO;
+  newUnit: Omit<NewUnitDTO, 'complete' | 'points' | 'mark'>;
   newAssignmentMedia: NewAssignmentMediumDTO[];
   newParts: Array<NewPartDTO & {
     newTextBoxes: NewTextBoxDTO[];
@@ -44,7 +44,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
   public async execute({ tutorId, studentId, unitId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
     try {
-      const assignment = await this.prisma.newAssignment.findFirst({
+      const newAssignment = await this.prisma.newAssignment.findFirst({
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
           newUnit: {
@@ -66,70 +66,88 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         },
       });
 
-      if (!assignment) {
+      if (!newAssignment) {
         return Result.fail(new GetNewAssignmentNotFound());
       }
 
-      if (assignment.newUnit.tutorId !== tutorId && assignment.newUnit.enrollment.tutorId !== tutorId) {
+      if (newAssignment.newUnit.tutorId !== tutorId && newAssignment.newUnit.enrollment.tutorId !== tutorId) {
         return Result.fail(new GetNewAssignmentWrongTutor());
       }
 
-      // let assignmentComplete = true;
-      // let assignmentMarked = true;
-      // let assignmentPoints = 0;
-      // let assignmentMark = 0;
+      let assignmentComplete = true;
+      let assignmentMarked = true;
+      let assignmentPoints = 0;
+      let assignmentMark = 0;
 
       return Result.success({
-        assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
-        unitId: this.uuidService.binToUUID(assignment.unitId),
-        assignmentNumber: assignment.assignmentNumber,
-        title: assignment.title,
-        description: assignment.description,
-        optional: assignment.optional,
-        complete: assignment.complete,
-        points: assignment.points,
-        mark: assignment.mark,
-        created: assignment.created,
-        modified: assignment.modified,
+        assignmentId: this.uuidService.binToUUID(newAssignment.assignmentId),
+        unitId: this.uuidService.binToUUID(newAssignment.unitId),
+        assignmentNumber: newAssignment.assignmentNumber,
+        title: newAssignment.title,
+        description: newAssignment.description,
+        optional: newAssignment.optional,
+        // complete: assignment.complete,
+        // points: assignment.points,
+        // mark: assignment.mark,
+        created: newAssignment.created,
+        modified: newAssignment.modified,
         newUnit: {
-          unitId: this.uuidService.binToUUID(assignment.newUnit.unitId),
-          enrollmentId: assignment.newUnit.enrollmentId,
-          tutorId: assignment.newUnit.tutorId,
-          unitLetter: assignment.newUnit.unitLetter,
-          title: assignment.newUnit.title,
-          description: assignment.newUnit.description,
-          optional: assignment.newUnit.optional,
-          order: assignment.newUnit.order,
-          tutorComment: assignment.newUnit.tutorComment,
-          adminComment: assignment.newUnit.adminComment,
-          submitted: assignment.newUnit.submitted,
-          skipped: assignment.newUnit.skipped,
-          transferred: assignment.newUnit.transferred,
-          marked: assignment.newUnit.marked,
-          complete: assignment.newUnit.complete,
-          points: assignment.newUnit.points,
-          mark: assignment.newUnit.mark,
-          created: assignment.newUnit.created,
-          modified: assignment.newUnit.modified,
+          unitId: this.uuidService.binToUUID(newAssignment.newUnit.unitId),
+          enrollmentId: newAssignment.newUnit.enrollmentId,
+          tutorId: newAssignment.newUnit.tutorId,
+          unitLetter: newAssignment.newUnit.unitLetter,
+          title: newAssignment.newUnit.title,
+          description: newAssignment.newUnit.description,
+          optional: newAssignment.newUnit.optional,
+          order: newAssignment.newUnit.order,
+          tutorComment: newAssignment.newUnit.tutorComment,
+          adminComment: newAssignment.newUnit.adminComment,
+          submitted: newAssignment.newUnit.submitted,
+          skipped: newAssignment.newUnit.skipped,
+          transferred: newAssignment.newUnit.transferred,
+          marked: newAssignment.newUnit.marked,
+          responseFilename: newAssignment.newUnit.responseFilename,
+          responseFilesize: newAssignment.newUnit.responseFilesize,
+          created: newAssignment.newUnit.created,
+          modified: newAssignment.newUnit.modified,
+          enrollment: {
+            enrollmentId: newAssignment.newUnit.enrollment.enrollmentId,
+            courseId: newAssignment.newUnit.enrollment.courseId,
+            studentNumber: newAssignment.newUnit.enrollment.studentNumber,
+            tutorId: newAssignment.newUnit.enrollment.tutorId,
+            maxAssignments: newAssignment.newUnit.enrollment.maxAssignments,
+            graduated: newAssignment.newUnit.enrollment.graduated,
+            assignmentsDisabled: newAssignment.newUnit.enrollment.assignmentsDisabled,
+            quizzesDisabled: newAssignment.newUnit.enrollment.quizzesDisabled,
+            onHold: newAssignment.newUnit.enrollment.onHold,
+            holdReason: newAssignment.newUnit.enrollment.holdReason,
+            currencyCode: newAssignment.newUnit.enrollment.currencyCode,
+            courseCost: newAssignment.newUnit.enrollment.courseCost.toNumber(),
+            amountPaid: newAssignment.newUnit.enrollment.amountPaid.toNumber(),
+            monthlyInstallment: newAssignment.newUnit.enrollment.monthlyInstallment === null ? null : newAssignment.newUnit.enrollment.monthlyInstallment.toNumber(),
+            enrollmentDate: newAssignment.newUnit.enrollment.enrollmentDate,
+            fastTrack: newAssignment.newUnit.enrollment.fastTrack,
+            paymentsDisabled: newAssignment.newUnit.enrollment.paymentsDisabled,
+          },
         },
-        newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
+        newAssignmentMedia: newAssignment.newAssignmentMedia.map(m => ({
           assignmentMediumId: this.uuidService.binToUUID(m.newAssignmentMedium.assignmentMediumId),
           assignmentTemplateId: m.newAssignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(m.newAssignmentMedium.assignmentTemplateId),
           mimeTypeId: m.newAssignmentMedium.mimeTypeId,
           type: m.newAssignmentMedium.type,
           filename: m.newAssignmentMedium.filename,
+          filesize: m.newAssignmentMedium.filesize,
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
-          size: m.newAssignmentMedium.size,
           order: m.order, // from the join table
           created: m.newAssignmentMedium.created,
           modified: m.newAssignmentMedium.modified,
         })),
-        newParts: assignment.newParts.map(p => {
-          // let partComplete = true;
-          // let partMarked = true;
-          // let partPoints = 0;
-          // let partMark = 0;
+        newParts: newAssignment.newParts.map(p => {
+          let partComplete = true;
+          let partMarked = true;
+          let partPoints = 0;
+          let partMark = 0;
           const part = {
             partId: this.uuidService.binToUUID(p.partId),
             assignmentId: this.uuidService.binToUUID(p.assignmentId),
@@ -137,24 +155,24 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             title: p.title,
             description: p.description,
             descriptionType: p.descriptionType,
-            complete: p.complete,
-            points: p.points,
-            mark: p.mark,
+            // complete: p.complete,
+            // points: p.points,
+            // mark: p.mark,
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
-              // const textBoxComplete = t.text.length > 0;
-              // if (!textBoxComplete && !t.optional) {
-              //   partComplete = false;
-              // }
-              // if (textBoxComplete && t.mark === null) {
-              //   partMarked = false;
-              // }
-              // // ignore incomplete, optional inputs
-              // if (textBoxComplete || !t.optional) {
-              //   partPoints += t.points;
-              //   partMark += t.mark ?? 0;
-              // }
+              const textBoxComplete = t.text.length > 0;
+              if (!textBoxComplete && !t.optional) {
+                partComplete = false;
+              }
+              if (textBoxComplete && t.mark === null && t.points > 0) {
+                partMarked = false;
+              }
+              // ignore incomplete, optional inputs
+              if (textBoxComplete || !t.optional) {
+                partPoints += t.points;
+                partMark += t.mark ?? 0;
+              }
               return {
                 textBoxId: this.uuidService.binToUUID(t.textBoxId),
                 partId: this.uuidService.binToUUID(t.partId),
@@ -163,7 +181,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
-                complete: t.complete,
+                complete: t.text.length > 0,
                 points: t.points,
                 mark: t.mark,
                 created: t.created,
@@ -171,18 +189,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
-              // const uploadSlotComplete = u.filename !== null;
-              // if (!uploadSlotComplete && !u.optional) {
-              //   partComplete = false;
-              // }
-              // if (uploadSlotComplete && u.mark === null) {
-              //   partMarked = false;
-              // }
-              // // ignore incomplete, optional inputs
-              // if (uploadSlotComplete || !u.optional) {
-              //   partPoints += u.points;
-              //   partMark += u.mark ?? 0;
-              // }
+              const uploadSlotComplete = u.filename !== null;
+              if (!uploadSlotComplete && !u.optional) {
+                partComplete = false;
+              }
+              if (uploadSlotComplete && u.mark === null && u.points > 0) {
+                partMarked = false;
+              }
+              // ignore incomplete, optional inputs
+              if (uploadSlotComplete || !u.optional) {
+                partPoints += u.points;
+                partMark += u.mark ?? 0;
+              }
               return {
                 uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
                 partId: this.uuidService.binToUUID(u.partId),
@@ -193,9 +211,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,
-                size: u.size,
+                filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
-                complete: u.complete,
+                complete: u.filename !== null,
                 created: u.created,
                 modified: u.modified,
               };
@@ -206,29 +224,31 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               mimeTypeId: m.newPartMedium.mimeTypeId,
               type: m.newPartMedium.type,
               filename: m.newPartMedium.filename,
+              filesize: m.newPartMedium.filesize,
               caption: m.newPartMedium.caption,
               externalData: m.newPartMedium.externalData,
-              size: m.newPartMedium.size,
               order: m.order, // from the join table
               created: m.newPartMedium.created,
               modified: m.newPartMedium.modified,
             })),
-            // complete: assignment.newUnit.submitted ? partComplete : false, // hide the completion status if the unit is not submitted
+            complete: partComplete,
+            points: partPoints,
+            mark: partMarked ? partMark : null,
           };
-          // if (!partComplete) {
-          //   assignmentComplete = false;
-          // }
-          // if (!partMarked) {
-          //   assignmentMarked = false;
-          // }
-          // // parts can't be optional, so we always add these
-          // assignmentPoints += partPoints;
-          // assignmentMark += partMark;
+          if (!partComplete) {
+            assignmentComplete = false;
+          }
+          if (!partMarked) {
+            assignmentMarked = false;
+          }
+          // parts can't be optional, so we always add these
+          assignmentPoints += partPoints;
+          assignmentMark += partMark;
           return part;
         }),
-        // complete: assignment.newUnit.submitted ? assignmentComplete : false, // hide the completion status if the unit is not submitted
-        // points: assignmentPoints,
-        // mark: assignment.newUnit.submitted && assignmentMarked ? assignmentMark : null,
+        complete: assignmentComplete,
+        points: assignmentPoints,
+        mark: assignmentMarked ? assignmentMark : null,
       });
 
     } catch (err) {

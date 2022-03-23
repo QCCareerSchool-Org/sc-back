@@ -147,7 +147,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
               let assignmentComplete = true;
               let assignmentMarked = true;
               let assignmentPoints = 0;
-              let assignmentMark = 0;
+              const assignmentMark = 0;
               const assignment = {
                 assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                 assignmentNumber: newAssignmentTemplate.assignmentNumber,
@@ -220,7 +220,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                       assignmentMarked = false;
                     }
                     assignmentPoints += partPoints;
-                    assignmentMark += partMark;
                     return part;
                   }),
                 },
@@ -250,9 +249,9 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
               return assignment;
             }),
           },
-          complete: unitComplete,
-          points: unitPoints,
-          mark: unitMarked ? unitMark : null,
+          // complete: unitComplete,
+          // points: unitPoints,
+          // mark: unitMarked ? unitMark : null,
         },
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });
@@ -272,9 +271,14 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         skipped: nextUnit.skipped,
         transferred: nextUnit.transferred,
         marked: nextUnit.marked,
-        complete: nextUnit.complete,
-        points: nextUnit.points,
-        mark: nextUnit.marked ? nextUnit.mark : null,
+        responseFilename: nextUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${nextUnit.unitLetter}.mp3`,
+        responseFilesize: nextUnit.responseFilesize,
+        // complete: nextUnit.complete,
+        // points: nextUnit.points,
+        // mark: nextUnit.marked ? nextUnit.mark : null,
+        complete: unitComplete,
+        points: unitPoints,
+        mark: nextUnit.marked && unitMarked ? unitMark : null,
         created: nextUnit.created,
         modified: nextUnit.modified,
       });

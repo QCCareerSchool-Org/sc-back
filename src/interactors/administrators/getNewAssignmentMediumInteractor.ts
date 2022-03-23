@@ -19,7 +19,7 @@ export type GetNewAssignmentMediumRequestDTO = {
 
 export type GetNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO & {
   newAssignmentTemplate: NewAssignmentTemplateDTO | null;
-  newAssignments: NewAssignmentDTO[];
+  newAssignments: Omit<NewAssignmentDTO, 'complete' | 'points' | 'mark'>[];
 };
 
 export class GetNewAssignmentMediumNotFound extends Error { }
@@ -57,8 +57,8 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         mimeTypeId: assignmentMedium.mimeTypeId,
         type: assignmentMedium.type,
         filename: assignmentMedium.filename,
+        filesize: assignmentMedium.filesize,
         caption: assignmentMedium.caption,
-        size: assignmentMedium.size,
         order: assignmentMedium.order,
         externalData: assignmentMedium.externalData,
         created: assignmentMedium.created,
@@ -80,9 +80,6 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
           title: a.newAssignment.title,
           description: a.newAssignment.description,
           optional: a.newAssignment.optional,
-          complete: a.newAssignment.complete,
-          points: a.newAssignment.points,
-          mark: a.newAssignment.mark,
           created: a.newAssignment.created,
           modified: a.newAssignment.modified,
         })),

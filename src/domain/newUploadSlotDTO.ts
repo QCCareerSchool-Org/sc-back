@@ -12,7 +12,7 @@ export type NewUploadSlotDTO = {
   optional: boolean;
   order: number;
   filename: string | null;
-  size: number | null;
+  filesize: number | null;
   mimeTypeId: string | null;
   complete: boolean;
   created: Date;

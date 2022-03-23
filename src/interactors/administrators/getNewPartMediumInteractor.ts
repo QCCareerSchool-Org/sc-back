@@ -20,7 +20,7 @@ export type GetNewPartMediumRequestDTO = {
 
 export type GetNewPartMediumResponseDTO = NewPartMediumDTO & {
   newPartTemplate: NewPartTemplateDTO | null;
-  newParts: NewPartDTO[];
+  newParts: Omit<NewPartDTO, 'complete' | 'points' | 'mark'>[];
 };
 
 export class GetNewPartMediumNotFound extends Error { }
@@ -59,8 +59,8 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
         mimeTypeId: partMedium.mimeTypeId,
         type: partMedium.type,
         filename: partMedium.filename,
+        filesize: partMedium.filesize,
         caption: partMedium.caption,
-        size: partMedium.size,
         order: partMedium.order,
         externalData: partMedium.externalData,
         created: partMedium.created,
@@ -82,9 +82,6 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
           title: p.newPart.title,
           description: p.newPart.description,
           descriptionType: p.newPart.descriptionType,
-          complete: p.newPart.complete,
-          points: p.newPart.points,
-          mark: p.newPart.mark,
           created: p.newPart.created,
           modified: p.newPart.modified,
         })),

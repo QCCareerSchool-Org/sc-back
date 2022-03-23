@@ -1261,29 +1261,28 @@ model NewUnitTemplate {
 }
 
 model NewUnit {
-  unitId         Bytes             @id @db.Binary(16) @map("unit_id")
-  enrollmentId   Int               @db.UnsignedInt @map("student_id")
-  tutorId        Int?              @db.Int @map("tutor_id")
-  unitLetter     String            @db.Char(1) @map("unit_letter")
-  title          String?
-  description    String?           @db.Text
-  optional       Boolean           @default(false)
-  order          Int               @db.TinyInt @default(0)
-  tutorComment   String?           @db.MediumText @map("tutor_comment")
-  adminComment   String?           @db.MediumText @map("admin_comment")
-  submitted      DateTime?         @db.DateTime(0)
-  skipped        DateTime?         @db.DateTime(0)
-  transferred    DateTime?         @db.DateTime(0)
-  marked         DateTime?         @db.DateTime(0)
-  complete       Boolean           @default(false)
-  points         Int               @default(0)
-  mark           Int?
-  entityVersion  Int               @default(0) @db.Int @map("entity_version")
-  created        DateTime          @default(now()) @db.DateTime(0)
-  modified       DateTime?         @db.DateTime(0) @updatedAt
-  enrollment     Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
-  tutor          Tutor?            @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
-  newAssignments NewAssignment[]
+  unitId           Bytes           @id @db.Binary(16) @map("unit_id")
+  enrollmentId     Int             @db.UnsignedInt @map("student_id")
+  tutorId          Int?            @db.Int @map("tutor_id")
+  unitLetter       String          @db.Char(1) @map("unit_letter")
+  title            String?
+  description      String?         @db.Text
+  optional         Boolean         @default(false)
+  order            Int             @db.TinyInt @default(0)
+  tutorComment     String?         @db.MediumText @map("tutor_comment")
+  adminComment     String?         @db.MediumText @map("admin_comment")
+  submitted        DateTime?       @db.DateTime(0)
+  skipped          DateTime?       @db.DateTime(0)
+  transferred      DateTime?       @db.DateTime(0)
+  marked           DateTime?       @db.DateTime(0)
+  responseFilename String?         @db.VarChar(255) @map("response_filename")
+  responseFilesize Int?            @db.UnsignedInt @map("response_filesize")
+  entityVersion    Int             @default(0) @db.Int @map("entity_version")
+  created          DateTime        @default(now()) @db.DateTime(0)
+  modified         DateTime?       @db.DateTime(0) @updatedAt
+  enrollment       Enrollment      @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
+  tutor            Tutor?          @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
+  newAssignments   NewAssignment[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
@@ -1314,9 +1313,9 @@ model NewAssignment {
   title              String?
   description        String?                              @db.Text
   optional           Boolean                              @default(false)
-  complete           Boolean                              @default(false)
-  points             Int                                  @default(0)
-  mark               Int?
+  // complete           Boolean                              @default(false)
+  // points             Int                                  @default(0)
+  // mark               Int?
   created            DateTime                             @default(now()) @db.DateTime(0)
   modified           DateTime?                            @db.DateTime(0) @updatedAt
   newUnit            NewUnit                              @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1", onDelete: Cascade)
@@ -1330,12 +1329,12 @@ model NewAssignment {
 model NewAssignmentMedium {
   assignmentMediumId    Bytes                                @id @db.Binary(16) @map("assignment_medium_id")
   assignmentTemplateId  Bytes?                               @db.Binary(16) @map("assignment_template_id")
-  mimeTypeId            String                               @db.VarChar(255) @map("mime_type")
+  mimeTypeId            String                               @db.VarChar(255) @map("mime_type_id")
   type                  NewMediaType                         @default(image)
-  filename              String                               @db.VarChar(4095)
+  filename              String                               @db.VarChar(255)
+  filesize              Int                                  @db.UnsignedInt
   caption               String                               @db.VarChar(191)
   externalData          String?                              @db.VarChar(1024) @map("external_data")
-  size                  Int                                  @db.Int
   order                 Int                                  @db.TinyInt @default(0)
   created               DateTime                             @default(now()) @db.DateTime(0)
   modified              DateTime?                            @db.DateTime(0) @updatedAt
@@ -1385,9 +1384,6 @@ model NewPart {
   title           String
   description     String?                  @db.Text
   descriptionType NewDescriptionType       @default(text) @map("description_type")
-  complete        Boolean                  @default(false)
-  points          Int                      @default(0)
-  mark            Int?
   created         DateTime                 @default(now()) @db.DateTime(0)
   modified        DateTime?                @db.DateTime(0) @updatedAt
   newAssignment   NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
@@ -1402,12 +1398,12 @@ model NewPart {
 model NewPartMedium {
   partMediumId    Bytes                    @id @db.Binary(16) @map("part_medium_id")
   partTemplateId  Bytes?                   @db.Binary(16) @map("part_template_id")
-  mimeTypeId      String                   @db.VarChar(255) @map("mime_type")
+  mimeTypeId      String                   @db.VarChar(255) @map("mime_type_id")
   type            NewMediaType             @default(image)
-  filename        String                   @db.VarChar(4095)
+  filename        String                   @db.VarChar(255)
+  filesize        Int                      @db.UnsignedInt
   caption         String                   @db.VarChar(191)
   externalData    String?                  @db.VarChar(1024) @map("external_data")
-  size            Int                      @db.Int
   order           Int                      @db.TinyInt @default(0)
   created         DateTime                 @default(now()) @db.DateTime(0)
   modified        DateTime?                @db.DateTime(0) @updatedAt
@@ -1456,7 +1452,6 @@ model NewTextBox {
   optional    Boolean   @default(false)
   order       Int       @db.TinyInt @default(0)
   text        String    @db.Text @default("")
-  complete    Boolean   @default(false)
   points      Int       @default(0) @db.Int
   mark        Int?      @db.Int
   created     DateTime  @default(now()) @db.DateTime(0)
@@ -1490,10 +1485,9 @@ model NewUploadSlot {
   allowedTypes String    @default("image") @map("allowed_types")
   optional     Boolean   @default(false)
   order        Int       @db.TinyInt @default(0)
-  filename     String?
-  size         Int?      @db.UnsignedInt
+  filename     String?   @db.VarChar(1024)
+  filesize     Int?      @db.UnsignedInt
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
-  complete     Boolean   @default(false)
   points       Int       @default(0) @db.Int
   mark         Int?      @db.Int
   compressed   Boolean   @default(false)

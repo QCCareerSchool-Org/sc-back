@@ -65,10 +65,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentNotFound());
       }
 
-      // let assignmentComplete = true;
-      // let assignmentMarked = true;
-      // let assignmentPoints = 0;
-      // let assignmentMark = 0;
+      let assignmentComplete = true;
+      let assignmentMarked = true;
+      let assignmentPoints = 0;
+      let assignmentMark = 0;
 
       return Result.success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
@@ -77,9 +77,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         title: assignment.title,
         description: assignment.description,
         optional: assignment.optional,
-        complete: assignment.complete,
-        points: assignment.points,
-        mark: assignment.newUnit.marked ? assignment.mark : null, // hide the mark unless the unit is marked
+        // complete: assignment.complete,
+        // points: assignment.points,
+        // mark: assignment.newUnit.marked ? assignment.mark : null, // hide the mark unless the unit is marked
         created: assignment.created,
         modified: assignment.modified,
         newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
@@ -88,18 +88,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           mimeTypeId: m.newAssignmentMedium.mimeTypeId,
           type: m.newAssignmentMedium.type,
           filename: m.newAssignmentMedium.filename,
+          filesize: m.newAssignmentMedium.filesize,
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
-          size: m.newAssignmentMedium.size,
           order: m.order, // from the join table
           created: m.newAssignmentMedium.created,
           modified: m.newAssignmentMedium.modified,
         })),
         newParts: assignment.newParts.map(p => {
-          // let partComplete = true;
-          // let partMarked = true;
-          // let partPoints = 0;
-          // let partMark = 0;
+          let partComplete = true;
+          let partMarked = true;
+          let partPoints = 0;
+          let partMark = 0;
           const part = {
             partId: this.uuidService.binToUUID(p.partId),
             assignmentId: this.uuidService.binToUUID(p.assignmentId),
@@ -107,24 +107,24 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             title: p.title,
             description: p.description,
             descriptionType: p.descriptionType,
-            complete: p.complete,
-            points: p.points,
-            mark: assignment.newUnit.marked ? p.mark : null, // hide the mark unless the unit is marked
+            // complete: p.complete,
+            // points: p.points,
+            // mark: assignment.newUnit.marked ? p.mark : null, // hide the mark unless the unit is marked
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
-              // const textBoxComplete = t.text.length > 0;
-              // if (!textBoxComplete && !t.optional) {
-              //   partComplete = false;
-              // }
-              // if (textBoxComplete && t.mark === null) {
-              //   partMarked = false;
-              // }
-              // // ignore incomplete, optional inputs
-              // if (textBoxComplete || !t.optional) {
-              //   partPoints += t.points;
-              //   partMark += t.mark ?? 0;
-              // }
+              const textBoxComplete = t.text.length > 0;
+              if (!textBoxComplete && !t.optional) {
+                partComplete = false;
+              }
+              if (textBoxComplete && t.mark === null && t.points > 0) {
+                partMarked = false;
+              }
+              // ignore incomplete, optional inputs
+              if (textBoxComplete || !t.optional) {
+                partPoints += t.points;
+                partMark += t.mark ?? 0;
+              }
               return {
                 textBoxId: this.uuidService.binToUUID(t.textBoxId),
                 partId: this.uuidService.binToUUID(t.partId),
@@ -133,8 +133,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
-                // complete: textBoxComplete,
-                complete: t.complete,
+                // complete: t.complete,
+                complete: textBoxComplete,
                 points: t.points,
                 mark: assignment.newUnit.marked ? t.mark : null, // hide the mark unless the unit is marked
                 created: t.created,
@@ -142,18 +142,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
-              // const uploadSlotComplete = u.filename !== null;
-              // if (!uploadSlotComplete && !u.optional) {
-              //   partComplete = false;
-              // }
-              // if (uploadSlotComplete && u.mark === null) {
-              //   partMarked = false;
-              // }
-              // // ignore incomplete, optional inputs
-              // if (uploadSlotComplete || !u.optional) {
-              //   partPoints += u.points;
-              //   partMark += u.mark ?? 0;
-              // }
+              const uploadSlotComplete = u.filename !== null;
+              if (!uploadSlotComplete && !u.optional) {
+                partComplete = false;
+              }
+              if (uploadSlotComplete && u.mark === null && u.points > 0) {
+                partMarked = false;
+              }
+              // ignore incomplete, optional inputs
+              if (uploadSlotComplete || !u.optional) {
+                partPoints += u.points;
+                partMark += u.mark ?? 0;
+              }
               return {
                 uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
                 partId: this.uuidService.binToUUID(u.partId),
@@ -162,10 +162,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,
-                size: u.size,
+                filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
-                // complete: uploadSlotComplete,
-                complete: u.complete,
+                // complete: u.complete,
+                complete: uploadSlotComplete,
                 points: u.points,
                 mark: assignment.newUnit.marked ? u.mark : null, // hide the mark unless the unit is marked
                 created: u.created,
@@ -178,29 +178,31 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               mimeTypeId: m.newPartMedium.mimeTypeId,
               type: m.newPartMedium.type,
               filename: m.newPartMedium.filename,
+              filesize: m.newPartMedium.filesize,
               caption: m.newPartMedium.caption,
               externalData: m.newPartMedium.externalData,
-              size: m.newPartMedium.size,
               order: m.order, // from the join table
               created: m.newPartMedium.created,
               modified: m.newPartMedium.modified,
             })),
-            // complete: partComplete,
+            complete: partComplete,
+            points: partPoints,
+            mark: assignment.newUnit.marked && partMarked ? partMark : null,
           };
-          // if (!partComplete) {
-          //   assignmentComplete = false;
-          // }
-          // if (!partMarked) {
-          //   assignmentMarked = false;
-          // }
-          // // parts can't be optional, so we always add these
-          // assignmentPoints += partPoints;
-          // assignmentMark += partMark;
+          if (!partComplete) {
+            assignmentComplete = false;
+          }
+          if (partComplete && !partMarked) {
+            assignmentMarked = false;
+          }
+          // parts can't be optional, so we always add these
+          assignmentPoints += partPoints;
+          assignmentMark += partMark;
           return part;
         }),
-        // complete: assignmentComplete,
-        // points: assignmentPoints,
-        // mark: assignment.newUnit.marked && assignmentMarked ? assignmentMark : null,
+        complete: assignmentComplete,
+        points: assignmentPoints,
+        mark: assignment.newUnit.marked && assignmentMarked ? assignmentMark : null,
       });
 
     } catch (err) {

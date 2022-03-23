@@ -1,9 +1,9 @@
 import { prisma } from '../../frameworks/prisma';
 import { dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services';
-import { DeleteNewUploadSlotFileInteractor } from './deleteNewUploadSlotFileInteractor';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
 import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor';
+import { EraseNewUploadSlotInteractor } from './eraseNewUploadSlotInteractor';
 import { GetEnrollmentInteractor } from './getEnrollment';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor';
 import { GetNewUnitInteractor } from './getNewUnitInteractor';
@@ -21,7 +21,7 @@ export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma,
 export const getEnrollmentInteractor = new GetEnrollmentInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const saveNewTextBoxTextInteractor = new SaveNewTextBoxTextInteractor(prisma, uuidService, winstonLoggerService);
 export const uploadNewUploadSlotInteractor = new UploadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, environmentConfigService, winstonLoggerService);
-export const deleteNewUploadSlotFileInteractor = new DeleteNewUploadSlotFileInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const eraseNewUploadSlotInteractor = new EraseNewUploadSlotInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
 export const submitNewUnitInteractor = new SubmitNewUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const skipNewUnitInteractor = new SkipNewUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);

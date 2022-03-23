@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { DeleteNewUploadSlotFileController } from '../../controllers/students/deleteNewUploadSlotFileController';
 import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController';
 import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController';
 import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController';
+import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController';
 import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController';
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/students/getNewUnitController';
@@ -86,6 +86,6 @@ studentRouter.put(
 );
 
 studentRouter.delete(
-  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
-  asyncWrapper(async (req, res) => new DeleteNewUploadSlotFileController(req, res).execute()),
+  '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file',
+  asyncWrapper(async (req, res) => new EraseNewUploadSlotController(req, res).execute()),
 );

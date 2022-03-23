@@ -1,9 +1,8 @@
 import * as yup from 'yup';
 
-import { OCCConflict } from '../../attemptOCCTransaction';
-import { deleteNewUploadSlotFileInteractor } from '../../interactors/students';
-import type { DeleteNewUploadSlotFileResponseDTO } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
-import { DeleteNewUploadSlotFileNotFound, DeleteNewUploadSlotFileUnitSkipped, DeleteNewUploadSlotFileUnitSubmitted, DeleteNewUploadSlotFileUnlinkError } from '../../interactors/students/deleteNewUploadSlotFileInteractor';
+import { eraseNewUploadSlotInteractor } from '../../interactors/students';
+import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor';
+import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSkipped, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -23,9 +22,9 @@ type Request = {
   };
 };
 
-type Response = DeleteNewUploadSlotFileResponseDTO;
+type Response = EraseNewUploadSlotResponseDTO;
 
-export class DeleteNewUploadSlotFileController extends BaseController<Request, Response> {
+export class EraseNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -58,23 +57,21 @@ export class DeleteNewUploadSlotFileController extends BaseController<Request, R
     const courseId = parseInt(params.courseId, 10);
     const { unitId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await deleteNewUploadSlotFileInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId });
+    const result = await eraseNewUploadSlotInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case DeleteNewUploadSlotFileNotFound:
+      case EraseNewUploadSlotNotFound:
         return this.notFound('Upload slot not found');
-      case DeleteNewUploadSlotFileUnitSubmitted:
+      case EraseNewUploadSlotUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case DeleteNewUploadSlotFileUnitSkipped:
+      case EraseNewUploadSlotUnitSkipped:
         return this.badRequest('Unit already skipped');
-      case DeleteNewUploadSlotFileUnlinkError:
+      case EraseNewUploadSlotUnlinkError:
         return this.internalServerError('Can\'t delete file');
-      case OCCConflict:
-        return this.conflict('Entity conflict');
       default:
         return this.internalServerError(result.error.message);
     }
