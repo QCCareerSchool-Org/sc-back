@@ -78,6 +78,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         marked: unit.marked,
         responseFilename: unit.responseFilename === null ? null : `${unit.enrollment.course.code}${unit.enrollment.enrollmentId} Unit ${unit.unitLetter}.mp3`,
         responseFilesize: unit.responseFilesize,
+        responseMimeTypeId: unit.responseMimeTypeId,
         // complete: unit.complete,
         // points: unit.points,
         // mark: unit.marked ? unit.mark : null, // hide the mark unless the unit is marked

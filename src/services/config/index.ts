@@ -18,6 +18,7 @@ export type Config = {
     courseBannersPath: string;
     unitResponsesPath: string;
     tutorIntroductionPath: string;
+    unitFeedbackPath: string;
     assignmentMediaPath: string;
     partMediaPath: string;
   };

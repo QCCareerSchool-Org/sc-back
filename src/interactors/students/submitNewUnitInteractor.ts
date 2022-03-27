@@ -104,6 +104,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         marked: updatedUnit.marked,
         responseFilename: updatedUnit.responseFilename === null ? null : `${updatedUnit.enrollment.course.code}${updatedUnit.enrollment.enrollmentId} Unit ${updatedUnit.unitLetter}.mp3`,
         responseFilesize: updatedUnit.responseFilesize,
+        responseMimeTypeId: updatedUnit.responseMimeTypeId,
         created: updatedUnit.created,
         modified: updatedUnit.modified,
       });

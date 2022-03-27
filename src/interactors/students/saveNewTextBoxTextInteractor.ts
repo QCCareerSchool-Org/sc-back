@@ -26,6 +26,7 @@ export type SaveNewTextBoxTextResponseDTO = NewTextBoxDTO;
 export class SaveNewTextBoxTextNotFound extends Error { }
 export class SaveNewTextBoxTextUnitSubmitted extends Error { }
 export class SaveNewTextBoxTextUnitSkipped extends Error { }
+export class SaveNewTextBoxTextTooLong extends Error { }
 
 export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
 
@@ -56,6 +57,12 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
 
       if (newTextBox.newPart.newAssignment.newUnit.skipped) {
         throw new SaveNewTextBoxTextUnitSkipped();
+      }
+
+      const maxLength = 65_535;
+      const length = (new TextEncoder().encode(text).length);
+      if (length > maxLength) {
+        throw new SaveNewTextBoxTextTooLong();
       }
 
       const updatedTextBox = await this.prisma.newTextBox.update({

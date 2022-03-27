@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getNewUnitInteractor } from '../../interactors/tutors';
-import type { GetNewUnitResponseDTO } from '../../interactors/tutors/getNewUnitInteractor';
-import { GetNewUnitNotFound, GetNewUnitNotSubmitted, GetNewUnitWrongTutor } from '../../interactors/tutors/getNewUnitInteractor';
+import { eraseNewUnitFeedbackInteractor } from '../../interactors/tutors';
+import type { EraseNewUnitFeedbackResponseDTO } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
+import { EraseNewUnitFeedbackAlreadyClosed, EraseNewUnitFeedbackFileUnlinkError, EraseNewUnitFeedbackNotFound, EraseNewUnitFeedbackNotSubmitted, EraseNewUnitFeedbackWrongTutor } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -16,9 +16,9 @@ type Request = {
   };
 };
 
-type Response = GetNewUnitResponseDTO;
+type Response = EraseNewUnitFeedbackResponseDTO;
 
-export class GetNewUnitController extends BaseController<Request, Response> {
+export class EraseNewUnitFeedbackController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -40,7 +40,7 @@ export class GetNewUnitController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isGetMethod()) {
+    if (!this.isDeleteMethod()) {
       return this.methodNotAllowed();
     }
 
@@ -48,19 +48,23 @@ export class GetNewUnitController extends BaseController<Request, Response> {
     const studentId = parseInt(params.studentId, 10);
     const { unitId } = params;
 
-    const result = await getNewUnitInteractor.execute({ tutorId, studentId, unitId });
+    const result = await eraseNewUnitFeedbackInteractor.execute({ tutorId, studentId, unitId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitNotFound:
+      case EraseNewUnitFeedbackNotFound:
         return this.notFound('Unit not found');
-      case GetNewUnitNotSubmitted:
+      case EraseNewUnitFeedbackNotSubmitted:
         return this.notFound('Unit not found');
-      case GetNewUnitWrongTutor:
+      case EraseNewUnitFeedbackAlreadyClosed:
+        return this.forbidden('Unit is already closed');
+      case EraseNewUnitFeedbackWrongTutor:
         return this.forbidden('No access to this unit');
+      case EraseNewUnitFeedbackFileUnlinkError:
+        return this.internalServerError('Unable to delete file');
       default:
         return this.internalServerError(result.error.message);
     }

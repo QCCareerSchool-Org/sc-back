@@ -1,5 +1,11 @@
+import { threadId } from 'worker_threads';
 import type { CookieOptions, Request, Response } from 'express';
 import type { InteractorFileStream } from '../interactors';
+
+export type ByteRange = {
+  start: number;
+  end?: number;
+};
 
 export abstract class BaseController<RequestDTO, ResponseDTO> {
 
@@ -37,6 +43,10 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.status(204).end();
   }
 
+  protected partialContent(value: ResponseDTO): void {
+    this.res.status(206).send(value);
+  }
+
   // Redirect responses
 
   protected found(): void {
@@ -67,6 +77,10 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
 
   protected conflict(message?: string): void {
     this.res.status(409).send(message ?? 'Conflict');
+  }
+
+  protected rangeNotSatisfiable(message?: string): void {
+    this.res.status(416).send(message ?? 'Range Not Satisfiable');
   }
 
   // Server error responses
@@ -122,17 +136,23 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
   }
 
   protected sendInteractorFileStream(interactorFileStream: InteractorFileStream): void {
-    const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding } = interactorFileStream;
-    this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
-    if (typeof size !== 'undefined') {
-      this.res.setHeader('Content-Length', size);
-    }
+    const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding, byteRange } = interactorFileStream;
     this.res.setHeader('Content-Type', mimeType);
     if (typeof contentEncoding !== 'undefined') {
       this.res.setHeader('Content-Encoding', contentEncoding);
     }
     this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
+    this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
+    if (typeof byteRange !== 'undefined') {
+      this.res.setHeader('Content-Range', `bytes ${byteRange.start}-${byteRange.end}/${size}`);
+      this.res.setHeader('Accept-Ranges', 'bytes');
+      this.res.setHeader('Content-Length', byteRange.end - byteRange.start + 1);
+      this.res.status(206);
+    } else {
+      this.res.setHeader('Content-Length', size);
+      this.res.status(200);
+    }
     stream.pipe(this.res);
   }
 
@@ -141,6 +161,19 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.setHeader('Content-Type', mimeType);
     this.res.setHeader('Content-Length', size);
     this.res.end(data, 'binary');
+  }
+
+  protected getByteRange(rangeHeader: string): ByteRange | false {
+    const matches = rangeHeader.match(/^bytes=(\d+)-(\d*)$/u);
+    if (matches === null) {
+      return false;
+    }
+    const start = parseInt(matches[1], 10);
+    const end = matches[2] ? parseInt(matches[1], 10) : undefined;
+    if (typeof end !== 'undefined' && end < start) {
+      return false;
+    }
+    return { start, end };
   }
 
   /** Validates the input and returns a DTO if successful, false otherwise */

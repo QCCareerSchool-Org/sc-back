@@ -32,6 +32,7 @@ export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
 };
 
 export class GetNewAssignmentNotFound extends Error { }
+export class GetNewAssignmentUnitNotSubmitted extends Error { }
 export class GetNewAssignmentWrongTutor extends Error { }
 
 export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
@@ -68,6 +69,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
       if (!newAssignment) {
         return Result.fail(new GetNewAssignmentNotFound());
+      }
+
+      if (!newAssignment.newUnit.submitted) {
+        return Result.fail(new GetNewAssignmentUnitNotSubmitted());
       }
 
       if (newAssignment.newUnit.tutorId !== tutorId && newAssignment.newUnit.enrollment.tutorId !== tutorId) {
@@ -108,6 +113,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           marked: newAssignment.newUnit.marked,
           responseFilename: newAssignment.newUnit.responseFilename,
           responseFilesize: newAssignment.newUnit.responseFilesize,
+          responseMimeTypeId: newAssignment.newUnit.responseMimeTypeId,
           created: newAssignment.newUnit.created,
           modified: newAssignment.newUnit.modified,
           enrollment: {

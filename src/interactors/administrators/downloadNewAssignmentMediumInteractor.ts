@@ -16,6 +16,8 @@ export type DownloadNewAssignmentMediumRequestDTO = {
   unitId: string;
   assignmentId: string;
   mediumId: string;
+  startByte?: number;
+  endByte?: number;
 };
 
 export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream | string;
@@ -62,7 +64,32 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
 
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
+        this.logger.error(`Could not find assignment medium file ${filePath}`);
         return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
+      }
+
+      if (typeof request.startByte !== 'undefined') {
+        const start = request.startByte;
+        const end = typeof request.endByte !== 'undefined' && request.endByte < stats.size ? request.endByte : stats.size - 1;
+
+        // read the file
+        let fileStream: ReadStream;
+        try {
+          fileStream = this.fileService.createReadStream(filePath, { start, end });
+        } catch (err) {
+          this.logger.error(`Could not read assignment medium file ${filePath}`, err);
+          throw new DownloadNewAssignmentMediumFileReadError(filePath);
+        }
+
+        return Result.success({
+          stream: fileStream,
+          filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
+          size: stats.size,
+          lastModified: stats.lastModified,
+          mimeType: assignmentMedium.mimeTypeId ?? 'application/octet-stream',
+          maxAge: DownloadNewAssignmentMediumInteractor.maxAge,
+          byteRange: { start, end },
+        });
       }
 
       // read the file
@@ -70,7 +97,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       try {
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
-        this.logger.error('Could not read file', err);
+        this.logger.error(`Could not read assignment medium file ${filePath}`, err);
         return Result.fail(new DownloadNewAssignmentMediumFileReadError(filePath));
       }
 

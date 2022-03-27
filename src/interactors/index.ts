@@ -16,8 +16,9 @@ export type InteractorFileStream = {
   stream: Stream;
   filename: string;
   mimeType: string;
-  size?: number;
+  size: number;
   lastModified: Date;
   maxAge: number;
   contentEncoding?: string;
+  byteRange?: { start: number; end: number };
 };

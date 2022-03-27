@@ -273,6 +273,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         marked: nextUnit.marked,
         responseFilename: nextUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${nextUnit.unitLetter}.mp3`,
         responseFilesize: nextUnit.responseFilesize,
+        responseMimeTypeId: nextUnit.responseMimeTypeId,
         // complete: nextUnit.complete,
         // points: nextUnit.points,
         // mark: nextUnit.marked ? nextUnit.mark : null,

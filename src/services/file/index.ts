@@ -12,6 +12,6 @@ export interface IFileService {
   unlink: (filePath: string) => Promise<void>;
   rename: (source: string, dest: string) => Promise<void>;
   mkdir: (filePath: string) => Promise<void>;
-  createReadStream: (filePath: string) => ReadStream;
+  createReadStream: (filePath: string, range?: { start: number; end: number }) => ReadStream;
   // saveReadStream: (readStream: ReadStream, path: string) => Promise<void>;
 }

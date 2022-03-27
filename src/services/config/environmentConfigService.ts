@@ -63,6 +63,7 @@ export class EnvironmentConfigService implements IConfigService {
         courseBannersPath: process.env.COURSE_BANNERS_PATH ?? basePath + '/course-banners',
         unitResponsesPath: process.env.UNIT_RESPONSES_PATH ?? basePath + '/audio replies',
         tutorIntroductionPath: process.env.TUTOR_INTRODUCTION_PATH ?? basePath + '/tutor introductions',
+        unitFeedbackPath: basePath + '/unit-feedback',
         assignmentMediaPath: basePath + '/course-materials/assignment-media',
         partMediaPath: basePath + '/course-materials/part-media',
       },

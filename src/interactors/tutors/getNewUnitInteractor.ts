@@ -26,6 +26,7 @@ export type GetNewUnitResponseDTO = NewUnitDTO & {
 };
 
 export class GetNewUnitNotFound extends Error { }
+export class GetNewUnitNotSubmitted extends Error { }
 export class GetNewUnitWrongTutor extends Error { }
 
 export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, GetNewUnitResponseDTO> {
@@ -56,6 +57,10 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         return Result.fail(new GetNewUnitNotFound());
       }
 
+      if (!newUnit.submitted) {
+        return Result.fail(new GetNewUnitNotSubmitted());
+      }
+
       if (newUnit.tutorId !== tutorId && newUnit.enrollment.tutorId !== tutorId) {
         return Result.fail(new GetNewUnitWrongTutor());
       }
@@ -82,6 +87,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         marked: newUnit.marked,
         responseFilename: newUnit.responseFilename,
         responseFilesize: newUnit.responseFilesize,
+        responseMimeTypeId: newUnit.responseMimeTypeId,
         // complete: newUnit.complete,
         // points: newUnit.points,
         // mark: newUnit.mark,

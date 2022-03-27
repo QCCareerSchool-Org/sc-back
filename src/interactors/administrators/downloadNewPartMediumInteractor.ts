@@ -17,6 +17,8 @@ export type DownloadNewPartMediumRequestDTO = {
   assignmentId: string;
   partId: string;
   mediumId: string;
+  startByte?: number;
+  endByte?: number;
 };
 
 export type DownloadNewPartMediumResponseDTO = InteractorFileStream | string;
@@ -64,7 +66,32 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
+        this.logger.error(`Could not find part medium file ${filePath}`);
         return Result.fail(new DownloadNewPartMediumFileNotFound(filePath));
+      }
+
+      if (typeof request.startByte !== 'undefined') {
+        const start = request.startByte;
+        const end = typeof request.endByte !== 'undefined' && request.endByte < stats.size ? request.endByte : stats.size - 1;
+
+        // read the file
+        let fileStream: ReadStream;
+        try {
+          fileStream = this.fileService.createReadStream(filePath, { start, end });
+        } catch (err) {
+          this.logger.error(`Could not read part medium file ${filePath}`, err);
+          throw new DownloadNewPartMediumFileReadError(filePath);
+        }
+
+        return Result.success({
+          stream: fileStream,
+          filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
+          size: stats.size,
+          lastModified: stats.lastModified,
+          mimeType: partMedium.mimeTypeId ?? 'application/octet-stream',
+          maxAge: DownloadNewPartMediumInteractor.maxAge,
+          byteRange: { start, end },
+        });
       }
 
       // read the file
@@ -72,7 +99,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
       try {
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
-        this.logger.error('Could not read file', err);
+        this.logger.error(`Could not read part medium file ${filePath}`, err);
         return Result.fail(new DownloadNewPartMediumFileReadError(filePath));
       }
 

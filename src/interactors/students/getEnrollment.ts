@@ -268,6 +268,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             marked: newUnit.marked,
             responseFilename: newUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${newUnit.unitLetter}.mp3`,
             responseFilesize: newUnit.responseFilesize,
+            responseMimeTypeId: newUnit.responseMimeTypeId,
             // complete: newUnit.complete,
             // points: newUnit.points,
             // mark: newUnit.marked ? newUnit.mark : null, // hide the mark unles the unit is marked

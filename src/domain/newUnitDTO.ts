@@ -17,6 +17,7 @@ export type NewUnitDTO = {
   marked: Date | null;
   responseFilename: string | null;
   responseFilesize: number | null;
+  responseMimeTypeId: string | null;
   complete: boolean;
   points: number;
   mark: number | null;

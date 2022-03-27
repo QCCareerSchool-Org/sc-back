@@ -597,6 +597,7 @@ model MimeType {
   images                 Image[]
   materialContents       Material[]            @relation("material_content_mimeTomime_types")
   materialImages         Material[]            @relation("material_image_mimeTomime_types")
+  newUnits               NewUnit[]
   newAssignmentMedia     NewAssignmentMedium[]
   // newAssignmentMediaElements         NewAssignmentMediaElement[]
   newPartMedia           NewPartMedium[]
@@ -1261,28 +1262,30 @@ model NewUnitTemplate {
 }
 
 model NewUnit {
-  unitId           Bytes           @id @db.Binary(16) @map("unit_id")
-  enrollmentId     Int             @db.UnsignedInt @map("student_id")
-  tutorId          Int?            @db.Int @map("tutor_id")
-  unitLetter       String          @db.Char(1) @map("unit_letter")
-  title            String?
-  description      String?         @db.Text
-  optional         Boolean         @default(false)
-  order            Int             @db.TinyInt @default(0)
-  tutorComment     String?         @db.MediumText @map("tutor_comment")
-  adminComment     String?         @db.MediumText @map("admin_comment")
-  submitted        DateTime?       @db.DateTime(0)
-  skipped          DateTime?       @db.DateTime(0)
-  transferred      DateTime?       @db.DateTime(0)
-  marked           DateTime?       @db.DateTime(0)
-  responseFilename String?         @db.VarChar(255) @map("response_filename")
-  responseFilesize Int?            @db.UnsignedInt @map("response_filesize")
-  entityVersion    Int             @default(0) @db.Int @map("entity_version")
-  created          DateTime        @default(now()) @db.DateTime(0)
-  modified         DateTime?       @db.DateTime(0) @updatedAt
-  enrollment       Enrollment      @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
-  tutor            Tutor?          @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
-  newAssignments   NewAssignment[]
+  unitId             Bytes           @id @db.Binary(16) @map("unit_id")
+  enrollmentId       Int             @db.UnsignedInt @map("student_id")
+  tutorId            Int?            @db.Int @map("tutor_id")
+  unitLetter         String          @db.Char(1) @map("unit_letter")
+  title              String?
+  description        String?         @db.Text
+  optional           Boolean         @default(false)
+  order              Int             @db.TinyInt @default(0)
+  tutorComment       String?         @db.MediumText @map("tutor_comment")
+  adminComment       String?         @db.MediumText @map("admin_comment")
+  submitted          DateTime?       @db.DateTime(0)
+  skipped            DateTime?       @db.DateTime(0)
+  transferred        DateTime?       @db.DateTime(0)
+  marked             DateTime?       @db.DateTime(0)
+  responseFilename   String?         @db.VarChar(255) @map("response_filename")
+  responseFilesize   Int?            @db.UnsignedInt @map("response_filesize")
+  responseMimeTypeId String?         @db.VarChar(255) @map("response_mime_type_id")
+  entityVersion      Int             @default(0) @db.Int @map("entity_version")
+  created            DateTime        @default(now()) @db.DateTime(0)
+  modified           DateTime?       @db.DateTime(0) @updatedAt
+  enrollment         Enrollment      @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
+  tutor              Tutor?          @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
+  responseMimeType   MimeType?       @relation(fields: [responseMimeTypeId], references: [mimeTypeId], map: "new_units_ibfk_3")
+  newAssignments     NewAssignment[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")

@@ -43,8 +43,8 @@ export class NodeFileService implements IFileService {
     return fs.promises.mkdir(filePath);
   }
 
-  public createReadStream(filePath: string): ReadStream {
-    return fs.createReadStream(filePath);
+  public createReadStream(filePath: string, range?: { start: number; end: number }): ReadStream {
+    return fs.createReadStream(filePath, range);
   }
 
   // public saveReadStream(readStream: ReadStream, path: string): Promise<void> {
