@@ -17,6 +17,8 @@ export type DownloadNewPartMediumRequestDTO = {
   assignmentId: string;
   partId: string;
   mediumId: string;
+  startByte?: number;
+  endByte?: number;
 };
 
 export type DownloadNewPartMediumResponseDTO = InteractorFileStream | string;
@@ -39,7 +41,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
   public async execute(request: DownloadNewPartMediumRequestDTO): Promise<ResultType<DownloadNewPartMediumResponseDTO>> {
     try {
-      const { studentId, courseId } = request;
+      const { studentId, courseId, startByte, endByte } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
       const partIdBin = this.uuidService.uuidToBin(request.partId);
@@ -84,12 +86,36 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
         return Result.fail(new DownloadNewPartMediumFileNotFound(filePath));
       }
 
+      if (typeof startByte !== 'undefined') {
+        const start = startByte;
+        const end = typeof endByte !== 'undefined' && endByte < stats.size ? endByte : stats.size - 1;
+
+        // read the file
+        let fileStream: ReadStream;
+        try {
+          fileStream = this.fileService.createReadStream(filePath, { start, end });
+        } catch (err) {
+          this.logger.error(`Could not read file ${filePath}`, err);
+          throw new DownloadNewPartMediumFileReadError(filePath);
+        }
+
+        return Result.success({
+          stream: fileStream,
+          filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
+          size: stats.size,
+          lastModified: stats.lastModified,
+          mimeType: partMedium.mimeTypeId ?? 'application/octet-stream',
+          maxAge: DownloadNewPartMediumInteractor.maxAge,
+          byteRange: { start, end },
+        });
+      }
+
       // read the file
       let fileStream: ReadStream;
       try {
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
-        this.logger.error('Could not read file', err);
+        this.logger.error(`Could not read file ${filePath}`, err);
         return Result.fail(new DownloadNewPartMediumFileReadError(filePath));
       }
 

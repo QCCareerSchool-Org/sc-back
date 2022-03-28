@@ -2,9 +2,13 @@ import * as yup from 'yup';
 
 import { downloadNewUploadSlotInteractor } from '../../interactors/students';
 import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/students/downloadNewUploadSlotInteractor';
+import type { ByteRange } from '../baseController';
 import { BaseController } from '../baseController';
 
 type Request = {
+  headers: {
+    range?: string;
+  };
   params: {
     /** numeric string */
     studentId: string;
@@ -26,6 +30,9 @@ type Response = void;
 export class DownloadNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
+    const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
+      range: yup.string(),
+    });
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
@@ -35,8 +42,11 @@ export class DownloadNewUploadSlotController extends BaseController<Request, Res
       uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
-      const params = await paramsSchema.validate(this.req.params);
-      return { params };
+      const [ headers, params ] = await Promise.all([
+        headersSchema.validate(this.req.headers),
+        paramsSchema.validate(this.req.params),
+      ]);
+      return { headers, params };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -47,9 +57,17 @@ export class DownloadNewUploadSlotController extends BaseController<Request, Res
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl({ headers, params }: Request): Promise<void> {
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
+    }
+
+    let byteRange: ByteRange | false | undefined;
+    if (headers.range?.startsWith('bytes=')) {
+      byteRange = this.getByteRange(headers.range);
+    }
+    if (byteRange === false) {
+      return this.rangeNotSatisfiable();
     }
 
     const studentId = parseInt(params.studentId, 10);
@@ -63,6 +81,8 @@ export class DownloadNewUploadSlotController extends BaseController<Request, Res
       assignmentId,
       partId,
       uploadSlotId,
+      startByte: byteRange?.start,
+      endByte: byteRange?.end,
     });
 
     if (result.success) {

@@ -2,7 +2,6 @@ import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFileStream } from '..';
-import type { ICompressionService } from '../../services/compression';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -22,6 +21,8 @@ export type DownloadNewUploadSlotRequestDTO = {
   partId: string;
   /** uuid */
   uploadSlotId: string;
+  startByte?: number;
+  endByte?: number;
 };
 
 export type DownloadNewUploadSlotResponseDTO = InteractorFileStream;
@@ -42,12 +43,13 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId }: DownloadNewUploadSlotRequestDTO): Promise<ResultType<DownloadNewUploadSlotResponseDTO>> {
+  public async execute(request: DownloadNewUploadSlotRequestDTO): Promise<ResultType<DownloadNewUploadSlotResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(partId);
-      const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
+      const { studentId, courseId, startByte, endByte } = request;
+      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
+      const partIdBin = this.uuidService.uuidToBin(request.partId);
+      const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
 
       const uploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: {
@@ -80,12 +82,37 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         return Result.fail(new DownloadNewUploadSlotFileNotFound(filePath));
       }
 
+      if (typeof startByte !== 'undefined') {
+        const start = startByte;
+        const end = typeof endByte !== 'undefined' && endByte < stats.size ? endByte : stats.size - 1;
+
+        // read the file
+        let fileStream: ReadStream;
+        try {
+          fileStream = this.fileService.createReadStream(filePath, { start, end });
+        } catch (err) {
+          this.logger.error(`Could not read file ${filePath}`, err);
+          throw new DownloadNewUploadSlotFileReadError(filePath);
+        }
+
+        return Result.success({
+          stream: fileStream,
+          filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
+          size: stats.size,
+          lastModified: stats.lastModified,
+          mimeType: uploadSlot.mimeTypeId ?? 'application/octet-stream',
+          maxAge: DownloadNewUploadSlotInteractor.maxAge,
+          contentEncoding: uploadSlot.compressed ? 'gzip' : undefined,
+          byteRange: { start, end },
+        });
+      }
+
       // read the file
       let fileStream: ReadStream;
       try {
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
-        this.logger.error('Could not read file', err);
+        this.logger.error(`Could not read file ${filePath}`, err);
         return Result.fail(new DownloadNewUploadSlotFileReadError(filePath));
       }
 
