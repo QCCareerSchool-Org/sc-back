@@ -1249,6 +1249,7 @@ model NewUnitTemplate {
   unitLetter             String                  @db.Char(1) @map("unit_letter")
   title                  String?
   description            String?                 @db.Text
+  markingCriteria        String?                 @db.Text @map("marking_criteria")
   optional               Boolean                 @default(false)
   order                  Int                     @db.TinyInt @default(0)
   enabled                Boolean                 @default(false)
@@ -1268,10 +1269,11 @@ model NewUnit {
   unitLetter         String          @db.Char(1) @map("unit_letter")
   title              String?
   description        String?         @db.Text
+  markingCriteria    String?         @db.Text @map("marking_criteria")
   optional           Boolean         @default(false)
   order              Int             @db.TinyInt @default(0)
-  tutorComment       String?         @db.MediumText @map("tutor_comment")
-  adminComment       String?         @db.MediumText @map("admin_comment")
+  tutorComment       String?         @db.Text @map("tutor_comment")
+  adminComment       String?         @db.Text @map("admin_comment")
   submitted          DateTime?       @db.DateTime(0)
   skipped            DateTime?       @db.DateTime(0)
   transferred        DateTime?       @db.DateTime(0)
@@ -1298,6 +1300,7 @@ model NewAssignmentTemplate {
   assignmentNumber     Int                   @db.UnsignedInt @map("assignment_number")
   title                String?
   description          String?               @db.Text
+  markingCriteria      String?               @db.Text @map("marking_criteria")
   optional             Boolean               @default(false)
   created              DateTime              @default(now()) @db.DateTime(0)
   modified             DateTime?             @db.DateTime(0) @updatedAt
@@ -1315,6 +1318,7 @@ model NewAssignment {
   assignmentNumber   Int                                  @db.UnsignedInt @map("assignment_number")
   title              String?
   description        String?                              @db.Text
+  markingCriteria    String?                              @db.Text @map("marking_criteria")
   optional           Boolean                              @default(false)
   // complete           Boolean                              @default(false)
   // points             Int                                  @default(0)
@@ -1369,6 +1373,7 @@ model NewPartTemplate {
   title                  String
   description            String?                 @db.Text
   descriptionType        NewDescriptionType      @default(text) @map("description_type")
+  markingCriteria        String?                 @db.Text @map("marking_criteria")
   created                DateTime                @default(now()) @db.DateTime(0)
   modified               DateTime?               @db.DateTime(0) @updatedAt
   newAssignmentTemplate  NewAssignmentTemplate   @relation(fields: [assignmentTemplateId], references: [assignmentTemplateId], map: "new_part_templates_ibfk_1", onDelete: Cascade)
@@ -1387,6 +1392,8 @@ model NewPart {
   title           String
   description     String?                  @db.Text
   descriptionType NewDescriptionType       @default(text) @map("description_type")
+  markingCriteria String?                  @db.Text @map("marking_criteria")
+  markingComments String?                  @db.Text @map("marking_comments")
   created         DateTime                 @default(now()) @db.DateTime(0)
   modified        DateTime?                @db.DateTime(0) @updatedAt
   newAssignment   NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)

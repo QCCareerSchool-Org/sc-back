@@ -122,6 +122,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         title: insertedPartTemplate.title,
         description: insertedPartTemplate.description,
         descriptionType: insertedPartTemplate.descriptionType,
+        markingCriteria: insertedPartTemplate.markingCriteria,
         created: insertedPartTemplate.created,
         modified: insertedPartTemplate.modified,
       });

@@ -6,6 +6,8 @@ export type NewAssignmentTemplateDTO = {
   assignmentNumber: number;
   title: string | null;
   description: string | null;
+  /** should always be null for students */
+  markingCriteria: string | null;
   optional: boolean;
   created: Date;
   modified: Date | null;

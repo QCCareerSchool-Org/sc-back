@@ -6,9 +6,11 @@ export type NewUnitDTO = {
   unitLetter: string;
   title: string | null;
   description: string | null;
+  /** should always be null for students */
+  markingCriteria: string | null;
   optional: boolean;
   order: number;
-  /** students should never see this */
+  /** should always be null for students */
   tutorComment: string | null;
   adminComment: string | null;
   submitted: Date | null;

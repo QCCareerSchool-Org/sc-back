@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewUnitTemplateInteractor } from '../../interactors/administrators';
 import type { InsertNewUnitTemplateResponseDTO } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
-import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong, InsertNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
+import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateDescriptionTooLong, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateMarkingCriteriaTooLong, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateTitleTooLong, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong, InsertNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -18,6 +18,7 @@ type Request = {
     unitLetter: string;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
     order: number;
   };
@@ -34,9 +35,10 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
       courseId: yup.string().matches(/^\d+$/u).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      title: yup.string().nullable(true).defined(),
-      description: yup.string().nullable(true).defined(),
       unitLetter: yup.string().defined(),
+      title: yup.string().nullable().defined(),
+      description: yup.string().nullable().defined(),
+      markingCriteria: yup.string().nullable().defined(),
       optional: yup.boolean().defined(),
       order: yup.number().defined(),
     });
@@ -81,6 +83,12 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
         return this.badRequest('Unit letter can have at most one character');
       case InsertNewUnitTemplateInvalidUnitLetter:
         return this.badRequest('Invalid unit letter');
+      case InsertNewUnitTemplateTitleTooLong:
+        return this.badRequest('Title length exceeds maximum');
+      case InsertNewUnitTemplateDescriptionTooLong:
+        return this.badRequest('Description length exceeds maximum');
+      case InsertNewUnitTemplateMarkingCriteriaTooLong:
+        return this.badRequest('Marking criteria length exceeds maximum');
       case InsertNewUnitTemplateOrderLessThanZero:
         return this.badRequest('Order must be greater than or equal to zero');
       case InsertNewUnitTemplateOrderTooLarge:

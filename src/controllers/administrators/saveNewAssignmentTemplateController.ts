@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators';
 import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
-import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -22,6 +22,7 @@ type Request = {
     assignmentNumber: number;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
   };
 };
@@ -42,6 +43,7 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
       assignmentNumber: yup.number().defined(),
       title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
+      markingCriteria: yup.string().nullable().defined(),
       optional: yup.boolean().defined(),
     });
     try {
@@ -84,6 +86,12 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
         return this.badRequest('Assignment number must be greater than or equal to one');
       case SaveNewAssignmentTemplateAssignmentNumberTooLarge:
         return this.badRequest('Assignment number value exceeds maximum');
+      case SaveNewAssignmentTemplateTitleTooLong:
+        return this.badRequest('Title length exceeds maximum');
+      case SaveNewAssignmentTemplateDescriptionTooLong:
+        return this.badRequest('Description length exceeds maximum');
+      case SaveNewAssignmentTemplateMarkingCriteriaTooLong:
+        return this.badRequest('Marking criteria length exceeds maximum');
       case SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse:
         return this.badRequest('Assignment number already in use for this unit');
       default:

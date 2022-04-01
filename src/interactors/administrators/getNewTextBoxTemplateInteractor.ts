@@ -64,6 +64,7 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
           title: textBoxTemplate.newPartTemplate.title,
           description: textBoxTemplate.newPartTemplate.description,
           descriptionType: textBoxTemplate.newPartTemplate.descriptionType,
+          markingCriteria: textBoxTemplate.newPartTemplate.markingCriteria,
           created: textBoxTemplate.newPartTemplate.created,
           modified: textBoxTemplate.newPartTemplate.modified,
         },

@@ -122,6 +122,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         title: updatedPartTemplate.title,
         description: updatedPartTemplate.description,
         descriptionType: updatedPartTemplate.descriptionType,
+        markingCriteria: updatedPartTemplate.markingCriteria,
         created: updatedPartTemplate.created,
         modified: updatedPartTemplate.modified,
       });

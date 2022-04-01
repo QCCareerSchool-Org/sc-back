@@ -2,7 +2,6 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
@@ -21,8 +20,8 @@ export class ReturnNewUnitNotFound extends Error { }
 export class ReturnNewUnitNotSubmitted extends Error { }
 export class ReturnNewUnitAlreadyClosed extends Error { }
 export class ReturnNewUnitWrongTutor extends Error { }
-export class ReturnNewUnitNoFeedback extends Error { }
-export class ReturnNewUnitNotMarked extends Error { }
+export class ReturnNewUnitAlreadyReturned extends Error { }
+export class ReturnNewUnitCommentEmpty extends Error { }
 
 export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequestDTO, ReturnNewUnitResponseDTO> {
 
@@ -55,6 +54,14 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
 
       if (newUnit.tutorId !== tutorId) {
         return Result.fail(new ReturnNewUnitWrongTutor());
+      }
+
+      if (newUnit.tutorComment) {
+        return Result.fail(new ReturnNewUnitAlreadyReturned());
+      }
+
+      if (comment.length === 0) {
+        return Result.fail(new ReturnNewUnitCommentEmpty());
       }
 
       const updatedUnit = await this.prisma.newUnit.update({
@@ -136,6 +143,7 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         description: updatedUnit.description,
+        markingCriteria: updatedUnit.markingCriteria,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: updatedUnit.tutorComment,

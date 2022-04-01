@@ -20,6 +20,7 @@ export class CloseNewUnitNotFound extends Error { }
 export class CloseNewUnitNotSubmitted extends Error { }
 export class CloseNewUnitAlreadyClosed extends Error { }
 export class CloseNewUnitWrongTutor extends Error { }
+export class CloseNewUnitAlreadyReturned extends Error { }
 export class CloseNewUnitNoFeedback extends Error { }
 export class CloseNewUnitNotMarked extends Error { }
 
@@ -55,6 +56,10 @@ export class CloseNewUnitInteractor implements IInteractor<CloseNewUnitRequestDT
 
       if (newUnit.tutorId !== tutorId) {
         return Result.fail(new CloseNewUnitWrongTutor());
+      }
+
+      if (newUnit.tutorComment) {
+        return Result.fail(new CloseNewUnitAlreadyReturned());
       }
 
       if (newUnit.responseFilename === null) {
@@ -210,6 +215,7 @@ export class CloseNewUnitInteractor implements IInteractor<CloseNewUnitRequestDT
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         description: updatedUnit.description,
+        markingCriteria: updatedUnit.markingCriteria,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: updatedUnit.tutorComment,

@@ -16,6 +16,7 @@ export type InsertNewAssignmentTemplateRequestDTO = {
     assignmentNumber: number;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
   };
 };
@@ -26,6 +27,9 @@ export class InsertNewAssignmentTemplateUnitNotFound extends Error { }
 export class InsertNewAssignmentTemplateUnitsEnabled extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
+export class InsertNewAssignmentTemplateTitleTooLong extends Error { }
+export class InsertNewAssignmentTemplateDescriptionTooLong extends Error { }
+export class InsertNewAssignmentTemplateMarkingCriteriaTooLong extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
 
 export class InsertNewAssignmentTemplateInteractor implements IInteractor<InsertNewAssignmentTemplateRequestDTO, InsertNewAssignmentTemplateResponseDTO> {
@@ -39,7 +43,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
   public async execute(request: InsertNewAssignmentTemplateRequestDTO): Promise<ResultType<InsertNewAssignmentTemplateResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
-      const { assignmentNumber, title, description, optional } = request.data;
+      const { assignmentNumber, title, description, markingCriteria, optional } = request.data;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
@@ -65,6 +69,24 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberTooLarge());
       }
 
+      if (title !== null) {
+        if (new TextEncoder().encode(title).length > 191) {
+          return Result.fail(new InsertNewAssignmentTemplateTitleTooLong());
+        }
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new InsertNewAssignmentTemplateDescriptionTooLong());
+        }
+      }
+
+      if (markingCriteria !== null) {
+        if (new TextEncoder().encode(markingCriteria).length > 65_535) {
+          return Result.fail(new InsertNewAssignmentTemplateMarkingCriteriaTooLong());
+        }
+      }
+
       // insert the assignment template
       let insertedAssignmentTemplate: NewAssignmentTemplate;
       try {
@@ -75,6 +97,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
           },
         });
@@ -94,6 +117,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         assignmentNumber: insertedAssignmentTemplate.assignmentNumber,
         title: insertedAssignmentTemplate.title,
         description: insertedAssignmentTemplate.description,
+        markingCriteria: insertedAssignmentTemplate.markingCriteria,
         optional: insertedAssignmentTemplate.optional,
         created: insertedAssignmentTemplate.created,
         modified: insertedAssignmentTemplate.modified,

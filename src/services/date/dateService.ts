@@ -1,4 +1,4 @@
-import { IDateService } from '.';
+import type { IDateService } from '.';
 
 export class DateService implements IDateService {
 

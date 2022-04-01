@@ -16,6 +16,7 @@ export type SaveNewUnitTemplateRequestDTO = {
     unitLetter: string;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
     order: number;
   };
@@ -28,6 +29,9 @@ export class SaveNewUnitTemplateUnitsEnabled extends Error { }
 export class SaveNewUnitTemplateUnitLetterEmpty extends Error { }
 export class SaveNewUnitTemplateUnitLetterTooLong extends Error { }
 export class SaveNewUnitTemplateInvalidUnitLetter extends Error { }
+export class SaveNewUnitTemplateTitleTooLong extends Error { }
+export class SaveNewUnitTemplateDescriptionTooLong extends Error { }
+export class SaveNewUnitTemplateMarkingCriteriaTooLong extends Error { }
 export class SaveNewUnitTemplateOrderLessThanZero extends Error { }
 export class SaveNewUnitTemplateOrderTooLarge extends Error { }
 export class SaveNewUnitTemplateUnitLetterAlreadyInUse extends Error { }
@@ -42,7 +46,7 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
 
   public async execute({ schoolId, courseId, unitId, data }: SaveNewUnitTemplateRequestDTO): Promise<ResultType<SaveNewUnitTemplateResponseDTO>> {
     try {
-      const { unitLetter, title, description, order, optional } = data;
+      const { unitLetter, title, description, markingCriteria, order, optional } = data;
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
       // find the unit template
@@ -71,6 +75,24 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
         return Result.fail(new SaveNewUnitTemplateInvalidUnitLetter());
       }
 
+      if (title !== null) {
+        if (new TextEncoder().encode(title).length > 191) {
+          return Result.fail(new SaveNewUnitTemplateTitleTooLong());
+        }
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new SaveNewUnitTemplateDescriptionTooLong());
+        }
+      }
+
+      if (markingCriteria !== null) {
+        if (new TextEncoder().encode(markingCriteria).length > 65_535) {
+          return Result.fail(new SaveNewUnitTemplateMarkingCriteriaTooLong());
+        }
+      }
+
       if (order < 0) {
         return Result.fail(new SaveNewUnitTemplateOrderLessThanZero());
       }
@@ -86,6 +108,7 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
             unitLetter,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
           },
@@ -107,6 +130,7 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
         unitLetter: updatedUnitTemplate.unitLetter,
         title: updatedUnitTemplate.title,
         description: updatedUnitTemplate.description,
+        markingCriteria: updatedUnitTemplate.markingCriteria,
         optional: updatedUnitTemplate.optional,
         order: updatedUnitTemplate.order,
         enabled: updatedUnitTemplate.enabled,

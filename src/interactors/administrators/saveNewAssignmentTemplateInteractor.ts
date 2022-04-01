@@ -17,6 +17,7 @@ export type SaveNewAssignmentTemplateRequestDTO = {
     assignmentNumber: number;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
   };
 };
@@ -27,6 +28,9 @@ export class SaveNewAssignmentTemplateNotFound extends Error { }
 export class SaveNewAssignmentTemplateUnitsEnabled extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
+export class SaveNewAssignmentTemplateTitleTooLong extends Error { }
+export class SaveNewAssignmentTemplateDescriptionTooLong extends Error { }
+export class SaveNewAssignmentTemplateMarkingCriteriaTooLong extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
 
 export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewAssignmentTemplateRequestDTO, SaveNewAssignmentTemplateResponseDTO> {
@@ -39,7 +43,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
 
   public async execute({ schoolId, courseId, unitId, assignmentId, data }: SaveNewAssignmentTemplateRequestDTO): Promise<ResultType<SaveNewAssignmentTemplateResponseDTO>> {
     try {
-      const { assignmentNumber, title, description, optional } = data;
+      const { assignmentNumber, title, description, markingCriteria, optional } = data;
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
@@ -66,6 +70,24 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         return Result.fail(new SaveNewAssignmentTemplateAssignmentNumberTooLarge());
       }
 
+      if (title !== null) {
+        if (new TextEncoder().encode(title).length > 191) {
+          return Result.fail(new SaveNewAssignmentTemplateTitleTooLong());
+        }
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new SaveNewAssignmentTemplateDescriptionTooLong());
+        }
+      }
+
+      if (markingCriteria !== null) {
+        if (new TextEncoder().encode(markingCriteria).length > 65_535) {
+          return Result.fail(new SaveNewAssignmentTemplateMarkingCriteriaTooLong());
+        }
+      }
+
       // update the assignment template
       let updatedAssignmentTemplate: NewAssignmentTemplate;
       try {
@@ -74,6 +96,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
           },
           where: { assignmentTemplateId: assignmentIdBin },
@@ -94,6 +117,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         assignmentNumber: updatedAssignmentTemplate.assignmentNumber,
         title: updatedAssignmentTemplate.title,
         description: updatedAssignmentTemplate.description,
+        markingCriteria: updatedAssignmentTemplate.markingCriteria,
         optional: updatedAssignmentTemplate.optional,
         created: updatedAssignmentTemplate.created,
         modified: updatedAssignmentTemplate.modified,

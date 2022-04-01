@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getNewUnitInteractor } from '../../interactors/tutors';
-import type { GetNewUnitResponseDTO } from '../../interactors/tutors/getNewUnitInteractor';
-import { GetNewUnitNotFound, GetNewUnitNotSubmitted, GetNewUnitWrongTutor } from '../../interactors/tutors/getNewUnitInteractor';
+import { closeNewUnitInteractor } from '../../interactors/tutors';
+import type { CloseNewUnitResponseDTO } from '../../interactors/tutors/closeNewUnitInteractor';
+import { CloseNewUnitAlreadyClosed, CloseNewUnitAlreadyReturned, CloseNewUnitNoFeedback, CloseNewUnitNotFound, CloseNewUnitNotMarked, CloseNewUnitNotSubmitted, CloseNewUnitWrongTutor } from '../../interactors/tutors/closeNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -16,9 +16,9 @@ type Request = {
   };
 };
 
-type Response = GetNewUnitResponseDTO;
+type Response = CloseNewUnitResponseDTO;
 
-export class GetNewUnitController extends BaseController<Request, Response> {
+export class CloseNewUnitController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -40,7 +40,7 @@ export class GetNewUnitController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params }: Request): Promise<void> {
-    if (!this.isGetMethod()) {
+    if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
@@ -48,18 +48,26 @@ export class GetNewUnitController extends BaseController<Request, Response> {
     const studentId = parseInt(params.studentId, 10);
     const { unitId } = params;
 
-    const result = await getNewUnitInteractor.execute({ tutorId, studentId, unitId });
+    const result = await closeNewUnitInteractor.execute({ tutorId, studentId, unitId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitNotFound:
-      case GetNewUnitNotSubmitted:
-        return this.notFound('Unit not found');
-      case GetNewUnitWrongTutor:
+      case CloseNewUnitNotFound:
+      case CloseNewUnitNotSubmitted:
+        return this.badRequest('Unit not found');
+      case CloseNewUnitAlreadyClosed:
+        return this.badRequest('Unit is already closed');
+      case CloseNewUnitWrongTutor:
         return this.forbidden('No access to this unit');
+      case CloseNewUnitAlreadyReturned:
+        return this.badRequest('Unit is already returned');
+      case CloseNewUnitNoFeedback:
+        return this.badRequest('Feedback is required');
+      case CloseNewUnitNotMarked:
+        return this.badRequest('Unit is not marked');
       default:
         return this.internalServerError(result.error.message);
     }

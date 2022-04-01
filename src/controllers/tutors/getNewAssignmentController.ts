@@ -11,7 +11,7 @@ type Request = {
     tutorId: string;
     /** numeric string */
     studentId: string;
-    /** numeric string */
+    /** uuid */
     unitId: string;
     /** uuid */
     assignmentId: string;
@@ -59,7 +59,6 @@ export class GetNewAssignmentController extends BaseController<Request, Response
 
     switch (result.error.constructor) {
       case GetNewAssignmentNotFound:
-        return this.notFound('Assignment not found');
       case GetNewAssignmentUnitNotSubmitted:
         return this.notFound('Assignment not found');
       case GetNewAssignmentWrongTutor:

@@ -1,4 +1,4 @@
-import { IShuffleService } from '.';
+import type { IShuffleService } from '.';
 
 export class FisherYatesShuffleService implements IShuffleService {
 

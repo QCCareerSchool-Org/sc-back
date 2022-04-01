@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { CloseNewUnitController } from '../../controllers/tutors/closeNewUnitController';
 import { DownloadNewUnitFeedbackController } from '../../controllers/tutors/downloadNewAssignmentFeedbackController';
 import { EraseNewUnitFeedbackController } from '../../controllers/tutors/eraseNewAssignmentFeedbackController';
 
 import { GetNewAssignmentController } from '../../controllers/tutors/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/tutors/getNewUnitController';
+import { ReturnNewUnitController } from '../../controllers/tutors/returnNewUnitController';
 import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware';
 import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
 import { asyncWrapper } from './asyncWrapper';
@@ -20,6 +22,14 @@ tutorRouter.use(
 tutorRouter.get(
   '/:tutorId/students/:studentId/newUnits/:unitId',
   asyncWrapper(async (req, res) => new GetNewUnitController(req, res).execute()),
+);
+tutorRouter.post(
+  '/:tutorId/students/:studentId/newUnits/:unitId/returns',
+  asyncWrapper(async (req, res) => new ReturnNewUnitController(req, res).execute()),
+);
+tutorRouter.post(
+  '/:tutorId/students/:studentId/newUnits/:unitId/closes',
+  asyncWrapper(async (req, res) => new CloseNewUnitController(req, res).execute()),
 );
 tutorRouter.get(
   '/:tutorId/students/:studentId/newUnits/:unitId/response',

@@ -140,6 +140,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
           unitLetter: nextUnitTemplate.unitLetter,
           title: nextUnitTemplate.title,
           description: nextUnitTemplate.description,
+          markingCriteria: nextUnitTemplate.markingCriteria,
           optional: nextUnitTemplate.optional,
           order: nextUnitTemplate.order,
           newAssignments: {
@@ -153,6 +154,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                 assignmentNumber: newAssignmentTemplate.assignmentNumber,
                 title: newAssignmentTemplate.title,
                 description: newAssignmentTemplate.description,
+                markingCriteria: newAssignmentTemplate.markingCriteria,
                 optional: newAssignmentTemplate.optional,
                 newParts: {
                   create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => {
@@ -165,6 +167,8 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                       partNumber: newPartTemplate.partNumber,
                       title: newPartTemplate.title,
                       description: newPartTemplate.description,
+                      descriptionType: newPartTemplate.descriptionType,
+                      markingCriteria: newPartTemplate.markingCriteria,
                       newTextBoxes: {
                         create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => {
                           if (!newTextBoxTemplate.optional) {
@@ -263,6 +267,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         unitLetter: nextUnit.unitLetter,
         title: nextUnit.title,
         description: nextUnit.description,
+        markingCriteria: null, // students should never see the marking criteria
         optional: nextUnit.optional,
         order: nextUnit.order,
         tutorComment: null, // students should never see the tutor comment

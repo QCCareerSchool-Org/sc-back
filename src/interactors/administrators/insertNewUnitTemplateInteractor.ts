@@ -15,6 +15,7 @@ export type InsertNewUnitTemplateRequestDTO = {
     unitLetter: string;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     optional: boolean;
     order: number;
   };
@@ -27,6 +28,9 @@ export class InsertNewUnitTemplateUnitsEnabled extends Error { }
 export class InsertNewUnitTemplateUnitLetterEmpty extends Error { }
 export class InsertNewUnitTemplateUnitLetterTooLong extends Error { }
 export class InsertNewUnitTemplateInvalidUnitLetter extends Error { }
+export class InsertNewUnitTemplateTitleTooLong extends Error { }
+export class InsertNewUnitTemplateDescriptionTooLong extends Error { }
+export class InsertNewUnitTemplateMarkingCriteriaTooLong extends Error { }
 export class InsertNewUnitTemplateOrderLessThanZero extends Error { }
 export class InsertNewUnitTemplateOrderTooLarge extends Error { }
 export class InsertNewUnitTemplateUnitLetterAlreadyInUse extends Error { }
@@ -42,7 +46,7 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
   public async execute(request: InsertNewUnitTemplateRequestDTO): Promise<ResultType<InsertNewUnitTemplateResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
-      const { unitLetter, title, description, optional, order } = request.data;
+      const { unitLetter, title, description, markingCriteria, optional, order } = request.data;
 
       // find the course
       const course = await this.prisma.course.findFirst({
@@ -67,6 +71,24 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         return Result.fail(new InsertNewUnitTemplateInvalidUnitLetter());
       }
 
+      if (title !== null) {
+        if (new TextEncoder().encode(title).length > 191) {
+          return Result.fail(new InsertNewUnitTemplateTitleTooLong());
+        }
+      }
+
+      if (description !== null) {
+        if (new TextEncoder().encode(description).length > 65_535) {
+          return Result.fail(new InsertNewUnitTemplateDescriptionTooLong());
+        }
+      }
+
+      if (markingCriteria !== null) {
+        if (new TextEncoder().encode(markingCriteria).length > 65_535) {
+          return Result.fail(new InsertNewUnitTemplateMarkingCriteriaTooLong());
+        }
+      }
+
       if (order < 0) {
         return Result.fail(new InsertNewUnitTemplateOrderLessThanZero());
       }
@@ -84,6 +106,7 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
             unitLetter,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
           },
@@ -104,6 +127,7 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         unitLetter: insertedUnitTemplate.unitLetter,
         title: insertedUnitTemplate.title,
         description: insertedUnitTemplate.description,
+        markingCriteria: insertedUnitTemplate.markingCriteria,
         optional: insertedUnitTemplate.optional,
         order: insertedUnitTemplate.order,
         enabled: insertedUnitTemplate.enabled,

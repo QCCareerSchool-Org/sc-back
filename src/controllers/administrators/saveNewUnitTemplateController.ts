@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewUnitTemplateInteractor } from '../../interactors/administrators';
 import type { SaveNewUnitTemplateResponseDTO } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
-import { SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong, SaveNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
+import { SaveNewUnitTemplateDescriptionTooLong, SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateMarkingCriteriaTooLong, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateTitleTooLong, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong, SaveNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -20,6 +20,7 @@ type Request = {
     unitLetter: string;
     title: string | null;
     description: string | null;
+    markingCriteria: string | null;
     order: number;
     optional: boolean;
   };
@@ -40,6 +41,7 @@ export class SaveNewUnitTemplateController extends BaseController<Request, Respo
       unitLetter: yup.string().defined(),
       title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
+      markingCriteria: yup.string().nullable().defined(),
       order: yup.number().defined(),
       optional: yup.boolean().defined(),
     });
@@ -85,6 +87,12 @@ export class SaveNewUnitTemplateController extends BaseController<Request, Respo
         return this.badRequest('Unit letter can have at most one character');
       case SaveNewUnitTemplateInvalidUnitLetter:
         return this.badRequest('Invalid unit letter');
+      case SaveNewUnitTemplateTitleTooLong:
+        return this.badRequest('Title length exceeds maximum');
+      case SaveNewUnitTemplateDescriptionTooLong:
+        return this.badRequest('Description length exceeds maximum');
+      case SaveNewUnitTemplateMarkingCriteriaTooLong:
+        return this.badRequest('Marking criteria length exceeds maximum');
       case SaveNewUnitTemplateOrderLessThanZero:
         return this.badRequest('Order must be greater than or equal to zero');
       case SaveNewUnitTemplateOrderTooLarge:

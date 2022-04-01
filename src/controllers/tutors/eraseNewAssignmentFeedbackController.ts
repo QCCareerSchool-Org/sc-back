@@ -11,7 +11,7 @@ type Request = {
     tutorId: string;
     /** numeric string */
     studentId: string;
-    /** numeric string */
+    /** uuid */
     unitId: string;
   };
 };
@@ -56,7 +56,6 @@ export class EraseNewUnitFeedbackController extends BaseController<Request, Resp
 
     switch (result.error.constructor) {
       case EraseNewUnitFeedbackNotFound:
-        return this.notFound('Unit not found');
       case EraseNewUnitFeedbackNotSubmitted:
         return this.notFound('Unit not found');
       case EraseNewUnitFeedbackAlreadyClosed:

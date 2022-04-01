@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@prisma/client": "^3.11.0",
-    "@qccareerschool/http-status": "^2.1.0",
     "@qccareerschool/winston-nodemailer": "^4.0.1",
     "axios": "^0.26.0",
     "bcrypt": "^5.0.1",

@@ -1,4 +1,4 @@
-import { IPasswordService } from '.';
+import type { IPasswordService } from '.';
 
 export class PasswordService implements IPasswordService {
 

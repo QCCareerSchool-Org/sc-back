@@ -1,5 +1,5 @@
-import { Logger } from 'winston';
-import { ILoggerService } from '.';
+import type { Logger } from 'winston';
+import type { ILoggerService } from '.';
 
 export class WinstonLoggerService implements ILoggerService {
 

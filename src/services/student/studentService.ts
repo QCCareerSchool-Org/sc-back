@@ -1,4 +1,4 @@
-import { IStudentService } from '.';
+import type { IStudentService } from '.';
 
 export class StudentService implements IStudentService {
 

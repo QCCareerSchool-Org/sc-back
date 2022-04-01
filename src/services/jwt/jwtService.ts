@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import { IJWTService } from '.';
+import type { IJWTService } from '.';
 
 export class JWTService implements IJWTService {
   private readonly jwtSecret: jwt.Secret;

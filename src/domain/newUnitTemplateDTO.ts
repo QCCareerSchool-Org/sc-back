@@ -5,6 +5,8 @@ export type NewUnitTemplateDTO = {
   unitLetter: string;
   title: string | null;
   description: string | null;
+  /** should always be null for students */
+  markingCriteria: string | null;
   optional: boolean;
   order: number;
   enabled: boolean;

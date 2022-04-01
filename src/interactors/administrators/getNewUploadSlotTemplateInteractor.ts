@@ -64,6 +64,7 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
           title: uploadSlotTemplate.newPartTemplate.title,
           description: uploadSlotTemplate.newPartTemplate.description,
           descriptionType: uploadSlotTemplate.newPartTemplate.descriptionType,
+          markingCriteria: uploadSlotTemplate.newPartTemplate.markingCriteria,
           created: uploadSlotTemplate.newPartTemplate.created,
           modified: uploadSlotTemplate.newPartTemplate.modified,
         },

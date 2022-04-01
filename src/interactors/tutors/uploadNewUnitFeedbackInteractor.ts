@@ -203,6 +203,7 @@ export class UploadNewUnitFeedbackInteractor implements IInteractor<UploadNewUni
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         description: updatedUnit.description,
+        markingCriteria: updatedUnit.markingCriteria,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: updatedUnit.tutorComment,

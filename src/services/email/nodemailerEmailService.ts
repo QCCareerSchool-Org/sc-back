@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-import { Attachment, IEmailService } from '.';
+import type { Attachment, IEmailService } from '.';
 
 export class NodemailerEmailService implements IEmailService {
 

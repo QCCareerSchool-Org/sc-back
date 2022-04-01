@@ -1,4 +1,4 @@
-import { ITelephoneNumberService } from '.';
+import type { ITelephoneNumberService } from '.';
 
 export class TelephoneNumberService implements ITelephoneNumberService {
 

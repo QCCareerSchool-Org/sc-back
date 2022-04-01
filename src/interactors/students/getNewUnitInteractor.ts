@@ -68,6 +68,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         unitLetter: unit.unitLetter,
         title: unit.title,
         description: unit.description,
+        markingCriteria: null, // students should never see the marking criteria
         optional: unit.optional,
         order: unit.order,
         tutorComment: null, // students should never see the tutor comment
@@ -114,6 +115,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             assignmentNumber: a.assignmentNumber,
             title: a.title,
             description: a.description,
+            markingCriteria: null, // students should never see the marking criteria
             optional: a.optional,
             // complete: a.complete,
             // points: a.points,
@@ -132,6 +134,8 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 title: p.title,
                 description: p.description,
                 descriptionType: p.descriptionType,
+                markingCriteria: null, // students should never see the marking criteria
+                markingComments: null, // students should never see the marking comments
                 // complete: p.complete,
                 // points: p.points,
                 // mark: unit.marked ? p.mark : null, // hide the mark unless the unit is marked

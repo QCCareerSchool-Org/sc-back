@@ -1,4 +1,4 @@
-import { Grade, GradeScheme, IGradeService } from '.';
+import type { Grade, GradeScheme, IGradeService } from '.';
 
 export class GradeService implements IGradeService {
 

@@ -146,6 +146,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             unitLetter: unit.unitLetter,
             title: unit.title,
             description: unit.description,
+            markingCriteria: null, // students should never see the marking criteria
             optional: unit.optional,
             order: unit.order,
             enabled: unit.enabled,
@@ -258,6 +259,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             unitLetter: newUnit.unitLetter,
             title: newUnit.title,
             description: newUnit.description,
+            markingCriteria: null, // students should never see the marking criteria
             optional: newUnit.optional,
             order: newUnit.order,
             tutorComment: null, // students should never see the tutor comment

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 
-import { ICryptoService } from '.';
+import type { ICryptoService } from '.';
 
 export class NodeCryptoService implements ICryptoService {
 

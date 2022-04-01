@@ -158,6 +158,7 @@ export class EraseNewUnitFeedbackInteractor implements IInteractor<EraseNewUnitF
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         description: updatedUnit.description,
+        markingCriteria: updatedUnit.markingCriteria,
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: updatedUnit.tutorComment,

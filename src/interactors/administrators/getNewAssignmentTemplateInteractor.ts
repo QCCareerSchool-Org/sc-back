@@ -68,6 +68,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         assignmentNumber: assignmentTemplate.assignmentNumber,
         title: assignmentTemplate.title,
         description: assignmentTemplate.description,
+        markingCriteria: assignmentTemplate.markingCriteria,
         optional: assignmentTemplate.optional,
         created: assignmentTemplate.created,
         modified: assignmentTemplate.modified,
@@ -77,6 +78,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           unitLetter: assignmentTemplate.newUnitTemplate.unitLetter,
           title: assignmentTemplate.newUnitTemplate.title,
           description: assignmentTemplate.newUnitTemplate.description,
+          markingCriteria: assignmentTemplate.newUnitTemplate.markingCriteria,
           optional: assignmentTemplate.newUnitTemplate.optional,
           order: assignmentTemplate.newUnitTemplate.order,
           enabled: assignmentTemplate.newUnitTemplate.enabled,
@@ -90,6 +92,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           title: p.title,
           description: p.description,
           descriptionType: p.descriptionType,
+          markingCriteria: p.markingCriteria,
           created: p.created,
           modified: p.modified,
           newTextBoxTemplates: withInputs ? p.newTextBoxTemplates.map(t => ({

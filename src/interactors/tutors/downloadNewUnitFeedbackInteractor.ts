@@ -1,5 +1,4 @@
 import type { ReadStream } from 'fs';
-import { stat } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor, InteractorFileStream } from '..';
@@ -28,7 +27,7 @@ export class DownloadNewUnitFeedbackFileNotFound extends Error { }
 export class DownloadNewUnitFeedbackFileReadError extends Error { }
 
 export class DownloadNewUnitFeedbackInteractor implements IInteractor<DownloadNewUnitFeedbackRequestDTO, DownloadNewUnitFeedbackResponseDTO> {
-  private static readonly maxAge = 3600; // one hour in seconds
+  private static readonly maxAge = 300; // five minutes in seconds
 
   public constructor(
     private readonly prisma: PrismaClient,

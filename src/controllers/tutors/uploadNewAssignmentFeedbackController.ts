@@ -11,7 +11,7 @@ type Request = {
     tutorId: string;
     /** numeric string */
     studentId: string;
-    /** numeric string */
+    /** uuid */
     unitId: string;
   };
   file: {
@@ -85,7 +85,6 @@ export class UploadNewUnitFeedbackController extends BaseController<Request, Res
 
     switch (result.error.constructor) {
       case UploadNewUnitFeedbackNotFound:
-        return this.notFound('Unit not found');
       case UploadNewUnitFeedbackNotSubmitted:
         return this.notFound('Unit not found');
       case UploadNewUnitFeedbackAlreadyClosed:

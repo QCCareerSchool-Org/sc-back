@@ -15,7 +15,7 @@ type Request = {
     tutorId: string;
     /** numeric string */
     studentId: string;
-    /** numeric string */
+    /** uuid */
     unitId: string;
   };
 };
@@ -80,7 +80,6 @@ export class DownloadNewUnitFeedbackController extends BaseController<Request, R
 
     switch (result.error.constructor) {
       case DownloadNewUnitFeedbackNotFound:
-        return this.notFound('Unit not found');
       case DownloadNewUnitFeedbackNotSubmitted:
         return this.notFound('Unit not found');
       case DownloadNewUnitFeedbackWrongTutor:

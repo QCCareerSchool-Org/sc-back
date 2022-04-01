@@ -94,6 +94,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         description: updatedUnit.description,
+        markingCriteria: null, // students should never see the marking criteria
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: null, // students should never see the tutor comment
