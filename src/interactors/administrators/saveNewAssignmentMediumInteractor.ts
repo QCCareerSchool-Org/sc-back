@@ -62,7 +62,7 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
       if (caption.length === 0) {
         return Result.fail(new SaveNewAssignmentMediumPartCaptionEmpty());
       }
-      if (new TextEncoder().encode(caption).length > 191) {
+      if ([ ...caption ].length > 191) {
         return Result.fail(new SaveNewAssignmentMediumPartCaptionTooLong());
       }
 

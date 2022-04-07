@@ -85,7 +85,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       if (caption.length === 0) {
         return Result.fail(new InsertNewAssignmentMediumCaptionEmpty());
       }
-      if (new TextEncoder().encode(caption).length > 191) {
+      if ([ ...caption ].length > 191) {
         return Result.fail(new InsertNewAssignmentMediCaptionTooLong());
       }
 

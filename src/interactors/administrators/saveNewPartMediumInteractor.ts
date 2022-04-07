@@ -64,7 +64,7 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
       if (caption.length === 0) {
         return Result.fail(new SaveNewPartMediumPartCaptionEmpty());
       }
-      if (new TextEncoder().encode(caption).length > 191) {
+      if ([ ...caption ].length > 191) {
         return Result.fail(new SaveNewPartMediumPartCaptionTooLong());
       }
 

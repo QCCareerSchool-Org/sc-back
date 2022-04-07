@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewPartTemplateInteractor } from '../../interactors/administrators';
 import type { InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplateMarkingCriteriaTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -19,10 +19,11 @@ type Request = {
     assignmentId: string;
   };
   body: {
+    partNumber: number;
     title: string;
     description: string | null;
     descriptionType: string;
-    partNumber: number;
+    markingCriteria: string | null;
   };
 };
 
@@ -39,10 +40,11 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      title: yup.string().defined(),
-      description: yup.string().nullable(true).defined(),
-      descriptionType: yup.string().defined(),
       partNumber: yup.number().defined(),
+      title: yup.string().defined(),
+      description: yup.string().nullable().defined(),
+      descriptionType: yup.string().defined(),
+      markingCriteria: yup.string().nullable().defined(),
     });
     try {
       const [ params, body ] = await Promise.all([
@@ -90,6 +92,8 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
         return this.badRequest('Description type is empty');
       case InsertNewPartTemplateInvalidDescriptionType:
         return this.badRequest('Invalid description type');
+      case InsertNewPartTemplateMarkingCriteriaTooLong:
+        return this.badRequest('Marking critera exceeds maximum length');
       case InsertNewPartTemplatePartNumberLessThanOne:
         return this.badRequest('Part number must be greater than or equal to 1');
       case InsertNewPartTemplatePartNumberTooLarge:

@@ -71,19 +71,19 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       }
 
       if (title !== null) {
-        if (new TextEncoder().encode(title).length > 191) {
+        if ([ ...title ].length > 191) {
           return Result.fail(new SaveNewAssignmentTemplateTitleTooLong());
         }
       }
 
       if (description !== null) {
-        if (new TextEncoder().encode(description).length > 65_535) {
+        if ([ ...description ].length > 65_535) {
           return Result.fail(new SaveNewAssignmentTemplateDescriptionTooLong());
         }
       }
 
       if (markingCriteria !== null) {
-        if (new TextEncoder().encode(markingCriteria).length > 65_535) {
+        if ([ ...markingCriteria ].length > 65_535) {
           return Result.fail(new SaveNewAssignmentTemplateMarkingCriteriaTooLong());
         }
       }

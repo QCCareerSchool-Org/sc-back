@@ -20,6 +20,7 @@ export type SaveNewPartTemplateRequestDTO = {
     title: string;
     description: string | null;
     descriptionType: string;
+    markingCriteria: string | null;
   };
 };
 
@@ -32,6 +33,7 @@ export class SaveNewPartTemplatePartTitleTooLong extends Error { }
 export class SaveNewPartTemplateDescriptionTooLong extends Error { }
 export class SaveNewPartTemplateDescriptionTypeEmpty extends Error { }
 export class SaveNewPartTemplateInvalidDescriptionType extends Error { }
+export class SaveNewPartTemplateMarkingCriteriaTooLong extends Error { }
 export class SaveNewPartTemplatePartNumberLessThanOne extends Error { }
 export class SaveNewPartTemplatePartNumberTooLarge extends Error { }
 export class SaveNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -46,7 +48,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
 
   public async execute({ schoolId, courseId, unitId, assignmentId, partId, data }: SaveNewPartTemplateRequestDTO): Promise<ResultType<SaveNewPartTemplateResponseDTO>> {
     try {
-      const { partNumber, title, description, descriptionType } = data;
+      const { partNumber, title, description, descriptionType, markingCriteria } = data;
       const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
@@ -70,12 +72,12 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       if (title.length === 0) {
         return Result.fail(new SaveNewPartTemplatePartTitleEmpty());
       }
-      if (new TextEncoder().encode(title).length > 191) {
+      if ([ ...title ].length > 191) {
         return Result.fail(new SaveNewPartTemplatePartTitleTooLong());
       }
 
       if (description !== null) {
-        if (new TextEncoder().encode(description).length > 65_535) {
+        if ([ ...description ].length > 65_535) {
           return Result.fail(new SaveNewPartTemplateDescriptionTooLong());
         }
       }
@@ -84,6 +86,12 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       }
       if (!isNewDescriptionType(descriptionType)) {
         return Result.fail(new SaveNewPartTemplateInvalidDescriptionType());
+      }
+
+      if (markingCriteria !== null) {
+        if ([ ...markingCriteria ].length > 65_535) {
+          return Result.fail(new SaveNewPartTemplateMarkingCriteriaTooLong());
+        }
       }
 
       if (partNumber < 1) {
@@ -98,10 +106,11 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       try {
         updatedPartTemplate = await this.prisma.newPartTemplate.update({
           data: {
+            partNumber,
             title: title,
             description: description?.length ? description : null,
             descriptionType,
-            partNumber,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
           },
           where: { partTemplateId: partIdBin },
         });

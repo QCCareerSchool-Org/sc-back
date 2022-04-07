@@ -28,7 +28,7 @@ const app = express();
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 app.use(compression());
-app.use(express.json());
+app.use(express.json({ limit: 524_288 })); // 512 KB
 app.use(cookieParser());
 app.use(cors(corsOptions));
 

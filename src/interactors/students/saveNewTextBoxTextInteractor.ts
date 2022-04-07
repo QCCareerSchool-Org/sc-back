@@ -60,7 +60,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
       }
 
       const maxLength = 65_535;
-      const length = (new TextEncoder().encode(text).length);
+      const length = [ ...text ].length;
       if (length > maxLength) {
         throw new SaveNewTextBoxTextTooLong();
       }

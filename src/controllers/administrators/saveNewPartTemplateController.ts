@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
 import type { SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
-import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateMarkingCriteriaTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -21,10 +21,11 @@ type Request = {
     partId: string;
   };
   body: {
+    partNumber: number;
     title: string;
     description: string | null;
     descriptionType: string;
-    partNumber: number;
+    markingCriteria: string | null;
   };
 };
 
@@ -42,10 +43,11 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      partNumber: yup.number().defined(),
       title: yup.string().defined(),
       description: yup.string().nullable().defined(),
       descriptionType: yup.string().defined(),
-      partNumber: yup.number().defined(),
+      markingCriteria: yup.string().nullable().defined(),
     });
     try {
       const [ params, body ] = await Promise.all([
@@ -93,6 +95,8 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
         return this.badRequest('Description type is empty');
       case SaveNewPartTemplateInvalidDescriptionType:
         return this.badRequest('Invalid description type');
+      case SaveNewPartTemplateMarkingCriteriaTooLong:
+        return this.badRequest('Marking criteria exceeds maximum length');
       case SaveNewPartTemplatePartNumberLessThanOne:
         return this.badRequest('Part number must be greater than or equal to one');
       case SaveNewPartTemplatePartNumberTooLarge:

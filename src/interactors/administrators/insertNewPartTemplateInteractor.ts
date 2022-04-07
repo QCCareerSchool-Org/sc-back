@@ -19,6 +19,7 @@ export type InsertNewPartTemplateRequestDTO = {
     title: string;
     description: string | null;
     descriptionType: string;
+    markingCriteria: string | null;
   };
 };
 
@@ -31,6 +32,7 @@ export class InsertNewPartTemplatePartTitleTooLong extends Error { }
 export class InsertNewPartTemplateDescriptionTooLong extends Error { }
 export class InsertNewPartTemplateDescriptionTypeEmpty extends Error { }
 export class InsertNewPartTemplateInvalidDescriptionType extends Error { }
+export class InsertNewPartTemplateMarkingCriteriaTooLong extends Error { }
 export class InsertNewPartTemplatePartNumberLessThanOne extends Error { }
 export class InsertNewPartTemplatePartNumberTooLarge extends Error { }
 export class InsertNewPartTemplatePartNumberAlreadyInUse extends Error { }
@@ -46,7 +48,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
   public async execute(request: InsertNewPartTemplateRequestDTO): Promise<ResultType<InsertNewPartTemplateResponseDTO>> {
     try {
       const { schoolId, courseId } = request;
-      const { partNumber, title, description, descriptionType } = request.data;
+      const { partNumber, title, description, descriptionType, markingCriteria } = request.data;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
@@ -69,12 +71,12 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       if (title.length === 0) {
         return Result.fail(new InsertNewPartTemplatePartTitleEmpty());
       }
-      if (new TextEncoder().encode(title).length > 191) {
+      if ([ ...title ].length > 191) {
         return Result.fail(new InsertNewPartTemplatePartTitleTooLong());
       }
 
       if (description !== null) {
-        if (new TextEncoder().encode(description).length > 65_535) {
+        if ([ ...description ].length > 65_535) {
           return Result.fail(new InsertNewPartTemplateDescriptionTooLong());
         }
       }
@@ -83,6 +85,12 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       }
       if (!isNewDescriptionType(descriptionType)) {
         return Result.fail(new InsertNewPartTemplateInvalidDescriptionType());
+      }
+
+      if (markingCriteria !== null) {
+        if ([ ...markingCriteria ].length > 65_535) {
+          return Result.fail(new InsertNewPartTemplateMarkingCriteriaTooLong());
+        }
       }
 
       if (partNumber < 1) {
@@ -99,10 +107,11 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
           data: {
             partTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
             assignmentTemplateId: assignmentIdBin,
+            partNumber,
             title: title,
             description: description?.length ? description : null,
             descriptionType,
-            partNumber,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
           },
         });
       } catch (err) {
