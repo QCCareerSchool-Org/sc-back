@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { uploadNewUnitFeedbackInteractor } from '../../interactors/tutors';
 import type { UploadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor';
-import { UploadNewUnitFeedbackAlreadyClosed, UploadNewUnitFeedbackCouldNotCreateDirectory, UploadNewUnitFeedbackFileWriteError, UploadNewUnitFeedbackNotFound, UploadNewUnitFeedbackNotSubmitted, UploadNewUnitFeedbackWrongTutor, UploadNewUnitInvalidMimeType, UploadNewUnitUnknownMimeType } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor';
+import { UploadNewUnitFeedbackCouldNotCreateDirectory, UploadNewUnitFeedbackFileWriteError, UploadNewUnitFeedbackNotFound, UploadNewUnitFeedbackUnitAlreadyClosed, UploadNewUnitFeedbackUnitNotSubmitted, UploadNewUnitFeedbackUnitSkipped, UploadNewUnitFeedbackWrongTutor, UploadNewUnitInvalidMimeType, UploadNewUnitUnknownMimeType } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -85,9 +85,10 @@ export class UploadNewUnitFeedbackController extends BaseController<Request, Res
 
     switch (result.error.constructor) {
       case UploadNewUnitFeedbackNotFound:
-      case UploadNewUnitFeedbackNotSubmitted:
+      case UploadNewUnitFeedbackUnitNotSubmitted:
+      case UploadNewUnitFeedbackUnitSkipped:
         return this.notFound('Unit not found');
-      case UploadNewUnitFeedbackAlreadyClosed:
+      case UploadNewUnitFeedbackUnitAlreadyClosed:
         return this.forbidden('Unit is already closed');
       case UploadNewUnitFeedbackWrongTutor:
         return this.forbidden('No access to this unit');

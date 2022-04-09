@@ -19,7 +19,6 @@ export type SkipNewUnitResponseDTO = Omit<NewUnitDTO, 'complete' | 'points' | 'm
 export class SkipNewUnitNotFound extends Error { }
 export class SkipNewUnitEnrollmentOnHold extends Error { }
 export class SkipNewUnitAlreadySubmitted extends Error { }
-export class SkipNewUnitAlreadySkipped extends Error { }
 
 export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO, SkipNewUnitResponseDTO> {
 
@@ -57,13 +56,10 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         return Result.fail(new SkipNewUnitAlreadySubmitted());
       }
 
-      if (unit.skipped) {
-        return Result.fail(new SkipNewUnitAlreadySkipped());
-      }
-
       const updatedUnit = await this.prisma.newUnit.update({
         data: {
-          skipped: this.dateService.getDate(),
+          submitted: this.dateService.getDate(),
+          skipped: true,
           tutorId: unit.enrollment.tutorId,
         },
         where: { unitId: unitIdBin },
@@ -83,9 +79,9 @@ export class SkipNewUnitInteractor implements IInteractor<SkipNewUnitRequestDTO,
         tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename === null ? null : `${updatedUnit.enrollment.course.code}${updatedUnit.enrollment.enrollmentId} Unit ${updatedUnit.unitLetter}.mp3`,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

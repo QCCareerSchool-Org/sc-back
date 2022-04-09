@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { downloadNewUnitFeedbackInteractor } from '../../interactors/tutors';
-import { DownloadNewUnitFeedbackFileNotFound, DownloadNewUnitFeedbackFileReadError, DownloadNewUnitFeedbackNotFound, DownloadNewUnitFeedbackNotSubmitted, DownloadNewUnitFeedbackWrongTutor } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor';
+import { DownloadNewUnitFeedbackFileNotFound, DownloadNewUnitFeedbackFileReadError, DownloadNewUnitFeedbackNotFound, DownloadNewUnitFeedbackUnitNotSubmitted, DownloadNewUnitFeedbackUnitSkipped, DownloadNewUnitFeedbackWrongTutor } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor';
 import type { DownloadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor';
 import type { ByteRange } from '../baseController';
 import { BaseController } from '../baseController';
@@ -80,7 +80,8 @@ export class DownloadNewUnitFeedbackController extends BaseController<Request, R
 
     switch (result.error.constructor) {
       case DownloadNewUnitFeedbackNotFound:
-      case DownloadNewUnitFeedbackNotSubmitted:
+      case DownloadNewUnitFeedbackUnitNotSubmitted:
+      case DownloadNewUnitFeedbackUnitSkipped:
         return this.notFound('Unit not found');
       case DownloadNewUnitFeedbackWrongTutor:
         return this.forbidden('No access to this unit');

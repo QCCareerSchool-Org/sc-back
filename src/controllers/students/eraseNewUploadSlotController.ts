@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { eraseNewUploadSlotInteractor } from '../../interactors/students';
 import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor';
-import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSkipped, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor';
+import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -68,8 +68,6 @@ export class EraseNewUploadSlotController extends BaseController<Request, Respon
         return this.notFound('Upload slot not found');
       case EraseNewUploadSlotUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case EraseNewUploadSlotUnitSkipped:
-        return this.badRequest('Unit already skipped');
       case EraseNewUploadSlotUnlinkError:
         return this.internalServerError('Can\'t delete file');
       default:

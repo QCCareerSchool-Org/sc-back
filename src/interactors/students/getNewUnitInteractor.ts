@@ -74,9 +74,9 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: unit.submitted,
-        skipped: unit.skipped,
         transferred: unit.transferred,
-        marked: unit.marked,
+        closed: unit.closed,
+        skipped: unit.skipped,
         responseFilename: unit.responseFilename === null ? null : `${unit.enrollment.course.code}${unit.enrollment.enrollmentId} Unit ${unit.unitLetter}.mp3`,
         responseFilesize: unit.responseFilesize,
         responseMimeTypeId: unit.responseMimeTypeId,
@@ -203,7 +203,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 }),
                 complete: partComplete,
                 points: partPoints,
-                mark: unit.marked && partMark,
+                mark: unit.closed && partMark,
               };
               if (!partComplete) {
                 assignmentComplete = false;
@@ -218,7 +218,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             }),
             complete: assignmentComplete,
             points: assignmentPoints,
-            mark: unit.marked && assignmentMarked ? assignmentMark : null,
+            mark: unit.closed && assignmentMarked ? assignmentMark : null,
           };
           if (!a.optional && !assignmentComplete) {
             unitComplete = false;
@@ -235,7 +235,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         }),
         complete: unitComplete,
         points: unitPoints,
-        mark: unit.marked && unitMarked ? unitMark : null,
+        mark: unit.closed && unitMarked ? unitMark : null,
       });
 
     } catch (err) {

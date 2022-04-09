@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewTextBoxTextInteractor } from '../../interactors/students';
 import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/students/saveNewTextBoxTextInteractor';
-import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextTooLong, SaveNewTextBoxTextUnitSkipped, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/students/saveNewTextBoxTextInteractor';
+import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextTooLong, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/students/saveNewTextBoxTextInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -78,8 +78,6 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
         return this.notFound('Text box not found');
       case SaveNewTextBoxTextUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case SaveNewTextBoxTextUnitSkipped:
-        return this.badRequest('Unit already skipped');
       case SaveNewTextBoxTextTooLong:
         return this.badRequest('Text exceeds maximum length');
       default:

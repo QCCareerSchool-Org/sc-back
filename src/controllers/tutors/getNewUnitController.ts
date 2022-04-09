@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { getNewUnitInteractor } from '../../interactors/tutors';
 import type { GetNewUnitResponseDTO } from '../../interactors/tutors/getNewUnitInteractor';
-import { GetNewUnitNotFound, GetNewUnitNotSubmitted, GetNewUnitWrongTutor } from '../../interactors/tutors/getNewUnitInteractor';
+import { GetNewUnitNotFound, GetNewUnitNotSubmitted, GetNewUnitSkipped, GetNewUnitWrongTutor } from '../../interactors/tutors/getNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -57,6 +57,7 @@ export class GetNewUnitController extends BaseController<Request, Response> {
     switch (result.error.constructor) {
       case GetNewUnitNotFound:
       case GetNewUnitNotSubmitted:
+      case GetNewUnitSkipped:
         return this.notFound('Unit not found');
       case GetNewUnitWrongTutor:
         return this.forbidden('No access to this unit');

@@ -9,15 +9,6 @@ import { Result } from '../result';
 
 export type SaveNewTextBoxMarkRequestDTO = {
   tutorId: number;
-  studentId: number;
-  courseId: number;
-  /** uuid */
-  unitId: string;
-  /** uuid */
-  assignmentId: string;
-  /** uuid */
-  partId: string;
-  /** uuid */
   textBoxId: string;
   mark: number | null;
 };
@@ -25,7 +16,8 @@ export type SaveNewTextBoxMarkRequestDTO = {
 export type SaveNewTextBoxMarkResponseDTO = NewTextBoxDTO;
 
 export class SaveNewTextBoxMarkNotFound extends Error { }
-export class SaveNewTextBoxMarkUnitAlreadySubmitted extends Error { }
+export class SaveNewTextBoxMarkUnitNotSubmitted extends Error { }
+export class SaveNewTextBoxMarkUnitSkipped extends Error { }
 export class SaveNewTextBoxMarkUnitAlreadyClosed extends Error { }
 export class SaveNewTextBoxMarkWrongTutor extends Error { }
 export class SaveNewTextBoxMarkAlreadyReturned extends Error { }
@@ -44,25 +36,34 @@ export class SaveNewTextBoxMarkInteractor implements IInteractor<SaveNewTextBoxM
 
   public async execute(request: SaveNewTextBoxMarkRequestDTO): Promise<ResultType<SaveNewTextBoxMarkResponseDTO>> {
     try {
-      const { tutorId, studentId, courseId, mark } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
+      const { tutorId, mark } = request;
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
       const newTextBox = await this.prisma.newTextBox.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: { include: { tutor: true } } } } } } },
+        where: { textBoxId: textBoxIdBin },
+        include: {
+          newPart: {
+            include: {
+              newAssignment: {
+                include: { newUnit: true },
+              },
+            },
+          },
+        },
       });
       if (!newTextBox) {
         throw new SaveNewTextBoxMarkNotFound();
       }
 
       if (!newTextBox.newPart.newAssignment.newUnit.submitted) {
-        throw new SaveNewTextBoxMarkUnitAlreadySubmitted();
+        throw new SaveNewTextBoxMarkUnitNotSubmitted();
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.marked) {
+      if (newTextBox.newPart.newAssignment.newUnit.skipped) {
+        throw new SaveNewTextBoxMarkUnitSkipped();
+      }
+
+      if (newTextBox.newPart.newAssignment.newUnit.closed) {
         return Result.fail(new SaveNewTextBoxMarkUnitAlreadyClosed());
       }
 

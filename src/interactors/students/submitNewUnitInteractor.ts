@@ -20,7 +20,6 @@ export type SubmitNewUnitResponseDTO = Omit<NewUnitDTO, 'complete' | 'points' | 
 export class SubmitNewUnitNotFound extends Error { }
 export class SubmitNewUnitEnrollmentOnHold extends Error { }
 export class SubmitNewUnitAlreadySubmitted extends Error { }
-export class SubmitNewUnitAlreadySkipped extends Error { }
 export class SubmitNewUnitAwaitingAdminComment extends Error { }
 export class SubmitNewUnitIncomplete extends Error { }
 export class SubmitNewUnitTutorNotAssigned extends Error { }
@@ -61,10 +60,6 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         return Result.fail(new SubmitNewUnitAlreadySubmitted());
       }
 
-      if (unit.skipped) {
-        return Result.fail(new SubmitNewUnitAlreadySkipped());
-      }
-
       // see if the tutor has sent this back to the student, but an administrator hasn't reviewed it yet
       if (unit.tutorComment !== null && unit.adminComment === null) {
         return Result.fail(new SubmitNewUnitAwaitingAdminComment());
@@ -81,6 +76,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
       const updatedUnit = await this.prisma.newUnit.update({
         data: {
           submitted: this.dateService.getDate(),
+          skipped: false,
           tutorId: unit.enrollment.tutorId,
         },
         where: { unitId: unitIdBin },
@@ -100,9 +96,9 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         tutorComment: null, // students should never see the tutor comment
         adminComment: unit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename === null ? null : `${updatedUnit.enrollment.course.code}${updatedUnit.enrollment.enrollmentId} Unit ${updatedUnit.unitLetter}.mp3`,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

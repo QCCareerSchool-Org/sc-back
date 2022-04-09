@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { skipNewUnitInteractor } from '../../interactors/students';
 import type { SkipNewUnitResponseDTO } from '../../interactors/students/skipNewUnitInteractor';
-import { SkipNewUnitAlreadySkipped, SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/students/skipNewUnitInteractor';
+import { SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/students/skipNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -61,8 +61,6 @@ export class SkipNewUnitController extends BaseController<Request, Response> {
         return this.badRequest('Course is on hold');
       case SkipNewUnitAlreadySubmitted:
         return this.badRequest('Unit has already been submitted');
-      case SkipNewUnitAlreadySkipped:
-        return this.badRequest('Unit has already been skipped');
       default:
         return this.internalServerError(result.error.message);
     }

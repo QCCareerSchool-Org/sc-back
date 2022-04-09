@@ -18,6 +18,7 @@ export type ReturnNewUnitResponseDTO = NewUnitDTO;
 
 export class ReturnNewUnitNotFound extends Error { }
 export class ReturnNewUnitNotSubmitted extends Error { }
+export class ReturnNewUnitSkipped extends Error { }
 export class ReturnNewUnitAlreadyClosed extends Error { }
 export class ReturnNewUnitWrongTutor extends Error { }
 export class ReturnNewUnitAlreadyReturned extends Error { }
@@ -48,7 +49,11 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
         return Result.fail(new ReturnNewUnitNotSubmitted());
       }
 
-      if (newUnit.marked) {
+      if (newUnit.skipped) {
+        return Result.fail(new ReturnNewUnitSkipped());
+      }
+
+      if (newUnit.closed) {
         return Result.fail(new ReturnNewUnitAlreadyClosed());
       }
 
@@ -149,9 +154,9 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
         tutorComment: updatedUnit.tutorComment,
         adminComment: updatedUnit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

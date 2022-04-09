@@ -21,7 +21,8 @@ export type DownloadNewUnitFeedbackRequestDTO = {
 export type DownloadNewUnitFeedbackResponseDTO = InteractorFileStream;
 
 export class DownloadNewUnitFeedbackNotFound extends Error { }
-export class DownloadNewUnitFeedbackNotSubmitted extends Error { }
+export class DownloadNewUnitFeedbackUnitNotSubmitted extends Error { }
+export class DownloadNewUnitFeedbackUnitSkipped extends Error { }
 export class DownloadNewUnitFeedbackWrongTutor extends Error { }
 export class DownloadNewUnitFeedbackFileNotFound extends Error { }
 export class DownloadNewUnitFeedbackFileReadError extends Error { }
@@ -54,7 +55,11 @@ export class DownloadNewUnitFeedbackInteractor implements IInteractor<DownloadNe
       }
 
       if (!newUnit.submitted) {
-        return Result.fail(new DownloadNewUnitFeedbackNotSubmitted());
+        return Result.fail(new DownloadNewUnitFeedbackUnitNotSubmitted());
+      }
+
+      if (newUnit.skipped) {
+        return Result.fail(new DownloadNewUnitFeedbackUnitSkipped());
       }
 
       if (newUnit.tutorId !== tutorId) {

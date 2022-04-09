@@ -78,9 +78,6 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         description: assignment.description,
         markingCriteria: null, // students should never see the marking criteria
         optional: assignment.optional,
-        // complete: assignment.complete,
-        // points: assignment.points,
-        // mark: assignment.newUnit.marked ? assignment.mark : null, // hide the mark unless the unit is marked
         created: assignment.created,
         modified: assignment.modified,
         newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
@@ -110,9 +107,6 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             descriptionType: p.descriptionType,
             markingCriteria: null, // students should never see the marking criteria
             markingComments: null, // students should never see the marking comments
-            // complete: p.complete,
-            // points: p.points,
-            // mark: assignment.newUnit.marked ? p.mark : null, // hide the mark unless the unit is marked
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {
@@ -136,10 +130,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
-                // complete: t.complete,
                 complete: textBoxComplete,
                 points: t.points,
-                mark: assignment.newUnit.marked ? t.mark : null, // hide the mark unless the unit is marked
+                mark: assignment.newUnit.closed ? t.mark : null, // hide the mark unless the unit is marked
                 created: t.created,
                 modified: t.modified,
               };
@@ -167,10 +160,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 filename: u.filename,
                 filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
-                // complete: u.complete,
                 complete: uploadSlotComplete,
                 points: u.points,
-                mark: assignment.newUnit.marked ? u.mark : null, // hide the mark unless the unit is marked
+                mark: assignment.newUnit.closed ? u.mark : null, // hide the mark unless the unit is marked
                 created: u.created,
                 modified: u.modified,
               };
@@ -190,7 +182,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             })),
             complete: partComplete,
             points: partPoints,
-            mark: assignment.newUnit.marked && partMarked ? partMark : null,
+            mark: assignment.newUnit.closed && partMarked ? partMark : null,
           };
           if (!partComplete) {
             assignmentComplete = false;
@@ -205,7 +197,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         }),
         complete: assignmentComplete,
         points: assignmentPoints,
-        mark: assignment.newUnit.marked && assignmentMarked ? assignmentMark : null,
+        mark: assignment.newUnit.closed && assignmentMarked ? assignmentMark : null,
       });
 
     } catch (err) {

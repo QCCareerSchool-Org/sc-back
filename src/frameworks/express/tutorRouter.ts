@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import multer from 'multer';
+
 import { CloseNewUnitController } from '../../controllers/tutors/closeNewUnitController';
 import { DownloadNewUnitFeedbackController } from '../../controllers/tutors/downloadNewAssignmentFeedbackController';
 import { EraseNewUnitFeedbackController } from '../../controllers/tutors/eraseNewAssignmentFeedbackController';
-
 import { GetNewAssignmentController } from '../../controllers/tutors/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/tutors/getNewUnitController';
 import { ReturnNewUnitController } from '../../controllers/tutors/returnNewUnitController';
+import { SaveNewTextBoxMarkController } from '../../controllers/tutors/saveNewTextBoxMarkController';
 import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware';
 import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
 import { asyncWrapper } from './asyncWrapper';
@@ -49,4 +50,10 @@ tutorRouter.delete(
 tutorRouter.get(
   '/:tutorId/students/:studentId/newUnits/:unitId/assignments/:assignmentId',
   asyncWrapper(async (req, res) => new GetNewAssignmentController(req, res).execute()),
+);
+
+// text boxes
+tutorRouter.put(
+  '/:tutorId/newTextBoxes/:textBoxId/mark',
+  asyncWrapper(async (req, res) => new SaveNewTextBoxMarkController(req, res).execute()),
 );

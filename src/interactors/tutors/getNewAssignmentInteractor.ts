@@ -33,6 +33,7 @@ export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
 
 export class GetNewAssignmentNotFound extends Error { }
 export class GetNewAssignmentUnitNotSubmitted extends Error { }
+export class GetNewAssignmentUnitSkipped extends Error { }
 export class GetNewAssignmentWrongTutor extends Error { }
 
 export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
@@ -75,6 +76,10 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentUnitNotSubmitted());
       }
 
+      if (newAssignment.newUnit.skipped) {
+        return Result.fail(new GetNewAssignmentUnitSkipped());
+      }
+
       if (newAssignment.newUnit.tutorId !== tutorId && newAssignment.newUnit.enrollment.tutorId !== tutorId) {
         return Result.fail(new GetNewAssignmentWrongTutor());
       }
@@ -92,9 +97,6 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         description: newAssignment.description,
         markingCriteria: newAssignment.markingCriteria,
         optional: newAssignment.optional,
-        // complete: assignment.complete,
-        // points: assignment.points,
-        // mark: assignment.mark,
         created: newAssignment.created,
         modified: newAssignment.modified,
         newUnit: {
@@ -110,9 +112,9 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           tutorComment: newAssignment.newUnit.tutorComment,
           adminComment: newAssignment.newUnit.adminComment,
           submitted: newAssignment.newUnit.submitted,
-          skipped: newAssignment.newUnit.skipped,
           transferred: newAssignment.newUnit.transferred,
-          marked: newAssignment.newUnit.marked,
+          closed: newAssignment.newUnit.closed,
+          skipped: newAssignment.newUnit.skipped,
           responseFilename: newAssignment.newUnit.responseFilename,
           responseFilesize: newAssignment.newUnit.responseFilesize,
           responseMimeTypeId: newAssignment.newUnit.responseMimeTypeId,
@@ -165,9 +167,6 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             descriptionType: p.descriptionType,
             markingCriteria: p.markingCriteria,
             markingComments: p.markingComments,
-            // complete: p.complete,
-            // points: p.points,
-            // mark: p.mark,
             created: p.created,
             modified: p.modified,
             newTextBoxes: p.newTextBoxes.map(t => {

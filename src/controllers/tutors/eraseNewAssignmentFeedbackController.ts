@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { eraseNewUnitFeedbackInteractor } from '../../interactors/tutors';
 import type { EraseNewUnitFeedbackResponseDTO } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
-import { EraseNewUnitFeedbackAlreadyClosed, EraseNewUnitFeedbackFileUnlinkError, EraseNewUnitFeedbackNotFound, EraseNewUnitFeedbackNotSubmitted, EraseNewUnitFeedbackWrongTutor } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
+import { EraseNewUnitFeedbackFileUnlinkError, EraseNewUnitFeedbackNotFound, EraseNewUnitFeedbackUnitAlreadyClosed, EraseNewUnitFeedbackUnitNotSubmitted, EraseNewUnitFeedbackUnitSkipped, EraseNewUnitFeedbackWrongTutor } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -56,9 +56,10 @@ export class EraseNewUnitFeedbackController extends BaseController<Request, Resp
 
     switch (result.error.constructor) {
       case EraseNewUnitFeedbackNotFound:
-      case EraseNewUnitFeedbackNotSubmitted:
+      case EraseNewUnitFeedbackUnitNotSubmitted:
+      case EraseNewUnitFeedbackUnitSkipped:
         return this.notFound('Unit not found');
-      case EraseNewUnitFeedbackAlreadyClosed:
+      case EraseNewUnitFeedbackUnitAlreadyClosed:
         return this.forbidden('Unit is already closed');
       case EraseNewUnitFeedbackWrongTutor:
         return this.forbidden('No access to this unit');

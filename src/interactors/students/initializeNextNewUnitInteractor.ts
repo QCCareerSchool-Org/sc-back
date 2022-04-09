@@ -52,8 +52,8 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         return Result.fail(new InitializeNextNewUnitEnrollmentOnHold());
       }
 
-      // see if there are any unskipped and unmarked units
-      if (enrollment.newUnits.some(u => !u.skipped && !u.marked)) {
+      // make sure there are no open (unskipped or unmarked) units
+      if (enrollment.newUnits.every(u => u.submitted && (u.skipped || u.closed))) {
         return Result.fail(new InitializeNextNewUnitNotReady());
       }
 
@@ -273,9 +273,9 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         tutorComment: null, // students should never see the tutor comment
         adminComment: nextUnit.adminComment,
         submitted: nextUnit.submitted,
-        skipped: nextUnit.skipped,
         transferred: nextUnit.transferred,
-        marked: nextUnit.marked,
+        closed: nextUnit.closed,
+        skipped: nextUnit.skipped,
         responseFilename: nextUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${nextUnit.unitLetter}.mp3`,
         responseFilesize: nextUnit.responseFilesize,
         responseMimeTypeId: nextUnit.responseMimeTypeId,
@@ -284,7 +284,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         // mark: nextUnit.marked ? nextUnit.mark : null,
         complete: unitComplete,
         points: unitPoints,
-        mark: nextUnit.marked && unitMarked ? unitMark : null,
+        mark: nextUnit.closed && unitMarked ? unitMark : null,
         created: nextUnit.created,
         modified: nextUnit.modified,
       });

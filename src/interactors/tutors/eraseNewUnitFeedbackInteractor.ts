@@ -18,8 +18,9 @@ export type EraseNewUnitFeedbackRequestDTO = {
 export type EraseNewUnitFeedbackResponseDTO = NewUnitDTO;
 
 export class EraseNewUnitFeedbackNotFound extends Error { }
-export class EraseNewUnitFeedbackNotSubmitted extends Error { }
-export class EraseNewUnitFeedbackAlreadyClosed extends Error { }
+export class EraseNewUnitFeedbackUnitNotSubmitted extends Error { }
+export class EraseNewUnitFeedbackUnitSkipped extends Error { }
+export class EraseNewUnitFeedbackUnitAlreadyClosed extends Error { }
 export class EraseNewUnitFeedbackWrongTutor extends Error { }
 export class EraseNewUnitFeedbackFileUnlinkError extends Error { }
 
@@ -49,11 +50,15 @@ export class EraseNewUnitFeedbackInteractor implements IInteractor<EraseNewUnitF
       }
 
       if (!newUnit.submitted) {
-        return Result.fail(new EraseNewUnitFeedbackNotSubmitted());
+        return Result.fail(new EraseNewUnitFeedbackUnitNotSubmitted());
       }
 
-      if (newUnit.marked) {
-        return Result.fail(new EraseNewUnitFeedbackAlreadyClosed());
+      if (newUnit.skipped) {
+        return Result.fail(new EraseNewUnitFeedbackUnitSkipped());
+      }
+
+      if (newUnit.closed) {
+        return Result.fail(new EraseNewUnitFeedbackUnitAlreadyClosed());
       }
 
       if (newUnit.tutorId !== tutorId) {
@@ -164,9 +169,9 @@ export class EraseNewUnitFeedbackInteractor implements IInteractor<EraseNewUnitF
         tutorComment: updatedUnit.tutorComment,
         adminComment: updatedUnit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

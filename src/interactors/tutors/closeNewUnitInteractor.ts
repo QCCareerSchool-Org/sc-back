@@ -18,6 +18,7 @@ export type CloseNewUnitResponseDTO = NewUnitDTO;
 
 export class CloseNewUnitNotFound extends Error { }
 export class CloseNewUnitNotSubmitted extends Error { }
+export class CloseNewUnitSkipped extends Error { }
 export class CloseNewUnitAlreadyClosed extends Error { }
 export class CloseNewUnitWrongTutor extends Error { }
 export class CloseNewUnitAlreadyReturned extends Error { }
@@ -50,7 +51,11 @@ export class CloseNewUnitInteractor implements IInteractor<CloseNewUnitRequestDT
         return Result.fail(new CloseNewUnitNotSubmitted());
       }
 
-      if (newUnit.marked) {
+      if (newUnit.skipped) {
+        return Result.fail(new CloseNewUnitSkipped());
+      }
+
+      if (newUnit.closed) {
         return Result.fail(new CloseNewUnitAlreadyClosed());
       }
 
@@ -137,7 +142,7 @@ export class CloseNewUnitInteractor implements IInteractor<CloseNewUnitRequestDT
       }
 
       const updatedUnit = await this.prisma.newUnit.update({
-        data: { marked: this.dateService.getDate() },
+        data: { closed: this.dateService.getDate() },
         where: { unitId: unitIdBin },
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });
@@ -221,9 +226,9 @@ export class CloseNewUnitInteractor implements IInteractor<CloseNewUnitRequestDT
         tutorComment: updatedUnit.tutorComment,
         adminComment: updatedUnit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

@@ -265,18 +265,15 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             tutorComment: null, // students should never see the tutor comment
             adminComment: newUnit.adminComment,
             submitted: newUnit.submitted,
-            skipped: newUnit.skipped,
             transferred: newUnit.transferred,
-            marked: newUnit.marked,
+            closed: newUnit.closed,
+            skipped: newUnit.skipped,
             responseFilename: newUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${newUnit.unitLetter}.mp3`,
             responseFilesize: newUnit.responseFilesize,
             responseMimeTypeId: newUnit.responseMimeTypeId,
-            // complete: newUnit.complete,
-            // points: newUnit.points,
-            // mark: newUnit.marked ? newUnit.mark : null, // hide the mark unles the unit is marked
             complete: unitComplete,
             points: unitPoints,
-            mark: newUnit.marked && unitMarked ? unitMark : null,
+            mark: newUnit.closed && unitMarked ? unitMark : null,
             created: newUnit.created,
             modified: newUnit.modified,
           };

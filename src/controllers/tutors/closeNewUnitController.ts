@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { closeNewUnitInteractor } from '../../interactors/tutors';
 import type { CloseNewUnitResponseDTO } from '../../interactors/tutors/closeNewUnitInteractor';
-import { CloseNewUnitAlreadyClosed, CloseNewUnitAlreadyReturned, CloseNewUnitNoFeedback, CloseNewUnitNotFound, CloseNewUnitNotMarked, CloseNewUnitNotSubmitted, CloseNewUnitWrongTutor } from '../../interactors/tutors/closeNewUnitInteractor';
+import { CloseNewUnitAlreadyClosed, CloseNewUnitAlreadyReturned, CloseNewUnitNoFeedback, CloseNewUnitNotFound, CloseNewUnitNotMarked, CloseNewUnitNotSubmitted, CloseNewUnitSkipped, CloseNewUnitWrongTutor } from '../../interactors/tutors/closeNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -57,6 +57,7 @@ export class CloseNewUnitController extends BaseController<Request, Response> {
     switch (result.error.constructor) {
       case CloseNewUnitNotFound:
       case CloseNewUnitNotSubmitted:
+      case CloseNewUnitSkipped:
         return this.badRequest('Unit not found');
       case CloseNewUnitAlreadyClosed:
         return this.badRequest('Unit is already closed');

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { uploadNewUploadSlotInteractor } from '../../interactors/students';
 import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor';
-import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSkipped, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor';
+import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -100,8 +100,6 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
         return this.notFound('Upload slot not found');
       case UploadNewUploadSlotUnitSubmitted:
         return this.badRequest('Unit already submitted');
-      case UploadNewUploadSlotUnitSkipped:
-        return this.badRequest('Unit already skipped');
       case UploadNewUploadSlotFileTooLarge:
         return this.badRequest('File too large');
       case UploadNewUploadSlotInvalidFileType:
@@ -109,7 +107,6 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
       case UploadNewUploadSlotEntityNotFound:
         return this.internalServerError('Associated entity not found');
       case UploadNewUploadSlotCouldNotCreateDirectory:
-        return this.internalServerError('Can\'t save file');
       case UploadNewUploadSlotSaveError:
         return this.internalServerError('Can\'t save file');
       default:

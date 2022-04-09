@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { submitNewUnitInteractor } from '../../interactors/students';
 import type { SubmitNewUnitResponseDTO } from '../../interactors/students/submitNewUnitInteractor';
-import { SubmitNewUnitAlreadySkipped, SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
+import { SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -63,8 +63,6 @@ export class SubmitNewUnitController extends BaseController<Request, Response> {
         return this.badRequest('Unit is not complete');
       case SubmitNewUnitAlreadySubmitted:
         return this.badRequest('Unit has already been submitted');
-      case SubmitNewUnitAlreadySkipped:
-        return this.badRequest('Unit has already been skipped');
       case SubmitNewUnitTutorNotAssigned:
         return this.badRequest('Tutor is not assigned');
       default:

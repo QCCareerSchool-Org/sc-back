@@ -27,6 +27,7 @@ export type GetNewUnitResponseDTO = NewUnitDTO & {
 
 export class GetNewUnitNotFound extends Error { }
 export class GetNewUnitNotSubmitted extends Error { }
+export class GetNewUnitSkipped extends Error { }
 export class GetNewUnitWrongTutor extends Error { }
 
 export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, GetNewUnitResponseDTO> {
@@ -61,6 +62,10 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         return Result.fail(new GetNewUnitNotSubmitted());
       }
 
+      if (newUnit.skipped) {
+        return Result.fail(new GetNewUnitSkipped());
+      }
+
       if (newUnit.tutorId !== tutorId && newUnit.enrollment.tutorId !== tutorId) {
         return Result.fail(new GetNewUnitWrongTutor());
       }
@@ -83,15 +88,12 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         tutorComment: newUnit.tutorComment,
         adminComment: newUnit.adminComment,
         submitted: newUnit.submitted,
-        skipped: newUnit.skipped,
         transferred: newUnit.transferred,
-        marked: newUnit.marked,
+        closed: newUnit.closed,
+        skipped: newUnit.skipped,
         responseFilename: newUnit.responseFilename,
         responseFilesize: newUnit.responseFilesize,
         responseMimeTypeId: newUnit.responseMimeTypeId,
-        // complete: newUnit.complete,
-        // points: newUnit.points,
-        // mark: newUnit.mark,
         created: newUnit.created,
         modified: newUnit.modified,
         enrollment: {

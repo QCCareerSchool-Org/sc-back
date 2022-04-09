@@ -19,8 +19,9 @@ export type UploadNewUnitFeedbackRequestDTO = {
 export type UploadNewUnitFeedbackResponseDTO = NewUnitDTO;
 
 export class UploadNewUnitFeedbackNotFound extends Error { }
-export class UploadNewUnitFeedbackNotSubmitted extends Error { }
-export class UploadNewUnitFeedbackAlreadyClosed extends Error { }
+export class UploadNewUnitFeedbackUnitNotSubmitted extends Error { }
+export class UploadNewUnitFeedbackUnitSkipped extends Error { }
+export class UploadNewUnitFeedbackUnitAlreadyClosed extends Error { }
 export class UploadNewUnitFeedbackWrongTutor extends Error { }
 export class UploadNewUnitUnknownMimeType extends Error { }
 export class UploadNewUnitInvalidMimeType extends Error { }
@@ -53,11 +54,15 @@ export class UploadNewUnitFeedbackInteractor implements IInteractor<UploadNewUni
       }
 
       if (!newUnit.submitted) {
-        return Result.fail(new UploadNewUnitFeedbackNotSubmitted());
+        return Result.fail(new UploadNewUnitFeedbackUnitNotSubmitted());
       }
 
-      if (newUnit.marked) {
-        return Result.fail(new UploadNewUnitFeedbackAlreadyClosed());
+      if (newUnit.skipped) {
+        return Result.fail(new UploadNewUnitFeedbackUnitSkipped());
+      }
+
+      if (newUnit.closed) {
+        return Result.fail(new UploadNewUnitFeedbackUnitAlreadyClosed());
       }
 
       if (newUnit.tutorId !== tutorId) {
@@ -209,9 +214,9 @@ export class UploadNewUnitFeedbackInteractor implements IInteractor<UploadNewUni
         tutorComment: updatedUnit.tutorComment,
         adminComment: updatedUnit.adminComment,
         submitted: updatedUnit.submitted,
-        skipped: updatedUnit.skipped,
         transferred: updatedUnit.transferred,
-        marked: updatedUnit.marked,
+        closed: updatedUnit.closed,
+        skipped: updatedUnit.skipped,
         responseFilename: updatedUnit.responseFilename,
         responseFilesize: updatedUnit.responseFilesize,
         responseMimeTypeId: updatedUnit.responseMimeTypeId,

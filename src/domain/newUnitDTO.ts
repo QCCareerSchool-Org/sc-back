@@ -14,9 +14,9 @@ export type NewUnitDTO = {
   tutorComment: string | null;
   adminComment: string | null;
   submitted: Date | null;
-  skipped: Date | null;
   transferred: Date | null;
-  marked: Date | null;
+  closed: Date | null;
+  skipped: boolean;
   responseFilename: string | null;
   responseFilesize: number | null;
   responseMimeTypeId: string | null;
