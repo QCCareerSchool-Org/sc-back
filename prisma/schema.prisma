@@ -1464,6 +1464,7 @@ model NewTextBox {
   text        String    @db.Text @default("")
   points      Int       @default(0) @db.Int
   mark        Int?      @db.Int
+  notes       String?   @db.Text
   created     DateTime  @default(now()) @db.DateTime(0)
   modified    DateTime? @db.DateTime(0) @updatedAt
   newPart     NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1", onDelete: Cascade)
@@ -1500,6 +1501,7 @@ model NewUploadSlot {
   mimeTypeId   String?   @db.VarChar(255) @map("mime_type_id")
   points       Int       @default(0) @db.Int
   mark         Int?      @db.Int
+  notes        String?   @db.Text
   compressed   Boolean   @default(false)
   created      DateTime  @default(now()) @db.DateTime(0)
   modified     DateTime? @db.DateTime(0) @updatedAt

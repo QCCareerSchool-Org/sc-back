@@ -7,26 +7,28 @@ import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
 import { Result } from '../result';
 
-export type SaveNewTextBoxMarkRequestDTO = {
+export type SaveNewTextBoxRequestDTO = {
   tutorId: number;
   textBoxId: string;
   mark: number | null;
+  notes: string | null;
 };
 
-export type SaveNewTextBoxMarkResponseDTO = NewTextBoxDTO;
+export type SaveNewTextBoxResponseDTO = NewTextBoxDTO;
 
-export class SaveNewTextBoxMarkNotFound extends Error { }
-export class SaveNewTextBoxMarkUnitNotSubmitted extends Error { }
-export class SaveNewTextBoxMarkUnitSkipped extends Error { }
-export class SaveNewTextBoxMarkUnitAlreadyClosed extends Error { }
-export class SaveNewTextBoxMarkWrongTutor extends Error { }
-export class SaveNewTextBoxMarkAlreadyReturned extends Error { }
-export class SaveNewTextBoxMarkIncomplete extends Error { }
-export class SaveNewTextBoxMarkZeroPoints extends Error { }
+export class SaveNewTextBoxNotFound extends Error { }
+export class SaveNewTextBoxUnitNotSubmitted extends Error { }
+export class SaveNewTextBoxUnitSkipped extends Error { }
+export class SaveNewTextBoxUnitAlreadyClosed extends Error { }
+export class SaveNewTextBoxWrongTutor extends Error { }
+export class SaveNewTextBoxAlreadyReturned extends Error { }
+export class SaveNewTextBoxIncomplete extends Error { }
+export class SaveNewTextBoxZeroPoints extends Error { }
 export class SaveNewTextBoxMarkLessThanZero extends Error { }
-export class SaveNewTextBoxMarkTooHigh extends Error { }
+export class SaveNewTextBoxMarkTooHigh extends Error { public constructor(public maxMark: number) { super(); } }
+export class SaveNewTextBoxNotesTooLong extends Error { }
 
-export class SaveNewTextBoxMarkInteractor implements IInteractor<SaveNewTextBoxMarkRequestDTO, SaveNewTextBoxMarkResponseDTO> {
+export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxRequestDTO, SaveNewTextBoxResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -34,9 +36,9 @@ export class SaveNewTextBoxMarkInteractor implements IInteractor<SaveNewTextBoxM
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: SaveNewTextBoxMarkRequestDTO): Promise<ResultType<SaveNewTextBoxMarkResponseDTO>> {
+  public async execute(request: SaveNewTextBoxRequestDTO): Promise<ResultType<SaveNewTextBoxResponseDTO>> {
     try {
-      const { tutorId, mark } = request;
+      const { tutorId, mark, notes } = request;
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
       const newTextBox = await this.prisma.newTextBox.findFirst({
@@ -52,48 +54,55 @@ export class SaveNewTextBoxMarkInteractor implements IInteractor<SaveNewTextBoxM
         },
       });
       if (!newTextBox) {
-        throw new SaveNewTextBoxMarkNotFound();
+        throw new SaveNewTextBoxNotFound();
       }
 
       if (!newTextBox.newPart.newAssignment.newUnit.submitted) {
-        throw new SaveNewTextBoxMarkUnitNotSubmitted();
+        throw new SaveNewTextBoxUnitNotSubmitted();
       }
 
       if (newTextBox.newPart.newAssignment.newUnit.skipped) {
-        throw new SaveNewTextBoxMarkUnitSkipped();
+        throw new SaveNewTextBoxUnitSkipped();
       }
 
       if (newTextBox.newPart.newAssignment.newUnit.closed) {
-        return Result.fail(new SaveNewTextBoxMarkUnitAlreadyClosed());
+        return Result.fail(new SaveNewTextBoxUnitAlreadyClosed());
       }
 
       if (newTextBox.newPart.newAssignment.newUnit.tutorId !== tutorId) {
-        return Result.fail(new SaveNewTextBoxMarkWrongTutor());
+        return Result.fail(new SaveNewTextBoxWrongTutor());
       }
 
       if (newTextBox.newPart.newAssignment.newUnit.tutorComment) {
-        return Result.fail(new SaveNewTextBoxMarkAlreadyReturned());
+        return Result.fail(new SaveNewTextBoxAlreadyReturned());
       }
 
       if (newTextBox.text.length === 0) {
-        return Result.fail(new SaveNewTextBoxMarkIncomplete());
-      }
-
-      if (newTextBox.points === 0) {
-        return Result.fail(new SaveNewTextBoxMarkZeroPoints());
+        return Result.fail(new SaveNewTextBoxIncomplete());
       }
 
       if (mark !== null) {
+        if (newTextBox.points === 0) {
+          return Result.fail(new SaveNewTextBoxZeroPoints());
+        }
         if (mark < 0) {
           throw new SaveNewTextBoxMarkLessThanZero();
         }
         if (mark > newTextBox.points) {
-          throw new SaveNewTextBoxMarkTooHigh();
+          throw new SaveNewTextBoxMarkTooHigh(newTextBox.points);
+        }
+      }
+
+      if (notes !== null) {
+        const maxLength = 65_535;
+        const length = [ ...notes ].length;
+        if (length > maxLength) {
+          throw new SaveNewTextBoxNotesTooLong();
         }
       }
 
       const updatedTextBox = await this.prisma.newTextBox.update({
-        data: { mark },
+        data: { mark, notes: notes?.length ? notes : null },
         where: { textBoxId: textBoxIdBin },
       });
 
@@ -102,12 +111,13 @@ export class SaveNewTextBoxMarkInteractor implements IInteractor<SaveNewTextBoxM
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
+        points: updatedTextBox.points,
+        mark: updatedTextBox.mark,
+        notes: updatedTextBox.notes,
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        points: updatedTextBox.points,
-        mark: updatedTextBox.mark,
         created: updatedTextBox.created,
         modified: updatedTextBox.modified,
       });

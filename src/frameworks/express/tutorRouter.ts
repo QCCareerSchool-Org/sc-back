@@ -3,11 +3,15 @@ import multer from 'multer';
 
 import { CloseNewUnitController } from '../../controllers/tutors/closeNewUnitController';
 import { DownloadNewUnitFeedbackController } from '../../controllers/tutors/downloadNewAssignmentFeedbackController';
+import { DownloadNewAssignmentMediumController } from '../../controllers/tutors/downloadNewAssignmentMediumController';
+import { DownloadNewPartMediumController } from '../../controllers/tutors/downloadNewPartMediumController';
+import { DownloadNewUploadSlotController } from '../../controllers/tutors/downloadNewUploadSlotController';
 import { EraseNewUnitFeedbackController } from '../../controllers/tutors/eraseNewAssignmentFeedbackController';
 import { GetNewAssignmentController } from '../../controllers/tutors/getNewAssignmentController';
 import { GetNewUnitController } from '../../controllers/tutors/getNewUnitController';
 import { ReturnNewUnitController } from '../../controllers/tutors/returnNewUnitController';
-import { SaveNewTextBoxMarkController } from '../../controllers/tutors/saveNewTextBoxMarkController';
+import { SaveNewTextBoxController } from '../../controllers/tutors/saveNewTextBoxController';
+import { SaveNewUploadSlotController } from '../../controllers/tutors/saveNewUploadSlotController';
 import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware';
 import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
 import { asyncWrapper } from './asyncWrapper';
@@ -53,7 +57,30 @@ tutorRouter.get(
 );
 
 // text boxes
-tutorRouter.put(
-  '/:tutorId/newTextBoxes/:textBoxId/mark',
-  asyncWrapper(async (req, res) => new SaveNewTextBoxMarkController(req, res).execute()),
+tutorRouter.patch(
+  '/:tutorId/newTextBoxes/:textBoxId',
+  asyncWrapper(async (req, res) => new SaveNewTextBoxController(req, res).execute()),
+);
+
+// upload slots
+tutorRouter.patch(
+  '/:tutorId/newUploadSlots/:uploadSlotId',
+  asyncWrapper(async (req, res) => new SaveNewUploadSlotController(req, res).execute()),
+);
+
+tutorRouter.get(
+  '/:tutorId/newUploadSlots/:uploadSlotId/file',
+  asyncWrapper(async (req, res) => new DownloadNewUploadSlotController(req, res).execute()),
+);
+
+// assignment media
+tutorRouter.get(
+  '/:tutorId/newAssignmentMedia/:assignmentMediumId/file',
+  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
+);
+
+// part media
+tutorRouter.get(
+  '/:tutorId/newPartMedia/:partMediumId/file',
+  asyncWrapper(async (req, res) => new DownloadNewPartMediumController(req, res).execute()),
 );

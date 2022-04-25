@@ -1,12 +1,16 @@
 import { prisma } from '../../frameworks/prisma';
 import { dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services';
 import { CloseNewUnitInteractor } from './closeNewUnitInteractor';
+import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
+import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
 import { DownloadNewUnitFeedbackInteractor } from './downloadNewUnitFeedbackInteractor';
+import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor';
 import { EraseNewUnitFeedbackInteractor } from './eraseNewUnitFeedbackInteractor';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor';
 import { GetNewUnitInteractor } from './getNewUnitInteractor';
 import { ReturnNewUnitInteractor } from './returnNewUnitInteractor';
-import { SaveNewTextBoxMarkInteractor } from './saveNewTextBoxMarkInteractor';
+import { SaveNewTextBoxInteractor } from './saveNewTextBoxInteractor';
+import { SaveNewUploadSlotInteractor } from './saveNewUploadSlotInteractor';
 import { UploadNewUnitFeedbackInteractor } from './uploadNewUnitFeedbackInteractor';
 
 export const getNewUnitInteractor = new GetNewUnitInteractor(prisma, uuidService, winstonLoggerService);
@@ -16,4 +20,8 @@ export const downloadNewUnitFeedbackInteractor = new DownloadNewUnitFeedbackInte
 export const eraseNewUnitFeedbackInteractor = new EraseNewUnitFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const closeNewUnitInteractor = new CloseNewUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const returnNewUnitInteractor = new ReturnNewUnitInteractor(prisma, uuidService, winstonLoggerService);
-export const saveNewTextBoxMarkInteractor = new SaveNewTextBoxMarkInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, winstonLoggerService);
+export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);

@@ -7,6 +7,7 @@ export type NewTextBoxDTO = {
   lines: number | null;
   points: number;
   mark: number | null;
+  notes: string | null;
   optional: boolean;
   order: number;
   text: string;

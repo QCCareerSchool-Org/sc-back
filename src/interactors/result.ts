@@ -41,3 +41,11 @@ class ErrorResult implements IErrorResult {
 
   public constructor(public readonly error: Error) { /* empty */ }
 }
+
+export const isSuccessResult = <T>(result: ResultType<T>): result is ISuccessResult<T> => {
+  return result.success === true;
+};
+
+export const isErrorResult = <T>(result: ResultType<T>): result is IErrorResult => {
+  return result.success === false;
+};

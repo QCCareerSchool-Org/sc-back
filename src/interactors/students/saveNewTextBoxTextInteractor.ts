@@ -71,12 +71,13 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
+        points: updatedTextBox.points,
+        mark: updatedTextBox.newPart.newAssignment.newUnit.closed ? updatedTextBox.mark : null, // hide mark unless the unit is marked
+        notes: null, // students should never see the tutor's notes
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        points: updatedTextBox.points,
-        mark: updatedTextBox.newPart.newAssignment.newUnit.closed ? updatedTextBox.mark : null, // hide mark unless the unit is marked
         created: updatedTextBox.created,
         modified: updatedTextBox.modified,
       });

@@ -149,6 +149,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
         allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
         mark: updatedUploadSlot.newPart.newAssignment.newUnit.closed ? updatedUploadSlot.mark : null, // hide mark unless the unit is marked
+        notes: null, // students should never see the tutor's notes
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,
         filename: updatedUploadSlot.filename,

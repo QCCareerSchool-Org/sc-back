@@ -102,6 +102,10 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     return this.req.method === 'PUT';
   }
 
+  protected isPatchMethod(): boolean {
+    return this.req.method === 'PATCH';
+  }
+
   protected isDeleteMethod(): boolean {
     return this.req.method === 'DELETE';
   }

@@ -80,9 +80,6 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         responseFilename: unit.responseFilename === null ? null : `${unit.enrollment.course.code}${unit.enrollment.enrollmentId} Unit ${unit.unitLetter}.mp3`,
         responseFilesize: unit.responseFilesize,
         responseMimeTypeId: unit.responseMimeTypeId,
-        // complete: unit.complete,
-        // points: unit.points,
-        // mark: unit.marked ? unit.mark : null, // hide the mark unless the unit is marked
         created: unit.created,
         modified: unit.modified,
         enrollment: {
@@ -117,9 +114,6 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             description: a.description,
             markingCriteria: null, // students should never see the marking criteria
             optional: a.optional,
-            // complete: a.complete,
-            // points: a.points,
-            // mark: unit.marked ? a.mark : null, // hide the mark unless the unit is marked
             created: a.created,
             modified: a.modified,
             newParts: a.newParts.map(p => {
@@ -136,9 +130,6 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                 descriptionType: p.descriptionType,
                 markingCriteria: null, // students should never see the marking criteria
                 markingComments: null, // students should never see the marking comments
-                // complete: p.complete,
-                // points: p.points,
-                // mark: unit.marked ? p.mark : null, // hide the mark unless the unit is marked
                 created: p.created,
                 modified: p.modified,
                 newTextBoxes: p.newTextBoxes.map(t => {
@@ -159,13 +150,13 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                     partId: this.uuidService.binToUUID(t.partId),
                     description: t.description,
                     lines: t.lines,
+                    points: t.points,
+                    mark: t.mark,
+                    notes: null, // students should never see the tutor's notes
                     optional: t.optional,
                     order: t.order,
                     text: t.text,
                     complete: textBoxComplete,
-                    points: t.points,
-                    mark: t.mark,
-                    // complete: t.complete,
                     created: t.created,
                     modified: t.modified,
                   };
@@ -188,15 +179,15 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
                     partId: this.uuidService.binToUUID(u.partId),
                     label: u.label,
                     allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+                    points: u.points,
+                    mark: u.mark,
+                    notes: null, // students should never see the tutor's notes
                     optional: u.optional,
                     order: u.order,
                     filename: u.filename,
                     filesize: u.filesize,
                     mimeTypeId: u.mimeTypeId,
                     complete: uploadSlotComplete,
-                    points: u.points,
-                    mark: u.mark,
-                    // complete: u.complete,
                     created: u.created,
                     modified: u.modified,
                   };

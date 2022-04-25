@@ -127,12 +127,13 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 partId: this.uuidService.binToUUID(t.partId),
                 description: t.description,
                 lines: t.lines,
+                points: t.points,
+                mark: assignment.newUnit.closed ? t.mark : null, // hide the mark unless the unit is marked
+                notes: null, // students should never see the tutor's notes
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
                 complete: textBoxComplete,
-                points: t.points,
-                mark: assignment.newUnit.closed ? t.mark : null, // hide the mark unless the unit is marked
                 created: t.created,
                 modified: t.modified,
               };
@@ -155,14 +156,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 partId: this.uuidService.binToUUID(u.partId),
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+                points: u.points,
+                mark: assignment.newUnit.closed ? u.mark : null, // hide the mark unless the unit is marked
+                notes: null, // students should never see the tutor's notes
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,
                 filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
                 complete: uploadSlotComplete,
-                points: u.points,
-                mark: assignment.newUnit.closed ? u.mark : null, // hide the mark unless the unit is marked
                 created: u.created,
                 modified: u.modified,
               };

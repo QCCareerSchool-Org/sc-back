@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { saveNewTextBoxMarkInteractor } from '../../interactors/tutors';
-import type { SaveNewTextBoxMarkResponseDTO } from '../../interactors/tutors/saveNewTextBoxMarkInteractor';
-import { SaveNewTextBoxMarkAlreadyReturned, SaveNewTextBoxMarkIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkNotFound, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxMarkUnitAlreadyClosed, SaveNewTextBoxMarkUnitNotSubmitted, SaveNewTextBoxMarkUnitSkipped, SaveNewTextBoxMarkWrongTutor, SaveNewTextBoxMarkZeroPoints } from '../../interactors/tutors/saveNewTextBoxMarkInteractor';
+import { saveNewTextBoxInteractor } from '../../interactors/tutors';
+import type { SaveNewTextBoxResponseDTO } from '../../interactors/tutors/saveNewTextBoxInteractor';
+import { SaveNewTextBoxAlreadyReturned, SaveNewTextBoxIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxNotesTooLong, SaveNewTextBoxNotFound, SaveNewTextBoxUnitAlreadyClosed, SaveNewTextBoxUnitNotSubmitted, SaveNewTextBoxUnitSkipped, SaveNewTextBoxWrongTutor, SaveNewTextBoxZeroPoints } from '../../interactors/tutors/saveNewTextBoxInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -14,12 +14,13 @@ type Request = {
   };
   body: {
     mark: number | null;
+    notes: string | null;
   };
 };
 
-type Response = SaveNewTextBoxMarkResponseDTO;
+type Response = SaveNewTextBoxResponseDTO;
 
-export class SaveNewTextBoxMarkController extends BaseController<Request, Response> {
+export class SaveNewTextBoxController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -28,6 +29,7 @@ export class SaveNewTextBoxMarkController extends BaseController<Request, Respon
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       mark: yup.number().nullable().defined(),
+      notes: yup.string().nullable().defined(),
     });
     try {
       const [ params, body ] = await Promise.all([
@@ -46,39 +48,41 @@ export class SaveNewTextBoxMarkController extends BaseController<Request, Respon
   }
 
   protected async executeImpl({ params, body }: Request): Promise<void> {
-    if (!this.isPutMethod()) {
+    if (!this.isPatchMethod()) {
       return this.methodNotAllowed();
     }
 
     const tutorId = parseInt(params.tutorId, 10);
     const { textBoxId } = params;
-    const { mark } = body;
+    const { mark, notes } = body;
 
-    const result = await saveNewTextBoxMarkInteractor.execute({ tutorId, textBoxId, mark });
+    const result = await saveNewTextBoxInteractor.execute({ tutorId, textBoxId, mark, notes });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case SaveNewTextBoxMarkNotFound:
-      case SaveNewTextBoxMarkUnitNotSubmitted:
-      case SaveNewTextBoxMarkUnitSkipped:
+      case SaveNewTextBoxNotFound:
+      case SaveNewTextBoxUnitNotSubmitted:
+      case SaveNewTextBoxUnitSkipped:
         return this.notFound('Text box not found');
-      case SaveNewTextBoxMarkUnitAlreadyClosed:
+      case SaveNewTextBoxUnitAlreadyClosed:
         return this.badRequest('Unit is already closed');
-      case SaveNewTextBoxMarkWrongTutor:
+      case SaveNewTextBoxWrongTutor:
         return this.forbidden('No access to this unit');
-      case SaveNewTextBoxMarkAlreadyReturned:
+      case SaveNewTextBoxAlreadyReturned:
         return this.badRequest('Unit is already retured');
-      case SaveNewTextBoxMarkIncomplete:
+      case SaveNewTextBoxIncomplete:
         return this.badRequest('Text box is not complete');
-      case SaveNewTextBoxMarkZeroPoints:
+      case SaveNewTextBoxZeroPoints:
         return this.badRequest('Text box is not markable (zero points)');
       case SaveNewTextBoxMarkLessThanZero:
         return this.badRequest('Mark must be greater than or equal to zero');
       case SaveNewTextBoxMarkTooHigh:
-        return this.badRequest('Mark must be less than or equal to points');
+        return this.badRequest(`Mark must be less than or equal to ${(result.error as SaveNewTextBoxMarkTooHigh).maxMark}`);
+      case SaveNewTextBoxNotesTooLong:
+        return this.badRequest('Notes value exceeds maximum length');
       default:
         return this.internalServerError(result.error.message);
     }

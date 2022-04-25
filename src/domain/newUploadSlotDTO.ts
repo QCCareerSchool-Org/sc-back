@@ -9,6 +9,7 @@ export type NewUploadSlotDTO = {
   allowedTypes: NewUploadSlotAllowedType[];
   points: number;
   mark: number | null;
+  notes: string | null;
   optional: boolean;
   order: number;
   filename: string | null;
