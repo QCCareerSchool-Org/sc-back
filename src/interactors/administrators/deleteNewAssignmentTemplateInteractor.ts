@@ -9,9 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewAssignmentTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
   assignmentId: string;
 };
 
@@ -30,15 +27,13 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewAssignmentTemplateRequestDTO): Promise<ResultType<DeleteNewAssignmentTemplateResponseDTO>> {
+  public async execute({ assignmentId }: DeleteNewAssignmentTemplateRequestDTO): Promise<ResultType<DeleteNewAssignmentTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
+      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentTemplateId: assignmentIdBin },
         include: {
           newAssignmentMedia: { include: { newAssignments: true } },
           newPartTemplates: { include: { newPartMedia: { include: { newParts: true } } } },

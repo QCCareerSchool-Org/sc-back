@@ -10,10 +10,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetNewAssignmentMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   mediumId: string;
 };
 
@@ -32,16 +28,13 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: GetNewAssignmentMediumRequestDTO): Promise<ResultType<GetNewAssignmentMediumResponseDTO>> {
+  public async execute({ mediumId }: GetNewAssignmentMediumRequestDTO): Promise<ResultType<GetNewAssignmentMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
+      const mediumIdBin = this.uuidService.uuidToBin(mediumId);
 
       // find the assignment medium
       const assignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
-        where: { assignmentMediumId: mediumIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { assignmentMediumId: mediumIdBin },
         include: {
           newAssignmentTemplate: true,
           newAssignments: { include: { newAssignment: true } },

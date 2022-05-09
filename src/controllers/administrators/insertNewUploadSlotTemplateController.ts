@@ -9,18 +9,10 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    partId: string;
   };
   body: {
+    /** uuid */
+    partId: string;
     label: string;
     allowedTypes: string[];
     points: number;
@@ -36,13 +28,9 @@ export class InsertNewUploadSlotTemplateController extends BaseController<Reques
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       label: yup.string().defined(),
       allowedTypes: yup.array().of(yup.string().defined()).defined(),
       points: yup.number().defined(),
@@ -65,16 +53,19 @@ export class InsertNewUploadSlotTemplateController extends BaseController<Reques
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId } = params;
-
-    const result = await insertNewUploadSlotTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, data: body });
+    const result = await insertNewUploadSlotTemplateInteractor.execute({
+      partId: body.partId,
+      label: body.label,
+      allowedTypes: body.allowedTypes,
+      points: body.points,
+      optional: body.optional,
+      order: body.order,
+    });
 
     if (result.success) {
       return this.ok(result.value);

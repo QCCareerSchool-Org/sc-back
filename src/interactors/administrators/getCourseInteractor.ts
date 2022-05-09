@@ -2,7 +2,9 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { CourseDTO } from '../../domain/courseDTO';
+import type { CurrencyDTO } from '../../domain/currencyDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
+import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO';
 import type { SchoolDTO } from '../../domain/schoolDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
@@ -10,13 +12,16 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetCourseRequestDTO = {
-  schoolId: number;
   courseId: number;
 };
 
 export type GetCourseResponseDTO = CourseDTO & {
   school: SchoolDTO;
-  newUnitTemplates: NewUnitTemplateDTO[];
+  newUnitTemplates: Array<NewUnitTemplateDTO & {
+    prices: Array<NewUnitTemplatePriceDTO & {
+      currency: CurrencyDTO;
+    }>;
+  }>;
 };
 
 export class GetCourseNotFound extends Error { }
@@ -29,13 +34,14 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId }: GetCourseRequestDTO): Promise<ResultType<GetCourseResponseDTO>> {
+  public async execute({ courseId }: GetCourseRequestDTO): Promise<ResultType<GetCourseResponseDTO>> {
     try {
       const course = await this.prisma.course.findFirst({
-        where: { schoolId, courseId },
+        where: { courseId },
         include: {
           school: true,
           newUnits: {
+            include: { prices: { include: { currency: true } } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
         },
@@ -78,6 +84,21 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           enabled: u.enabled,
           created: u.created,
           modified: u.modified,
+          prices: u.prices.map(p => ({
+            unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
+            unitTemplateId: this.uuidService.binToUUID(p.unitTemplateId),
+            countryId: p.countryId,
+            currencyId: p.currencyId,
+            price: p.price.toNumber(),
+            created: p.created,
+            modified: p.modified,
+            currency: {
+              currencyId: p.currency.currencyId,
+              code: p.currency.code,
+              name: p.currency.name,
+              symbol: p.currency.symbol,
+            },
+          })),
         })),
       });
 

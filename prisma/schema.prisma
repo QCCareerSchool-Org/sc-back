@@ -567,15 +567,17 @@ model Upload {
 /////////////////////////////////////////////////////////////////////////
 
 model Currency {
-  currencyId         Int                   @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  code               String                @unique(map: "code") @db.Char(3)
-  name               String                @db.VarChar(50)
-  symbol             String                @db.Char(1)
-  entityVersion      Int                   @default(0) @map("entity_version")
-  enrollments        Enrollment[]
-  unitCosts          UnitCost[]
-  units              SubmittedUnit[]
-  writingAssignments WritingAssignment[]
+  currencyId            Int                    @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  code                  String                 @unique(map: "code") @db.Char(3)
+  name                  String                 @db.VarChar(50)
+  symbol                String                 @db.Char(1)
+  entityVersion         Int                    @default(0) @map("entity_version")
+  enrollments           Enrollment[]
+  unitCosts             UnitCost[]
+  units                 SubmittedUnit[]
+  writingAssignments    WritingAssignment[]
+  newUnitTemplatePrices NewUnitTemplatePrice[]
+  newUnitPrices         NewUnitPrice[]
 
   @@map("currencies")
   @@unique([currencyId, entityVersion], map: "id_entity_version")
@@ -809,22 +811,24 @@ model Testimonial {
 /////////////////////////////////////////////////////////////////////////
 
 model Country {
-  countryId          Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  code               String            @unique(map: "code") @default("") @db.Char(2)
-  name               String            @default("") @db.VarChar(255)
-  iso                Int?              @unique(map: "iso 3166-1") @map("iso 3166-1") @db.SmallInt
-  priceDisplayOrder  Int               @db.SmallInt @map("price_display_order")
-  lastUpdate         String?           @db.VarChar(255) @map("last_update")
-  entityVersion      Int               @default(0) @map("entity_version")
-  students           Student[]
-  administrators     Administrator[]
-  profiles           Profile[]
-  provinces          Province[]
-  regions            Region[]
-  serviceAreas       ServiceArea[]
-  t2202Receipts      T2202Receipt[]
-  tutors             Tutor[]
-  unitCosts          UnitCost[]
+  countryId             Int                    @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  code                  String                 @unique(map: "code") @default("") @db.Char(2)
+  name                  String                 @default("") @db.VarChar(255)
+  iso                   Int?                   @unique(map: "iso 3166-1") @map("iso 3166-1") @db.SmallInt
+  priceDisplayOrder     Int                    @db.SmallInt @map("price_display_order")
+  lastUpdate            String?                @db.VarChar(255) @map("last_update")
+  entityVersion         Int                    @default(0) @map("entity_version")
+  students              Student[]
+  administrators        Administrator[]
+  profiles              Profile[]
+  provinces             Province[]
+  regions               Region[]
+  serviceAreas          ServiceArea[]
+  t2202Receipts         T2202Receipt[]
+  tutors                Tutor[]
+  unitCosts             UnitCost[]
+  newUnitTemplatePrices NewUnitTemplatePrice[]
+  newUnitPrices         NewUnitPrice[]
 
   @@map("countries")
   @@unique([countryId, entityVersion], map: "id_entity_version")
@@ -1257,6 +1261,7 @@ model NewUnitTemplate {
   modified               DateTime?               @db.DateTime(0) @updatedAt
   course                 Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1", onDelete: Cascade)
   newAssignmentTemplates NewAssignmentTemplate[]
+  prices                 NewUnitTemplatePrice[]
 
   @@map("new_unit_templates")
   @@unique([courseId, unitLetter], map: "course_id_unit_letter")
@@ -1288,6 +1293,7 @@ model NewUnit {
   tutor              Tutor?          @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
   responseMimeType   MimeType?       @relation(fields: [responseMimeTypeId], references: [mimeTypeId], map: "new_units_ibfk_3")
   newAssignments     NewAssignment[]
+  prices             NewUnitPrice[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
@@ -1510,6 +1516,39 @@ model NewUploadSlot {
 
   @@map("new_upload_slots")
   @@index([partId], map: "part_id")
+}
+
+model NewUnitTemplatePrice {
+  unitTemplatePriceId Bytes           @id @db.Binary(16) @map("unit_template_price_id")
+  unitTemplateId      Bytes           @db.Binary(16) @map("unit_template_id")
+  countryId           Int?            @db.UnsignedInt @map("country_id")
+  currencyId          Int             @db.UnsignedInt @map("currency_id")
+  price               Decimal         @db.Decimal(4, 2)
+  created             DateTime        @default(now()) @db.DateTime(0)
+  modified            DateTime?       @db.DateTime(0) @updatedAt
+  newUnitTemplate     NewUnitTemplate @relation(fields: [unitTemplateId], references: [unitTemplateId], map: "FK_new_unit_template_prices_new_unit_templates", onDelete: Cascade)
+  country             Country?        @relation(fields: [countryId], references: [countryId], map: "FK_new_unit_template_prices_countries")
+  currency            Currency        @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_template_prices_currencies")
+
+  @@map("new_unit_template_prices")
+  @@unique([unitTemplateId, countryId], map: "unit_template_id_country_id")
+}
+
+model NewUnitPrice {
+  unitPriceId Bytes     @id @db.Binary(16) @map("unit_price_id")
+  unitId      Bytes     @db.Binary(16) @map("unit_template_id")
+  countryId   Int?      @db.UnsignedInt @map("country_id")
+  currencyId  Int       @db.UnsignedInt @map("currency_id")
+  price       Decimal   @db.Decimal(4, 2)
+  selected    Boolean   @default(false)
+  created     DateTime  @default(now()) @db.DateTime(0)
+  modified    DateTime? @db.DateTime(0) @updatedAt
+  newUnit     NewUnit   @relation(fields: [unitId], references: [unitId], map: "FK_new_unit_prices_new_units", onDelete: Cascade)
+  country     Country?  @relation(fields: [countryId], references: [countryId], map: "FK_new_unit_prices_countries")
+  currency    Currency  @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_prices_currencies")
+
+  @@map("new_unit_prices")
+  @@unique([unitId, countryId], map: "unit_id_country_id")
 }
 
 enum NewDescriptionType {

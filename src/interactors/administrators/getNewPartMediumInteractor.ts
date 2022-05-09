@@ -10,11 +10,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetNewPartMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   mediumId: string;
 };
 
@@ -35,15 +30,11 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
 
   public async execute(request: GetNewPartMediumRequestDTO): Promise<ResultType<GetNewPartMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
       const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
 
       // find the part medium
       const partMedium = await this.prisma.newPartMedium.findFirst({
-        where: { partMediumId: mediumIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { partMediumId: mediumIdBin },
         include: {
           newPartTemplate: true,
           newParts: { include: { newPart: true } },

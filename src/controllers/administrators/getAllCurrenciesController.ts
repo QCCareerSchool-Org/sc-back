@@ -1,27 +1,23 @@
 import * as yup from 'yup';
 
-import { getNewPartMediumInteractor } from '../../interactors/administrators';
-import type { GetNewPartMediumResponseDTO } from '../../interactors/administrators/getNewPartMediumInteractor';
-import { GetNewPartMediumNotFound } from '../../interactors/administrators/getNewPartMediumInteractor';
+import { getAllCurrenciesInteractor } from '../../interactors/administrators';
+import type { GetAllCurrenciesResponseDTO } from '../../interactors/administrators/getAllCurrenciesInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** uuid */
-    mediumId: string;
   };
 };
 
-type Response = GetNewPartMediumResponseDTO;
+type Response = GetAllCurrenciesResponseDTO;
 
-export class GetNewPartMediumController extends BaseController<Request, Response> {
+export class GetAllCurrenciesController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -36,22 +32,18 @@ export class GetNewPartMediumController extends BaseController<Request, Response
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl(): Promise<void> {
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
 
-    const { mediumId } = params;
-
-    const result = await getNewPartMediumInteractor.execute({ mediumId });
+    const result = await getAllCurrenciesInteractor.execute();
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewPartMediumNotFound:
-        return this.notFound('Part medium not found');
       default:
         return this.internalServerError(result.error.message);
     }

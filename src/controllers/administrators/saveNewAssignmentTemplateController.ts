@@ -9,12 +9,6 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
     /** uuid */
     assignmentId: string;
   };
@@ -34,9 +28,6 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
@@ -67,11 +58,14 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
-
-    const result = await saveNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, data: body });
+    const result = await saveNewAssignmentTemplateInteractor.execute({
+      assignmentId: params.assignmentId,
+      assignmentNumber: body.assignmentNumber,
+      title: body.title,
+      description: body.description,
+      markingCriteria: body.markingCriteria,
+      optional: body.optional,
+    });
 
     if (result.success) {
       return this.ok(result.value);

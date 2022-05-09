@@ -14,9 +14,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetNewAssignmentTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
   assignmentId: string;
   withInputs: boolean;
 };
@@ -41,14 +38,13 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, withInputs }: GetNewAssignmentTemplateRequestDTO): Promise<ResultType<GetNewAssignmentTemplateResponseDTO>> {
+  public async execute({ assignmentId, withInputs }: GetNewAssignmentTemplateRequestDTO): Promise<ResultType<GetNewAssignmentTemplateResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
 
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentTemplateId: assignmentIdBin },
         include: {
           newUnitTemplate: true,
           newPartTemplates: {

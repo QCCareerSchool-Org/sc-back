@@ -9,12 +9,9 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
   };
   body: {
+    courseId: number;
     unitLetter: string;
     title: string | null;
     description: string | null;
@@ -31,10 +28,9 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      courseId: yup.number().defined(),
       unitLetter: yup.string().defined(),
       title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
@@ -58,15 +54,20 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-
-    const result = await insertNewUnitTemplateInteractor.execute({ schoolId, courseId, data: body });
+    const result = await insertNewUnitTemplateInteractor.execute({
+      courseId: body.courseId,
+      unitLetter: body.unitLetter,
+      title: body.title,
+      description: body.description,
+      markingCriteria: body.markingCriteria,
+      optional: body.optional,
+      order: body.order,
+    });
 
     if (result.success) {
       return this.ok(result.value);

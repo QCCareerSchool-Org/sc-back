@@ -9,14 +9,6 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
     /** uuid */
     partId: string;
   };
@@ -29,10 +21,6 @@ export class DeleteNewPartTemplateController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -53,11 +41,7 @@ export class DeleteNewPartTemplateController extends BaseController<Request, Res
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId } = params;
-
-    const result = await deleteNewPartTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId });
+    const result = await deleteNewPartTemplateInteractor.execute({ partId: params.partId });
 
     if (result.success) {
       return this.noContent();

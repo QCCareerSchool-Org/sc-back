@@ -10,17 +10,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewPartTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
   assignmentId: string;
-  data: {
-    partNumber: number;
-    title: string;
-    description: string | null;
-    descriptionType: string;
-    markingCriteria: string | null;
-  };
+  partNumber: number;
+  title: string;
+  description: string | null;
+  descriptionType: string;
+  markingCriteria: string | null;
 };
 
 export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
@@ -47,14 +42,12 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
 
   public async execute(request: InsertNewPartTemplateRequestDTO): Promise<ResultType<InsertNewPartTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { partNumber, title, description, descriptionType, markingCriteria } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const { partNumber, title, description, descriptionType, markingCriteria } = request;
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentTemplateId: assignmentIdBin },
         include: {
           newUnitTemplate: { include: { course: true } },
         },

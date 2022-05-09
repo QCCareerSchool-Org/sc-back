@@ -9,10 +9,6 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
     /** uuid */
     unitId: string;
   };
@@ -25,8 +21,6 @@ export class DeleteNewUnitTemplateController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -47,11 +41,7 @@ export class DeleteNewUnitTemplateController extends BaseController<Request, Res
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId } = params;
-
-    const result = await deleteNewUnitTemplateInteractor.execute({ schoolId, courseId, unitId });
+    const result = await deleteNewUnitTemplateInteractor.execute({ unitId: params.unitId });
 
     if (result.success) {
       return this.noContent();

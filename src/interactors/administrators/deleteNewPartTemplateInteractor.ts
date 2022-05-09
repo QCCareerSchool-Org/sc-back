@@ -9,10 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewPartTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   partId: string;
 };
 
@@ -31,16 +27,13 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewPartTemplateRequestDTO): Promise<ResultType<DeleteNewPartTemplateResponseDTO>> {
+  public async execute({ partId }: DeleteNewPartTemplateRequestDTO): Promise<ResultType<DeleteNewPartTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
+      const partIdBin = this.uuidService.uuidToBin(partId);
 
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
-        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partTemplateId: partIdBin },
         include: {
           newPartMedia: { include: { newParts: true } },
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },

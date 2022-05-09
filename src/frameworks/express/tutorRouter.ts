@@ -14,6 +14,8 @@ import { SaveNewTextBoxController } from '../../controllers/tutors/saveNewTextBo
 import { SaveNewUploadSlotController } from '../../controllers/tutors/saveNewUploadSlotController';
 import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware';
 import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
+import type { Route } from './applyRoutes';
+import { applyRoutes } from './applyRoutes';
 import { asyncWrapper } from './asyncWrapper';
 
 export const tutorRouter = Router();
@@ -23,64 +25,19 @@ tutorRouter.use(
   asyncWrapper(async (req, res, next) => new TutorGuardMiddleware(req, res, next).execute()),
 );
 
-// units
-tutorRouter.get(
-  '/:tutorId/students/:studentId/newUnits/:unitId',
-  asyncWrapper(async (req, res) => new GetNewUnitController(req, res).execute()),
-);
-tutorRouter.post(
-  '/:tutorId/students/:studentId/newUnits/:unitId/returns',
-  asyncWrapper(async (req, res) => new ReturnNewUnitController(req, res).execute()),
-);
-tutorRouter.post(
-  '/:tutorId/students/:studentId/newUnits/:unitId/closes',
-  asyncWrapper(async (req, res) => new CloseNewUnitController(req, res).execute()),
-);
-tutorRouter.get(
-  '/:tutorId/students/:studentId/newUnits/:unitId/response',
-  asyncWrapper(async (req, res) => new DownloadNewUnitFeedbackController(req, res).execute()),
-);
-tutorRouter.put(
-  '/:tutorId/students/:studentId/newUnits/:unitId/response',
-  multer().single('file'),
-  asyncWrapper(async (req, res) => new UploadNewUnitFeedbackController(req, res).execute()),
-);
-tutorRouter.delete(
-  '/:tutorId/students/:studentId/newUnits/:unitId/response',
-  asyncWrapper(async (req, res) => new EraseNewUnitFeedbackController(req, res).execute()),
-);
+const routes: Route[] = [
+  [ 'get', '/:tutorId/students/:studentId/newUnits/:unitId', GetNewUnitController ],
+  [ 'post', '/:tutorId/students/:studentId/newUnits/:unitId/returns', ReturnNewUnitController ],
+  [ 'post', '/:tutorId/students/:studentId/newUnits/:unitId/closes', CloseNewUnitController ],
+  [ 'get', '/:tutorId/students/:studentId/newUnits/:unitId/response', DownloadNewUnitFeedbackController ],
+  [ 'put', '/:tutorId/students/:studentId/newUnits/:unitId/response', UploadNewUnitFeedbackController, multer().single('file') ],
+  [ 'delete', '/:tutorId/students/:studentId/newUnits/:unitId/response', EraseNewUnitFeedbackController ],
+  [ 'get', '/:tutorId/students/:studentId/newUnits/:unitId/assignments/:assignmentId', GetNewAssignmentController ],
+  [ 'patch', '/:tutorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
+  [ 'patch', '/:tutorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
+  [ 'get', '/:tutorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
+  [ 'get', '/:tutorId/newAssignmentMedia/:assignmentMediumId/file', DownloadNewAssignmentMediumController ],
+  [ 'get', '/:tutorId/newPartMedia/:partMediumId/file', DownloadNewPartMediumController ],
+];
 
-// assignments
-tutorRouter.get(
-  '/:tutorId/students/:studentId/newUnits/:unitId/assignments/:assignmentId',
-  asyncWrapper(async (req, res) => new GetNewAssignmentController(req, res).execute()),
-);
-
-// text boxes
-tutorRouter.patch(
-  '/:tutorId/newTextBoxes/:textBoxId',
-  asyncWrapper(async (req, res) => new SaveNewTextBoxController(req, res).execute()),
-);
-
-// upload slots
-tutorRouter.patch(
-  '/:tutorId/newUploadSlots/:uploadSlotId',
-  asyncWrapper(async (req, res) => new SaveNewUploadSlotController(req, res).execute()),
-);
-
-tutorRouter.get(
-  '/:tutorId/newUploadSlots/:uploadSlotId/file',
-  asyncWrapper(async (req, res) => new DownloadNewUploadSlotController(req, res).execute()),
-);
-
-// assignment media
-tutorRouter.get(
-  '/:tutorId/newAssignmentMedia/:assignmentMediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
-);
-
-// part media
-tutorRouter.get(
-  '/:tutorId/newPartMedia/:partMediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewPartMediumController(req, res).execute()),
-);
+applyRoutes(tutorRouter, routes);

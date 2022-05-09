@@ -9,18 +9,10 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    partId: string;
   };
   body: {
+    /** uuid */
+    partId: string;
     caption: string;
     order: number;
     externalData?: string;
@@ -42,13 +34,9 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     }).required();
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       caption: yup.string().defined(),
       order: yup.number().defined(),
       externalData: yup.string(),
@@ -85,26 +73,22 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
     }
   }
 
-  protected async executeImpl({ params, body, file }: Request): Promise<void> {
+  protected async executeImpl({ body, file }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId } = params;
+    const fileData = file
+      ? { filename: file.originalname, data: file.buffer, mimeType: file.mimetype, size: file.size }
+      : undefined;
 
-    const data = {
-      ...body,
-      file: file ? {
-        filename: file.originalname,
-        data: file.buffer,
-        mimeType: file.mimetype,
-        size: file.size,
-      } : undefined,
-    };
-
-    const result = await insertNewPartMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, data });
+    const result = await insertNewPartMediumInteractor.execute({
+      partId: body.partId,
+      caption: body.caption,
+      order: body.order,
+      externalData: body.externalData,
+      fileData,
+    });
 
     if (result.success) {
       return this.ok(result.value);

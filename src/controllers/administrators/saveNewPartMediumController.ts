@@ -9,16 +9,6 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    partId: string;
     /** uuid */
     mediumId: string;
   };
@@ -35,11 +25,6 @@ export class SaveNewPartMediumController extends BaseController<Request, Respons
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
@@ -67,11 +52,11 @@ export class SaveNewPartMediumController extends BaseController<Request, Respons
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, mediumId } = params;
-
-    const result = await saveNewPartMediumInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, mediumId, data: body });
+    const result = await saveNewPartMediumInteractor.execute({
+      mediumId: params.mediumId,
+      caption: body.caption,
+      order: body.order,
+    });
 
     if (result.success) {
       return this.ok(result.value);

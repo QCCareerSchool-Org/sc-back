@@ -9,6 +9,10 @@ import { DeleteNewUnitTemplateInteractor } from './deleteNewUnitTemplateInteract
 import { DeleteNewUploadSlotTemplateInteractor } from './deleteNewUploadSlotTemplateInteractor';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
+import { EnableCourseInteractor } from './enableCourseInteractor';
+import { GetAllCountriesInteractor } from './getAllCountriesInteractor';
+import { GetAllCoursesInteractor } from './getAllCoursesInteractor';
+import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
@@ -38,7 +42,13 @@ import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplate
 export const getAllSchoolsInteractor = new GetAllSchoolsInteractor(prisma, winstonLoggerService);
 export const getSchoolInteractor = new GetSchoolInteractor(prisma, winstonLoggerService);
 
+export const getAllCoursesInteractor = new GetAllCoursesInteractor(prisma, winstonLoggerService);
 export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, winstonLoggerService);
+export const enableCourseInteractor = new EnableCourseInteractor(prisma, winstonLoggerService);
+
+export const getAllCountriesInteractor = new GetAllCountriesInteractor(prisma, winstonLoggerService);
+
+export const getAllCurrenciesInteractor = new GetAllCurrenciesInteractor(prisma, winstonLoggerService);
 
 export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);

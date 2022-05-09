@@ -9,16 +9,10 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
   };
   body: {
+    /** uuid */
+    assignmentId: string;
     partNumber: number;
     title: string;
     description: string | null;
@@ -34,12 +28,9 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partNumber: yup.number().defined(),
       title: yup.string().defined(),
       description: yup.string().nullable().defined(),
@@ -62,16 +53,19 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
-
-    const result = await insertNewPartTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, data: body });
+    const result = await insertNewPartTemplateInteractor.execute({
+      assignmentId: body.assignmentId,
+      partNumber: body.partNumber,
+      title: body.title,
+      description: body.description,
+      descriptionType: body.descriptionType,
+      markingCriteria: body.markingCriteria,
+    });
 
     if (result.success) {
       return this.ok(result.value);

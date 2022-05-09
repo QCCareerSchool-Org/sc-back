@@ -8,19 +8,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewTextBoxTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   textBoxId: string;
-  data: {
-    description: string | null;
-    lines: number | null;
-    points: number;
-    optional: boolean;
-    order: number;
-  };
+  description: string | null;
+  lines: number | null;
+  points: number;
+  optional: boolean;
+  order: number;
 };
 
 export type SaveNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
@@ -44,16 +37,12 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
 
   public async execute(request: SaveNewTextBoxTemplateRequestDTO): Promise<ResultType<SaveNewTextBoxTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { description, lines, points, optional, order } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
+      const { description, lines, points, optional, order } = request;
       const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
 
       // find the text box template
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { textBoxTemplateId: textBoxIdBin },
         include: {
           newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
         },

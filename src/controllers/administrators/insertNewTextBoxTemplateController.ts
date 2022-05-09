@@ -9,18 +9,10 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
-    /** uuid */
-    assignmentId: string;
-    /** uuid */
-    partId: string;
   };
   body: {
+    /** uuid */
+    partId: string;
     description: string | null;
     lines: number | null;
     points: number;
@@ -36,13 +28,9 @@ export class InsertNewTextBoxTemplateController extends BaseController<Request, 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       description: yup.string().nullable(true).defined(),
       lines: yup.number().nullable(true).defined(),
       points: yup.number().defined(),
@@ -65,16 +53,19 @@ export class InsertNewTextBoxTemplateController extends BaseController<Request, 
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId } = params;
-
-    const result = await insertNewTextBoxTemplateInteractor.execute({ schoolId, courseId, unitId, assignmentId, partId, data: body });
+    const result = await insertNewTextBoxTemplateInteractor.execute({
+      partId: body.partId,
+      description: body.description,
+      lines: body.lines,
+      points: body.points,
+      optional: body.optional,
+      order: body.order,
+    });
 
     if (result.success) {
       return this.ok(result.value);

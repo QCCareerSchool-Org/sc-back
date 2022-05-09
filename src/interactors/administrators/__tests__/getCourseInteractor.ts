@@ -1,5 +1,5 @@
 import faker from '@faker-js/faker';
-import type { Course, NewUnitTemplate, PrismaClient, School } from '@prisma/client';
+import type { Course, Currency, NewUnitTemplate, NewUnitTemplatePrice, PrismaClient, School } from '@prisma/client';
 import type { ILoggerService } from '../../../services/logger';
 import type { IUUIDService } from '../../../services/uuid';
 import { UUIDService } from '../../../services/uuid/uuidService';
@@ -23,10 +23,14 @@ describe('GetCourseInteractor', () => {
   let mockLogger: MockLogger;
 
   let interactor: GetCourseInteractor;
-  let schoolId: number;
   let courseId: number;
 
-  let course: Course & { school: School; newUnits: NewUnitTemplate[] };
+  let course: Course & {
+    school: School;
+    newUnits: Array<NewUnitTemplate & {
+      prices: Array<NewUnitTemplatePrice & { currency: Currency }>;
+    }>;
+  };
 
   beforeEach(() => {
     mockPrisma = {
@@ -44,7 +48,6 @@ describe('GetCourseInteractor', () => {
     };
 
     interactor = new GetCourseInteractor(mockPrisma as unknown as PrismaClient, uuidService, mockLogger as unknown as ILoggerService);
-    schoolId = 4;
     courseId = 1;
 
     course = {
@@ -81,6 +84,7 @@ describe('GetCourseInteractor', () => {
         enabled: faker.datatype.boolean(),
         created: faker.datatype.datetime(),
         modified: null,
+        prices: [],
       })),
     };
   });
@@ -88,10 +92,10 @@ describe('GetCourseInteractor', () => {
   describe('when the course exists', () => {
     it('should return a CourseDTO', async () => {
       mockPrisma.course.findFirst.mockResolvedValue(course);
-      const result = await interactor.execute({ schoolId, courseId });
+      const result = await interactor.execute({ courseId });
       expect(result).toBeDefined();
       expect(result.success).toBe(true);
-      if (!isSuccessResult(result)) { throw Error(); } // for narrowing
+      if (!isSuccessResult(result)) { throw result.error; } // for narrowing
       expect(result.value).toEqual({
         courseId: course.courseId,
         schoolId: course.schoolId,
@@ -126,6 +130,21 @@ describe('GetCourseInteractor', () => {
           enabled: u.enabled,
           created: u.created,
           modified: u.modified,
+          prices: u.prices.map(p => ({
+            unitTemplatePriceId: uuidService.binToUUID(p.unitTemplatePriceId),
+            unitTemplateId: uuidService.binToUUID(p.unitTemplateId),
+            countryId: p.countryId,
+            currencyId: p.currencyId,
+            price: p.price.toNumber(),
+            created: p.created,
+            modified: p.modified,
+            currency: {
+              currencyId: p.currency.currencyId,
+              code: p.currency.code,
+              name: p.currency.name,
+              symbol: p.currency.symbol,
+            },
+          })),
         })),
       });
     });
@@ -134,8 +153,7 @@ describe('GetCourseInteractor', () => {
   describe('when the course doesn\'t exist', () => {
     it('should return an error', async () => {
       mockPrisma.course.findFirst.mockResolvedValue(null);
-      const result = await interactor.execute({ schoolId, courseId });
-      expect(result).toBeDefined();
+      const result = await interactor.execute({ courseId });
       expect(result.success).toBe(false);
       if (!isErrorResult(result)) { throw Error(); } // for narrowing
       expect(result.error).toBeInstanceOf(GetCourseNotFound);
@@ -148,7 +166,7 @@ describe('GetCourseInteractor', () => {
       const errorMessage = faker.random.words(3);
       const customError = new CustomError(errorMessage);
       mockPrisma.course.findFirst.mockRejectedValue(customError);
-      const result = await interactor.execute({ schoolId, courseId });
+      const result = await interactor.execute({ courseId });
       expect(mockLogger.error).toHaveBeenCalledWith('error getting course', errorMessage);
       expect(result).toBeDefined();
       expect(result.success).toBe(false);
@@ -161,7 +179,7 @@ describe('GetCourseInteractor', () => {
     it('should log and return an error', async () => {
       const errorMessage = faker.random.words(3);
       mockPrisma.course.findFirst.mockRejectedValue(errorMessage);
-      const result = await interactor.execute({ schoolId, courseId });
+      const result = await interactor.execute({ courseId });
       expect(mockLogger.error).toHaveBeenCalledWith('error getting course', errorMessage);
       expect(result).toBeDefined();
       expect(result.success).toBe(false);

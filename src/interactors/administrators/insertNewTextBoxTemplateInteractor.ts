@@ -8,18 +8,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewTextBoxTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   partId: string;
-  data: {
-    description: string | null;
-    lines: number | null;
-    points: number;
-    optional: boolean;
-    order: number;
-  };
+  description: string | null;
+  lines: number | null;
+  points: number;
+  optional: boolean;
+  order: number;
 };
 
 export type InsertNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
@@ -43,15 +37,12 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
 
   public async execute(request: InsertNewTextBoxTemplateRequestDTO): Promise<ResultType<InsertNewTextBoxTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { description, lines, points, optional, order } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
+      const { description, lines, points, optional, order } = request;
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
-        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partTemplateId: partIdBin },
         include: {
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
         },

@@ -12,17 +12,11 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewPartMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   partId: string;
-  data: {
-    caption: string;
-    order: number;
-    externalData?: string;
-    file?: InteractorFile;
-  };
+  caption: string;
+  order: number;
+  externalData?: string;
+  fileData?: InteractorFile;
 };
 
 export type InsertNewPartMediumResponseDTO = NewPartMediumDTO;
@@ -65,15 +59,12 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
 
   public async execute(request: InsertNewPartMediumRequestDTO): Promise<ResultType<InsertNewPartMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { caption, order, externalData, file } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
+      const { caption, order, externalData, fileData } = request;
       const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
-        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partTemplateId: partIdBin },
         include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } },
       });
       if (!partTemplate) {
@@ -107,8 +98,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
 
       // insert the part medium
       let insertedPartMedium: NewPartMedium;
-      if (file) {
-        insertedPartMedium = await this.insertWithFile(partIdBin, caption, order, file);
+      if (fileData) {
+        insertedPartMedium = await this.insertWithFile(partIdBin, caption, order, fileData);
       } else if (externalData) {
         insertedPartMedium = await this.insertWithExternalData(partIdBin, caption, order, externalData);
       } else {
@@ -135,16 +126,16 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     }
   }
 
-  private async insertWithFile(partIdBin: Buffer, caption: string, order: number, file: InteractorFile): Promise<NewPartMedium> {
-    if (file.size >= InsertNewPartMediumInteractor.maxFilesize) {
-      throw new InsertNewPartMediumFileTooLarge(file.size.toString());
+  private async insertWithFile(partIdBin: Buffer, caption: string, order: number, fileData: InteractorFile): Promise<NewPartMedium> {
+    if (fileData.size >= InsertNewPartMediumInteractor.maxFilesize) {
+      throw new InsertNewPartMediumFileTooLarge(fileData.size.toString());
     }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
-      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
+      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: fileData.mimeType } });
       if (!mimeType) {
-        throw new InsertNewPartMediumInvalidMimeType(file.mimeType);
+        throw new InsertNewPartMediumInvalidMimeType(fileData.mimeType);
       }
 
       let type: NewMediumType;
@@ -167,8 +158,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           partTemplateId: partIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: file.filename,
-          filesize: file.size,
+          filename: fileData.filename,
+          filesize: fileData.size,
           caption,
           order,
         },
@@ -177,7 +168,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       // save the file
       const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(insertedPartMedium.partMediumId)}`;
       try {
-        await this.fileService.writeFile(filePath, file.data);
+        await this.fileService.writeFile(filePath, fileData.data);
       } catch (err) {
         this.logger.error('Could not save file', err);
         throw new InsertNewPartMediumFileSaveError();

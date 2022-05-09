@@ -11,11 +11,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DownloadNewPartMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   mediumId: string;
   startByte?: number;
   endByte?: number;
@@ -41,15 +36,11 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
   public async execute(request: DownloadNewPartMediumRequestDTO): Promise<ResultType<DownloadNewPartMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
       const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
 
       // find the assignment medium
       const partMedium = await this.prisma.newPartMedium.findFirst({
-        where: { partMediumId: mediumIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { partMediumId: mediumIdBin },
         include: {
           mimeType: true,
         },

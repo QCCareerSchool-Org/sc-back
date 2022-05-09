@@ -12,10 +12,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetNewPartTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   partId: string;
 };
 
@@ -36,15 +32,13 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, partId }: GetNewPartTemplateRequestDTO): Promise<ResultType<GetNewPartTemplateResponseDTO>> {
+  public async execute({ partId }: GetNewPartTemplateRequestDTO): Promise<ResultType<GetNewPartTemplateResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
 
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
-        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partTemplateId: partIdBin },
         include: {
           newAssignmentTemplate: true,
           newTextBoxTemplates: {

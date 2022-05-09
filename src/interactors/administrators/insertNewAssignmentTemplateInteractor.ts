@@ -9,16 +9,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewAssignmentTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
   unitId: string;
-  data: {
-    assignmentNumber: number;
-    title: string | null;
-    description: string | null;
-    markingCriteria: string | null;
-    optional: boolean;
-  };
+  assignmentNumber: number;
+  title: string | null;
+  description: string | null;
+  markingCriteria: string | null;
+  optional: boolean;
 };
 
 export type InsertNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
@@ -42,16 +38,13 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
 
   public async execute(request: InsertNewAssignmentTemplateRequestDTO): Promise<ResultType<InsertNewAssignmentTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { assignmentNumber, title, description, markingCriteria, optional } = request.data;
+      const { assignmentNumber, title, description, markingCriteria, optional } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
-        include: {
-          course: true,
-        },
+        where: { unitTemplateId: unitIdBin },
+        include: { course: true },
       });
       if (!unitTemplate) {
         return Result.fail(new InsertNewAssignmentTemplateUnitNotFound());

@@ -11,6 +11,10 @@ import { DeleteNewUnitTemplateController } from '../../controllers/administrator
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController';
+import { EnableCourseController } from '../../controllers/administrators/enableCourseController';
+import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController';
+import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController';
+import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController';
@@ -35,6 +39,8 @@ import { SaveNewPartTemplateController } from '../../controllers/administrators/
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
 import { SaveNewUnitTemplateController } from '../../controllers/administrators/saveNewUnitTemplateController';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController';
+import type { Route } from './applyRoutes';
+import { applyRoutes } from './applyRoutes';
 import { asyncWrapper } from './asyncWrapper';
 
 export const administratorRouter = Router();
@@ -43,151 +49,56 @@ administratorRouter.use(
   '/:administratorId',
   asyncWrapper(async (req, res, next) => new AdministratorGuardMiddleware(req, res, next).execute()),
 );
-administratorRouter.get(
-  '/:administratorId/schools',
-  asyncWrapper(async (req, res) => new GetAllSchoolsController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId',
-  asyncWrapper(async (req, res) => new GetSchoolController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId',
-  asyncWrapper(async (req, res) => new GetCourseController(req, res).execute()),
-);
 
-// new unit templates
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates',
-  asyncWrapper(async (req, res) => new InsertNewUnitTemplateController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
-  asyncWrapper(async (req, res) => new GetNewUnitTemplateController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
-  asyncWrapper(async (req, res) => new SaveNewUnitTemplateController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId',
-  asyncWrapper(async (req, res) => new DeleteNewUnitTemplateController(req, res).execute()),
-);
+const routes: Route[] = [
+  // schools
+  [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
+  [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
+  // courses
+  [ 'get', '/:administratorId/courses', GetAllCoursesController ],
+  [ 'get', '/:administratorId/courses/:courseId', GetCourseController ],
+  [ 'post', '/:administratorId/courses/:courseId/enable', EnableCourseController ],
+  // countries
+  [ 'get', '/:administratorId/countries', GetAllCountriesController ],
+  // currencies
+  [ 'get', '/:administratorId/currencies', GetAllCurrenciesController ],
+  // new unit templates
+  [ 'post', '/:administratorId/newUnitTemplates', InsertNewUnitTemplateController ],
+  [ 'get', '/:administratorId/newUnitTemplates/:unitId', GetNewUnitTemplateController ],
+  [ 'put', '/:administratorId/newUnitTemplates/:unitId', SaveNewUnitTemplateController ],
+  [ 'delete', '/:administratorId/newUnitTemplates/:unitId', DeleteNewUnitTemplateController ],
+  // new assignment templates
+  [ 'post', '/:administratorId/newAssignmentTemplates', InsertNewAssignmentTemplateController ],
+  [ 'get', '/:administratorId/newAssignmentTemplates/:assignmentId', GetNewAssignmentTemplateController ],
+  [ 'put', '/:administratorId/newAssignmentTemplates/:assignmentId', SaveNewAssignmentTemplateController ],
+  [ 'delete', '/:administratorId/newAssignmentTemplates/:assignmentId', DeleteNewAssignmentTemplateController ],
+  // new assignment media
+  [ 'post', '/:administratorId/newAssignmentMedia', InsertNewAssignmentMediumController, multer().single('file') ],
+  [ 'get', '/:administratorId/newAssignmentMedia/:mediumId', GetNewAssignmentMediumController ],
+  [ 'put', '/:administratorId/newAssignmentMedia/:mediumId', SaveNewAssignmentMediumController ],
+  [ 'delete', '/:administratorId/newAssignmentMedia/:mediumId', DeleteNewAssignmentMediumController ],
+  [ 'get', '/:administratorId/newAssignmentMedia/:mediumId/file', DownloadNewAssignmentMediumController ],
+  // new part templates
+  [ 'post', '/:administratorId/newPartTemplates', InsertNewPartTemplateController ],
+  [ 'get', '/:administratorId/newPartTemplates/:partId', GetNewPartTemplateController ],
+  [ 'put', '/:administratorId/newPartTemplates/:partId', SaveNewPartTemplateController ],
+  [ 'delete', '/:administratorId/newPartTemplates/:partId', DeleteNewPartTemplateController ],
+  // new text box templates
+  [ 'post', '/:administratorId/newTextBoxTemplates', InsertNewTextBoxTemplateController ],
+  [ 'get', '/:administratorId/newTextBoxTemplates/:textBoxId', GetNewTextBoxTemplateController ],
+  [ 'put', '/:administratorId/newTextBoxTemplates/:textBoxId', SaveNewTextBoxTemplateController ],
+  [ 'delete', '/:administratorId/newTextBoxTemplates/:textBoxId', DeleteNewTextBoxTemplateController ],
+  // new upload slot templates
+  [ 'post', '/:administratorId/newUploadSlotTemplates', InsertNewUploadSlotTemplateController ],
+  [ 'get', '/:administratorId/newUploadSlotTemplates/:uploadSlotId', GetNewUploadSlotTemplateController ],
+  [ 'put', '/:administratorId/newUploadSlotTemplates/:uploadSlotId', SaveNewUploadSlotTemplateController ],
+  [ 'delete', '/:administratorId/newUploadSlotTemplates/:uploadSlotId', DeleteNewUploadSlotTemplateController ],
+  // new part media
+  [ 'post', '/:administratorId/newPartMedia', InsertNewPartMediumController, multer().single('file') ],
+  [ 'get', '/:administratorId/newPartMedia/:mediumId', GetNewPartMediumController ],
+  [ 'put', '/:administratorId/newPartMedia/:mediumId', SaveNewPartMediumController ],
+  [ 'delete', '/:administratorId/newPartMedia/:mediumId', DeleteNewPartMediumController ],
+  [ 'get', '/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
+];
 
-// new assignment templates
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments',
-  asyncWrapper(async (req, res) => new InsertNewAssignmentTemplateController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
-  asyncWrapper(async (req, res) => new GetNewAssignmentTemplateController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
-  asyncWrapper(async (req, res) => new SaveNewAssignmentTemplateController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId',
-  asyncWrapper(async (req, res) => new DeleteNewAssignmentTemplateController(req, res).execute()),
-);
-
-// new assignment media
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media',
-  multer().single('file'),
-  asyncWrapper(async (req, res) => new InsertNewAssignmentMediumController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
-  asyncWrapper(async (req, res) => new GetNewAssignmentMediumController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
-  asyncWrapper(async (req, res) => new SaveNewAssignmentMediumController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId',
-  asyncWrapper(async (req, res) => new DeleteNewAssignmentMediumController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/media/:mediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewAssignmentMediumController(req, res).execute()),
-);
-
-// new part templates
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts',
-  asyncWrapper(async (req, res) => new InsertNewPartTemplateController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId',
-  asyncWrapper(async (req, res) => new GetNewPartTemplateController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId',
-  asyncWrapper(async (req, res) => new SaveNewPartTemplateController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId',
-  asyncWrapper(async (req, res) => new DeleteNewPartTemplateController(req, res).execute()),
-);
-
-// new text box templates
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes',
-  asyncWrapper(async (req, res) => new InsertNewTextBoxTemplateController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
-  asyncWrapper(async (req, res) => new GetNewTextBoxTemplateController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
-  asyncWrapper(async (req, res) => new SaveNewTextBoxTemplateController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId',
-  asyncWrapper(async (req, res) => new DeleteNewTextBoxTemplateController(req, res).execute()),
-);
-
-// new upload slot templates
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots',
-  asyncWrapper(async (req, res) => new InsertNewUploadSlotTemplateController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
-  asyncWrapper(async (req, res) => new GetNewUploadSlotTemplateController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
-  asyncWrapper(async (req, res) => new SaveNewUploadSlotTemplateController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId',
-  asyncWrapper(async (req, res) => new DeleteNewUploadSlotTemplateController(req, res).execute()),
-);
-
-// new part media
-administratorRouter.post(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media',
-  multer().single('file'),
-  asyncWrapper(async (req, res) => new InsertNewPartMediumController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',
-  asyncWrapper(async (req, res) => new GetNewPartMediumController(req, res).execute()),
-);
-administratorRouter.put(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',
-  asyncWrapper(async (req, res) => new SaveNewPartMediumController(req, res).execute()),
-);
-administratorRouter.delete(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId',
-  asyncWrapper(async (req, res) => new DeleteNewPartMediumController(req, res).execute()),
-);
-administratorRouter.get(
-  '/:administratorId/schools/:schoolId/courses/:courseId/newUnitTemplates/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId/file',
-  asyncWrapper(async (req, res) => new DownloadNewPartMediumController(req, res).execute()),
-);
+applyRoutes(administratorRouter, routes);

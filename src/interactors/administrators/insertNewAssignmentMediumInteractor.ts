@@ -11,16 +11,11 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewAssignmentMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
   assignmentId: string;
-  data: {
-    caption: string;
-    order: number;
-    externalData?: string;
-    file?: InteractorFile;
-  };
+  caption: string;
+  order: number;
+  externalData?: string;
+  fileData?: InteractorFile;
 };
 
 export type InsertNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO;
@@ -63,14 +58,12 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
 
   public async execute(request: InsertNewAssignmentMediumRequestDTO): Promise<ResultType<InsertNewAssignmentMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { caption, order, externalData, file } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const { caption, order, externalData, fileData } = request;
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentTemplateId: assignmentIdBin },
         include: { newUnitTemplate: { include: { course: true } } },
       });
       if (!assignmentTemplate) {
@@ -104,8 +97,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
 
       // insert the assignment medium
       let insertedAssignmentMedium: NewAssignmentMedium;
-      if (file) {
-        insertedAssignmentMedium = await this.insertWithFile(assignmentIdBin, caption, order, file);
+      if (fileData) {
+        insertedAssignmentMedium = await this.insertWithFile(assignmentIdBin, caption, order, fileData);
       } else if (externalData) {
         insertedAssignmentMedium = await this.insertWithExternalData(assignmentIdBin, caption, order, externalData);
       } else {
@@ -132,16 +125,16 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
     }
   }
 
-  private async insertWithFile(assignmentIdBin: Buffer, caption: string, order: number, file: InteractorFile): Promise<NewAssignmentMedium> {
-    if (file.size >= InsertNewAssignmentMediumInteractor.maxFilesize) {
-      throw new InsertNewAssignmentMediumFileTooLarge(file.size.toString());
+  private async insertWithFile(assignmentIdBin: Buffer, caption: string, order: number, fileData: InteractorFile): Promise<NewAssignmentMedium> {
+    if (fileData.size >= InsertNewAssignmentMediumInteractor.maxFilesize) {
+      throw new InsertNewAssignmentMediumFileTooLarge(fileData.size.toString());
     }
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
-      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: file.mimeType } });
+      const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: fileData.mimeType } });
       if (!mimeType) {
-        throw new InsertNewAssignmentMediumInvalidMimeType(file.mimeType);
+        throw new InsertNewAssignmentMediumInvalidMimeType(fileData.mimeType);
       }
 
       let type: NewMediumType;
@@ -164,8 +157,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           assignmentTemplateId: assignmentIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: file.filename,
-          filesize: file.size,
+          filename: fileData.filename,
+          filesize: fileData.size,
           caption,
           order,
         },
@@ -174,7 +167,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       // save the file
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(insertedAssignmentMedium.assignmentMediumId)}`;
       try {
-        await this.fileService.writeFile(filePath, file.data);
+        await this.fileService.writeFile(filePath, fileData.data);
       } catch (err) {
         this.logger.error('Could not save file', err);
         throw new InsertNewAssignmentMediumFileSaveError();

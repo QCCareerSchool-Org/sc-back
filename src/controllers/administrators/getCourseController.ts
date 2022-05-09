@@ -10,8 +10,6 @@ type Request = {
     /** numeric string */
     administratorId: string;
     /** numeric string */
-    schoolId: string;
-    /** numeric string */
     courseId: string;
   };
 };
@@ -23,7 +21,6 @@ export class GetCourseController extends BaseController<Request, Response> {
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
     });
     try {
@@ -44,10 +41,9 @@ export class GetCourseController extends BaseController<Request, Response> {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
     const courseId = parseInt(params.courseId, 10);
 
-    const result = await getCourseInteractor.execute({ schoolId, courseId });
+    const result = await getCourseInteractor.execute({ courseId });
 
     if (result.success) {
       return this.ok(result.value);

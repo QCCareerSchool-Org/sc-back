@@ -7,11 +7,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewTextBoxTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   textBoxId: string;
 };
 
@@ -28,17 +23,13 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewTextBoxTemplateRequestDTO): Promise<ResultType<DeleteNewTextBoxTemplateResponseDTO>> {
+  public async execute({ textBoxId }: DeleteNewTextBoxTemplateRequestDTO): Promise<ResultType<DeleteNewTextBoxTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
-      const textBoxIdBin = this.uuidService.uuidToBin(request.textBoxId);
+      const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
 
       // find the text box template
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
-        where: { textBoxTemplateId: textBoxIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { textBoxTemplateId: textBoxIdBin },
         include: {
           newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
         },

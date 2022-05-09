@@ -1,21 +1,17 @@
-import { threadId } from 'worker_threads';
 import type { CookieOptions, Request, Response } from 'express';
 import type { InteractorFileStream } from '../interactors';
 
-export type ByteRange = {
+export type ByteRange = Readonly<{
   start: number;
   end?: number;
-};
+}>;
 
-export abstract class BaseController<RequestDTO, ResponseDTO> {
+export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown> {
 
-  protected req: Request;
-  protected res: Response;
-
-  public constructor(req: Request, res: Response) {
-    this.req = req;
-    this.res = res;
-  }
+  public constructor(
+    protected readonly req: Readonly<Request>,
+    protected readonly res: Readonly<Response>,
+  ) { /* empty */ }
 
   /** Outside entry point */
   public async execute(): Promise<void> {
@@ -31,11 +27,11 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
 
   // Success responses
 
-  protected ok(value: ResponseDTO): void {
+  protected ok(value: Readonly<ResponseDTO>): void {
     this.res.send(value);
   }
 
-  protected created(value: ResponseDTO): void {
+  protected created(value: Readonly<ResponseDTO>): void {
     this.res.status(201).send(value);
   }
 
@@ -43,7 +39,7 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.status(204).end();
   }
 
-  protected partialContent(value: ResponseDTO): void {
+  protected partialContent(value: Readonly<ResponseDTO>): void {
     this.res.status(206).send(value);
   }
 
@@ -110,7 +106,7 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     return this.req.method === 'DELETE';
   }
 
-  protected formatHeaderDate(date: Date): string {
+  protected formatHeaderDate(date: Readonly<Date>): string {
     const days = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
     const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
     return `${days[date.getUTCDay()]}, ${date.getUTCDate().toString().padStart(2, '0')} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()} ${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}:${date.getUTCSeconds().toString().padStart(2, '0')} GMT`;
@@ -139,7 +135,7 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     this.res.cookie(name, value, options);
   }
 
-  protected sendInteractorFileStream(interactorFileStream: InteractorFileStream): void {
+  protected sendInteractorFileStream(interactorFileStream: Readonly<InteractorFileStream>): void {
     const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding, byteRange } = interactorFileStream;
     this.res.setHeader('Content-Type', mimeType);
     if (typeof contentEncoding !== 'undefined') {
@@ -160,7 +156,7 @@ export abstract class BaseController<RequestDTO, ResponseDTO> {
     stream.pipe(this.res);
   }
 
-  protected sendFile(data: Buffer, filename: string, mimeType: string, size: number): void {
+  protected sendFile(data: Readonly<Buffer>, filename: string, mimeType: string, size: number): void {
     this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     this.res.setHeader('Content-Type', mimeType);
     this.res.setHeader('Content-Length', size);

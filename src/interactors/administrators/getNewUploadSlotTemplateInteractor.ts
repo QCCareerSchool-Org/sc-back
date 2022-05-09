@@ -9,11 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type GetNewUploadSlotTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   uploadSlotId: string;
 };
 
@@ -31,16 +26,13 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, partId, uploadSlotId }: GetNewUploadSlotTemplateRequestDTO): Promise<ResultType<GetNewUploadSlotTemplateResponseDTO>> {
+  public async execute({ uploadSlotId }: GetNewUploadSlotTemplateRequestDTO): Promise<ResultType<GetNewUploadSlotTemplateResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       // find the upload slot template
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { uploadSlotTemplateId: uploadSlotIdBin },
         include: { newPartTemplate: true },
       });
       if (!uploadSlotTemplate) {

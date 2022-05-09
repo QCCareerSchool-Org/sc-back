@@ -19,7 +19,9 @@ export class GetAllSchoolsInteractor implements IInteractor<GetAllSchoolsRequest
 
   public async execute(): Promise<ResultType<GetAllSchoolsResponseDTO>> {
     try {
-      const schools = await this.prisma.school.findMany();
+      const schools = await this.prisma.school.findMany({
+        orderBy: [ { slug: 'asc' } ],
+      });
 
       return Result.success(schools.map(s => ({
         schoolId: s.schoolId,

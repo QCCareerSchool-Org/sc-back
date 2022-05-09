@@ -3,10 +3,7 @@ import { BaseController } from './baseController';
 
 export abstract class BaseMiddleware<RequestDTO, ResponseDTO> extends BaseController<RequestDTO, ResponseDTO> {
 
-  protected next: NextFunction;
-
-  public constructor(req: Request, res: Response, next: NextFunction) {
+  public constructor(req: Readonly<Request>, res: Readonly<Response>, protected readonly next: NextFunction) {
     super(req, res);
-    this.next = next;
   }
 }

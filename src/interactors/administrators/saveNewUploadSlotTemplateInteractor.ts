@@ -8,19 +8,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewUploadSlotTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   uploadSlotId: string;
-  data: {
-    label: string;
-    allowedTypes: string[];
-    points: number;
-    optional: boolean;
-    order: number;
-  };
+  label: string;
+  allowedTypes: string[];
+  points: number;
+  optional: boolean;
+  order: number;
 };
 
 export type SaveNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO;
@@ -45,16 +38,12 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
 
   public async execute(request: SaveNewUploadSlotTemplateRequestDTO): Promise<ResultType<SaveNewUploadSlotTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { label, allowedTypes, points, optional, order } = request.data;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
+      const { label, allowedTypes, points, optional, order } = request;
       const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
 
       // find the upload slot template
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { uploadSlotTemplateId: uploadSlotIdBin },
         include: {
           newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
         },

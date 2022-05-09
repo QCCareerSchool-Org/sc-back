@@ -9,17 +9,13 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewUnitTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
   unitId: string;
-  data: {
-    unitLetter: string;
-    title: string | null;
-    description: string | null;
-    markingCriteria: string | null;
-    optional: boolean;
-    order: number;
-  };
+  unitLetter: string;
+  title: string | null;
+  description: string | null;
+  markingCriteria: string | null;
+  optional: boolean;
+  order: number;
 };
 
 export type SaveNewUnitTemplateResponseDTO = NewUnitTemplateDTO;
@@ -44,14 +40,14 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, data }: SaveNewUnitTemplateRequestDTO): Promise<ResultType<SaveNewUnitTemplateResponseDTO>> {
+  public async execute(request: SaveNewUnitTemplateRequestDTO): Promise<ResultType<SaveNewUnitTemplateResponseDTO>> {
     try {
-      const { unitLetter, title, description, markingCriteria, order, optional } = data;
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
+      const { unitLetter, title, description, markingCriteria, order, optional } = request;
+      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
+        where: { unitTemplateId: unitIdBin },
         include: {
           course: true,
         },

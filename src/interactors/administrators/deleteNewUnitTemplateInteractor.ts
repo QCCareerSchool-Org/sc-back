@@ -9,8 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewUnitTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
   unitId: string;
 };
 
@@ -29,14 +27,13 @@ export class DeleteNewUnitTemplateInteractor implements IInteractor<DeleteNewUni
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewUnitTemplateRequestDTO): Promise<ResultType<DeleteNewUnitTemplateResponseDTO>> {
+  public async execute({ unitId }: DeleteNewUnitTemplateRequestDTO): Promise<ResultType<DeleteNewUnitTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const unitIdBin = this.uuidService.uuidToBin(unitId);
 
       // find the unit template
       const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitTemplateId: unitIdBin, course: { courseId, schoolId } },
+        where: { unitTemplateId: unitIdBin },
         include: {
           newAssignmentTemplates: { include: {
             newAssignmentMedia: { include: { newAssignments: true } },

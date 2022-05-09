@@ -10,18 +10,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewPartTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   partId: string;
-  data: {
-    partNumber: number;
-    title: string;
-    description: string | null;
-    descriptionType: string;
-    markingCriteria: string | null;
-  };
+  partNumber: number;
+  title: string;
+  description: string | null;
+  descriptionType: string;
+  markingCriteria: string | null;
 };
 
 export type SaveNewPartTemplateResponseDTO = NewPartTemplateDTO;
@@ -46,16 +40,14 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, partId, data }: SaveNewPartTemplateRequestDTO): Promise<ResultType<SaveNewPartTemplateResponseDTO>> {
+  public async execute(request: SaveNewPartTemplateRequestDTO): Promise<ResultType<SaveNewPartTemplateResponseDTO>> {
     try {
-      const { partNumber, title, description, descriptionType, markingCriteria } = data;
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(partId);
+      const { partNumber, title, description, descriptionType, markingCriteria } = request;
+      const partIdBin = this.uuidService.uuidToBin(request.partId);
 
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
-        where: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { partTemplateId: partIdBin },
         include: {
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
         },

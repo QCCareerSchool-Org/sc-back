@@ -9,11 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewPartMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   mediumId: string;
 };
 
@@ -33,17 +28,13 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewPartMediumRequestDTO): Promise<ResultType<DeleteNewPartMediumResponseDTO>> {
+  public async execute({ mediumId }: DeleteNewPartMediumRequestDTO): Promise<ResultType<DeleteNewPartMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
-      const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
+      const mediumIdBin = this.uuidService.uuidToBin(mediumId);
 
       // find the assignment medium
       const partMedium = await this.prisma.newPartMedium.findFirst({
-        where: { partMediumId: mediumIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { partMediumId: mediumIdBin },
         include: {
           newParts: true,
           newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
@@ -68,7 +59,7 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
         // no assignments are using this medium
         // delete the medium
         if (partMedium.externalData === null) {
-          const filePath = `${this.configService.config.paths.partMediaPath}/${request.mediumId}`;
+          const filePath = `${this.configService.config.paths.partMediaPath}/${mediumId}`;
           await this.prisma.$transaction(async transaction => {
             await transaction.newPartMedium.delete({
               where: { partMediumId: mediumIdBin },

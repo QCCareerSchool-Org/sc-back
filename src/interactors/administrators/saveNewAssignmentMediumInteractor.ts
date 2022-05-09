@@ -8,15 +8,9 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewAssignmentMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   mediumId: string;
-  data: {
-    caption: string;
-    order: number;
-  };
+  caption: string;
+  order: number;
 };
 
 export type SaveNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO;
@@ -36,16 +30,14 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, mediumId, data }: SaveNewAssignmentMediumRequestDTO): Promise<ResultType<SaveNewAssignmentMediumResponseDTO>> {
+  public async execute(request: SaveNewAssignmentMediumRequestDTO): Promise<ResultType<SaveNewAssignmentMediumResponseDTO>> {
     try {
-      const { caption, order } = data;
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
-      const mediumIdBin = this.uuidService.uuidToBin(mediumId);
+      const { caption, order } = request;
+      const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
 
       // find the part medium
       const assignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
-        where: { assignmentMediumId: mediumIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { assignmentMediumId: mediumIdBin },
         include: {
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
         },

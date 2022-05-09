@@ -9,17 +9,12 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type SaveNewAssignmentTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
   assignmentId: string;
-  data: {
-    assignmentNumber: number;
-    title: string | null;
-    description: string | null;
-    markingCriteria: string | null;
-    optional: boolean;
-  };
+  assignmentNumber: number;
+  title: string | null;
+  description: string | null;
+  markingCriteria: string | null;
+  optional: boolean;
 };
 
 export type SaveNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
@@ -41,15 +36,14 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ schoolId, courseId, unitId, assignmentId, data }: SaveNewAssignmentTemplateRequestDTO): Promise<ResultType<SaveNewAssignmentTemplateResponseDTO>> {
+  public async execute(request: SaveNewAssignmentTemplateRequestDTO): Promise<ResultType<SaveNewAssignmentTemplateResponseDTO>> {
     try {
-      const { assignmentNumber, title, description, markingCriteria, optional } = data;
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
+      const { assignmentNumber, title, description, markingCriteria, optional } = request;
+      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
-        where: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } },
+        where: { assignmentTemplateId: assignmentIdBin },
         include: {
           newUnitTemplate: { include: { course: true } },
         },

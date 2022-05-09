@@ -39,7 +39,7 @@ export class CloseNewUnitController extends BaseController<Request, Response> {
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl({ params }: Readonly<Request>): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }

@@ -9,10 +9,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewAssignmentMediumRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
   mediumId: string;
 };
 
@@ -32,16 +28,13 @@ export class DeleteNewAssignmentMediumInteractor implements IInteractor<DeleteNe
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewAssignmentMediumRequestDTO): Promise<ResultType<DeleteNewAssignmentMediumResponseDTO>> {
+  public async execute({ mediumId }: DeleteNewAssignmentMediumRequestDTO): Promise<ResultType<DeleteNewAssignmentMediumResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
+      const mediumIdBin = this.uuidService.uuidToBin(mediumId);
 
       // find the assignment medium
       const assignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
-        where: { assignmentMediumId: mediumIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } },
+        where: { assignmentMediumId: mediumIdBin },
         include: {
           newAssignments: true,
           newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
@@ -66,7 +59,7 @@ export class DeleteNewAssignmentMediumInteractor implements IInteractor<DeleteNe
         // no assignments are using this medium
         // delete the medium
         if (assignmentMedium.externalData === null) {
-          const filePath = `${this.configService.config.paths.assignmentMediaPath}/${request.mediumId}`;
+          const filePath = `${this.configService.config.paths.assignmentMediaPath}/${mediumId}`;
           await this.prisma.$transaction(async transaction => {
             await transaction.newAssignmentMedium.delete({
               where: { assignmentMediumId: mediumIdBin },

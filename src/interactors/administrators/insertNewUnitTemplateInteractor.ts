@@ -9,16 +9,13 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type InsertNewUnitTemplateRequestDTO = {
-  schoolId: number;
   courseId: number;
-  data: {
-    unitLetter: string;
-    title: string | null;
-    description: string | null;
-    markingCriteria: string | null;
-    optional: boolean;
-    order: number;
-  };
+  unitLetter: string;
+  title: string | null;
+  description: string | null;
+  markingCriteria: string | null;
+  optional: boolean;
+  order: number;
 };
 
 export type InsertNewUnitTemplateResponseDTO = NewUnitTemplateDTO;
@@ -45,12 +42,11 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
 
   public async execute(request: InsertNewUnitTemplateRequestDTO): Promise<ResultType<InsertNewUnitTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const { unitLetter, title, description, markingCriteria, optional, order } = request.data;
+      const { courseId, unitLetter, title, description, markingCriteria, optional, order } = request;
 
       // find the course
       const course = await this.prisma.course.findFirst({
-        where: { courseId, schoolId },
+        where: { courseId },
       });
       if (!course) {
         return Result.fail(new InsertNewUnitTemplateCourseNotFound());

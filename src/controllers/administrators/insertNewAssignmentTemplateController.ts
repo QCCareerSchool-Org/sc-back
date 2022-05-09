@@ -9,14 +9,10 @@ type Request = {
   params: {
     /** numeric string */
     administratorId: string;
-    /** numeric string */
-    schoolId: string;
-    /** numeric string */
-    courseId: string;
-    /** uuid */
-    unitId: string;
   };
   body: {
+    /** uuid */
+    unitId: string;
     assignmentNumber: number;
     title: string | null;
     description: string | null;
@@ -32,11 +28,9 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      schoolId: yup.string().matches(/^\d+$/u).defined(),
-      courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
+      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentNumber: yup.number().defined(),
       title: yup.string().nullable(true).defined(),
       description: yup.string().nullable(true).defined(),
@@ -59,16 +53,19 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
 
-    const schoolId = parseInt(params.schoolId, 10);
-    const courseId = parseInt(params.courseId, 10);
-    const { unitId } = params;
-
-    const result = await insertNewAssignmentTemplateInteractor.execute({ schoolId, courseId, unitId, data: body });
+    const result = await insertNewAssignmentTemplateInteractor.execute({
+      unitId: body.unitId,
+      assignmentNumber: body.assignmentNumber,
+      title: body.title,
+      description: body.description,
+      markingCriteria: body.markingCriteria,
+      optional: body.optional,
+    });
 
     if (result.success) {
       return this.ok(result.value);

@@ -7,11 +7,6 @@ import { Result } from '../result';
 import type { ResultType } from '../result';
 
 export type DeleteNewUploadSlotTemplateRequestDTO = {
-  schoolId: number;
-  courseId: number;
-  unitId: string;
-  assignmentId: string;
-  partId: string;
   uploadSlotId: string;
 };
 
@@ -28,17 +23,13 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: DeleteNewUploadSlotTemplateRequestDTO): Promise<ResultType<DeleteNewUploadSlotTemplateResponseDTO>> {
+  public async execute({ uploadSlotId }: DeleteNewUploadSlotTemplateRequestDTO): Promise<ResultType<DeleteNewUploadSlotTemplateResponseDTO>> {
     try {
-      const { schoolId, courseId } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
-      const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
-      const partIdBin = this.uuidService.uuidToBin(request.partId);
-      const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
+      const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       // find the upload slot template
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
-        where: { uploadSlotTemplateId: uploadSlotIdBin, newPartTemplate: { partTemplateId: partIdBin, newAssignmentTemplate: { assignmentTemplateId: assignmentIdBin, newUnitTemplate: { unitTemplateId: unitIdBin, course: { courseId, schoolId } } } } },
+        where: { uploadSlotTemplateId: uploadSlotIdBin },
         include: {
           newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
         },
