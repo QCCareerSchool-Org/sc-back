@@ -4,18 +4,21 @@ import { createPasswordResetInteractor } from '../../interactors/authentication'
 import { CreatePasswordResetCountryNotFound, CreatePasswordResetNoEmailAddress, CreatePasswordResetUserNotFound } from '../../interactors/authentication/createPasswordResetInteractor';
 import { BaseController } from '../baseController';
 
-type Body = {
-  username: string;
+type Request = {
+  body: {
+    username: string;
+  };
 };
 
-export class CreatePasswordResetController extends BaseController<Body, void> {
+export class CreatePasswordResetController extends BaseController<Request, void> {
 
-  protected async validate(): Promise<Body | false> {
-    const bodySchema: yup.SchemaOf<Body> = yup.object({
+  protected async validate(): Promise<Request | false> {
+    const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       username: yup.string().defined(),
     });
     try {
-      return await bodySchema.validate(this.req.body);
+      const body = await bodySchema.validate(this.req.body);
+      return { body };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -26,8 +29,8 @@ export class CreatePasswordResetController extends BaseController<Body, void> {
     }
   }
 
-  protected async executeImpl({ username }: Body): Promise<void> {
-    const result = await createPasswordResetInteractor.execute({ username });
+  protected async executeImpl({ body }: Request): Promise<void> {
+    const result = await createPasswordResetInteractor.execute({ username: body.username });
 
     if (result.success) {
       return this.noContent();

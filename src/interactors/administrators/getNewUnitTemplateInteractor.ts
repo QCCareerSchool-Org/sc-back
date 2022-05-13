@@ -1,9 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
+import type { CountryDTO } from '../../domain/countryDTO';
 import type { CourseDTO } from '../../domain/courseDTO';
+import type { CurrencyDTO } from '../../domain/currencyDTO';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
+import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -16,6 +19,7 @@ export type GetNewUnitTemplateRequestDTO = {
 export type GetNewUnitTemplateResponseDTO = NewUnitTemplateDTO & {
   course: CourseDTO;
   newAssignmentTemplates: NewAssignmentTemplateDTO[];
+  prices: Array<NewUnitTemplatePriceDTO & { country: CountryDTO | null; currency: CurrencyDTO }>;
 };
 
 export class GetNewUnitTemplateNotFound extends Error { }
@@ -40,6 +44,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           newAssignmentTemplates: {
             orderBy: [ { assignmentNumber: 'asc' } ],
           },
+          prices: { include: { country: true, currency: true } },
         },
       });
       if (!unitTemplate) {
@@ -84,6 +89,27 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           optional: a.optional,
           created: a.created,
           modified: a.modified,
+        })),
+        prices: unitTemplate.prices.map(p => ({
+          unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
+          unitTemplateId: this.uuidService.binToUUID(p.unitTemplateId),
+          countryId: p.countryId,
+          price: p.price.toNumber(),
+          currencyId: p.currencyId,
+          created: p.created,
+          modified: p.modified,
+          country: p.country === null ? null : {
+            countryId: p.country.countryId,
+            name: p.country.name,
+            code: p.country.code,
+            entityVersion: p.country.entityVersion,
+          },
+          currency: {
+            currencyId: p.currency.currencyId,
+            code: p.currency.code,
+            name: p.currency.name,
+            symbol: p.currency.symbol,
+          },
         })),
       });
 

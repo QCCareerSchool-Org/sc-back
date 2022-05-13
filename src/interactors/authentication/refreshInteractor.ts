@@ -39,7 +39,7 @@ export type RefreshResponseDTO = {
 export class RefreshTokenNotFound extends Error {}
 export class RefreshTokenExpired extends Error {}
 export class RefreshTokenInvalidType extends Error {}
-export class RefreshStudentNotFound extends Error {}
+export class RefreshAccountNotFound extends Error {}
 export class RefreshStudentInvalidType extends Error {}
 
 export class RefreshInteractor implements IInteractor<RefreshRequestDTO, RefreshResponseDTO> {
@@ -58,7 +58,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       // look up the refresh token
       const refreshToken = await this.prisma.refreshToken.findUnique({
         where: { token },
-        include: { student: true },
+        include: { student: true, administrator: true },
       });
       if (refreshToken === null) {
         return Result.fail(new RefreshTokenNotFound());
@@ -99,9 +99,18 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
+      if (accountType === 'admin') {
+        if (!refreshToken.administrator) {
+          return Result.fail(new RefreshAccountNotFound());
+        }
+        accessTokenPayload.privileges = {
+          unitPriceChange: refreshToken.administrator.unitPricePriv,
+          courseDevelopment: refreshToken.administrator.courseDevelopmentPriv,
+        };
+      }
       if (accountType === 'student') { // add student-only data to payload
         if (!refreshToken.student) {
-          return Result.fail(new RefreshStudentNotFound());
+          return Result.fail(new RefreshAccountNotFound());
         }
         if (isValidStudentType(refreshToken.student.studentTypeId)) {
           accessTokenPayload.studentType = refreshToken.student.studentTypeId;

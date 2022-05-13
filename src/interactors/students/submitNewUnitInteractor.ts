@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Course, Enrollment, NewUnit, PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
@@ -17,12 +17,15 @@ export type SubmitNewUnitRequestDTO = {
 
 export type SubmitNewUnitResponseDTO = Omit<NewUnitDTO, 'complete' | 'points' | 'mark'>;
 
-export class SubmitNewUnitNotFound extends Error { }
-export class SubmitNewUnitEnrollmentOnHold extends Error { }
-export class SubmitNewUnitAlreadySubmitted extends Error { }
-export class SubmitNewUnitAwaitingAdminComment extends Error { }
-export class SubmitNewUnitIncomplete extends Error { }
-export class SubmitNewUnitTutorNotAssigned extends Error { }
+abstract class SubmitNewUnitError extends Error { }
+export class SubmitNewUnitNotFound extends SubmitNewUnitError { }
+export class SubmitNewUnitEnrollmentOnHold extends SubmitNewUnitError { }
+export class SubmitNewUnitAlreadySubmitted extends SubmitNewUnitError { }
+export class SubmitNewUnitAwaitingAdminComment extends SubmitNewUnitError { }
+export class SubmitNewUnitIncomplete extends SubmitNewUnitError { }
+export class SubmitNewUnitTutorNotAssigned extends SubmitNewUnitError { }
+export class SubmitNewUnitDefaultPriceNotFound extends SubmitNewUnitError { }
+export class SubmitNewUnitMultipleDefaultPricesFound extends SubmitNewUnitError { }
 
 export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequestDTO, SubmitNewUnitResponseDTO> {
 
@@ -37,51 +40,94 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
-      const unit = await this.prisma.newUnit.findFirst({
-        where: {
-          enrollment: { studentId, courseId, course: { enabled: true } },
-          unitId: unitIdBin,
-        },
-        include: {
-          enrollment: true,
-          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
-        },
-      });
+      let updatedUnit: NewUnit & { enrollment: Enrollment & { course: Course } };
 
-      if (!unit) {
-        return Result.fail(new SubmitNewUnitNotFound());
+      try {
+        updatedUnit = await this.prisma.$transaction(async transaction => {
+
+          const unit = await this.prisma.newUnit.findFirst({
+            where: {
+              enrollment: { studentId, courseId, course: { enabled: true } },
+              unitId: unitIdBin,
+            },
+            include: {
+              enrollment: { include: { tutor: true } },
+              newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+              prices: true,
+            },
+          });
+
+          if (!unit) {
+            throw new SubmitNewUnitNotFound();
+          }
+
+          if (unit.enrollment.onHold) {
+            throw new SubmitNewUnitEnrollmentOnHold();
+          }
+
+          if (unit.submitted) {
+            throw new SubmitNewUnitAlreadySubmitted();
+          }
+
+          // see if the tutor has sent this back to the student, but an administrator hasn't reviewed it yet
+          if (unit.tutorComment !== null && unit.adminComment === null) {
+            throw new SubmitNewUnitAwaitingAdminComment();
+          }
+
+          if (!unitIsComplete(unit)) {
+            throw new SubmitNewUnitIncomplete();
+          }
+
+          if (unit.enrollment.tutor === null) {
+            throw new SubmitNewUnitTutorNotAssigned();
+          }
+          const tutor = unit.enrollment.tutor;
+
+          // set any existing prices to disabled
+          await transaction.newUnitPrice.updateMany({
+            data: { selected: false },
+            where: { unitId: unitIdBin },
+          });
+
+          // set one price to enabled
+          const countryPrice = unit.prices.find(p => p.countryId === tutor.countryId);
+          if (countryPrice) {
+            await transaction.newUnitPrice.update({
+              data: { selected: true },
+              where: { unitPriceId: countryPrice.unitPriceId },
+            });
+          } else {
+            const result = await transaction.newUnitPrice.updateMany({
+              data: { selected: true },
+              where: { unitId: unitIdBin, countryId: null },
+            });
+            if (result.count < 1) {
+              this.logger.error(`No default price found for ${unitId}`);
+              throw new SubmitNewUnitDefaultPriceNotFound();
+            }
+            if (result.count > 1) {
+              this.logger.error(`Multiple default prices found for ${unitId}`);
+              throw new SubmitNewUnitMultipleDefaultPricesFound();
+            }
+          }
+
+          // update unit and return the updated unit
+          return transaction.newUnit.update({
+            data: {
+              submitted: this.dateService.getDate(),
+              skipped: false,
+              tutorId: tutor.tutorId,
+            },
+            where: { unitId: unitIdBin },
+            include: { enrollment: { include: { course: true } } },
+          });
+        });
+      } catch (err) {
+        if (err instanceof SubmitNewUnitError) {
+          return Result.fail(err);
+        }
+        throw err;
       }
-
-      if (unit.enrollment.onHold) {
-        return Result.fail(new SubmitNewUnitEnrollmentOnHold());
-      }
-
-      if (unit.submitted) {
-        return Result.fail(new SubmitNewUnitAlreadySubmitted());
-      }
-
-      // see if the tutor has sent this back to the student, but an administrator hasn't reviewed it yet
-      if (unit.tutorComment !== null && unit.adminComment === null) {
-        return Result.fail(new SubmitNewUnitAwaitingAdminComment());
-      }
-
-      if (!unitIsComplete(unit)) {
-        return Result.fail(new SubmitNewUnitIncomplete());
-      }
-
-      if (unit.enrollment.tutorId === null) {
-        return Result.fail(new SubmitNewUnitTutorNotAssigned());
-      }
-
-      const updatedUnit = await this.prisma.newUnit.update({
-        data: {
-          submitted: this.dateService.getDate(),
-          skipped: false,
-          tutorId: unit.enrollment.tutorId,
-        },
-        where: { unitId: unitIdBin },
-        include: { enrollment: { include: { course: true } } },
-      });
 
       return Result.success({
         unitId: this.uuidService.binToUUID(updatedUnit.unitId),
@@ -94,7 +140,7 @@ export class SubmitNewUnitInteractor implements IInteractor<SubmitNewUnitRequest
         optional: updatedUnit.optional,
         order: updatedUnit.order,
         tutorComment: null, // students should never see the tutor comment
-        adminComment: unit.adminComment,
+        adminComment: updatedUnit.adminComment,
         submitted: updatedUnit.submitted,
         transferred: updatedUnit.transferred,
         closed: updatedUnit.closed,

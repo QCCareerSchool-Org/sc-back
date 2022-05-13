@@ -17,10 +17,13 @@ export type InitializeNextNewUnitResponseDTO = NewUnitDTO;
 export class InitializeNextNewUnitEnrollmentNotFound extends Error { }
 export class InitializeNextNewUnitStudentArrears extends Error { }
 export class InitializeNextNewUnitEnrollmentOnHold extends Error { }
+export class InitializeNextCourseDisabled extends Error { }
 export class InitializeNextNewUnitNotReady extends Error { }
 export class InitializeNextNewUnitNoMoreUnits extends Error { }
 export class InitializeNextNewUnitCantDetermineUnit extends Error { }
 export class InitializeNextNewUnitTemplateNotFound extends Error { }
+export class InitializeNextNewUnitDefaultPriceNotFound extends Error { }
+export class InitializeNextNewUnitMultipleDefaultPricesFound extends Error { }
 export class InitializeNextNewUnitNoAssignmentsFound extends Error { }
 export class InitializeNextNewUnitNoPartsFound extends Error { }
 export class InitializeNextNewUnitNoInputsFound extends Error { }
@@ -53,8 +56,12 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       }
 
       // make sure there are no open (unskipped or unmarked) units
-      if (enrollment.newUnits.every(u => u.submitted && (u.skipped || u.closed))) {
+      if (!enrollment.newUnits.every(u => u.skipped || u.closed)) {
         return Result.fail(new InitializeNextNewUnitNotReady());
+      }
+
+      if (!enrollment.course.newUnitsEnabled) {
+        return Result.fail(new InitializeNextCourseDisabled());
       }
 
       // determine what the next unit should be
@@ -101,10 +108,21 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
               newAssignmentMedia: true,
             },
           },
+          prices: true,
         },
       });
       if (!nextUnitTemplate) {
         return Result.fail(new InitializeNextNewUnitTemplateNotFound());
+      }
+
+      const defaultPriceCount = nextUnitTemplate.prices.filter(p => p.countryId === null).length;
+      if (defaultPriceCount < 1) {
+        this.logger.error(`No default price found for ${this.uuidService.binToUUID(nextUnitTemplate.unitTemplateId)}`);
+        return Result.fail(new InitializeNextNewUnitDefaultPriceNotFound());
+      }
+      if (defaultPriceCount > 1) {
+        this.logger.error(`Multiple default prices found for ${this.uuidService.binToUUID(nextUnitTemplate.unitTemplateId)}`);
+        return Result.fail(new InitializeNextNewUnitMultipleDefaultPricesFound());
       }
 
       // make sure the unit has assignments
@@ -127,14 +145,14 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
       }
 
       let unitComplete = true;
-      let unitMarked = true;
       let unitPoints = 0;
-      const unitMark = 0;
+
+      const unitId = this.uuidService.uuidToBin(this.uuidService.createUUID());
 
       // copy the template data into a concrete unit
       const nextUnit = await this.prisma.newUnit.create({
         data: {
-          unitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+          unitId,
           enrollmentId: enrollment.enrollmentId,
           tutorId: null,
           unitLetter: nextUnitTemplate.unitLetter,
@@ -146,9 +164,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
           newAssignments: {
             create: nextUnitTemplate.newAssignmentTemplates.map(newAssignmentTemplate => {
               let assignmentComplete = true;
-              let assignmentMarked = true;
               let assignmentPoints = 0;
-              const assignmentMark = 0;
               const assignment = {
                 assignmentId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                 assignmentNumber: newAssignmentTemplate.assignmentNumber,
@@ -159,9 +175,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                 newParts: {
                   create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => {
                     let partComplete = true;
-                    let partMarked = true;
                     let partPoints = 0;
-                    const partMark = 0;
                     const part = {
                       partId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
                       partNumber: newPartTemplate.partNumber,
@@ -173,7 +187,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                         create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => {
                           if (!newTextBoxTemplate.optional) {
                             partComplete = false;
-                            partMarked = false;
                             partPoints += newTextBoxTemplate.points;
                           }
                           return {
@@ -190,7 +203,6 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                         create: newPartTemplate.newUploadSlotTemplates.map(newUploadSlotTemplate => {
                           if (!newUploadSlotTemplate.optional) {
                             partComplete = false;
-                            partMarked = false;
                             partPoints += newUploadSlotTemplate.points;
                           }
                           return {
@@ -213,15 +225,9 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                           },
                         })),
                       },
-                      complete: partComplete,
-                      points: partPoints,
-                      mark: partMarked ? partMark : null,
                     };
                     if (!partComplete) {
                       assignmentComplete = false;
-                    }
-                    if (!partMarked) {
-                      assignmentMarked = false;
                     }
                     assignmentPoints += partPoints;
                     return part;
@@ -237,25 +243,25 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                     },
                   })),
                 },
-                complete: assignmentComplete,
-                points: assignmentPoints,
-                mark: assignmentMarked ? assignmentMark : null,
               };
               if (!assignmentComplete && !newAssignmentTemplate.optional) {
                 unitComplete = false;
               }
+              // ignore incomplete, optional assignments
               if (assignmentComplete || !newAssignmentTemplate.optional) {
-                if (!assignmentMarked) {
-                  unitMarked = false;
-                }
                 unitPoints += assignmentPoints;
               }
               return assignment;
             }),
           },
-          // complete: unitComplete,
-          // points: unitPoints,
-          // mark: unitMarked ? unitMark : null,
+          prices: {
+            create: nextUnitTemplate.prices.map(p => ({
+              unitPriceId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+              countryId: p.countryId,
+              price: p.price,
+              currencyId: p.currencyId,
+            })),
+          },
         },
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });
@@ -279,12 +285,9 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
         responseFilename: nextUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${nextUnit.unitLetter}.mp3`,
         responseFilesize: nextUnit.responseFilesize,
         responseMimeTypeId: nextUnit.responseMimeTypeId,
-        // complete: nextUnit.complete,
-        // points: nextUnit.points,
-        // mark: nextUnit.marked ? nextUnit.mark : null,
         complete: unitComplete,
         points: unitPoints,
-        mark: nextUnit.closed && unitMarked ? unitMark : null,
+        mark: null,
         created: nextUnit.created,
         modified: nextUnit.modified,
       });

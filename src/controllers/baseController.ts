@@ -1,5 +1,9 @@
 import type { CookieOptions, Request, Response } from 'express';
+import type { AccessTokenPayload } from '../domain/accessTokenPayload';
+import { isAccessTokenPayload } from '../domain/accessTokenPayload';
 import type { InteractorFileStream } from '../interactors';
+
+type NonUndefined<T> = T extends undefined ? never : T;
 
 export type ByteRange = Readonly<{
   start: number;
@@ -27,18 +31,22 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
 
   // Success responses
 
+  /** send an HTTP 200 response */
   protected ok(value: Readonly<ResponseDTO>): void {
     this.res.send(value);
   }
 
+  /** send an HTTP 201 response */
   protected created(value: Readonly<ResponseDTO>): void {
     this.res.status(201).send(value);
   }
 
+  /** send an HTTP 204 response */
   protected noContent(): void {
     this.res.status(204).end();
   }
 
+  /** send an HTTP 206 response */
   protected partialContent(value: Readonly<ResponseDTO>): void {
     this.res.status(206).send(value);
   }
@@ -51,36 +59,44 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
 
   // Client error responses
 
+  /** send an HTTP 400 response */
   protected badRequest(message?: string): void {
     this.res.status(400).send(message ?? 'Bad Request');
   }
 
+  /** send an HTTP 401 response */
   protected unauthorized(message?: string): void {
     this.res.status(401).send(message ?? 'Unauthorized');
   }
 
+  /** send an HTTP 403 response */
   protected forbidden(message?: string): void {
     this.res.status(403).send(message ?? 'Forbidden');
   }
 
+  /** send an HTTP 404 response */
   protected notFound(message?: string): void {
     this.res.status(404).send(message ?? 'Not Found');
   }
 
+  /** send an HTTP 405 response */
   protected methodNotAllowed(message?: string): void {
     this.res.status(405).send(message ?? 'Method Not Allowed');
   }
 
+  /** send an HTTP 409 response */
   protected conflict(message?: string): void {
     this.res.status(409).send(message ?? 'Conflict');
   }
 
+  /** send an HTTP 416 response */
   protected rangeNotSatisfiable(message?: string): void {
     this.res.status(416).send(message ?? 'Range Not Satisfiable');
   }
 
   // Server error responses
 
+  /** send an HTTP 500 response */
   protected internalServerError(message?: string): void {
     this.res.status(500).send(message ?? 'Internal Server Error');
   }

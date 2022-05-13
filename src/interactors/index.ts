@@ -1,6 +1,8 @@
 import type { Stream } from 'stream';
 import type { ResultType } from './result';
 
+export class InsufficientPrivileges extends Error { }
+
 export interface IInteractor<RequestDTO, ResponseDTO> {
   execute: (arg: RequestDTO) => ResultType<ResponseDTO> | Promise<ResultType<ResponseDTO>>;
 }

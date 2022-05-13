@@ -2,21 +2,26 @@ import * as yup from 'yup';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
 import { refreshInteractor } from '../../interactors/authentication';
-import { RefreshStudentInvalidType, RefreshStudentNotFound, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
+import { RefreshAccountNotFound, RefreshStudentInvalidType, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
 import { BaseController } from '../baseController';
 
-type Cookies = {
-  refreshToken: string;
+type Request = {
+  cookies: {
+    refreshToken: string;
+  };
 };
 
-export class RefreshController extends BaseController<Cookies, AccessTokenPayload> {
+type Response = AccessTokenPayload;
 
-  protected async validate(): Promise<Cookies | false> {
-    const cookiesSchema: yup.SchemaOf<Cookies> = yup.object({
+export class RefreshController extends BaseController<Request, Response> {
+
+  protected async validate(): Promise<Request | false> {
+    const cookiesSchema: yup.SchemaOf<Request['cookies']> = yup.object({
       refreshToken: yup.string().defined().matches(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u), // base64
     });
     try {
-      return await cookiesSchema.validate(this.req.cookies);
+      const cookies = await cookiesSchema.validate(this.req.cookies);
+      return { cookies };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -27,16 +32,16 @@ export class RefreshController extends BaseController<Cookies, AccessTokenPayloa
     }
   }
 
-  protected async executeImpl({ refreshToken }: Cookies): Promise<void> {
-    const token = Buffer.from(refreshToken, 'base64');
+  protected async executeImpl({ cookies }: Request): Promise<void> {
+    const token = Buffer.from(cookies.refreshToken, 'base64');
 
     const result = await refreshInteractor.execute({ token });
 
     if (result.success) {
-      const { accessTokenPayload, cookies } = result.value;
+      const { accessTokenPayload, cookies: setCookies } = result.value;
 
       // send all the cookies
-      for (const c of cookies) {
+      for (const c of setCookies) {
         this.sendCookie(c.name, c.value, c.options.maxAge, c.options.path, c.options.domain, c.options.secure, c.options.httpOnly, c.options.sameSite);
       }
 
@@ -50,8 +55,8 @@ export class RefreshController extends BaseController<Cookies, AccessTokenPayloa
         return this.badRequest('Refresh token not found');
       case RefreshTokenInvalidType:
         return this.badRequest('Invalid refresh token type');
-      case RefreshStudentNotFound:
-        return this.internalServerError('Unable to find associated student');
+      case RefreshAccountNotFound:
+        return this.internalServerError('Unable to find associated account');
       case RefreshStudentInvalidType:
         return this.internalServerError('Invalid student type found');
       default:

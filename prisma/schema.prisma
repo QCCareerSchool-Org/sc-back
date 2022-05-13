@@ -70,6 +70,7 @@ model Administrator {
   forumIV                 Bytes?                      @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16) @map("forum_iv")
   forumPasswordTemp       String?                     @db.VarChar(255) @map("forum_password_temp")
   unitPricePriv           Boolean                     @default(false) @map("unit_price_priv")
+  courseDevelopmentPriv   Boolean                     @default(false) @map("course_development_priv")
   entityVersion           Int                         @default(0) @map("entity_version")
   country                 Country                     @relation(fields: [countryId], references: [countryId], map: "ibfk_administrators_1")
   messages                Message[]
@@ -1536,7 +1537,7 @@ model NewUnitTemplatePrice {
 
 model NewUnitPrice {
   unitPriceId Bytes     @id @db.Binary(16) @map("unit_price_id")
-  unitId      Bytes     @db.Binary(16) @map("unit_template_id")
+  unitId      Bytes     @db.Binary(16) @map("unit_id")
   countryId   Int?      @db.UnsignedInt @map("country_id")
   currencyId  Int       @db.UnsignedInt @map("currency_id")
   price       Decimal   @db.Decimal(4, 2)
@@ -1548,7 +1549,7 @@ model NewUnitPrice {
   currency    Currency  @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_prices_currencies")
 
   @@map("new_unit_prices")
-  @@unique([unitId, countryId], map: "unit_id_country_id")
+  @@unique([unitId, countryId], map: "unit_id_country_id" )
 }
 
 enum NewDescriptionType {

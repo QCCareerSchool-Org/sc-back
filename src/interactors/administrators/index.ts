@@ -6,6 +6,7 @@ import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor';
 import { DeleteNewPartTemplateInteractor } from './deleteNewPartTemplateInteractor';
 import { DeleteNewTextBoxTemplateInteractor } from './deleteNewTextBoxTemplateInteractor';
 import { DeleteNewUnitTemplateInteractor } from './deleteNewUnitTemplateInteractor';
+import { DeleteNewUnitTemplatePricesInteractor } from './deleteNewUnitTemplatePricesInteractor';
 import { DeleteNewUploadSlotTemplateInteractor } from './deleteNewUploadSlotTemplateInteractor';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor';
@@ -14,6 +15,7 @@ import { GetAllCountriesInteractor } from './getAllCountriesInteractor';
 import { GetAllCoursesInteractor } from './getAllCoursesInteractor';
 import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
+import { GetCountryInteractor } from './getCountryInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor';
@@ -21,6 +23,7 @@ import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor';
 import { GetNewUnitTemplateInteractor } from './getNewUnitTemplateInteractor';
+import { GetNewUnitTemplatePricesInteractor } from './getNewUnitTemplatePricesInteractor';
 import { GetNewUploadSlotTemplateInteractor } from './getNewUploadSlotTemplateInteractor';
 import { GetSchoolInteractor } from './getSchoolInteractor';
 import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor';
@@ -30,6 +33,7 @@ import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteract
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor';
+import { ReplaceNewUnitTemplatePricesInteractor } from './replaceNewUnitTemplatePricesInteractor';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor';
 import { SaveNewPartMediumInteractor } from './saveNewPartMediumInteractor';
@@ -47,6 +51,7 @@ export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, 
 export const enableCourseInteractor = new EnableCourseInteractor(prisma, winstonLoggerService);
 
 export const getAllCountriesInteractor = new GetAllCountriesInteractor(prisma, winstonLoggerService);
+export const getCountryInteractor = new GetCountryInteractor(prisma, winstonLoggerService);
 
 export const getAllCurrenciesInteractor = new GetAllCurrenciesInteractor(prisma, winstonLoggerService);
 
@@ -86,3 +91,7 @@ export const getNewPartMediumInteractor = new GetNewPartMediumInteractor(prisma,
 export const saveNewPartMediumInteractor = new SaveNewPartMediumInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewPartMediumInteractor = new DeleteNewPartMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);
+
+export const getNewUnitTemplatePricesInteractor = new GetNewUnitTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
+export const replaceNewUnitTemplatePricesInteractor = new ReplaceNewUnitTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);

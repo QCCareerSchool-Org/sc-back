@@ -42,6 +42,10 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
         id: yup.number().defined(),
         type: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]).defined(),
         studentType: yup.mixed().oneOf<StudentTypeType>([ 'general', 'writing' ]),
+        privileges: yup.object({
+          unitPrice: yup.boolean(),
+          courseDevelopment: yup.boolean(),
+        }),
         crmId: yup.number(),
         exp: yup.number().defined(),
         xsrf: yup.string().defined(),

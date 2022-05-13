@@ -15,7 +15,9 @@ type Request = {
   };
 };
 
-export class LoginController extends BaseController<Request, AccessTokenPayload> {
+type Response = AccessTokenPayload;
+
+export class LoginController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({

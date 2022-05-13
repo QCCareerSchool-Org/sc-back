@@ -5,9 +5,12 @@ import { winstonLoggerService } from '../../services';
 const INTERNAL_SERVER_ERROR_CODE = 500;
 
 export const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  winstonLoggerService.error(err);
+  const message = err instanceof Error
+    ? err.message
+    : typeof err === 'string' ? err : JSON.stringify(err);
+  winstonLoggerService.error(message);
   if (!res.headersSent) {
-    res.status(INTERNAL_SERVER_ERROR_CODE).send(err.message);
+    res.status(INTERNAL_SERVER_ERROR_CODE).send(message);
   } else {
     next(err);
   }

@@ -19,11 +19,11 @@ export class GetAllCountriesInteractor implements IInteractor<GetAllCountriesReq
 
   public async execute(): Promise<ResultType<GetAllCountriesResponseDTO>> {
     try {
-      const courses = await this.prisma.country.findMany({
+      const countries = await this.prisma.country.findMany({
         orderBy: [ { name: 'asc' } ],
       });
 
-      return Result.success(courses.map(c => ({
+      return Result.success(countries.map(c => ({
         countryId: c.countryId,
         code: c.code,
         name: c.name,

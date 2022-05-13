@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { initializeNextNewUnitInteractor } from '../../interactors/students';
 import type { InitializeNextNewUnitResponseDTO } from '../../interactors/students/initializeNextNewUnitInteractor';
-import { InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor';
+import { InitializeNextCourseDisabled, InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitDefaultPriceNotFound, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitMultipleDefaultPricesFound, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -57,6 +57,8 @@ export class InitializeNextNewUnitController extends BaseController<Request, Res
         return this.badRequest('Account is in arrears');
       case InitializeNextNewUnitEnrollmentOnHold:
         return this.badRequest('Course is on hold');
+      case InitializeNextCourseDisabled:
+        return this.badRequest('This course is currently undergoing maintenance');
       case InitializeNextNewUnitNotReady:
         return this.badRequest('There are outstanding unmarked units');
       case InitializeNextNewUnitNoMoreUnits:
@@ -65,6 +67,10 @@ export class InitializeNextNewUnitController extends BaseController<Request, Res
         return this.internalServerError('Could not determine next unit');
       case InitializeNextNewUnitTemplateNotFound:
         return this.internalServerError('Could not find next unit');
+      case InitializeNextNewUnitDefaultPriceNotFound:
+        return this.internalServerError('No default price found');
+      case InitializeNextNewUnitMultipleDefaultPricesFound:
+        return this.internalServerError('Multiple default prices found');
       case InitializeNextNewUnitNoAssignmentsFound:
         return this.internalServerError('Unit has no assignments');
       case InitializeNextNewUnitNoPartsFound:

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { submitNewUnitInteractor } from '../../interactors/students';
 import type { SubmitNewUnitResponseDTO } from '../../interactors/students/submitNewUnitInteractor';
-import { SubmitNewUnitAlreadySubmitted, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
+import { SubmitNewUnitAlreadySubmitted, SubmitNewUnitDefaultPriceNotFound, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitMultipleDefaultPricesFound, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -65,6 +65,10 @@ export class SubmitNewUnitController extends BaseController<Request, Response> {
         return this.badRequest('Unit has already been submitted');
       case SubmitNewUnitTutorNotAssigned:
         return this.badRequest('Tutor is not assigned');
+      case SubmitNewUnitDefaultPriceNotFound:
+        return this.internalServerError('No default price found');
+      case SubmitNewUnitMultipleDefaultPricesFound:
+        return this.internalServerError('Multiple default prices found');
       default:
         return this.internalServerError(result.error.message);
     }

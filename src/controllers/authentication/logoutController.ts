@@ -6,22 +6,25 @@ import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authe
 import { environmentConfigService } from '../../services';
 import { BaseController } from '../baseController';
 
-type Cookies = {
-  refreshId?: string;
-  refreshType?: AccountType;
-  refreshToken?: string;
+type Request = {
+  cookies: {
+    refreshId?: string;
+    refreshType?: AccountType;
+    refreshToken?: string;
+  };
 };
 
-export class LogoutController extends BaseController<Cookies, void> {
+export class LogoutController extends BaseController<Request, void> {
 
-  protected async validate(): Promise<Cookies | false> {
-    const cookiesSchema: yup.SchemaOf<Cookies> = yup.object({
+  protected async validate(): Promise<Request | false> {
+    const cookiesSchema: yup.SchemaOf<Request['cookies']> = yup.object({
       refreshId: yup.string(),
       refreshType: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]),
       refreshToken: yup.string(),
     });
     try {
-      return await cookiesSchema.validate(this.req.cookies);
+      const cookies = await cookiesSchema.validate(this.req.cookies);
+      return { cookies };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -32,7 +35,7 @@ export class LogoutController extends BaseController<Cookies, void> {
     }
   }
 
-  protected async executeImpl(cookies: Cookies): Promise<void> {
+  protected async executeImpl({ cookies }: Request): Promise<void> {
     let id: bigint | undefined = undefined;
     if (typeof cookies.refreshId !== 'undefined') {
       try {

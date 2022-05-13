@@ -8,6 +8,7 @@ import { DeleteNewPartMediumController } from '../../controllers/administrators/
 import { DeleteNewPartTemplateController } from '../../controllers/administrators/deleteNewPartTemplateController';
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController';
 import { DeleteNewUnitTemplateController } from '../../controllers/administrators/deleteNewUnitTemplateController';
+import { DeleteNewUnitTemplatePricesController } from '../../controllers/administrators/deleteNewUnitTemplatePricesController';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController';
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController';
@@ -16,6 +17,7 @@ import { GetAllCountriesController } from '../../controllers/administrators/getA
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController';
 import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
+import { GetCountryController } from '../../controllers/administrators/getCountryController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController';
@@ -23,6 +25,7 @@ import { GetNewPartMediumController } from '../../controllers/administrators/get
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController';
 import { GetNewUnitTemplateController } from '../../controllers/administrators/getNewUnitTemplateController';
+import { GetNewUnitTemplatePricesController } from '../../controllers/administrators/getNewUnitTemplatePricesController';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController';
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController';
 import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController';
@@ -32,6 +35,7 @@ import { InsertNewPartTemplateController } from '../../controllers/administrator
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
 import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
+import { ReplaceNewUnitTemplatePricesController } from '../../controllers/administrators/replaceNewUnitTemplatePricesController';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController';
 import { SaveNewPartMediumController } from '../../controllers/administrators/saveNewPartMediumController';
@@ -60,6 +64,7 @@ const routes: Route[] = [
   [ 'post', '/:administratorId/courses/:courseId/enable', EnableCourseController ],
   // countries
   [ 'get', '/:administratorId/countries', GetAllCountriesController ],
+  [ 'get', '/:administratorId/countries/:countryId', GetCountryController ],
   // currencies
   [ 'get', '/:administratorId/currencies', GetAllCurrenciesController ],
   // new unit templates
@@ -99,6 +104,10 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/newPartMedia/:mediumId', SaveNewPartMediumController ],
   [ 'delete', '/:administratorId/newPartMedia/:mediumId', DeleteNewPartMediumController ],
   [ 'get', '/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
+  // new unit template prices
+  [ 'get', '/:administratorId/courses/:courseId/newUnitTemplatePrices', GetNewUnitTemplatePricesController ],
+  [ 'put', '/:administratorId/courses/:courseId/newUnitTemplatePrices', ReplaceNewUnitTemplatePricesController ],
+  [ 'delete', '/:administratorId/courses/:courseId/newUnitTemplatePrices', DeleteNewUnitTemplatePricesController ],
 ];
 
 applyRoutes(administratorRouter, routes);

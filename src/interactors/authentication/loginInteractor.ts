@@ -103,6 +103,13 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
+      if (accountType === 'admin') {
+        const adminAccount = account as Administrator;
+        accessTokenPayload.privileges = {
+          unitPriceChange: adminAccount.unitPricePriv,
+          courseDevelopment: adminAccount.courseDevelopmentPriv,
+        };
+      }
       if (accountType === 'student') { // add student-only data to payload
         const studentAccount = account as Student;
         if (isValidStudentType(studentAccount.studentTypeId)) {
@@ -113,7 +120,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       const accessToken = await this.jwtService.sign(accessTokenPayload);
 
       // create a cryptographically suitable pseudo-random value for the refresh token
-      const refreshTokenBytes = await this.cryptoService.randomBytes(64); // 512 bits of entropy
+      const refreshTokenBytes = await this.cryptoService.randomBytes(64); // 64 * 8 = 512 bits of entropy
       const refreshTokenString = refreshTokenBytes.toString('base64');
 
       // store a the refresh token in the database
