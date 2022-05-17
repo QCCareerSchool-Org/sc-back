@@ -1,5 +1,7 @@
 import faker from '@faker-js/faker';
 import type { Course, Currency, NewUnitTemplate, NewUnitTemplatePrice, PrismaClient, School } from '@prisma/client';
+import type { IDateService } from '../../../services/date';
+import { DateService } from '../../../services/date/dateService';
 import type { ILoggerService } from '../../../services/logger';
 import type { IUUIDService } from '../../../services/uuid';
 import { UUIDService } from '../../../services/uuid/uuidService';
@@ -20,6 +22,7 @@ describe('GetCourseInteractor', () => {
 
   let mockPrisma: MockPrismaClient;
   let uuidService: IUUIDService;
+  let dateService: IDateService;
   let mockLogger: MockLogger;
 
   let interactor: GetCourseInteractor;
@@ -42,12 +45,13 @@ describe('GetCourseInteractor', () => {
     };
 
     uuidService = new UUIDService();
+    dateService = new DateService();
 
     mockLogger = {
       error: jest.fn(() => { /* */ }),
     };
 
-    interactor = new GetCourseInteractor(mockPrisma as unknown as PrismaClient, uuidService, mockLogger as unknown as ILoggerService);
+    interactor = new GetCourseInteractor(mockPrisma as unknown as PrismaClient, uuidService, dateService, mockLogger as unknown as ILoggerService);
     courseId = 1;
 
     course = {
@@ -107,7 +111,6 @@ describe('GetCourseInteractor', () => {
         quizzesEnabled: course.quizzesEnabled,
         noTutor: course.noTutor,
         unitType: course.unitType,
-        enabled: course.enabled,
         order: course.order,
         newUnitsEnabled: course.newUnitsEnabled,
         entityVersion: course.entityVersion,
@@ -127,7 +130,6 @@ describe('GetCourseInteractor', () => {
           markingCriteria: u.markingCriteria,
           optional: u.optional,
           order: u.order,
-          enabled: u.enabled,
           created: u.created,
           modified: u.modified,
           prices: u.prices.map(p => ({

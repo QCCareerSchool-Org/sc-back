@@ -4,6 +4,7 @@ import type { IInteractor } from '..';
 import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
+import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -25,6 +26,7 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -54,8 +56,8 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         caption: assignmentMedium.caption,
         order: assignmentMedium.order,
         externalData: assignmentMedium.externalData,
-        created: assignmentMedium.created,
-        modified: assignmentMedium.modified,
+        created: this.dateService.mapDateFromStorage(assignmentMedium.created),
+        modified: this.dateService.mapDateFromStorage(assignmentMedium.modified),
         newAssignmentTemplate: assignmentMedium.newAssignmentTemplate === null ? null : {
           assignmentTemplateId: this.uuidService.binToUUID(assignmentMedium.newAssignmentTemplate.assignmentTemplateId),
           unitTemplateId: this.uuidService.binToUUID(assignmentMedium.newAssignmentTemplate.unitTemplateId),
@@ -64,8 +66,8 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
           description: assignmentMedium.newAssignmentTemplate.description,
           markingCriteria: assignmentMedium.newAssignmentTemplate.markingCriteria,
           optional: assignmentMedium.newAssignmentTemplate.optional,
-          created: assignmentMedium.newAssignmentTemplate.created,
-          modified: assignmentMedium.newAssignmentTemplate.modified,
+          created: this.dateService.mapDateFromStorage(assignmentMedium.newAssignmentTemplate.created),
+          modified: this.dateService.mapDateFromStorage(assignmentMedium.newAssignmentTemplate.modified),
         },
         newAssignments: assignmentMedium.newAssignments.map(a => ({
           assignmentId: this.uuidService.binToUUID(a.newAssignment.assignmentId),
@@ -75,8 +77,8 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
           description: a.newAssignment.description,
           markingCriteria: a.newAssignment.markingCriteria,
           optional: a.newAssignment.optional,
-          created: a.newAssignment.created,
-          modified: a.newAssignment.modified,
+          created: this.dateService.mapDateFromStorage(a.newAssignment.created),
+          modified: this.dateService.mapDateFromStorage(a.newAssignment.modified),
         })),
       });
 

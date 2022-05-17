@@ -8,12 +8,12 @@
  */
 export interface IDateService {
   getDate: () => Date;
-  // /**
-  //  * removes the time offset from a date
-  //  */
-  // mapDateForStorage: (d: Date) => string;
-  // /**
-  //  * re-adds the time offset to a date
-  //  */
-  // mapDateFromStorage: <T extends Date | null>(d: T) => T;
+  /**
+   * removes the time offset from a date
+   */
+  mapDateForStorage: (d: Date) => string;
+  /**
+   * re-adds the time offset to a date
+   */
+  mapDateFromStorage: <T extends Date | null>(d: T) => T;
 }

@@ -7,6 +7,7 @@ import type { CurrencyDTO } from '../../domain/currencyDTO';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO';
+import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -29,6 +30,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -60,9 +62,8 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
         markingCriteria: unitTemplate.markingCriteria,
         optional: unitTemplate.optional,
         order: unitTemplate.order,
-        enabled: unitTemplate.enabled,
-        created: unitTemplate.created,
-        modified: unitTemplate.modified,
+        created: this.dateService.mapDateFromStorage(unitTemplate.created),
+        modified: this.dateService.mapDateFromStorage(unitTemplate.modified),
         course: {
           courseId: unitTemplate.course.courseId,
           schoolId: unitTemplate.course.schoolId,
@@ -87,8 +88,8 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           description: a.description,
           markingCriteria: a.markingCriteria,
           optional: a.optional,
-          created: a.created,
-          modified: a.modified,
+          created: this.dateService.mapDateFromStorage(a.created),
+          modified: this.dateService.mapDateFromStorage(a.modified),
         })),
         prices: unitTemplate.prices.map(p => ({
           unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
@@ -96,8 +97,8 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           countryId: p.countryId,
           price: p.price.toNumber(),
           currencyId: p.currencyId,
-          created: p.created,
-          modified: p.modified,
+          created: this.dateService.mapDateFromStorage(p.created),
+          modified: this.dateService.mapDateFromStorage(p.modified),
           country: p.country === null ? null : {
             countryId: p.country.countryId,
             name: p.country.name,

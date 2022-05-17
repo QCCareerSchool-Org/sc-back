@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma';
-import { axiosHttpService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
+import { axiosHttpService, dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor';
 import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor';
@@ -47,7 +47,7 @@ export const getAllSchoolsInteractor = new GetAllSchoolsInteractor(prisma, winst
 export const getSchoolInteractor = new GetSchoolInteractor(prisma, winstonLoggerService);
 
 export const getAllCoursesInteractor = new GetAllCoursesInteractor(prisma, winstonLoggerService);
-export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, winstonLoggerService);
+export const getCourseInteractor = new GetCourseInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const enableCourseInteractor = new EnableCourseInteractor(prisma, winstonLoggerService);
 
 export const getAllCountriesInteractor = new GetAllCountriesInteractor(prisma, winstonLoggerService);
@@ -55,18 +55,18 @@ export const getCountryInteractor = new GetCountryInteractor(prisma, winstonLogg
 
 export const getAllCurrenciesInteractor = new GetAllCurrenciesInteractor(prisma, winstonLoggerService);
 
-export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewUnitTemplateInteractor = new SaveNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewAssignmentTemplateInteractor = new SaveNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentTemplateInteractor = new DeleteNewAssignmentTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const insertNewAssignmentMediumInteractor = new InsertNewAssignmentMediumInteractor(prisma, axiosHttpService, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
-export const getNewAssignmentMediumInteractor = new GetNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
+export const getNewAssignmentMediumInteractor = new GetNewAssignmentMediumInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewAssignmentMediumInteractor = new SaveNewAssignmentMediumInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteNewAssignmentMediumInteractor = new DeleteNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, santitizerService, environmentConfigService, winstonLoggerService);

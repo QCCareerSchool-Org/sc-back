@@ -140,7 +140,6 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             markingCriteria: null, // students should never see the marking criteria
             optional: unit.optional,
             order: unit.order,
-            enabled: unit.enabled,
             created: unit.created,
             modified: unit.modified,
           })),

@@ -1257,7 +1257,6 @@ model NewUnitTemplate {
   markingCriteria        String?                 @db.Text @map("marking_criteria")
   optional               Boolean                 @default(false)
   order                  Int                     @db.TinyInt @default(0)
-  enabled                Boolean                 @default(false)
   created                DateTime                @default(now()) @db.Timestamp(0)
   modified               DateTime?               @db.Timestamp(0) @updatedAt
   course                 Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1", onDelete: Cascade)

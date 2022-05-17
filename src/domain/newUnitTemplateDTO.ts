@@ -9,7 +9,6 @@ export type NewUnitTemplateDTO = {
   markingCriteria: string | null;
   optional: boolean;
   order: number;
-  enabled: boolean;
   created: Date;
   modified: Date | null;
 };

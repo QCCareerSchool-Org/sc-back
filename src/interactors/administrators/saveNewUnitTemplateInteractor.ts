@@ -129,7 +129,6 @@ export class SaveNewUnitTemplateInteractor implements IInteractor<SaveNewUnitTem
         markingCriteria: updatedUnitTemplate.markingCriteria,
         optional: updatedUnitTemplate.optional,
         order: updatedUnitTemplate.order,
-        enabled: updatedUnitTemplate.enabled,
         created: updatedUnitTemplate.created,
         modified: updatedUnitTemplate.modified,
       });
