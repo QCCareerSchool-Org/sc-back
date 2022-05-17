@@ -27,7 +27,7 @@ describe('GetCourseInteractor', () => {
 
   let course: Course & {
     school: School;
-    newUnits: Array<NewUnitTemplate & {
+    newUnitTemplates: Array<NewUnitTemplate & {
       prices: Array<NewUnitTemplatePrice & { currency: Currency }>;
     }>;
   };
@@ -72,7 +72,7 @@ describe('GetCourseInteractor', () => {
         order: faker.datatype.number(),
         entityVersion: faker.datatype.number(),
       },
-      newUnits: new Array(faker.datatype.number({ min: 1, max: 4 })).fill(undefined).map(() => ({
+      newUnitTemplates: new Array(faker.datatype.number({ min: 1, max: 4 })).fill(undefined).map(() => ({
         unitTemplateId: Buffer.from(new Array(16).fill(undefined).map(() => faker.datatype.number({ min: 0, max: 255 }))),
         courseId: faker.datatype.number(),
         unitLetter: faker.random.alphaNumeric(1),
@@ -118,7 +118,7 @@ describe('GetCourseInteractor', () => {
           order: course.school.order,
           entityVersion: course.school.entityVersion,
         },
-        newUnitTemplates: course.newUnits.map(u => ({
+        newUnitTemplates: course.newUnitTemplates.map(u => ({
           unitTemplateId: uuidService.binToUUID(u.unitTemplateId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,

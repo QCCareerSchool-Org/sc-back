@@ -47,21 +47,12 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
   public async execute({ studentId, courseId }: GetEnrollmentRequestDTO): Promise<ResultType<GetEnrollmentResponseDTO>> {
     try {
       const enrollment = await this.prisma.enrollment.findFirst({
-        where: { studentId, courseId, course: { enabled: true } },
+        where: { studentId, courseId },
         include: {
           student: true,
-          course: {
-            include: {
-              // units: { where: { enabled: true }, orderBy: { order: 'asc' } },
-              // newUnits: { orderBy: { unitLetter: 'asc' } },
-              units: true,
-              newUnits: true,
-            },
-          },
+          course: { include: { newUnitTemplates: true, oldUnitTemplates: true } },
           tutor: true,
-          // units: { orderBy: { order: 'asc' } },
-          // newUnits: { orderBy: { unitLetter: 'asc' } },
-          units: true,
+          oldUnits: true,
           newUnits: { include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } } },
         },
       });
@@ -129,7 +120,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           order: enrollment.course.order,
           newUnitsEnabled: enrollment.course.newUnitsEnabled,
           entityVersion: enrollment.course.entityVersion,
-          oldUnitTemplates: enrollment.course.units.map(unit => ({
+          oldUnitTemplates: enrollment.course.oldUnitTemplates.map(unit => ({
             unitId: unit.unitId,
             courseId: unit.courseId,
             unitLetter: unit.unitLetter,
@@ -140,7 +131,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             noAssignments: unit.noAssignments,
             optionalUpload: unit.optionalUpload,
           })),
-          newUnitTemplates: enrollment.course.newUnits.map(unit => ({
+          newUnitTemplates: enrollment.course.newUnitTemplates.map(unit => ({
             unitTemplateId: this.uuidService.binToUUID(unit.unitTemplateId),
             courseId: unit.courseId,
             unitLetter: unit.unitLetter,
@@ -160,7 +151,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           lastName: enrollment.tutor.lastName,
           introduction: await this.isTutorIntroductionPresent(enrollment.tutorId, enrollment.course.code),
         },
-        oldUnits: enrollment.units.map(unit => ({
+        oldUnits: enrollment.oldUnits.map(unit => ({
           unitId: unit.unitId,
           enrollmentId: unit.enrollmentId,
           unitLetter: unit.unitLetter,

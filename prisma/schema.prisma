@@ -39,16 +39,16 @@ model Person {
 /////////////////////////////////////////////////////////////////////////
 
 model StudentType {
-  studentTypeId String       @id @db.VarChar(50) @map("type")
-  profile       Boolean      @default(false)
-  background    Background[]
-  students      Student[]
-  courses       Course[]
-  professions   Profession[]
-  q_forms       q_forms[]
-  styles        Style[]
-  tutors        Tutor[]
-  units         Unit[]
+  studentTypeId    String            @id @db.VarChar(50) @map("type")
+  profile          Boolean           @default(false)
+  background       Background[]
+  students         Student[]
+  courses          Course[]
+  professions      Profession[]
+  q_forms          q_forms[]
+  styles           Style[]
+  tutors           Tutor[]
+  oldUnitTemplates OldUnitTemplate[]
 
   @@map("student_types")
 }
@@ -63,7 +63,7 @@ model Administrator {
   salt                    String?                     @db.Char(32)
   password                String?                     @db.Char(64)
   emailAddress            String                      @map("email_address")
-  expiry                  DateTime?                   @db.DateTime(0)
+  expiry                  DateTime?                   @db.Timestamp(0)
   forumUsername           String?                     @db.VarChar(50) @map("forum_username")
   forumPassword           String?                     @db.VarChar(255) @map("forum_password")
   forumPasswordNew        String?                     @db.VarChar(255) @map("forum_password_new")
@@ -95,7 +95,7 @@ model Tutor {
   password              String?                    @db.Char(64)
   firstName             String                     @map("first_name")
   lastName              String                     @map("last_name")
-  expiry                DateTime?                  @db.Date
+  expiry                DateTime?                  @db.Timestamp
   emailAddress          String?                    @map("email_address")
   emailMessage          String?                    @db.LongText @map("email_message")
   pictureData           Bytes?                     @map("picture_data")
@@ -104,7 +104,7 @@ model Tutor {
   pictureType           String?                    @db.VarChar(255) @map("picture_type")
   paymentSchedule       TutorPaymentSchedule?      @default(weekly) @map("payment_schedule")
   hst                   Decimal?                   @db.Decimal(6, 4)
-  lastLogin             DateTime?                  @db.DateTime(0) @map("last_login")
+  lastLogin             DateTime?                  @db.Timestamp(0) @map("last_login")
   entityVersion         Int                        @default(0) @map("entity_version")
   timestamp             DateTime                   @default(now()) @db.Timestamp(6)
   country               Country                    @relation(fields: [countryId], references: [countryId], map: "tutors_ibfk_2")
@@ -118,8 +118,8 @@ model Tutor {
   transfersTo           Transfer[]                 @relation("transfers_post_tutor_idTotutors")
   transfersFrom         Transfer[]                 @relation("transfers_pre_tutor_idTotutors")
   pushSubscriptions     TutorPushSubscription[]
-  units                 SubmittedUnit[]
   newUnits              NewUnit[]
+  oldUnits              OldUnit[]
   uploads               Upload[]
   writingAssignments    WritingAssignment[]
 
@@ -143,10 +143,10 @@ model Student {
   firstName               String                       @default("") @map("first_name")
   lastName                String                       @default("") @map("last_name")
   numLogins               Int                          @default(0) @map("num_logins")
-  lastLogin               DateTime?                    @db.DateTime(0) @map("last_login")
-  expiry                  DateTime?                    @db.Date
+  lastLogin               DateTime?                    @db.Timestamp(0) @map("last_login")
+  expiry                  DateTime?                    @db.Timestamp
   emailAddress            String?                      @map("internal_email")
-  creationDate            DateTime                     @default(now()) @db.DateTime(0) @map("creation_date")
+  creationDate            DateTime                     @default(now()) @db.Timestamp(0) @map("creation_date")
   arrears                 Boolean                      @default(false)
   forumUsername           String?                      @db.VarChar(50) @map("forum_username")
   forumPassword           String?                      @db.VarChar(255) @map("forum_password")
@@ -259,7 +259,7 @@ model RefreshToken {
   tutorId         Int?           @map("tutor_id")
   administratorId Int?           @map("administrator_id")
   token           Bytes          @db.Binary(64)
-  expiry          DateTime       @db.DateTime(0)
+  expiry          DateTime       @db.Timestamp(0)
   ipAddress       Bytes?         @db.VarBinary(16) @map("ip_address")
   browser         String?
   browserVersion  String?        @map("browser_version")
@@ -269,8 +269,8 @@ model RefreshToken {
   country         String?        @db.Char(2)
   latitude        Decimal?       @db.Decimal(7, 4)
   longitude       Decimal?       @db.Decimal(7, 4)
-  created         DateTime       @default(now()) @db.DateTime(0)
-  modified        DateTime?      @db.DateTime(0) @updatedAt
+  created         DateTime       @default(now()) @db.Timestamp(0)
+  modified        DateTime?      @db.Timestamp(0) @updatedAt
   entityVersion   Int            @default(0) @map("entity_version")
   student         Student?       @relation(fields: [studentId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_1")
   tutor           Tutor?         @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, onUpdate: Restrict, map: "refresh_tokens_ibfk_2")
@@ -288,7 +288,7 @@ model AdministratorRefreshToken {
   id              BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
   accountId       Int            @map("account_id")
   token           Bytes          @db.Binary(16)
-  expiry          DateTime       @db.DateTime(0)
+  expiry          DateTime       @db.Timestamp(0)
   ipAddress       Bytes?         @db.VarBinary(16) @map("ip_address")
   browser         String?
   browserVersion  String?        @map("browser_version")
@@ -313,7 +313,7 @@ model TutorRefreshToken {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   accountId       Int      @map("account_id")
   token           Bytes    @db.Binary(16)
-  expiry          DateTime @db.DateTime(0)
+  expiry          DateTime @db.Timestamp(0)
   ipAddress       Bytes?   @db.VarBinary(16) @map("ip_address")
   browser         String?
   browserVersion  String?  @map("browser_version")
@@ -338,7 +338,7 @@ model StudentRefreshToken {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   accountId       Int      @map("account_id")
   token           Bytes    @db.Binary(16)
-  expiry          DateTime @db.DateTime(0)
+  expiry          DateTime @db.Timestamp(0)
   ipAddress       Bytes?   @db.VarBinary(16) @map("ip_address")
   browser         String?
   browserVersion  String?  @map("browser_version")
@@ -367,7 +367,7 @@ model StudentPushSubscription {
   p256dh     String?  @db.VarChar(88)
   auth       String?  @db.VarChar(24)
   ip_address Bytes?   @db.VarBinary(16)
-  created    DateTime @db.DateTime(0)
+  created    DateTime @db.Timestamp(0)
   student    Student  @relation(fields: [studentId], references: [studentId], onDelete: Cascade, onUpdate: Restrict, map: "push_subscriptions_ibfk_1")
 
   @@map("push_subscriptions")
@@ -382,7 +382,7 @@ model TutorPushSubscription {
   p256dh     String?  @db.VarChar(88)
   auth       String?  @db.VarChar(24)
   ip_address Bytes?   @db.VarBinary(16)
-  created    DateTime @db.DateTime(0)
+  created    DateTime @db.Timestamp(0)
   tutor      Tutor    @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, onUpdate: Restrict, map: "tutor_push_subscriptions_ibfk_1")
 
   @@map("tutor_push_subscriptions")
@@ -441,9 +441,9 @@ model Course {
   school            School            @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
   studentType       StudentType       @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
   materialRights    MaterialRight[]
-  newUnits          NewUnitTemplate[]
   enrollments       Enrollment[]
-  units             Unit[]
+  newUnitTemplates  NewUnitTemplate[]
+  oldUnitTemplates  OldUnitTemplate[]
   courseMaterialsV2 CourseMaterialV2OnCourses[]
 
   @@map("courses")
@@ -471,10 +471,10 @@ model Enrollment {
   courseCost           Decimal               @default(0.00) @db.Decimal(10, 2) @map("course_cost")
   amountPaid           Decimal               @default(0.00) @db.Decimal(10, 2) @map("amount_paid")
   monthlyInstallment   Decimal?              @db.Decimal(8, 2) @map("monthly_installment")
-  enrollmentDate       DateTime?             @db.Date @map("enrollment_date")
+  enrollmentDate       DateTime?             @db.Timestamp @map("enrollment_date")
   fastTrack            Boolean               @default(false) @map("fast_track")
   paymentsDisabled     Boolean               @default(false) @map("payments_disabled")
-  updated              DateTime?             @db.DateTime(0)
+  updated              DateTime?             @db.Timestamp(0)
   entityVersion        Int                   @default(0) @map("entity_version")
   timestamp            DateTime              @default(now()) @db.Timestamp(6)
   student              Student               @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "students_ibfk_1")
@@ -483,10 +483,10 @@ model Enrollment {
   tutor                Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "students_ibfk_2")
   finalSubmission      FinalSubmission?
   newUnits             NewUnit[]
+  oldUnits             OldUnit[]
   projects             Project[]
   t2202Receipts        T2202Receipt[]
   threads              Thread[]
-  units                SubmittedUnit[]
   uploads              Upload[]
   writingAssignments   WritingAssignment[]
   writingProfiles      WritingProfile[]
@@ -545,7 +545,7 @@ model Upload {
   tutorId       Int        @map("tutor_id")
   filename      String     @db.VarChar(255)
   mimeTypeId    String     @db.VarChar(255) @map("mime_type")
-  upload_date   DateTime   @db.DateTime(0)
+  upload_date   DateTime   @db.Timestamp(0)
   mimeType      MimeType   @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "uploads_ibfk_2")
   enrollment    Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], map: "uploads_ibfk_3")
   tutor         Tutor      @relation(fields: [tutorId], references: [tutorId], map: "uploads_ibfk_1")
@@ -575,7 +575,7 @@ model Currency {
   entityVersion         Int                    @default(0) @map("entity_version")
   enrollments           Enrollment[]
   unitCosts             UnitCost[]
-  units                 SubmittedUnit[]
+  oldUnits              OldUnit[]
   writingAssignments    WritingAssignment[]
   newUnitTemplatePrices NewUnitTemplatePrice[]
   newUnitPrices         NewUnitPrice[]
@@ -606,7 +606,7 @@ model MimeType {
   newPartMedia           NewPartMedium[]
   // newPartMediaElements               NewPartMediaElement[]
   newUploadSlots         NewUploadSlot[]
-  submittedParts         SubmittedPart[]
+  oldParts               OldPart[]
   pictures               Picture[]
   portraits              Portrait[]
   uploads                Upload[]
@@ -795,7 +795,7 @@ model Testimonial {
   quote         String?   @db.LongText
   name          String    @default("") @db.VarChar(255)
   rating        Boolean?
-  created       DateTime? @db.DateTime(0)
+  created       DateTime? @db.Timestamp(0)
   modified      DateTime  @default(now()) @db.Timestamp(0)
   student       Student   @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "testimonials_ibfk_1")
 
@@ -1136,8 +1136,8 @@ model WritingAssignment {
   enrollmentId     Int             @db.UnsignedInt @map("student_id")
   assignmentNumber Int             @map("assignment")
   tutorId          Int             @map("tutor_id")
-  submitted        DateTime?       @db.DateTime(0)
-  marked           DateTime?       @db.DateTime(0)
+  submitted        DateTime?       @db.Timestamp(0)
+  marked           DateTime?       @db.Timestamp(0)
   cost             Decimal?        @db.Decimal(6, 2)
   currencyId       Int?            @db.UnsignedInt @map("currency_id")
   tutorComment     String?         @db.LongText @map("tutor_comment")
@@ -1161,11 +1161,11 @@ model WritingFile {
   // assignmentNumber     Int?              @map("assignment") // TODO: remove this column
   filename             String            @db.VarChar(255)
   mimeTypeId           String            @db.VarChar(255) @map("mime_type")
-  uploaded             DateTime          @db.DateTime(0)
+  uploaded             DateTime          @db.Timestamp(0)
   compressed           Boolean           @default(false)
   correctionFilename   String?           @db.VarChar(255) @map("correction_filename")
   correctionmimeTypeId String?           @db.VarChar(255) @map("correction_mime_type")
-  correctionUploaded   DateTime?         @db.DateTime(0) @map("correction_uploaded")
+  correctionUploaded   DateTime?         @db.Timestamp(0) @map("correction_uploaded")
   correctionCompressed Boolean           @default(false) @map("correction_compressed")
   assignment           WritingAssignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "writing_files_ibfk_3")
   correctionMimeType   MimeType?         @relation("mime_typesTowriting_files_correction_mime_type", fields: [correctionmimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "writing_files_ibfk_5")
@@ -1182,7 +1182,7 @@ model WritingProfile {
   enrollmentId   Int        @db.UnsignedInt @map("student_id")
   // courseCode     String?    @db.Char(2) @map("course_code") // TODO: remove this column
   // studentNumber  Int?       @map("student number") // TODO: remove this column
-  submitted      DateTime   @db.DateTime(0)
+  submitted      DateTime   @db.Timestamp(0)
   filename       String     @db.VarChar(255)
   data           Bytes?
   mimeTypeId     String     @db.VarChar(255) @map("mime_type")
@@ -1212,7 +1212,7 @@ model Thread {
   threadId     BigInt     @id @default(autoincrement()) @db.UnsignedBigInt @map("id")
   enrollmentId Int        @db.UnsignedInt @map("student_id")
   subject      String     @db.VarChar(255)
-  closedDate   DateTime?  @db.DateTime(0) @map("closed_date")
+  closedDate   DateTime?  @db.Timestamp(0) @map("closed_date")
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "threads_ibfk_1")
   messages     Message[]
 
@@ -1226,8 +1226,8 @@ model Message {
   tutorId         Int?           @map("tutor_id")
   administratorId Int?           @map("administrator_id")
   body            String?        @db.MediumText
-  sentDate        DateTime       @db.DateTime(0) @map("sent_date")
-  readDate        DateTime?      @db.DateTime(0) @map("read_date")
+  sentDate        DateTime       @db.Timestamp(0) @map("sent_date")
+  readDate        DateTime?      @db.Timestamp(0) @map("read_date")
   reply           Boolean        @default(false)
   administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Restrict, map: "messages_ibfk_3")
   thread          Thread         @relation(fields: [threadId], references: [threadId], onDelete: Cascade, map: "messages_ibfk_1")
@@ -1258,8 +1258,8 @@ model NewUnitTemplate {
   optional               Boolean                 @default(false)
   order                  Int                     @db.TinyInt @default(0)
   enabled                Boolean                 @default(false)
-  created                DateTime                @default(now()) @db.DateTime(0)
-  modified               DateTime?               @db.DateTime(0) @updatedAt
+  created                DateTime                @default(now()) @db.Timestamp(0)
+  modified               DateTime?               @db.Timestamp(0) @updatedAt
   course                 Course                  @relation(fields: [courseId], references: [courseId], map: "new_unit_templates_ibfk_1", onDelete: Cascade)
   newAssignmentTemplates NewAssignmentTemplate[]
   prices                 NewUnitTemplatePrice[]
@@ -1280,21 +1280,22 @@ model NewUnit {
   order              Int             @db.TinyInt @default(0)
   tutorComment       String?         @db.Text @map("tutor_comment")
   adminComment       String?         @db.Text @map("admin_comment")
-  submitted          DateTime?       @db.DateTime(0)
-  transferred        DateTime?       @db.DateTime(0)
-  closed             DateTime?       @db.DateTime(0)
+  submitted          DateTime?       @db.Timestamp(0)
+  transferred        DateTime?       @db.Timestamp(0)
+  closed             DateTime?       @db.Timestamp(0)
   skipped            Boolean         @default(false)
   responseFilename   String?         @db.VarChar(255) @map("response_filename")
   responseFilesize   Int?            @db.UnsignedInt @map("response_filesize")
   responseMimeTypeId String?         @db.VarChar(255) @map("response_mime_type_id")
   entityVersion      Int             @default(0) @db.Int @map("entity_version")
-  created            DateTime        @default(now()) @db.DateTime(0)
-  modified           DateTime?       @db.DateTime(0) @updatedAt
+  created            DateTime        @default(now()) @db.Timestamp(0)
+  modified           DateTime?       @db.Timestamp(0) @updatedAt
   enrollment         Enrollment      @relation(fields: [enrollmentId], references: [enrollmentId], map: "new_units_ibfk_1", onDelete: Cascade)
   tutor              Tutor?          @relation(fields: [tutorId], references: [tutorId], map: "new_units_ibfk_2")
   responseMimeType   MimeType?       @relation(fields: [responseMimeTypeId], references: [mimeTypeId], map: "new_units_ibfk_3")
   newAssignments     NewAssignment[]
   prices             NewUnitPrice[]
+  returns            NewUnitReturn[]
 
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
@@ -1309,8 +1310,8 @@ model NewAssignmentTemplate {
   description          String?               @db.Text
   markingCriteria      String?               @db.Text @map("marking_criteria")
   optional             Boolean               @default(false)
-  created              DateTime              @default(now()) @db.DateTime(0)
-  modified             DateTime?             @db.DateTime(0) @updatedAt
+  created              DateTime              @default(now()) @db.Timestamp(0)
+  modified             DateTime?             @db.Timestamp(0) @updatedAt
   newUnitTemplate      NewUnitTemplate       @relation(fields: [unitTemplateId], references: [unitTemplateId], map: "new_assignment_templates_ibfk_1", onDelete: Cascade)
   newAssignmentMedia   NewAssignmentMedium[]
   newPartTemplates     NewPartTemplate[]
@@ -1330,8 +1331,8 @@ model NewAssignment {
   // complete           Boolean                              @default(false)
   // points             Int                                  @default(0)
   // mark               Int?
-  created            DateTime                             @default(now()) @db.DateTime(0)
-  modified           DateTime?                            @db.DateTime(0) @updatedAt
+  created            DateTime                             @default(now()) @db.Timestamp(0)
+  modified           DateTime?                            @db.Timestamp(0) @updatedAt
   newUnit            NewUnit                              @relation(fields: [unitId], references: [unitId], map: "new_assignments_ibfk_1", onDelete: Cascade)
   newParts           NewPart[]
   newAssignmentMedia NewAssignmentsOnNewAssignmentMedia[]
@@ -1350,8 +1351,8 @@ model NewAssignmentMedium {
   caption               String                               @db.VarChar(191)
   externalData          String?                              @db.VarChar(1024) @map("external_data")
   order                 Int                                  @db.TinyInt @default(0)
-  created               DateTime                             @default(now()) @db.DateTime(0)
-  modified              DateTime?                            @db.DateTime(0) @updatedAt
+  created               DateTime                             @default(now()) @db.Timestamp(0)
+  modified              DateTime?                            @db.Timestamp(0) @updatedAt
   newAssignmentTemplate NewAssignmentTemplate?               @relation(fields: [assignmentTemplateId], references: [assignmentTemplateId], map: "new_assignment_media_ibfk_1", onDelete: SetNull)
   mimeType              MimeType                             @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_assignment_media_ibfk_2")
   newAssignments        NewAssignmentsOnNewAssignmentMedia[]
@@ -1381,8 +1382,8 @@ model NewPartTemplate {
   description            String?                 @db.Text
   descriptionType        NewDescriptionType      @default(text) @map("description_type")
   markingCriteria        String?                 @db.Text @map("marking_criteria")
-  created                DateTime                @default(now()) @db.DateTime(0)
-  modified               DateTime?               @db.DateTime(0) @updatedAt
+  created                DateTime                @default(now()) @db.Timestamp(0)
+  modified               DateTime?               @db.Timestamp(0) @updatedAt
   newAssignmentTemplate  NewAssignmentTemplate   @relation(fields: [assignmentTemplateId], references: [assignmentTemplateId], map: "new_part_templates_ibfk_1", onDelete: Cascade)
   newPartMedia           NewPartMedium[]
   newTextBoxTemplates    NewTextBoxTemplate[]
@@ -1401,8 +1402,8 @@ model NewPart {
   descriptionType NewDescriptionType       @default(text) @map("description_type")
   markingCriteria String?                  @db.Text @map("marking_criteria")
   markingComments String?                  @db.Text @map("marking_comments")
-  created         DateTime                 @default(now()) @db.DateTime(0)
-  modified        DateTime?                @db.DateTime(0) @updatedAt
+  created         DateTime                 @default(now()) @db.Timestamp(0)
+  modified        DateTime?                @db.Timestamp(0) @updatedAt
   newAssignment   NewAssignment            @relation(fields: [assignmentId], references: [assignmentId], map: "new_parts_ibfk_1", onDelete: Cascade)
   newTextBoxes    NewTextBox[]
   newUploadSlots  NewUploadSlot[]
@@ -1422,8 +1423,8 @@ model NewPartMedium {
   caption         String                   @db.VarChar(191)
   externalData    String?                  @db.VarChar(1024) @map("external_data")
   order           Int                      @db.TinyInt @default(0)
-  created         DateTime                 @default(now()) @db.DateTime(0)
-  modified        DateTime?                @db.DateTime(0) @updatedAt
+  created         DateTime                 @default(now()) @db.Timestamp(0)
+  modified        DateTime?                @db.Timestamp(0) @updatedAt
   newPartTemplate NewPartTemplate?         @relation(fields: [partTemplateId], references: [partTemplateId], map: "new_part_media_ibfk_1", onDelete: SetNull)
   mimeType        MimeType                 @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_part_media_ibfk_2")
   newParts        NewPartsOnNewPartMedia[]
@@ -1453,8 +1454,8 @@ model NewTextBoxTemplate {
   points            Int             @default(0) @db.UnsignedTinyInt
   optional          Boolean         @default(false)
   order             Int             @db.TinyInt @default(0)
-  created           DateTime        @default(now()) @db.DateTime(0)
-  modified          DateTime?       @db.DateTime(0) @updatedAt
+  created           DateTime        @default(now()) @db.Timestamp(0)
+  modified          DateTime?       @db.Timestamp(0) @updatedAt
   newPartTemplate   NewPartTemplate @relation(fields: [partTemplateId], references: [partTemplateId], map: "new_text_box_templates_ibfk_1", onDelete: Cascade)
 
   @@map("new_text_box_templates")
@@ -1472,8 +1473,8 @@ model NewTextBox {
   points      Int       @default(0) @db.Int
   mark        Int?      @db.Int
   notes       String?   @db.Text
-  created     DateTime  @default(now()) @db.DateTime(0)
-  modified    DateTime? @db.DateTime(0) @updatedAt
+  created     DateTime  @default(now()) @db.Timestamp(0)
+  modified    DateTime? @db.Timestamp(0) @updatedAt
   newPart     NewPart   @relation(fields: [partId], references: [partId], map: "new_text_boxes_ibfk_1", onDelete: Cascade)
 
   @@map("new_text_boxes")
@@ -1488,8 +1489,8 @@ model NewUploadSlotTemplate {
   points               Int             @default(0) @db.UnsignedTinyInt
   optional             Boolean         @default(false)
   order                Int             @db.TinyInt @default(0)
-  created              DateTime        @default(now()) @db.DateTime(0)
-  modified             DateTime?       @db.DateTime(0) @updatedAt
+  created              DateTime        @default(now()) @db.Timestamp(0)
+  modified             DateTime?       @db.Timestamp(0) @updatedAt
   newPartTemplate      NewPartTemplate @relation(fields: [partTemplateId], references: [partTemplateId], map: "new_upload_slot_templates_ibfk_1", onDelete: Cascade)
 
   @@map("new_upload_slot_templates")
@@ -1510,8 +1511,8 @@ model NewUploadSlot {
   mark         Int?      @db.Int
   notes        String?   @db.Text
   compressed   Boolean   @default(false)
-  created      DateTime  @default(now()) @db.DateTime(0)
-  modified     DateTime? @db.DateTime(0) @updatedAt
+  created      DateTime  @default(now()) @db.Timestamp(0)
+  modified     DateTime? @db.Timestamp(0) @updatedAt
   newPart      NewPart   @relation(fields: [partId], references: [partId], map: "new_upload_slots_ibfk_1", onDelete: Cascade)
   mimeType     MimeType? @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "new_upload_slots_ibfk_2")
 
@@ -1525,8 +1526,8 @@ model NewUnitTemplatePrice {
   countryId           Int?            @db.UnsignedInt @map("country_id")
   currencyId          Int             @db.UnsignedInt @map("currency_id")
   price               Decimal         @db.Decimal(4, 2)
-  created             DateTime        @default(now()) @db.DateTime(0)
-  modified            DateTime?       @db.DateTime(0) @updatedAt
+  created             DateTime        @default(now()) @db.Timestamp(0)
+  modified            DateTime?       @db.Timestamp(0) @updatedAt
   newUnitTemplate     NewUnitTemplate @relation(fields: [unitTemplateId], references: [unitTemplateId], map: "FK_new_unit_template_prices_new_unit_templates", onDelete: Cascade)
   country             Country?        @relation(fields: [countryId], references: [countryId], map: "FK_new_unit_template_prices_countries")
   currency            Currency        @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_template_prices_currencies")
@@ -1542,14 +1543,25 @@ model NewUnitPrice {
   currencyId  Int       @db.UnsignedInt @map("currency_id")
   price       Decimal   @db.Decimal(4, 2)
   selected    Boolean   @default(false)
-  created     DateTime  @default(now()) @db.DateTime(0)
-  modified    DateTime? @db.DateTime(0) @updatedAt
+  created     DateTime  @default(now()) @db.Timestamp(0)
+  modified    DateTime? @db.Timestamp(0) @updatedAt
   newUnit     NewUnit   @relation(fields: [unitId], references: [unitId], map: "FK_new_unit_prices_new_units", onDelete: Cascade)
   country     Country?  @relation(fields: [countryId], references: [countryId], map: "FK_new_unit_prices_countries")
   currency    Currency  @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_prices_currencies")
 
   @@map("new_unit_prices")
   @@unique([unitId, countryId], map: "unit_id_country_id" )
+}
+
+model NewUnitReturn {
+  unitReturnId Bytes     @id @db.Binary(16) @map("unit_return_id")
+  unitId       Bytes     @db.Binary(16) @map("unit_id")
+  returned     DateTime  @default(now()) @db.Timestamp(0)
+  completed    DateTime? @db.Timestamp(0)
+  newUnit      NewUnit   @relation(fields: [unitId], references: [unitId], map: "FK_new_unit_returns_new_units", onDelete: Cascade)
+
+  @@map("new_unit_returns")
+  @@index([unitId], map: "unit_id")
 }
 
 enum NewDescriptionType {
@@ -1576,32 +1588,32 @@ enum NewMediaType {
 // Old Units system
 /////////////////////////////////////////////////////////////////////////
 
-model Unit {
-  unitId         Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  courseId       Int               @db.UnsignedInt @map("course_id")
-  // courseCode     String?           @db.Char(2) @map("course_code") // TODO: remove this column
-  studentTypeId  String?           @db.VarChar(50) @map("student_type")
-  unitLetter     String            @db.Char(1) @map("unit")
-  title          String?           @db.VarChar(50)
-  responseType   UnitResponseType? @default(mp3) @map("response_type")
-  enabled        Boolean           @default(true)
-  optional       Boolean           @default(false)
-  noMarks        Boolean           @default(false) @map("no_marks")
-  noAssignments  Boolean           @default(false) @map("no_assignments")
-  optionalUpload Boolean           @default(false) @map("optional_upload")
-  order          Int               @default(0) @db.UnsignedInt
-  entityVersion  Int               @default(0) @map("entity_version")
-  course         Course            @relation(fields: [courseId], references: [courseId], map: "units_ibfk_1")
-  studentType    StudentType?      @relation(fields: [studentTypeId], references: [studentTypeId], map: "units_ibfk_2")
-  assignments    Assignment[]
-  unitCosts      UnitCost[]
+model OldUnitTemplate {
+  unitId                 Int                     @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  courseId               Int                     @db.UnsignedInt @map("course_id")
+  // courseCode             String?                 @db.Char(2) @map("course_code") // TODO: remove this column
+  studentTypeId          String?                 @db.VarChar(50) @map("student_type")
+  unitLetter             String                  @db.Char(1) @map("unit")
+  title                  String?                 @db.VarChar(50)
+  responseType           UnitResponseType?       @default(mp3) @map("response_type")
+  enabled                Boolean                 @default(true)
+  optional               Boolean                 @default(false)
+  noMarks                Boolean                 @default(false) @map("no_marks")
+  noAssignments          Boolean                 @default(false) @map("no_assignments")
+  optionalUpload         Boolean                 @default(false) @map("optional_upload")
+  order                  Int                     @default(0) @db.UnsignedInt
+  entityVersion          Int                     @default(0) @map("entity_version")
+  course                 Course                  @relation(fields: [courseId], references: [courseId], map: "units_ibfk_1")
+  studentType            StudentType?            @relation(fields: [studentTypeId], references: [studentTypeId], map: "units_ibfk_2")
+  oldAssignmentTemplates OldAssignmentTemplate[]
+  unitCosts              UnitCost[]
 
   @@map("units")
   @@unique([courseId, unitLetter], map: "course_id_unit")
   @@unique([unitId, entityVersion], map: "id_entity_version")
 }
 
-model SubmittedUnit {
+model OldUnit {
   unitId           Int                   @id @default(autoincrement()) @db.UnsignedInt @map("id")
   enrollmentId     Int                   @db.UnsignedInt @map("student_id")
   unitLetter       String                @db.Char(1) @map("unit")
@@ -1611,11 +1623,11 @@ model SubmittedUnit {
   points           Int?
   mark             Int?
   creationDate     DateTime              @default(now()) @db.Timestamp(0) @map("creation_date")
-  finalizedDate    DateTime?             @db.DateTime(0) @map("finalized_date")
-  transferredDate  DateTime?             @db.DateTime(0) @map("transferred_date")
+  finalizedDate    DateTime?             @db.Timestamp(0) @map("finalized_date")
+  transferredDate  DateTime?             @db.Timestamp(0) @map("transferred_date")
   tutorId          Int?                  @map("tutor_id")
   audioReply       Bytes?                @map("audio_reply")
-  markedDate       DateTime?             @db.DateTime(0) @map("marked_date")
+  markedDate       DateTime?             @db.Timestamp(0) @map("marked_date")
   tutorComment     String?               @db.Text @map("tutor_comment")
   adminComment     String?               @db.Text @map("admin_comment")
   optional         Boolean               @default(false)
@@ -1632,7 +1644,7 @@ model SubmittedUnit {
   currency         Currency?             @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "units_submitted_ibfk_3")
   enrollment       Enrollment            @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "units_submitted_ibfk_2")
   tutor            Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "units_submitted_ibfk_1")
-  assignments      SubmittedAssignment[]
+  oldAssignment    OldAssignment[]
   quizzes          Quiz[]
   return           Return?
   transfers        Transfer[]
@@ -1646,17 +1658,17 @@ model SubmittedUnit {
   @@index([unitLetter], map: "unit")
 }
 
-model Assignment {
-  assignmentId     Int     @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  unitId           Int     @db.UnsignedInt @map("unit_id")
-  assignmentNumber Int     @db.TinyInt @map("assignment")
-  name             String  @db.VarChar(255)
-  points           Int     @db.TinyInt
-  optional         Boolean @default(false)
-  enabled          Boolean @default(true)
-  entityVersion    Int     @default(0) @map("entity_version")
-  unit             Unit    @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "assignments_ibfk_1")
-  parts            Part[]
+model OldAssignmentTemplate {
+  assignmentId     Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  unitId           Int               @db.UnsignedInt @map("unit_id")
+  assignmentNumber Int               @db.TinyInt @map("assignment")
+  name             String            @db.VarChar(255)
+  points           Int               @db.TinyInt
+  optional         Boolean           @default(false)
+  enabled          Boolean           @default(true)
+  entityVersion    Int               @default(0) @map("entity_version")
+  oldUnitTemplate  OldUnitTemplate   @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "assignments_ibfk_1")
+  oldPartTemplates OldPartTemplate[]
 
   @@map("assignments")
   @@unique([unitId, assignmentNumber], map: "assignment")
@@ -1664,7 +1676,7 @@ model Assignment {
   @@index([unitId], map: "unit_id")
 }
 
-model SubmittedAssignment {
+model OldAssignment {
   assignmentId      Int             @id @default(autoincrement()) @db.UnsignedInt @map("id")
   unitId            Int             @db.UnsignedInt @map("unit_id")
   // enrollmentId      Int?            @db.UnsignedInt @map("student_id") // TODO: this should be deleted from the database
@@ -1673,8 +1685,8 @@ model SubmittedAssignment {
   points            Int             @default(0) @db.TinyInt
   optional          Boolean         @default(false)
   mark              Int?            @db.TinyInt
-  unit              SubmittedUnit   @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "assignments_submitted_ibfk_1")
-  parts             SubmittedPart[]
+  oldUnit           OldUnit         @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "assignments_submitted_ibfk_1")
+  oldParts          OldPart[]
 
   @@map("assignments_submitted")
   @@unique([unitId, assignmentNumber], map: "unit_id_assignment")
@@ -1682,16 +1694,16 @@ model SubmittedAssignment {
   @@index([unitId], map: "unit_id")
 }
 
-model Part {
-  partId        Int        @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  assignmentId  Int        @db.UnsignedInt @map("assignment_id")
-  partNumber    Int        @default(1) @db.TinyInt @map("part")
-  name          String     @db.VarChar(255)
-  allowedTypes  String     @default(".doc,.docx") @map("allowed_types")
-  optional      Boolean    @default(false)
-  enabled       Boolean    @default(true)
-  entityVersion Int        @default(0) @map("entity_version")
-  assignment    Assignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_ibfk_1")
+model OldPartTemplate {
+  partId                Int                   @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  assignmentId          Int                   @db.UnsignedInt @map("assignment_id")
+  partNumber            Int                   @default(1) @db.TinyInt @map("part")
+  name                  String                @db.VarChar(255)
+  allowedTypes          String                @default(".doc,.docx") @map("allowed_types")
+  optional              Boolean               @default(false)
+  enabled               Boolean               @default(true)
+  entityVersion         Int                   @default(0) @map("entity_version")
+  oldAssignmentTemplate OldAssignmentTemplate @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_ibfk_1")
 
   @@map("parts")
   @@unique([partId, entityVersion], map: "id_entity_version")
@@ -1699,21 +1711,21 @@ model Part {
   @@index([assignmentId], map: "assignment_id")
 }
 
-model SubmittedPart {
-  partId        Int                 @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  assignmentId  Int                 @db.UnsignedInt @map("assignment_id")
-  enrollmentId  Int?                @db.UnsignedInt @map("student_id") // not used?
-  partNumber    Int                 @default(1) @db.TinyInt @map("part")
-  name          String              @db.VarChar(255)
-  allowedTypes  String              @default(".doc,.docx") @map("allowed_types")
-  optional      Boolean             @default(false)
-  filename      String?             @db.VarChar(255)
-  mimeTypeId    String?             @db.VarChar(255) @map("mime_type")
-  compressed    Boolean             @default(false)
-  creationDate  DateTime?           @db.DateTime(0) @map("creation_date")
-  uploadDate    DateTime?           @db.DateTime(0) @map("upload_date")
-  assignment    SubmittedAssignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_submitted_ibfk_1")
-  mimeType      MimeType?           @relation(fields: [mimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "parts_submitted_ibfk_2")
+model OldPart {
+  partId        Int           @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  assignmentId  Int           @db.UnsignedInt @map("assignment_id")
+  enrollmentId  Int?          @db.UnsignedInt @map("student_id") // not used?
+  partNumber    Int           @default(1) @db.TinyInt @map("part")
+  name          String        @db.VarChar(255)
+  allowedTypes  String        @default(".doc,.docx") @map("allowed_types")
+  optional      Boolean       @default(false)
+  filename      String?       @db.VarChar(255)
+  mimeTypeId    String?       @db.VarChar(255) @map("mime_type")
+  compressed    Boolean       @default(false)
+  creationDate  DateTime?     @db.Timestamp(0) @map("creation_date")
+  uploadDate    DateTime?     @db.Timestamp(0) @map("upload_date")
+  oldAssignment OldAssignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, map: "parts_submitted_ibfk_1")
+  mimeType      MimeType?     @relation(fields: [mimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "parts_submitted_ibfk_2")
 
   @@map("parts_submitted")
   @@unique([assignmentId, partNumber], map: "assignment_id_2")
@@ -1722,15 +1734,15 @@ model SubmittedPart {
 }
 
 model UnitCost {
-  unitCostId     Int      @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  unitId         Int      @db.UnsignedInt @map("unit_id")
-  countryId      Int?     @db.UnsignedInt @map("country_id")
-  cost           Decimal  @db.Decimal(6, 2)
-  currencyId     Int      @db.UnsignedInt @map("currency_id")
-  entityVersion  Int      @default(0) @map("entity_version")
-  country        Country? @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "unit_costs_ibfk_2")
-  currency       Currency @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "unit_costs_ibfk_3")
-  units          Unit     @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "unit_costs_ibfk_1")
+  unitCostId       Int             @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  unitId           Int             @db.UnsignedInt @map("unit_id")
+  countryId        Int?            @db.UnsignedInt @map("country_id")
+  cost             Decimal         @db.Decimal(6, 2)
+  currencyId       Int             @db.UnsignedInt @map("currency_id")
+  entityVersion    Int             @default(0) @map("entity_version")
+  country          Country?        @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "unit_costs_ibfk_2")
+  currency         Currency        @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "unit_costs_ibfk_3")
+  oldUnitTemplates OldUnitTemplate @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "unit_costs_ibfk_1")
 
   @@map("unit_costs")
   @@unique([unitCostId, entityVersion], map: "id_entity_version")
@@ -1740,25 +1752,25 @@ model UnitCost {
 }
 
 model Return {
-  unitId        Int           @id @db.UnsignedInt @map("unit_id")
-  returnedDate  DateTime?     @db.DateTime(0) @map("returned_date")
-  completedDate DateTime?     @db.DateTime(0) @map("completed_date")
-  unit          SubmittedUnit @relation(fields: [unitId], references: [unitId], onDelete: Cascade, onUpdate: Restrict, map: "returns_ibfk_1")
+  unitId        Int       @id @db.UnsignedInt @map("unit_id")
+  returnedDate  DateTime? @db.Timestamp(0) @map("returned_date")
+  completedDate DateTime? @db.Timestamp(0) @map("completed_date")
+  oldUnit       OldUnit   @relation(fields: [unitId], references: [unitId], onDelete: Cascade, onUpdate: Restrict, map: "returns_ibfk_1")
 
   @@map("returns")
 }
 
 model Transfer {
-  transferId      Int             @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  unitId          Int             @db.UnsignedInt @map("unit_id")
-  preTutorId      Int?            @map("pre_tutor_id")
-  postTutorId     Int?            @map("post_tutor_id")
-  administratorId Int?            @map("administrator_id")
-  created         DateTime?       @db.DateTime(0)
-  administrator   Administrator?  @relation(fields: [administratorId], references: [administratorId], map: "transfers_ibfk_4")
-  preTutor        Tutor?          @relation("transfers_post_tutor_idTotutors", fields: [preTutorId], references: [tutorId], map: "transfers_ibfk_3")
-  postTutor       Tutor?          @relation("transfers_pre_tutor_idTotutors", fields: [postTutorId], references: [tutorId], map: "transfers_ibfk_2")
-  units           SubmittedUnit   @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "transfers_ibfk_1")
+  transferId      Int            @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  unitId          Int            @db.UnsignedInt @map("unit_id")
+  preTutorId      Int?           @map("pre_tutor_id")
+  postTutorId     Int?           @map("post_tutor_id")
+  administratorId Int?           @map("administrator_id")
+  created         DateTime?      @db.Timestamp(0)
+  administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], map: "transfers_ibfk_4")
+  preTutor        Tutor?         @relation("transfers_post_tutor_idTotutors", fields: [preTutorId], references: [tutorId], map: "transfers_ibfk_3")
+  postTutor       Tutor?         @relation("transfers_pre_tutor_idTotutors", fields: [postTutorId], references: [tutorId], map: "transfers_ibfk_2")
+  oldUnit         OldUnit        @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "transfers_ibfk_1")
 
   @@map("transfers")
   @@index([administratorId], map: "administrator_id")
@@ -1781,19 +1793,19 @@ enum UnitResponseType {
 /////////////////////////////////////////////////////////////////////////
 
 model Quiz {
-  quizId        Int           @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  unitId        Int           @db.UnsignedInt @map("unit_id")
-  title         String        @db.VarChar(45)
-  introduction  String?       @db.MediumText
-  weight        Decimal       @db.Decimal(4, 2)
-  points        Int           @default(0) @db.UnsignedMediumInt
-  mark          Int?          @db.UnsignedMediumInt
-  time_limit    Int?          @db.UnsignedInt
-  order         Int           @db.UnsignedInt
-  complete      Boolean       @default(false)
-  finalized     Boolean       @default(false)
-  entityVersion Int           @default(0) @map("entity_version")
-  unit          SubmittedUnit @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "quizzes_ibfk_1")
+  quizId        Int        @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  unitId        Int        @db.UnsignedInt @map("unit_id")
+  title         String     @db.VarChar(45)
+  introduction  String?    @db.MediumText
+  weight        Decimal    @db.Decimal(4, 2)
+  points        Int        @default(0) @db.UnsignedMediumInt
+  mark          Int?       @db.UnsignedMediumInt
+  time_limit    Int?       @db.UnsignedInt
+  order         Int        @db.UnsignedInt
+  complete      Boolean    @default(false)
+  finalized     Boolean    @default(false)
+  entityVersion Int        @default(0) @map("entity_version")
+  oldUnit       OldUnit    @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "quizzes_ibfk_1")
   questions     Question[]
 
   @@map("quizzes")
@@ -2088,7 +2100,7 @@ model q_types {
 // model feeds {
 //   id               Int       @id @default(autoincrement())
 //   enabled          Boolean   @default(false)
-//   date             DateTime  @db.DateTime(0)
+//   date             DateTime  @db.Timestamp(0)
 //   title            String    @db.VarChar(255)
 //   text             String    @db.LongText
 //   filename         String?   @db.VarChar(255)

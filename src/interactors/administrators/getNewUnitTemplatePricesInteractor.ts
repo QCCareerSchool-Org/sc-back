@@ -31,14 +31,14 @@ export class GetNewUnitTemplatePricesInteractor implements IInteractor<GetNewUni
       const course = await this.prisma.course.findFirst({
         where: { courseId },
         include: {
-          newUnits: { include: { prices: true } },
+          newUnitTemplates: { include: { prices: true } },
         },
       });
       if (!course) {
         throw new GetNewUnitTemplatePricesCourseNotFound();
       }
 
-      return Result.success(course.newUnits.flatMap(u => {
+      return Result.success(course.newUnitTemplates.flatMap(u => {
         return u.prices.filter(p => p.countryId === countryId).map(p => ({
           unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
           unitTemplateId: this.uuidService.binToUUID(p.unitTemplateId),

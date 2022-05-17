@@ -42,25 +42,25 @@ export class ReplaceNewUnitTemplatePricesInteractor implements IInteractor<Repla
 
       try {
         await this.prisma.$transaction(async transaction => {
-          // find the course and its units and their prices
+          // find the course and its unit templates and their prices
           const course = await transaction.course.findFirst({
             where: { courseId },
             include: {
-              newUnits: { include: { prices: true } },
+              newUnitTemplates: { include: { prices: true } },
             },
           });
           if (!course) {
             throw new ReplaceNewUnitTemplatePricesCourseNotFound();
           }
 
-          if (!this.allUnitsProvided(course.newUnits, priceData)) {
+          if (!this.allUnitsProvided(course.newUnitTemplates, priceData)) {
             throw new ReplaceNewUnitTemplatePricesMissingUnits();
           }
 
           // delete the existing prices for this countryId
           await transaction.newUnitTemplatePrice.deleteMany({
             where: {
-              unitTemplateId: { in: course.newUnits.map(u => u.unitTemplateId) },
+              unitTemplateId: { in: course.newUnitTemplates.map(u => u.unitTemplateId) },
               countryId,
             },
           });

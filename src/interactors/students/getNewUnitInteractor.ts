@@ -8,6 +8,7 @@ import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
+import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
@@ -36,6 +37,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 

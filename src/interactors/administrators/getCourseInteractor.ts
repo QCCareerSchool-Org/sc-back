@@ -40,7 +40,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         where: { courseId },
         include: {
           school: true,
-          newUnits: {
+          newUnitTemplates: {
             include: { prices: { include: { currency: true } } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
@@ -72,7 +72,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           order: course.school.order,
           entityVersion: course.school.entityVersion,
         },
-        newUnitTemplates: course.newUnits.map(u => ({
+        newUnitTemplates: course.newUnitTemplates.map(u => ({
           unitTemplateId: this.uuidService.binToUUID(u.unitTemplateId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,

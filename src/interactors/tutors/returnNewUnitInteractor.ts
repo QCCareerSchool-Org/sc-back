@@ -1,7 +1,8 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewAssignment, NewPart, NewTextBox, NewUnit, NewUploadSlot, PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
+import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
@@ -16,19 +17,21 @@ export type ReturnNewUnitRequestDTO = {
 
 export type ReturnNewUnitResponseDTO = NewUnitDTO;
 
-export class ReturnNewUnitNotFound extends Error { }
-export class ReturnNewUnitNotSubmitted extends Error { }
-export class ReturnNewUnitSkipped extends Error { }
-export class ReturnNewUnitAlreadyClosed extends Error { }
-export class ReturnNewUnitWrongTutor extends Error { }
-export class ReturnNewUnitAlreadyReturned extends Error { }
-export class ReturnNewUnitCommentEmpty extends Error { }
+abstract class ReturnNewUnitError extends Error { }
+export class ReturnNewUnitNotFound extends ReturnNewUnitError { }
+export class ReturnNewUnitNotSubmitted extends ReturnNewUnitError { }
+export class ReturnNewUnitSkipped extends ReturnNewUnitError { }
+export class ReturnNewUnitAlreadyClosed extends ReturnNewUnitError { }
+export class ReturnNewUnitWrongTutor extends ReturnNewUnitError { }
+export class ReturnNewUnitAlreadyReturned extends ReturnNewUnitError { }
+export class ReturnNewUnitCommentEmpty extends ReturnNewUnitError { }
 
 export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequestDTO, ReturnNewUnitResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -36,44 +39,69 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
     try {
       const unitIdBin = this.uuidService.uuidToBin(unitId);
 
-      const newUnit = await this.prisma.newUnit.findFirst({
-        where: { unitId: unitIdBin, enrollment: { studentId } },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
-      });
+      let updatedUnit: NewUnit & {
+        newAssignments: (NewAssignment & {
+          newParts: (NewPart & {
+            newTextBoxes: NewTextBox[];
+            newUploadSlots: NewUploadSlot[];
+          })[];
+        })[];
+      };
 
-      if (!newUnit) {
-        return Result.fail(new ReturnNewUnitNotFound());
+      try {
+        updatedUnit = await this.prisma.$transaction(async transaction => {
+          const newUnit = await transaction.newUnit.findFirst({
+            where: { unitId: unitIdBin, enrollment: { studentId } },
+            include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+          });
+
+          if (!newUnit) {
+            throw new ReturnNewUnitNotFound();
+          }
+
+          if (!newUnit.submitted) {
+            throw new ReturnNewUnitNotSubmitted();
+          }
+
+          if (newUnit.skipped) {
+            throw new ReturnNewUnitSkipped();
+          }
+
+          if (newUnit.closed) {
+            throw new ReturnNewUnitAlreadyClosed();
+          }
+
+          if (newUnit.tutorId !== tutorId) {
+            throw new ReturnNewUnitWrongTutor();
+          }
+
+          if (newUnit.tutorComment) {
+            throw new ReturnNewUnitAlreadyReturned();
+          }
+
+          if (comment.length === 0) {
+            throw new ReturnNewUnitCommentEmpty();
+          }
+
+          return transaction.newUnit.update({
+            data: {
+              tutorComment: comment,
+              returns: {
+                create: {
+                  unitReturnId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                },
+              },
+            },
+            where: { unitId: unitIdBin },
+            include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+          });
+        });
+      } catch (err) {
+        if (err instanceof ReturnNewUnitError) {
+          return Result.fail(err);
+        }
+        throw err;
       }
-
-      if (!newUnit.submitted) {
-        return Result.fail(new ReturnNewUnitNotSubmitted());
-      }
-
-      if (newUnit.skipped) {
-        return Result.fail(new ReturnNewUnitSkipped());
-      }
-
-      if (newUnit.closed) {
-        return Result.fail(new ReturnNewUnitAlreadyClosed());
-      }
-
-      if (newUnit.tutorId !== tutorId) {
-        return Result.fail(new ReturnNewUnitWrongTutor());
-      }
-
-      if (newUnit.tutorComment) {
-        return Result.fail(new ReturnNewUnitAlreadyReturned());
-      }
-
-      if (comment.length === 0) {
-        return Result.fail(new ReturnNewUnitCommentEmpty());
-      }
-
-      const updatedUnit = await this.prisma.newUnit.update({
-        data: { tutorComment: comment },
-        where: { unitId: unitIdBin },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
-      });
 
       let unitComplete = true;
       let unitMarked = true;
