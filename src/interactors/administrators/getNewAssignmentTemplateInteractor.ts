@@ -8,7 +8,6 @@ import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
-import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -36,7 +35,6 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -68,8 +66,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         description: assignmentTemplate.description,
         markingCriteria: assignmentTemplate.markingCriteria,
         optional: assignmentTemplate.optional,
-        created: this.dateService.mapDateFromStorage(assignmentTemplate.created),
-        modified: this.dateService.mapDateFromStorage(assignmentTemplate.modified),
+        created: assignmentTemplate.created,
+        modified: assignmentTemplate.modified,
         newUnitTemplate: {
           unitTemplateId: this.uuidService.binToUUID(assignmentTemplate.newUnitTemplate.unitTemplateId),
           courseId: assignmentTemplate.newUnitTemplate.courseId,
@@ -79,8 +77,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           markingCriteria: assignmentTemplate.newUnitTemplate.markingCriteria,
           optional: assignmentTemplate.newUnitTemplate.optional,
           order: assignmentTemplate.newUnitTemplate.order,
-          created: this.dateService.mapDateFromStorage(assignmentTemplate.newUnitTemplate.created),
-          modified: this.dateService.mapDateFromStorage(assignmentTemplate.newUnitTemplate.modified),
+          created: assignmentTemplate.newUnitTemplate.created,
+          modified: assignmentTemplate.newUnitTemplate.modified,
         },
         newPartTemplates: assignmentTemplate.newPartTemplates.map(p => ({
           partTemplateId: this.uuidService.binToUUID(p.partTemplateId),
@@ -90,8 +88,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           description: p.description,
           descriptionType: p.descriptionType,
           markingCriteria: p.markingCriteria,
-          created: this.dateService.mapDateFromStorage(p.created),
-          modified: this.dateService.mapDateFromStorage(p.modified),
+          created: p.created,
+          modified: p.modified,
           newTextBoxTemplates: withInputs ? p.newTextBoxTemplates.map(t => ({
             textBoxTemplateId: this.uuidService.binToUUID(t.textBoxTemplateId),
             partTemplateId: this.uuidService.binToUUID(t.partTemplateId),
@@ -100,8 +98,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
             points: t.points,
             optional: t.optional,
             order: t.order,
-            created: this.dateService.mapDateFromStorage(t.created),
-            modified: this.dateService.mapDateFromStorage(t.modified),
+            created: t.created,
+            modified: t.modified,
           })) : undefined,
           newUploadSlotTemplates: withInputs ? p.newUploadSlotTemplates.map(u => ({
             uploadSlotTemplateId: this.uuidService.binToUUID(u.uploadSlotTemplateId),
@@ -111,8 +109,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
             points: u.points,
             optional: u.optional,
             order: u.order,
-            created: this.dateService.mapDateFromStorage(u.created),
-            modified: this.dateService.mapDateFromStorage(u.modified),
+            created: u.created,
+            modified: u.modified,
           })) : undefined,
           newPartMedia: withInputs ? p.newPartMedia.map(m => ({
             partMediumId: this.uuidService.binToUUID(m.partMediumId),
@@ -124,8 +122,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
             caption: m.caption,
             externalData: m.externalData,
             order: m.order,
-            created: this.dateService.mapDateFromStorage(m.created),
-            modified: this.dateService.mapDateFromStorage(m.modified),
+            created: m.created,
+            modified: m.modified,
           })) : undefined,
         })),
         newAssignmentMedia: assignmentTemplate.newAssignmentMedia.map(m => ({
@@ -138,8 +136,8 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
           caption: m.caption,
           externalData: m.externalData,
           order: m.order,
-          created: this.dateService.mapDateFromStorage(m.created),
-          modified: this.dateService.mapDateFromStorage(m.modified),
+          created: m.created,
+          modified: m.modified,
         })),
       });
 

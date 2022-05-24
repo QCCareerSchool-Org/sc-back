@@ -4,7 +4,6 @@ import type { IInteractor } from '..';
 import { InsufficientPrivileges } from '..';
 import type { Privileges } from '../../domain/accessTokenPayload';
 import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
 import type { ResultType } from '../result';
 
@@ -20,7 +19,6 @@ export class DeleteNewUnitTemplatePricesInteractor implements IInteractor<Delete
 
   public constructor(
     private readonly prisma: PrismaClient,
-    private readonly uuidService: IUUIDService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 

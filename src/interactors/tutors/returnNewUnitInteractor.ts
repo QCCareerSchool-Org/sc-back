@@ -2,7 +2,6 @@ import type { NewAssignment, NewPart, NewTextBox, NewUnit, NewUploadSlot, Prisma
 
 import type { IInteractor } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import type { ResultType } from '../result';
@@ -31,7 +30,6 @@ export class ReturnNewUnitInteractor implements IInteractor<ReturnNewUnitRequest
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 

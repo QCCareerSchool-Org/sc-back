@@ -4,7 +4,7 @@ import * as yup from 'yup';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
 import { loginInteractor } from '../../interactors/authentication';
-import { LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
+import { LoginArears, LoginExpired, LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -93,6 +93,10 @@ export class LoginController extends BaseController<Request, Response> {
         // send this response for either error--we don't want an attacker to know whether
         // a username exists or not
         return this.badRequest('Invalid username or password');
+      case LoginExpired:
+        return this.badRequest('Account is expired');
+      case LoginArears:
+        return this.badRequest('Account is in arrears');
       default:
         return this.internalServerError(result.error.message);
     }

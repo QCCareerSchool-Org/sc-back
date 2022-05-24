@@ -24,6 +24,7 @@ import { GetNewAssignmentTemplateController } from '../../controllers/administra
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController';
+import { GetNewUnitReturnController } from '../../controllers/administrators/getNewUnitReturnController';
 import { GetNewUnitTemplateController } from '../../controllers/administrators/getNewUnitTemplateController';
 import { GetNewUnitTemplatePricesController } from '../../controllers/administrators/getNewUnitTemplatePricesController';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController';
@@ -108,6 +109,8 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/courses/:courseId/newUnitTemplatePrices', GetNewUnitTemplatePricesController ],
   [ 'put', '/:administratorId/courses/:courseId/newUnitTemplatePrices', ReplaceNewUnitTemplatePricesController ],
   [ 'delete', '/:administratorId/courses/:courseId/newUnitTemplatePrices', DeleteNewUnitTemplatePricesController ],
+  // new unit returns
+  [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
 ];
 
 applyRoutes(administratorRouter, routes);

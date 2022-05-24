@@ -99,6 +99,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
         enrollment: {
           enrollmentId: newUnit.enrollment.enrollmentId,
           courseId: newUnit.enrollment.courseId,
+          studentId: newUnit.enrollment.studentId,
           studentNumber: newUnit.enrollment.studentNumber,
           tutorId: newUnit.enrollment.tutorId,
           maxAssignments: newUnit.enrollment.maxAssignments,

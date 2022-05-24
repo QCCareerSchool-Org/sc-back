@@ -92,7 +92,6 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
             description: description?.length ? description : null,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
-            created: new Date(),
           },
         });
       } catch (err) {

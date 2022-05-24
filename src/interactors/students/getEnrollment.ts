@@ -64,6 +64,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
       return Result.success({
         enrollmentId: enrollment.enrollmentId,
         courseId: enrollment.courseId,
+        studentId: enrollment.studentId,
         studentNumber: enrollment.studentNumber,
         tutorId: enrollment.tutorId,
         maxAssignments: enrollment.maxAssignments,

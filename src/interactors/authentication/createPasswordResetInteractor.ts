@@ -54,17 +54,17 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       const randomBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
       const code = randomBytes.toString('hex');
 
-      const data: Omit<PasswordResetRequest, 'id'> = {
-        administratorId: accountType === 'admin' ? accountId : null,
-        tutorId: accountType === 'tutor' ? accountId : null,
-        studentId: accountType === 'student' ? accountId : null,
-        code,
-        used: false,
-        requestDate: this.dateService.getDate(),
-        entityVersion: 0,
-      };
-
-      const passwordResetRequest = await this.prisma.passwordResetRequest.create({ data });
+      const passwordResetRequest = await this.prisma.passwordResetRequest.create({
+        data: {
+          administratorId: accountType === 'admin' ? accountId : null,
+          tutorId: accountType === 'tutor' ? accountId : null,
+          studentId: accountType === 'student' ? accountId : null,
+          code,
+          used: false,
+          requestDate: this.dateService.getDate(),
+          entityVersion: 0,
+        },
+      });
 
       const [ htmlBody, textBody, headerImage ] = await Promise.all([
         this.fileService.readFile('../../../email/password-reset.html'),

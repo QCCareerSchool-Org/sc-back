@@ -54,6 +54,8 @@ type LoginResponseDTO = {
 export class LoginNotFound extends Error { }
 export class LoginNoPasswordHash extends Error { }
 export class LoginWrongPassword extends Error { }
+export class LoginExpired extends Error { }
+export class LoginArears extends Error { }
 
 type Account = Administrator | Tutor | Student;
 
@@ -87,6 +89,19 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       const passwordMatches = await this.cryptoService.verify(request.password, account.passwordHash);
       if (!passwordMatches) {
         return Result.fail(new LoginWrongPassword());
+      }
+
+      if (account.expiry) {
+        const expiry = account.expiry;
+        if (expiry <= this.dateService.getDate()) {
+          return Result.fail(new LoginExpired());
+        }
+      }
+
+      if (accountType === 'student') {
+        if ((account as Student).arrears) {
+          return Result.fail(new LoginArears());
+        }
       }
 
       // determine when the access token should expire

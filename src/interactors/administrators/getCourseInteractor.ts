@@ -6,7 +6,6 @@ import type { CurrencyDTO } from '../../domain/currencyDTO';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
 import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO';
 import type { SchoolDTO } from '../../domain/schoolDTO';
-import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -32,7 +31,6 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -83,16 +81,16 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           markingCriteria: u.markingCriteria,
           optional: u.optional,
           order: u.order,
-          created: this.dateService.mapDateFromStorage(u.created),
-          modified: this.dateService.mapDateFromStorage(u.modified),
+          created: u.created,
+          modified: u.modified,
           prices: u.prices.map(p => ({
             unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
             unitTemplateId: this.uuidService.binToUUID(p.unitTemplateId),
             countryId: p.countryId,
             currencyId: p.currencyId,
             price: p.price.toNumber(),
-            created: this.dateService.mapDateFromStorage(p.created),
-            modified: this.dateService.mapDateFromStorage(p.modified),
+            created: p.created,
+            modified: p.modified,
             currency: {
               currencyId: p.currency.currencyId,
               code: p.currency.code,

@@ -3,7 +3,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 import type { IInteractor } from '..';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
 import type { IUUIDService } from '../../services/uuid';
 import { Result } from '../result';
@@ -38,7 +37,6 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -94,8 +92,6 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         return Result.fail(new InsertNewUnitTemplateOrderTooLarge());
       }
 
-      const created = this.dateService.mapDateForStorage(this.dateService.getDate());
-
       // insert the unit template
       let insertedUnitTemplate: NewUnitTemplate;
       try {
@@ -109,8 +105,6 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
-            created,
-            modified: created,
           },
         });
       } catch (err) {
@@ -132,8 +126,8 @@ export class InsertNewUnitTemplateInteractor implements IInteractor<InsertNewUni
         markingCriteria: insertedUnitTemplate.markingCriteria,
         optional: insertedUnitTemplate.optional,
         order: insertedUnitTemplate.order,
-        created: this.dateService.mapDateFromStorage(insertedUnitTemplate.created),
-        modified: this.dateService.mapDateFromStorage(insertedUnitTemplate.modified),
+        created: insertedUnitTemplate.created,
+        modified: insertedUnitTemplate.modified,
       });
 
     } catch (err) {

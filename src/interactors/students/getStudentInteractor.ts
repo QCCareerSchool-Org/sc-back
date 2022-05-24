@@ -88,8 +88,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         enrollments: student.enrollments.map(e => ({
           enrollmentId: e.enrollmentId,
           courseId: e.courseId,
-          studentNumber: e.studentNumber,
           studentId: e.studentId,
+          studentNumber: e.studentNumber,
           tutorId: e.tutorId,
           maxAssignments: e.maxAssignments,
           graduated: e.graduated,

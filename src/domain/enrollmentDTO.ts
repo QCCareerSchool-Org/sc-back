@@ -1,6 +1,7 @@
 export type EnrollmentDTO = {
   enrollmentId: number;
   courseId: number;
+  studentId: number;
   studentNumber: number;
   tutorId: number | null;
   maxAssignments: number | null;
