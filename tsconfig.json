@@ -101,5 +101,5 @@
   "include": [
     "src",
     ".eslintrc.js"
-  ]
+  ],
 }

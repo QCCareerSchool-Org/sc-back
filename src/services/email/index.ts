@@ -6,4 +6,5 @@ export type Attachment = {
 
 export interface IEmailService {
   send: (name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[]) => Promise<void>;
+  mask: (emailAddress: string) => string;
 }

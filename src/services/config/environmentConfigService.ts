@@ -15,6 +15,15 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable NODE_ENV must be \'development\' or \'production\'');
     }
 
+    const port = process.env.PORT
+      ? parseInt(process.env.PORT, 10)
+      : EnvironmentConfigService.#defaultPort;
+
+    const host = process.env.HOST;
+    if (typeof host === 'undefined') {
+      throw Error('Environment variable HOST is undefined');
+    }
+
     const basePath = process.env.BASE_PATH ?? '/tmp';
 
     const smtpHost = process.env.SMTP_HOST;
@@ -45,9 +54,19 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable SMTP_MODE is invalid');
     }
 
+    const passwordResetTimeout = process.env.PASSWORD_RESET_TIMEOUT;
+    if (typeof passwordResetTimeout === 'undefined') {
+      throw Error('Environment variable PASSWORD_RESET_TIMEOUT is undefined');
+    }
+    const passwordResetTimeoutNumber = parseInt(passwordResetTimeout, 10);
+    if (isNaN(passwordResetTimeoutNumber)) {
+      throw Error('Environment variable PASSWORD_RESET_TIMEOUT is invalid');
+    }
+
     this.#config = {
       environment,
-      port: process.env.PORT ? parseInt(process.env.PORT, 10) : EnvironmentConfigService.#defaultPort,
+      port,
+      host,
       paths: {
         basePath,
         materialsContentPath: process.env.MATERIALS_CONTENT_PATH ?? basePath + '/course-materials/content',
@@ -79,7 +98,7 @@ export class EnvironmentConfigService implements IConfigService {
         pass: smtpPassword,
         mode: smtpMode,
       },
-      passwordResetTimeout: 30 * 60, // the number of seconds a password reset request is valid
+      passwordResetTimeout: passwordResetTimeoutNumber,
       uploadSlotMaxFilesize: process.env.UPLOAD_SLOT_MAX_FILESIZE ? parseInt(process.env.UPLOAD_SLOT_MAX_FILESIZE, 10) : 33_554_432, // 32 MB
     };
   }

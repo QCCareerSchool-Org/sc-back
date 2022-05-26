@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 import { createPasswordResetInteractor } from '../../interactors/authentication';
+import type { CreatePasswordResetResponseDTO } from '../../interactors/authentication/createPasswordResetInteractor';
 import { CreatePasswordResetCountryNotFound, CreatePasswordResetNoEmailAddress, CreatePasswordResetUserNotFound } from '../../interactors/authentication/createPasswordResetInteractor';
 import { BaseController } from '../baseController';
 
@@ -10,7 +11,9 @@ type Request = {
   };
 };
 
-export class CreatePasswordResetController extends BaseController<Request, void> {
+type Response = CreatePasswordResetResponseDTO;
+
+export class CreatePasswordResetController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
@@ -33,7 +36,7 @@ export class CreatePasswordResetController extends BaseController<Request, void>
     const result = await createPasswordResetInteractor.execute({ username: body.username });
 
     if (result.success) {
-      return this.noContent();
+      return this.ok(result.value);
     }
 
     switch (result.error.constructor) {

@@ -1,5 +1,6 @@
 import { prisma } from '../../frameworks/prisma';
-import { axiosHttpService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
+import { axiosHttpService, dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
+import { CloseNewUnitReturnInteractor } from './closeNewUnitReturnInteractor';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor';
 import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor';
@@ -98,3 +99,4 @@ export const replaceNewUnitTemplatePricesInteractor = new ReplaceNewUnitTemplate
 export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePricesInteractor(prisma, winstonLoggerService);
 
 export const getNewUnitReturnInteractor = new GetNewUnitReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const closeNewUnitReturnInteractor = new CloseNewUnitReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);

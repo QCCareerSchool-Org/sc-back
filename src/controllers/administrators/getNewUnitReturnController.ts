@@ -49,7 +49,7 @@ export class GetNewUnitReturnController extends BaseController<Request, Response
 
     switch (result.error.constructor) {
       case GetNewUnitReturnNotFound:
-        return this.notFound('Unit template not found');
+        return this.notFound('Unit return not found');
       case GetNewUnitReturnTutorNotFound:
         return this.notFound('Tutor not found');
       default:

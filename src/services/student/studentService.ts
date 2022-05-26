@@ -7,7 +7,7 @@ export class StudentService implements IStudentService {
     if (courseCode.length === 0) {
       return [ null, null ];
     }
-    const studentNumber = parseInt(username.substr(courseCode.length), 10); // parse the remaining characters as an int
+    const studentNumber = parseInt(username.substring(courseCode.length), 10); // parse the remaining characters as an int
     if (isNaN(studentNumber)) {
       return [ courseCode, null ];
     }

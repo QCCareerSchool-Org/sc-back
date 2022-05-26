@@ -3,4 +3,5 @@
  */
 export interface IDateService {
   getDate: () => Date;
+  formatDateTime: (date: Date) => string;
 }

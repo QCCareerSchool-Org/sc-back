@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
-    "build": "tsc",
+    "test": "jest --coverage",
+    "build": "tsc --project tsconfig.build.json",
     "start": "node dist/frameworks/express"
   },
   "author": "Dave Welsh",

@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import type Mail from 'nodemailer/lib/mailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 import type { Attachment, IEmailService } from '.';
 
@@ -13,16 +15,7 @@ export class NodemailerEmailService implements IEmailService {
   ) { /* empty */ }
 
   public async send(name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[]): Promise<void> {
-    const transport = nodemailer.createTransport({
-      host: this.host,
-      port: this.port,
-      secure: this.mode === 'TLS',
-      auth: {
-        user: this.username,
-        pass: this.password,
-      },
-      requireTLS: this.mode === 'STARTTLS',
-    });
+    const transport = this.createTransport();
     try {
       await transport.sendMail({
         to: `${name}<${emailAddress}>`,
@@ -35,5 +28,41 @@ export class NodemailerEmailService implements IEmailService {
     } finally {
       transport.close();
     }
+  }
+
+  public createTransport(): Mail {
+    return nodemailer.createTransport(this.getOptions());
+  }
+
+  public getOptions(): SMTPTransport.Options {
+    return {
+      host: this.host,
+      port: this.port,
+      secure: this.mode === 'TLS',
+      auth: {
+        user: this.username,
+        pass: this.password,
+      },
+      requireTLS: this.mode === 'STARTTLS',
+    };
+  }
+
+  public mask(emailAddress: string): string {
+    const parts = emailAddress.split('@');
+    const count = parts.length;
+    let returnValue = '';
+    parts.filter((_, i) => i < count - 1).forEach(p => {
+      const length = p.length;
+      if (length <= 8) {
+        returnValue += p.substring(0, 1) + '*****';
+      } else if (length <= 12) {
+        returnValue += p.substring(0, 1) + '********' + p.substring(length - 1, length);
+      } else {
+        returnValue += p.substring(0, 2) + '********' + p.substring(length - 1, length);
+      }
+      returnValue += '@';
+    });
+    returnValue += parts[count - 1];
+    return returnValue;
   }
 }

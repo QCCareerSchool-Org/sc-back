@@ -1,9 +1,11 @@
+import path from 'path';
 import type { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
 import type { AccountType } from '../../domain/accountType';
 import type { IInteractor } from '../../interactors';
 import type { ResultType } from '../../interactors/result';
 import { Result } from '../../interactors/result';
+import type { IConfigService } from '../../services/config';
 import type { ICryptoService } from '../../services/crypto';
 import type { IDateService } from '../../services/date';
 import type { IEmailService } from '../../services/email';
@@ -16,11 +18,16 @@ type CreatePasswordResetRequestDTO = {
   username: string;
 };
 
-type CreatePasswordResetResponseDTO = void;
+export type CreatePasswordResetResponseDTO = {
+  maskedEmailAddress: string;
+  expiryDate: Date;
+};
 
 export class CreatePasswordResetUserNotFound extends Error { }
 export class CreatePasswordResetNoEmailAddress extends Error { }
+export class CreatePasswordResetInvalidAccountType extends Error { }
 export class CreatePasswordResetCountryNotFound extends Error { }
+export class CreatePasswordResetEmailFailure extends Error { }
 
 type Account = Administrator | Tutor | Student;
 
@@ -33,6 +40,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
     private readonly fileService: IFileService,
     private readonly cryptoService: ICryptoService,
     private readonly dateService: IDateService,
+    private readonly configService: IConfigService,
     private readonly studentService: IStudentService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -59,21 +67,39 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
           administratorId: accountType === 'admin' ? accountId : null,
           tutorId: accountType === 'tutor' ? accountId : null,
           studentId: accountType === 'student' ? accountId : null,
+          username,
           code,
           used: false,
           requestDate: this.dateService.getDate(),
+          expiryDate: new Date(this.dateService.getDate().getTime() + this.configService.config.passwordResetTimeout),
           entityVersion: 0,
         },
       });
 
+      let htmlBodyFile: string;
+      let textBodyFile: string;
+      if (accountType === 'admin') {
+        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.html');
+        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.txt');
+      } else if (accountType === 'tutor') {
+        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
+        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
+      } else if (accountType === 'student') {
+        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.html');
+        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.txt');
+      } else {
+        return Result.fail(new CreatePasswordResetInvalidAccountType());
+      }
+
+      const headerImageFile = path.resolve(__dirname, '../../../email/header.png');
+
       const [ htmlBody, textBody, headerImage ] = await Promise.all([
-        this.fileService.readFile('../../../email/password-reset.html'),
-        this.fileService.readFile('../../../email/password-reset.txt'),
-        this.fileService.readFile('../../../email/header.png'),
+        this.fileService.readFile(htmlBodyFile),
+        this.fileService.readFile(textBodyFile),
+        this.fileService.readFile(headerImageFile),
       ]);
 
       const country = await this.prisma.country.findUnique({ where: { countryId: account.countryId } });
-
       if (!country) {
         return Result.fail(new CreatePasswordResetCountryNotFound());
       }
@@ -83,16 +109,28 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
 
       const replace = this.getReplaceFunction(name, telephoneNumber, passwordResetRequest);
 
-      await this.emailService.send(
-        name,
-        account.emailAddress,
-        'Password Reset Request',
-        replace(htmlBody.toString('utf8')),
-        replace(textBody.toString('utf8')),
-        [ { content: headerImage, filename: 'header.png', cid: 'header' } ],
-      );
+      try {
+        await this.emailService.send(
+          name,
+          account.emailAddress,
+          'Password Reset Request',
+          replace(htmlBody.toString('utf8')),
+          replace(textBody.toString('utf8')),
+          [ { content: headerImage, filename: 'header.png', cid: 'header' } ],
+        );
+      } catch (err) {
+        this.logger.error('Email failure', err);
+        return Result.fail(new CreatePasswordResetEmailFailure());
+      }
 
-      return Result.success(undefined);
+      if (passwordResetRequest.expiryDate === null) {
+        throw Error('password reset request expiry date is null');
+      }
+
+      return Result.success({
+        maskedEmailAddress: this.emailService.mask(account.emailAddress),
+        expiryDate: passwordResetRequest.expiryDate,
+      });
 
     } catch (err) {
       this.logger.error('error creating password reset', err instanceof Error ? err.message : err);
@@ -109,16 +147,20 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
    * @returns the replacer function
    */
   private getReplaceFunction(name: string, telephoneNumber: string, passwordResetRequest: PasswordResetRequest): (template: string) => string {
-    const date = passwordResetRequest.requestDate.toISOString();
-    const resetLink = `https://sc.qccareerschool.com/reset?id=${encodeURIComponent(passwordResetRequest.id)}&code=${encodeURIComponent(passwordResetRequest.code)}`;
+    if (passwordResetRequest.expiryDate === null) {
+      throw Error('password reset request expiry date is null');
+    }
+    const expiryDate = this.dateService.formatDateTime(passwordResetRequest.expiryDate);
+    const resetLink = `${this.configService.config.host}/sc/password-resets/${encodeURIComponent(passwordResetRequest.id)}?code=${encodeURIComponent(passwordResetRequest.code)}`;
 
-    return (template: string): string => template.replace('${name}', name)
+    return (template: string): string => template
+      .replace('${name}', name)
       .replace('${telephoneNumber}', telephoneNumber)
-      .replace('${expiryDate}', date)
+      .replace('${expiryDate}', expiryDate)
       .replace('${resetLink}', resetLink);
   }
 
-  private async getAccount(username: string): Promise<[ number, Account, AccountType ] | null> {
+  private async getAccount(username: string): Promise<[number, Account, AccountType] | null> {
     const administrator = await this.prisma.administrator.findUnique({ where: { username } });
     if (administrator) {
       return [ administrator.administratorId, administrator, 'admin' ];

@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import type { PasswordResetRequestDTO } from '../../domain/passwordResetRequestDTO';
 
 import type { IInteractor } from '../../interactors';
 import type { ResultType } from '../../interactors/result';
@@ -10,15 +11,7 @@ type GetPasswordResetRequestDTO = {
   code: string;
 };
 
-type GetPasswordResetResponseDTO = {
-  id: number;
-  // code is ommitted
-  administratorId: number | null;
-  tutorId: number | null;
-  studentId: number | null;
-  used: boolean;
-  requestDate: Date;
-};
+export type GetPasswordResetResponseDTO = PasswordResetRequestDTO;
 
 export class GetPasswordResetNotFound extends Error { }
 export class GetPasswordResetInvalidCode extends Error { }
@@ -32,7 +25,9 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
 
   public async execute({ id, code }: GetPasswordResetRequestDTO): Promise<ResultType<GetPasswordResetResponseDTO>> {
     try {
-      const passwordResetRequest = await this.prisma.passwordResetRequest.findUnique({ where: { id } });
+      const passwordResetRequest = await this.prisma.passwordResetRequest.findUnique({
+        where: { id },
+      });
 
       if (!passwordResetRequest) {
         return Result.fail(new GetPasswordResetNotFound());
@@ -44,11 +39,14 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
 
       return Result.success({
         id: passwordResetRequest.id,
+        code: passwordResetRequest.code,
         administratorId: passwordResetRequest.administratorId,
         tutorId: passwordResetRequest.tutorId,
         studentId: passwordResetRequest.studentId,
+        username: passwordResetRequest.username,
         used: passwordResetRequest.used,
         requestDate: passwordResetRequest.requestDate,
+        expiryDate: passwordResetRequest.expiryDate,
       });
 
     } catch (err) {

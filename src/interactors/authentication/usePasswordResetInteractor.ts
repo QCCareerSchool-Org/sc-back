@@ -2,6 +2,7 @@ import type { PasswordResetRequest, PrismaClient } from '@prisma/client';
 
 import type { IInteractor } from '..';
 import type { AccountType } from '../../domain/accountType';
+import type { IConfigService } from '../../services/config';
 import type { ICryptoService } from '../../services/crypto';
 import type { IDateService } from '../../services/date';
 import type { ILoggerService } from '../../services/logger';
@@ -26,13 +27,12 @@ export class UsePasswordResetAccountNotFound extends Error { }
 export class UsePasswordResetInvalidAccountType extends Error { }
 
 export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetRequestDTO, UsePasswordResetResponseDTO> {
-  private static readonly expiryWindow = 1000 * 60 * 60 * 8; // 8 hours
-
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly cryptoService: ICryptoService,
     private readonly dateService: IDateService,
     private readonly passwordService: IPasswordService,
+    private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -64,23 +64,37 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
 
       const passwordHash = await this.cryptoService.createHash(password, 13);
 
-      if (accountType === 'admin') {
-        await this.prisma.administrator.update({
-          data: { passwordHash },
-          where: { administratorId: accountId },
+      try {
+        await this.prisma.$transaction(async transaction => {
+          await transaction.passwordResetRequest.update({
+            data: { used: true },
+            where: { id },
+          });
+
+          if (accountType === 'admin') {
+            await transaction.administrator.update({
+              data: { passwordHash },
+              where: { administratorId: accountId },
+            });
+          } else if (accountType === 'tutor') {
+            await transaction.tutor.update({
+              data: { passwordHash },
+              where: { tutorId: accountId },
+            });
+          } else if (accountType === 'student') {
+            await transaction.student.update({
+              data: { passwordHash },
+              where: { studentId: accountId },
+            });
+          } else {
+            throw new UsePasswordResetInvalidAccountType();
+          }
         });
-      } else if (accountType === 'tutor') {
-        await this.prisma.tutor.update({
-          data: { passwordHash },
-          where: { tutorId: accountId },
-        });
-      } else if (accountType === 'student') {
-        await this.prisma.student.update({
-          data: { passwordHash },
-          where: { studentId: accountId },
-        });
-      } else {
-        return Result.fail(new UsePasswordResetInvalidAccountType());
+      } catch (err) {
+        if (err instanceof Error) {
+          return Result.fail(err);
+        }
+        throw err;
       }
 
       return Result.success(undefined);
@@ -92,7 +106,10 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
   }
 
   private isExpired(passwordReset: PasswordResetRequest): boolean {
-    return this.dateService.getDate().getTime() >= passwordReset.requestDate.getTime() + UsePasswordResetInteractor.expiryWindow;
+    if (passwordReset.expiryDate) {
+      return this.dateService.getDate() >= passwordReset.expiryDate;
+    }
+    return this.dateService.getDate().getTime() >= passwordReset.requestDate.getTime() + this.configService.config.passwordResetTimeout;
   }
 
   private getAccountId(passwordRest: PasswordResetRequest): [number, AccountType] {

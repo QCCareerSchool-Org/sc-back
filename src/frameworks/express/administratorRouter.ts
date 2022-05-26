@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware';
+import { CloseNewUnitReturnController } from '../../controllers/administrators/closeNewUnitReturnController';
 import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController';
 import { DeleteNewPartMediumController } from '../../controllers/administrators/deleteNewPartMediumController';
@@ -111,6 +112,7 @@ const routes: Route[] = [
   [ 'delete', '/:administratorId/courses/:courseId/newUnitTemplatePrices', DeleteNewUnitTemplatePricesController ],
   // new unit returns
   [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
+  [ 'put', '/:administratorId/newUnitReturns/:unitReturnId', CloseNewUnitReturnController ],
 ];
 
 applyRoutes(administratorRouter, routes);

@@ -1,6 +1,8 @@
 import * as yup from 'yup';
 
 import { getPasswordResetInteractor } from '../../interactors/authentication';
+import type { GetPasswordResetResponseDTO } from '../../interactors/authentication/getPasswordResetInteractor';
+import { GetPasswordResetInvalidCode, GetPasswordResetNotFound } from '../../interactors/authentication/getPasswordResetInteractor';
 import { BaseController } from '../baseController';
 
 type Request = {
@@ -13,7 +15,9 @@ type Request = {
   };
 };
 
-export class GetPasswordResetController extends BaseController<Request, void> {
+type Response = GetPasswordResetResponseDTO;
+
+export class GetPasswordResetController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -43,10 +47,13 @@ export class GetPasswordResetController extends BaseController<Request, void> {
     });
 
     if (result.success) {
-      return this.noContent();
+      return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
+      case GetPasswordResetNotFound:
+      case GetPasswordResetInvalidCode:
+        return this.notFound('Password reset request not found');
       default:
         return this.internalServerError(result.error.message);
     }

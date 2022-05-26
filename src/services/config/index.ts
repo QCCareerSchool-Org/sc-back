@@ -3,6 +3,7 @@ export type Environment = 'development' | 'production';
 export type Config = {
   environment: Environment;
   port: number;
+  host: string;
   paths: {
     basePath: string;
     materialsContentPath: string;
@@ -36,6 +37,7 @@ export type Config = {
     pass: string;
     mode: 'TLS' | 'STARTTLS' | 'INSECURE';
   };
+  /** the number of miliseconds a password reset request is valid for */
   passwordResetTimeout: number;
   uploadSlotMaxFilesize: number;
 };

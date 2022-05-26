@@ -1,0 +1,11 @@
+Dear ${name},
+
+This email is an automated response to a password-change request. If you require assistance, please contact QC Career School at ${telephoneNumber}.
+
+If you did not submit this request, no action is required from you.
+
+To continue changing your password, click Reset My Password link below.
+
+If you do not complete the password-change process before ${expiryDate}, this password-reset token will expire, and you will have to submit another password-change request.
+
+<${resetLink}> Reset My Password

@@ -2,4 +2,12 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  resetMocks: true,
+  testPathIgnorePatterns: [
+    'dist',
+  ],
+  coveragePathIgnorePatterns: [
+    'dist',
+  ],
+  coverageDirectory: 'coverage',
 };

@@ -45,7 +45,7 @@ export class GetNewUnitReturnInteractor implements IInteractor<GetNewUnitReturnR
     try {
       const unitReturnIdBin = this.uuidService.uuidToBin(unitReturnId);
 
-      // find the unit template
+      // find the unit return
       const unitReturn = await this.prisma.newUnitReturn.findFirst({
         where: { unitReturnId: unitReturnIdBin },
         include: {
