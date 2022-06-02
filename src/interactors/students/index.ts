@@ -9,12 +9,15 @@ import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor';
 import { GetNewUnitInteractor } from './getNewUnitInteractor';
 import { GetStudentInteractor } from './getStudentInteractor';
 import { InitializeNextNewUnitInteractor } from './initializeNextNewUnitInteractor';
+import { LessonGuardInteractor } from './lessonGuardInteractor';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor';
 import { SkipNewUnitInteractor } from './skipNewUnitInteractor';
 import { SubmitNewUnitInteractor } from './submitNewUnitInteractor';
 import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor';
 
 // use-case interactor singletons
+export const lessonGuardInteractor = new LessonGuardInteractor(prisma, winstonLoggerService);
+
 export const getStudentInteractor = new GetStudentInteractor(prisma, winstonLoggerService);
 export const getNewUnitInteractor = new GetNewUnitInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, winstonLoggerService);

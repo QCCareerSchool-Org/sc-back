@@ -1,7 +1,7 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileStream } from '..';
+import type { IInteractor, InteractorFileStreamDownload } from '..';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -16,7 +16,7 @@ export type DownloadNewAssignmentMediumRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStream | string;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload | string;
 
 export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }

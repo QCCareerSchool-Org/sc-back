@@ -1,7 +1,7 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileStream } from '..';
+import type { IInteractor, InteractorFileStreamDownload } from '..';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -18,7 +18,7 @@ export type DownloadNewUnitFeedbackRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewUnitFeedbackResponseDTO = InteractorFileStream;
+export type DownloadNewUnitFeedbackResponseDTO = InteractorFileStreamDownload;
 
 export class DownloadNewUnitFeedbackNotFound extends Error { }
 export class DownloadNewUnitFeedbackUnitNotSubmitted extends Error { }

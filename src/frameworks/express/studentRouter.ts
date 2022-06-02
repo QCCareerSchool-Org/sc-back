@@ -10,6 +10,8 @@ import { GetNewAssignmentController } from '../../controllers/students/getNewAss
 import { GetNewUnitController } from '../../controllers/students/getNewUnitController';
 import { GetStudentController } from '../../controllers/students/getStudentController';
 import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController';
+import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware';
+import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware';
 import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController';
 import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController';
 import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware';
@@ -17,18 +19,21 @@ import { SubmitNewUnitController } from '../../controllers/students/submitNewUni
 import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController';
 import type { Route } from './applyRoutes';
 import { applyRoutes } from './applyRoutes';
-import { asyncWrapper } from './asyncWrapper';
 
 export const studentRouter = Router();
 
-studentRouter.use(
-  '/:studentId',
-  asyncWrapper(async (req, res, next) => new StudentGuardMiddleware(req, res, next).execute()),
-);
-
 const routes: Route[] = [
+  // only the student in question, or any administrator, should be able to access this path
+  [ 'use', '/:studentId', StudentGuardMiddleware ],
+  // only students enrolled in the course should be able to access this path
+  [ 'use', '/:studentId/static/lessons/:courseId', LessonGuardMiddleware ],
+  // serve the files directly
+  [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware ],
+  // student
   [ 'get', '/:studentId', GetStudentController ],
+  // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
+  // units
   [ 'post', '/:studentId/courses/:courseId/newUnits/initializeNext', InitializeNextNewUnitController ],
   [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId', GetNewUnitController ],
   [ 'post', '/:studentId/courses/:courseId/newUnits/:unitId/submissions', SubmitNewUnitController ],

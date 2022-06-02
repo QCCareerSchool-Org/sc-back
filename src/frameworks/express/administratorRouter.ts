@@ -17,6 +17,7 @@ import { EnableCourseController } from '../../controllers/administrators/enableC
 import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController';
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController';
 import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController';
+import { GetAllNewMaterialsController } from '../../controllers/administrators/getAllNewMaterialsController';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController';
 import { GetCountryController } from '../../controllers/administrators/getCountryController';
 import { GetCourseController } from '../../controllers/administrators/getCourseController';
@@ -32,14 +33,17 @@ import { GetNewUploadSlotTemplateController } from '../../controllers/administra
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController';
 import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController';
 import { InsertNewAssignmentTemplateController } from '../../controllers/administrators/insertNewAssignmentTemplateController';
+import { InsertNewMaterialController } from '../../controllers/administrators/insertNewMaterialController';
 import { InsertNewPartMediumController } from '../../controllers/administrators/insertNewPartMediumController';
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController';
 import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController';
+import { ReplaceNewMaterialFileController } from '../../controllers/administrators/replaceNewMaterialFileController';
 import { ReplaceNewUnitTemplatePricesController } from '../../controllers/administrators/replaceNewUnitTemplatePricesController';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController';
+import { SaveNewMaterialController } from '../../controllers/administrators/saveNewMaterialController';
 import { SaveNewPartMediumController } from '../../controllers/administrators/saveNewPartMediumController';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController';
@@ -47,16 +51,12 @@ import { SaveNewUnitTemplateController } from '../../controllers/administrators/
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController';
 import type { Route } from './applyRoutes';
 import { applyRoutes } from './applyRoutes';
-import { asyncWrapper } from './asyncWrapper';
 
 export const administratorRouter = Router();
 
-administratorRouter.use(
-  '/:administratorId',
-  asyncWrapper(async (req, res, next) => new AdministratorGuardMiddleware(req, res, next).execute()),
-);
-
 const routes: Route[] = [
+  // only the administrator in question should be able to access this path
+  [ 'use', '/:administratorId', AdministratorGuardMiddleware ],
   // schools
   [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
   [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
@@ -113,6 +113,11 @@ const routes: Route[] = [
   // new unit returns
   [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
   [ 'put', '/:administratorId/newUnitReturns/:unitReturnId', CloseNewUnitReturnController ],
+  // new materials
+  [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
+  [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'put', '/:administratorId/newMaterials/:materialId', SaveNewMaterialController ],
+  [ 'post', '/:administratorId/newMaterials/:materialId/file', ReplaceNewMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],
 ];
 
 applyRoutes(administratorRouter, routes);

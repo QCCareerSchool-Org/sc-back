@@ -68,7 +68,7 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
     });
 
     if (result.success) {
-      return this.ok(result.value);
+      return this.created(result.value);
     }
 
     switch (result.error.constructor) {

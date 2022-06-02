@@ -5,16 +5,16 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 
-import { CheckAuthenticationMiddleware } from '../../controllers/authentication/checkAuthenticationMiddleware';
-import { NotFoundController } from '../../controllers/notFoundController';
-import { environmentConfigService, winstonLoggerService } from '../../services';
-import { administratorRouter } from './administratorRouter';
-import { asyncWrapper } from './asyncWrapper';
-import { authenticationRouter } from './authenticationRouter';
-import { globalErrorHandler } from './globalErrorHandler';
-import { multerErrorHandler } from './multerErrorHandler';
-import { studentRouter } from './studentRouter';
-import { tutorRouter } from './tutorRouter';
+import { CheckAuthenticationMiddleware } from '../../controllers/authentication/checkAuthenticationMiddleware.js';
+import { NotFoundController } from '../../controllers/notFoundController.js';
+import { environmentConfigService, winstonLoggerService } from '../../services/index.js';
+import { administratorRouter } from './administratorRouter.js';
+import { asyncWrapper } from './asyncWrapper.js';
+import { authenticationRouter } from './authenticationRouter.js';
+import { globalErrorHandler } from './globalErrorHandler.js';
+import { multerErrorHandler } from './multerErrorHandler.js';
+import { studentRouter } from './studentRouter.js';
+import { tutorRouter } from './tutorRouter.js';
 
 const { port } = environmentConfigService.config;
 

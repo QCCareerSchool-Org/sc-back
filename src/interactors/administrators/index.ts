@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma';
-import { axiosHttpService, dateService, environmentConfigService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
+import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, santitizerService, uuidService, winstonLoggerService } from '../../services/index';
 import { CloseNewUnitReturnInteractor } from './closeNewUnitReturnInteractor';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor';
@@ -15,11 +15,13 @@ import { EnableCourseInteractor } from './enableCourseInteractor';
 import { GetAllCountriesInteractor } from './getAllCountriesInteractor';
 import { GetAllCoursesInteractor } from './getAllCoursesInteractor';
 import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor';
+import { GetAllNewMaterialsInteractor } from './getAllNewMaterialsInteractor';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor';
 import { GetCountryInteractor } from './getCountryInteractor';
 import { GetCourseInteractor } from './getCourseInteractor';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor';
+import { GetNewMaterialInteractor } from './getNewMaterialInteractor';
 import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor';
@@ -30,14 +32,17 @@ import { GetNewUploadSlotTemplateInteractor } from './getNewUploadSlotTemplateIn
 import { GetSchoolInteractor } from './getSchoolInteractor';
 import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor';
 import { InsertNewAssignmentTemplateInteractor } from './insertNewAssignmentTemplateInteractor';
+import { InsertNewMaterialInteractor } from './insertNewMaterialInteractor';
 import { InsertNewPartMediumInteractor } from './insertNewPartMediumInteractor';
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor';
 import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor';
+import { ReplaceNewMaterialFileInteractor } from './replaceNewMaterialFileInteractor';
 import { ReplaceNewUnitTemplatePricesInteractor } from './replaceNewUnitTemplatePricesInteractor';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor';
+import { SaveNewMaterialInteractor } from './saveNewMaterialInteractor';
 import { SaveNewPartMediumInteractor } from './saveNewPartMediumInteractor';
 import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor';
@@ -100,3 +105,9 @@ export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePr
 
 export const getNewUnitReturnInteractor = new GetNewUnitReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const closeNewUnitReturnInteractor = new CloseNewUnitReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
+
+export const getAllNewMaterialsInteractor = new GetAllNewMaterialsInteractor(prisma, uuidService, winstonLoggerService);
+export const getNewMaterialInteractor = new GetNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
+export const insertNewMaterialInteractor = new InsertNewMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
+export const saveNewMaterialInteractor = new SaveNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
+export const replaceNewMaterialFileInteractor = new ReplaceNewMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);

@@ -1,7 +1,7 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileStream } from '..';
+import type { IInteractor, InteractorFileStreamDownload } from '..';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
 import type { ILoggerService } from '../../services/logger';
@@ -17,7 +17,7 @@ export type DownloadNewUploadSlotRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewUploadSlotResponseDTO = InteractorFileStream;
+export type DownloadNewUploadSlotResponseDTO = InteractorFileStreamDownload;
 
 export class DownloadNewUploadSlotNotFound extends Error { }
 export class DownloadNewUploadSlotFileNotFound extends Error { }

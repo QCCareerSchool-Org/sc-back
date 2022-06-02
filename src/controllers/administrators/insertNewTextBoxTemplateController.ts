@@ -68,7 +68,7 @@ export class InsertNewTextBoxTemplateController extends BaseController<Request, 
     });
 
     if (result.success) {
-      return this.ok(result.value);
+      return this.created(result.value);
     }
 
     switch (result.error.constructor) {

@@ -16,16 +16,12 @@ import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddlew
 import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
 import type { Route } from './applyRoutes';
 import { applyRoutes } from './applyRoutes';
-import { asyncWrapper } from './asyncWrapper';
 
 export const tutorRouter = Router();
 
-tutorRouter.use(
-  '/:tutorId',
-  asyncWrapper(async (req, res, next) => new TutorGuardMiddleware(req, res, next).execute()),
-);
-
 const routes: Route[] = [
+  // only the tutor in question, or any administrator, should be able to access this path
+  [ 'use', '/:tutorId', TutorGuardMiddleware ],
   [ 'get', '/:tutorId/students/:studentId/newUnits/:unitId', GetNewUnitController ],
   [ 'post', '/:tutorId/students/:studentId/newUnits/:unitId/returns', ReturnNewUnitController ],
   [ 'post', '/:tutorId/students/:studentId/newUnits/:unitId/closes', CloseNewUnitController ],

@@ -12,6 +12,7 @@ export class NodeFileService implements IFileService {
       return {
         size: stats.size,
         lastModified: stats.mtime,
+        isFile: stats.isFile(),
       };
     } catch (error: unknown) {
       return false;
@@ -43,6 +44,10 @@ export class NodeFileService implements IFileService {
     return fs.promises.mkdir(filePath);
   }
 
+  public async rmdir(filePath: string): Promise<void> {
+    return fs.promises.rm(filePath, { recursive: true, force: true });
+  }
+
   public createReadStream(filePath: string, range?: { start: number; end: number }): ReadStream {
     return fs.createReadStream(filePath, range);
   }
@@ -59,4 +64,9 @@ export class NodeFileService implements IFileService {
   //     });
   //   });
   // }
+
+  public safeResolve(base: string, target: string): string {
+    const targetPath = '.' + path.posix.normalize('/' + target);
+    return path.posix.resolve(base, targetPath);
+  }
 }

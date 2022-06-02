@@ -1,9 +1,5 @@
 import type { CookieOptions, Request, Response } from 'express';
-import type { AccessTokenPayload } from '../domain/accessTokenPayload';
-import { isAccessTokenPayload } from '../domain/accessTokenPayload';
-import type { InteractorFileStream } from '../interactors';
-
-type NonUndefined<T> = T extends undefined ? never : T;
+import type { InteractorFileStreamDownload } from '../interactors';
 
 export type ByteRange = Readonly<{
   start: number;
@@ -151,13 +147,18 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
     this.res.cookie(name, value, options);
   }
 
-  protected sendInteractorFileStream(interactorFileStream: Readonly<InteractorFileStream>): void {
-    const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding, byteRange } = interactorFileStream;
+  protected sendInteractorFileStream(interactorFileStream: Readonly<InteractorFileStreamDownload>): void {
+    const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding, byteRange, download } = interactorFileStream;
+    stream.on('error', () => {
+      this.internalServerError('stream error');
+    });
     this.res.setHeader('Content-Type', mimeType);
     if (typeof contentEncoding !== 'undefined') {
       this.res.setHeader('Content-Encoding', contentEncoding);
     }
-    this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    if (download) {
+      this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    }
     this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
     this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
     if (typeof byteRange !== 'undefined') {

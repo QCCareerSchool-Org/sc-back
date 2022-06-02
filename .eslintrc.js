@@ -205,6 +205,7 @@ module.exports = {
 
     // import rules
     'import/order': [ 'error', { alphabetize: { order: 'asc', caseInsensitive: true } } ],
+    'import/no-unresolved': 'off',
 
     // jest rules
     'jest/consistent-test-it': [ 'error', { fn: 'it' } ],

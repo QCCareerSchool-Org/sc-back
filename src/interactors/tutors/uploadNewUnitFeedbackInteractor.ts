@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileMemoryUpload } from '..';
 import type { NewUnitDTO } from '../../domain/newUnitDTO';
 import type { IConfigService } from '../../services/config';
 import type { IFileService } from '../../services/file';
@@ -13,7 +13,7 @@ export type UploadNewUnitFeedbackRequestDTO = {
   tutorId: number;
   studentId: number;
   unitId: string;
-  file: InteractorFile;
+  file: InteractorFileMemoryUpload;
 };
 
 export type UploadNewUnitFeedbackResponseDTO = NewUnitDTO;

@@ -91,7 +91,7 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
     });
 
     if (result.success) {
-      return this.ok(result.value);
+      return this.created(result.value);
     }
 
     switch (result.error.constructor) {

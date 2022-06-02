@@ -1,6 +1,6 @@
 import type { NewPartMedium, PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileMemoryUpload } from '..';
 import type { NewMediumType } from '../../domain/newAssignmentMediumDTO';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO';
 import type { IConfigService } from '../../services/config';
@@ -16,7 +16,7 @@ export type InsertNewPartMediumRequestDTO = {
   caption: string;
   order: number;
   externalData?: string;
-  fileData?: InteractorFile;
+  fileData?: InteractorFileMemoryUpload;
 };
 
 export type InsertNewPartMediumResponseDTO = NewPartMediumDTO;
@@ -126,7 +126,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     }
   }
 
-  private async insertWithFile(partIdBin: Buffer, caption: string, order: number, fileData: InteractorFile): Promise<NewPartMedium> {
+  private async insertWithFile(partIdBin: Buffer, caption: string, order: number, fileData: InteractorFileMemoryUpload): Promise<NewPartMedium> {
     if (fileData.size >= InsertNewPartMediumInteractor.maxFilesize) {
       throw new InsertNewPartMediumFileTooLarge(fileData.size.toString());
     }

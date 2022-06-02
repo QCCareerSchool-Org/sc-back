@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFile } from '..';
+import type { IInteractor, InteractorFileMemoryUpload } from '..';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
 import type { ICompressionService } from '../../services/compression';
@@ -22,7 +22,7 @@ export type UploadNewUploadSlotRequestDTO = {
   partId: string;
   /** uuid */
   uploadSlotId: string;
-  file: InteractorFile;
+  file: InteractorFileMemoryUpload;
 };
 
 export type UploadNewUploadSlotResponseDTO = NewUploadSlotDTO;

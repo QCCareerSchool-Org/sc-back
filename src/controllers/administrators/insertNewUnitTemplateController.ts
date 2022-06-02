@@ -70,7 +70,7 @@ export class InsertNewUnitTemplateController extends BaseController<Request, Res
     });
 
     if (result.success) {
-      return this.ok(result.value);
+      return this.created(result.value);
     }
 
     switch (result.error.constructor) {

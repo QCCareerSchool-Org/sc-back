@@ -35,6 +35,10 @@ export class EnvironmentConfigService implements IConfigService {
     if (typeof smtpPort === 'undefined') {
       throw Error('Environment variable SMTP_PORT is undefined');
     }
+    const smtpPortNumber = parseInt(smtpPort, 10);
+    if (isNaN(smtpPortNumber)) {
+      throw Error('Environment variable SMTP_PORT is invalid');
+    }
 
     const smtpUser = process.env.SMTP_USERNAME;
     if (typeof smtpUser === 'undefined') {
@@ -63,6 +67,24 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable PASSWORD_RESET_TIMEOUT is invalid');
     }
 
+    const lessonArchiveMaxFileSize = process.env.LESSON_ARCHIVE_MAX_FILESIZE;
+    if (typeof lessonArchiveMaxFileSize === 'undefined') {
+      throw Error('Environment variable LESSON_ARCHIVE_MAX_FILESIZE is undefined');
+    }
+    const lessonArchiveMaxFileSizeNumber = parseInt(lessonArchiveMaxFileSize, 10);
+    if (isNaN(lessonArchiveMaxFileSizeNumber)) {
+      throw Error('Environment variable LESSON_ARCHIVE_MAX_FILESIZE is invalid');
+    }
+
+    const downloadMaxFileSize = process.env.DOWNLOAD_MAX_FILESIZE;
+    if (typeof downloadMaxFileSize === 'undefined') {
+      throw Error('Environment variable DOWNLOAD_MAX_FILESIZE is undefined');
+    }
+    const downloadMaxFileSizeNumber = parseInt(downloadMaxFileSize, 10);
+    if (isNaN(downloadMaxFileSizeNumber)) {
+      throw Error('Environment variable DOWNLOAD_MAX_FILESIZE is invalid');
+    }
+
     this.#config = {
       environment,
       port,
@@ -85,7 +107,11 @@ export class EnvironmentConfigService implements IConfigService {
         unitFeedbackPath: basePath + '/unit-feedback',
         assignmentMediaPath: basePath + '/course-materials/assignment-media',
         partMediaPath: basePath + '/course-materials/part-media',
+        lessonsPath: basePath + '/lessons',
+        downloadsPath: basePath + '/downloads',
       },
+      lessonArchiveMaxFileSize: lessonArchiveMaxFileSizeNumber,
+      downloadMaxFileSize: downloadMaxFileSizeNumber,
       auth: {
         cookieDomain: process.env.COOKIE_DOMAIN ?? 'sc.qccareerschool.com',
         accessTokenLifetime: process.env.ACCESS_TOKEN_LIFETIME ? parseInt(process.env.ACCESS_TOKEN_LIFETIME, 10) : 30 * 60, // 30-minute default
@@ -93,7 +119,7 @@ export class EnvironmentConfigService implements IConfigService {
       },
       email: {
         host: smtpHost,
-        port: parseInt(smtpPort, 10),
+        port: smtpPortNumber,
         user: smtpUser,
         pass: smtpPassword,
         mode: smtpMode,

@@ -10,31 +10,6 @@ datasource db {
 }
 
 /////////////////////////////////////////////////////////////////////////
-// Testing
-/////////////////////////////////////////////////////////////////////////
-
-
-model Family {
-  familyId       Bytes    @id @db.Binary(16) @map("family_id")
-  combinedIncome Decimal  @db.Decimal(10, 2) @default(0) @map("combined_income")
-  entityVersion  Int      @default(0) @map("entity_version")
-  persons        Person[]
-
-  @@map("families")
-  @@unique([familyId, entityVersion], name: "familyIdEntityVersion", map: "family_id_entity_version")
-}
-
-model Person {
-  personId Bytes   @id @db.Binary(16) @map("person_id")
-  familyId Bytes   @db.Binary(16) @map("family_id")
-  income   Decimal @db.Decimal(10, 2) @default(0)
-  family   Family  @relation(fields: [familyId], references: [familyId], onDelete: Cascade, map: "FK_persons_families")
-
-  @@map("persons")
-  @@index([familyId], map: "family_id")
-}
-
-/////////////////////////////////////////////////////////////////////////
 // Accounts
 /////////////////////////////////////////////////////////////////////////
 
@@ -442,11 +417,11 @@ model Course {
   entityVersion     Int               @default(0) @map("entity_version")
   school            School            @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
   studentType       StudentType       @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
-  materialRights    MaterialRight[]
+  materialRights    MaterialV4Right[]
   enrollments       Enrollment[]
   newUnitTemplates  NewUnitTemplate[]
   oldUnitTemplates  OldUnitTemplate[]
-  courseMaterialsV2 CourseMaterialV2OnCourses[]
+  newMaterials      NewMaterial[]
 
   @@map("courses")
   @@unique([courseId, entityVersion], map: "id_entity_version")
@@ -600,8 +575,8 @@ model MimeType {
   compress               Boolean               @default(false)
   entityVersion          Int                   @default(0) @map("entity_version")
   images                 Image[]
-  materialContents       Material[]            @relation("material_content_mimeTomime_types")
-  materialImages         Material[]            @relation("material_image_mimeTomime_types")
+  materialContents       CourseMaterialV4[]          @relation("material_content_mimeTomime_types")
+  materialImages         CourseMaterialV4[]          @relation("material_image_mimeTomime_types")
   newUnits               NewUnit[]
   newAssignmentMedia     NewAssignmentMedium[]
   // newAssignmentMediaElements         NewAssignmentMediaElement[]
@@ -616,8 +591,6 @@ model MimeType {
   writingFiles           WritingFile[]         @relation("mime_typesTowriting_files_mime_type")
   writingProfiles        WritingProfile[]
   outfits                Outfit[]
-  courseMaterialsv1      CourseMaterialV1[]
-  courseMaterialsV2      CourseMaterialV2[]
   courseMaterialsV3      CourseMaterialV3[]
 
   @@map("mime_types")
@@ -886,24 +859,55 @@ model Province {
 
 
 /////////////////////////////////////////////////////////////////////////
-// Course Materials system v3
+// Course Materials system v5
 /////////////////////////////////////////////////////////////////////////
 
-model Material {
-  materialId        Int               @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  categoryId        Int               @db.UnsignedInt @map("category_id")
-  title             String            @db.VarChar(255)
-  contentFilename   String            @db.VarChar(255) @map("content_filename")
-  contentMimeTypeId String            @db.VarChar(255) @map("content_mime")
-  imagemimeTypeId   String?           @db.VarChar(255) @map("image_mime")
-  externalContent   String?           @db.VarChar(255) @map("external_content")
-  externalImage     String?           @db.VarChar(255) @map("external_image")
-  entityVersion     Int               @default(0) @map("entity_version")
-  category          Category          @relation(fields: [categoryId], references: [categoryId], map: "material_ibfk_2")
-  contentMimeType   MimeType          @relation("material_content_mimeTomime_types", fields: [contentMimeTypeId], references: [mimeTypeId], map: "material_ibfk_3")
-  imageMimeType     MimeType?         @relation("material_image_mimeTomime_types", fields: [imagemimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "material_ibfk_4")
-  materialRights    MaterialRight[]
-  subtitle          Subtitle?
+model NewMaterial {
+  materialId   Bytes           @id @db.Binary(16) @map("material_id")
+  courseId     Int             @db.UnsignedInt @map("course_id")
+  type         NewMaterialType
+  course       Course          @relation(fields: [courseId], references: [courseId], map: "FK_new_materials_courses")
+  title        String          @db.VarChar(50)
+  description  String          @db.Text
+  unitLetter   String          @db.Char(1) @map("unit_letter")
+  filename     String?         @db.VarChar(255)
+  mimeTypeId   String?         @db.VarChar(255) @map("mime_type_id")
+  externalData String?         @db.VarChar(1024) @map("external_data")
+  order        Int             @db.Int
+
+  @@map("new_materials")
+  @@index([courseId], map: "course_id")
+}
+
+enum NewMaterialType {
+  lesson
+  video
+  download
+  assignment
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////
+// Course Materials system v4
+/////////////////////////////////////////////////////////////////////////
+
+model CourseMaterialV4 {
+  materialId        Int                 @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  categoryId        Int                 @db.UnsignedInt @map("category_id")
+  title             String              @db.VarChar(255)
+  contentFilename   String              @db.VarChar(255) @map("content_filename")
+  contentMimeTypeId String              @db.VarChar(255) @map("content_mime")
+  imagemimeTypeId   String?             @db.VarChar(255) @map("image_mime")
+  externalContent   String?             @db.VarChar(255) @map("external_content")
+  externalImage     String?             @db.VarChar(255) @map("external_image")
+  entityVersion     Int                 @default(0) @map("entity_version")
+  category          MaterialV4Category  @relation(fields: [categoryId], references: [categoryId], map: "material_ibfk_2")
+  contentMimeType   MimeType            @relation("material_content_mimeTomime_types", fields: [contentMimeTypeId], references: [mimeTypeId], map: "material_ibfk_3")
+  imageMimeType     MimeType?           @relation("material_image_mimeTomime_types", fields: [imagemimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "material_ibfk_4")
+  materialRights    MaterialV4Right[]
+  subtitle          MaterialV4Subtitle?
 
   @@map("material")
   @@unique([materialId, entityVersion], map: "id_entity_version")
@@ -912,27 +916,27 @@ model Material {
   @@index([imagemimeTypeId], map: "image_mime")
 }
 
-model Category {
-  categoryId    Int        @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  name          String     @db.VarChar(255)
-  order         Int        @default(0) @db.UnsignedInt
-  entityVersion Int        @default(0) @map("entity_version")
-  material      Material[]
+model MaterialV4Category {
+  categoryId    Int                @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  name          String             @db.VarChar(255)
+  order         Int                @default(0) @db.UnsignedInt
+  entityVersion Int                @default(0) @map("entity_version")
+  material      CourseMaterialV4[]
 
   @@map("categories")
   @@unique([categoryId, entityVersion], map: "id_entity_version")
 }
 
-model MaterialRight {
-  materialRightId Int      @id @default(autoincrement()) @db.UnsignedInt @map("id")
-  materialId      Int      @db.UnsignedInt @map("material_id")
-  courseId        Int      @db.UnsignedInt @map("course_id")
-  unit            String?  @db.Char(1)
-  forms           Boolean? @default(false)
-  order           Int      @default(0) @db.UnsignedInt
-  entityVersion   Int      @default(0) @map("entity_version")
-  course          Course   @relation(fields: [courseId], references: [courseId], map: "material_rights_ibfk_2")
-  material        Material @relation(fields: [materialId], references: [materialId], map: "material_rights_ibfk_1")
+model MaterialV4Right {
+  materialRightId Int              @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  materialId      Int              @db.UnsignedInt @map("material_id")
+  courseId        Int              @db.UnsignedInt @map("course_id")
+  unit            String?          @db.Char(1)
+  forms           Boolean?         @default(false)
+  order           Int              @default(0) @db.UnsignedInt
+  entityVersion   Int              @default(0) @map("entity_version")
+  course          Course           @relation(fields: [courseId], references: [courseId], map: "material_rights_ibfk_2")
+  material        CourseMaterialV4 @relation(fields: [materialId], references: [materialId], map: "material_rights_ibfk_1")
 
   @@map("material_rights")
   @@unique([materialRightId, entityVersion], map: "id_entity_version")
@@ -940,24 +944,14 @@ model MaterialRight {
   @@index([materialId], map: "material_id")
 }
 
-model Subtitle {
-  materialId      Int      @id @db.UnsignedInt @map("material_id")
-  externalContent String?  @map("external_content")
-  material        Material @relation(fields: [materialId], references: [materialId], onUpdate: Restrict, map: "FK__material")
+model MaterialV4Subtitle {
+  materialId      Int              @id @db.UnsignedInt @map("material_id")
+  externalContent String?          @map("external_content")
+  material        CourseMaterialV4 @relation(fields: [materialId], references: [materialId], onUpdate: Restrict, map: "FK__material")
 
   @@map("subtitles")
 }
 
-model Modules {
-  moduleId    Bytes   @id @db.Binary(16) @map("module_id")
-  courseId    Int     @db.UnsignedInt @map("course_id")
-  unit        String? @db.Char(1)
-  order       Int?
-  heading     String
-  description String  @db.Text
-
-  @@map("modules")
-}
 
 
 
@@ -998,51 +992,7 @@ model CourseMaterialV3Path {
 
 
 
-/////////////////////////////////////////////////////////////////////////
-// Course Materials system v2
-/////////////////////////////////////////////////////////////////////////
 
-model CourseMaterialV2 {
-  fileId     Int                         @id @default(autoincrement()) @map("id")
-  filename   String                      @db.VarChar(255)
-  mimeTypeId String                      @db.VarChar(255) @map("mime_type")
-  mimeType   MimeType                    @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "files_ibfk_1")
-  courses    CourseMaterialV2OnCourses[]
-
-  @@map("files")
-  @@index([mimeTypeId], map: "mime_type")
-}
-
-model CourseMaterialV2OnCourses {
-  fileId    Int              @map("file_id")
-  courseId  Int              @db.UnsignedInt @map("course_id")
-  unit      String           @db.Char(1)
-  file      CourseMaterialV2 @relation(fields: [fileId], references: [fileId], map: "files_courses_ibfk_1")
-  course    Course           @relation(fields: [courseId], references: [courseId], map: "files_courses_ibfk_2")
-
-  @@map("files_courses")
-  @@id([fileId, courseId])
-  @@index([courseId], map: "course_id")
-  @@index([fileId], map: "file_id")
-}
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////
-// Course Materials system v1
-/////////////////////////////////////////////////////////////////////////
-
-model CourseMaterialV1 {
-  filename   String   @id @db.VarChar(255)
-  mimeTypeId String   @db.VarChar(255) @map("mime_type")
-  mimeType   MimeType @relation(fields: [mimeTypeId], references: [mimeTypeId], map: "course_material_ibfk_1")
-
-  @@map("course_material")
-  @@index([mimeTypeId], map: "mime_type")
-}
 
 
 
@@ -1584,7 +1534,6 @@ enum NewMediaType {
 
 
 
-
 /////////////////////////////////////////////////////////////////////////
 // Old Units system
 /////////////////////////////////////////////////////////////////////////
@@ -1890,6 +1839,10 @@ enum MakeupLookSeason {
   winter
 }
 
+
+
+
+
 /////////////////////////////////////////////////////////////////////////
 // Outfits system
 /////////////////////////////////////////////////////////////////////////
@@ -1955,6 +1908,10 @@ enum OutfitSeason {
   fall
   winter
 }
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////
 // Questionnaire system
@@ -2066,53 +2023,3 @@ model q_types {
   name        String        @db.VarChar(50)
   q_questions q_questions[]
 }
-
-
-
-
-
-
-// model tokens {
-//   id           Int        @id @default(autoincrement()) @db.UnsignedInt
-//   enrollmentId Int        @db.UnsignedInt @map("student_id")
-//   masked_pan   String     @db.VarChar(16)
-//   expiry_month Int        @db.TinyInt
-//   expiry_year  Int        @db.SmallInt
-//   data_key     String?    @db.VarChar(50)
-//   card_hash    String?    @db.VarChar(32)
-//   card_ref     String?    @db.VarChar(40)
-//   success      Boolean    @default(false)
-//   imported     Boolean    @default(false)
-//   deleted      Boolean    @default(false)
-//   created      DateTime   @default(now()) @db.Timestamp(0)
-//   enrollment   Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "tokens_ibfk_1")
-
-//   @@index([deleted], map: "deleted")
-//   @@index([enrollmentId], map: "student_id")
-// }
-
-// model ApiToken {
-//   username String @id
-//   password String @db.VarChar(100)
-
-//   @@map("api_tokens")
-// }
-
-// model feeds {
-//   id               Int       @id @default(autoincrement())
-//   enabled          Boolean   @default(false)
-//   date             DateTime  @db.Timestamp(0)
-//   title            String    @db.VarChar(255)
-//   text             String    @db.LongText
-//   filename         String?   @db.VarChar(255)
-//   image            Bytes?
-//   width            Int?      @db.SmallInt
-//   height           Int?      @db.SmallInt
-//   mimeTypeId       String?   @db.VarChar(255) @map("mimetype")
-//   thumbnail        Bytes?    @db.Blob
-//   thumbnail_width  Int?      @db.SmallInt
-//   thumbnail_height Int?      @db.SmallInt
-//   mimeType         MimeType? @relation(fields: [mimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "feeds_ibfk_1")
-
-//   @@index([mimeTypeId], map: "mimetype")
-// }

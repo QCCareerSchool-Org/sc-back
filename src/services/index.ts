@@ -11,11 +11,13 @@ import { AxiosHttpService } from './http/axiosHttpService';
 import { IpaddrJSIPAddressService } from './ipaddress/ipaddrIPAddressService';
 import { JWTService } from './jwt/jwtService';
 import { WinstonLoggerService } from './logger/winstonLoggerService';
+import { FileTypeMimeTypeService } from './mimeType/fileTypeMimeTypeService';
 import { PasswordService } from './password/passwordService';
 import { SanitizerService } from './sanitizer/sanitizerService';
 import { FisherYatesShuffleService } from './shuffle/fisherYatesShuffleService';
 import { StudentService } from './student/studentService';
 import { TelephoneNumberService } from './telephoneNumber/telephoneNumberService';
+import { ExtractZipUnzipService } from './unzip/extractZipUnzipService';
 import { UUIDService } from './uuid/uuidService';
 
 // service singletons
@@ -37,3 +39,5 @@ export const fisherYatesShuffleService = new FisherYatesShuffleService();
 export const uuidService = new UUIDService();
 export const santitizerService = new SanitizerService();
 export const axiosHttpService = new AxiosHttpService();
+export const extractZipUnzipService = new ExtractZipUnzipService();
+export const fileTypeMimeTypeService = new FileTypeMimeTypeService();
