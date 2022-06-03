@@ -7,6 +7,15 @@ describe('dateService', () => {
     dateService = new DateService();
   });
 
+  describe('getDate', () => {
+
+    it('should return the current date', () => {
+      const now = new Date().getTime();
+      expect(dateService.getDate().getTime()).toBeGreaterThan(now - 10);
+      expect(dateService.getDate().getTime()).toBeLessThan(now + 10);
+    });
+  });
+
   describe('formatDateTime', () => {
 
     it('formats a date', () => {
