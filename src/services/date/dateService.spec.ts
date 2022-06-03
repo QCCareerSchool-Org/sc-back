@@ -11,8 +11,8 @@ describe('dateService', () => {
 
     it('should return the current date', () => {
       const now = new Date().getTime();
-      expect(dateService.getDate().getTime()).toBeGreaterThan(now - 10);
-      expect(dateService.getDate().getTime()).toBeLessThan(now + 10);
+      expect(dateService.getDate().getTime()).toBeGreaterThanOrEqual(now - 20);
+      expect(dateService.getDate().getTime()).toBeLessThanOrEqual(now + 20);
     });
   });
 
