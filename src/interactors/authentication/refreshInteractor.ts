@@ -1,16 +1,16 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import type { AccountType } from '../../domain/accountType';
-import { isValidStudentType } from '../../domain/studentType';
-import type { IInteractor } from '../../interactors/';
-import type { ResultType } from '../../interactors/result';
-import { Result } from '../../interactors/result';
-import type { IConfigService } from '../../services/config';
-import type { ICryptoService } from '../../services/crypto';
-import type { IDateService } from '../../services/date';
-import type { IJWTService } from '../../services/jwt';
-import type { ILoggerService } from '../../services/logger';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import type { AccountType } from '../../domain/accountType.js';
+import { isValidStudentType } from '../../domain/studentType.js';
+import type { IInteractor } from '../../interactors/index.js';
+import type { ResultType } from '../../interactors/result.js';
+import { Result } from '../../interactors/result.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { ICryptoService } from '../../services/crypto/index.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { IJWTService } from '../../services/jwt/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
 
 export type RefreshRequestDTO = {
   token: Buffer;

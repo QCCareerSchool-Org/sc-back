@@ -1,12 +1,12 @@
 import * as yup from 'yup';
 
-import type { Privileges } from '../../domain/accessTokenPayload';
-import { isAccessTokenPayload } from '../../domain/accessTokenPayload';
-import { InsufficientPrivileges } from '../../interactors';
-import { replaceNewMaterialFileInteractor } from '../../interactors/administrators';
-import type { ReplaceNewMaterialFileResponseDTO } from '../../interactors/administrators/replaceNewMaterialFileInteractor';
-import { ReplaceNewMaterialFileInvalidMimeType, ReplaceNewMaterialFileMaterialNotFound, ReplaceNewMaterialFileSaveError, ReplaceNewMaterialFileTooLarge } from '../../interactors/administrators/replaceNewMaterialFileInteractor';
-import { BaseController } from '../baseController';
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { replaceNewMaterialFileInteractor } from '../../interactors/administrators/index.js';
+import type { ReplaceNewMaterialFileResponseDTO } from '../../interactors/administrators/replaceNewMaterialFileInteractor.js';
+import { ReplaceNewMaterialFileInvalidMimeType, ReplaceNewMaterialFileMaterialNotFound, ReplaceNewMaterialFileSaveError, ReplaceNewMaterialFileTooLarge } from '../../interactors/administrators/replaceNewMaterialFileInteractor.js';
+import { InsufficientPrivileges } from '../../interactors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,14 +1,16 @@
-import faker from '@faker-js/faker';
-import { v1 } from 'uuid';
+import { faker } from '@faker-js/faker';
+import { jest } from '@jest/globals';
+import type { UUIDService as UUIDSerivceClass } from './uuidService.js';
 
-import { UUIDService } from './uuidService';
-
-jest.mock('uuid', () => ({
+jest.unstable_mockModule('uuid', () => ({
   v1: jest.fn(),
 }));
 
+const { v1 } = await import('uuid');
+const { UUIDService } = await import('./uuidService.js');
+
 describe('UUIDSerivce', () => {
-  let uuidService: UUIDService;
+  let uuidService: UUIDSerivceClass;
 
   beforeEach(() => {
     uuidService = new UUIDService();
@@ -56,7 +58,8 @@ describe('UUIDSerivce', () => {
   describe('binToUUID', () => {
 
     it('should return a string', () => {
-      const array = Array(16).fill(undefined).map(() => faker.datatype.number({ min: 0, max: 255 }));
+      // const array = Array(16).fill(undefined).map(() => faker.datatype.number({ min: 0, max: 255 }));
+      const array = Array(16).fill(undefined).map(() => Math.floor(Math.random() * 256));
       const buffer = Buffer.from(array);
       const uuid = uuidService.binToUUID(buffer);
       expect(typeof uuid).toBe('string');

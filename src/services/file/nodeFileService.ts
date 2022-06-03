@@ -2,7 +2,7 @@ import type { ReadStream } from 'fs';
 import fs from 'fs';
 import path from 'path';
 
-import type { FileStats, IFileService } from '.';
+import type { FileStats, IFileService } from './index.js';
 
 export class NodeFileService implements IFileService {
 

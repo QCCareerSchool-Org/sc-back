@@ -1,4 +1,4 @@
-import browser from 'browser-detect';
+import { default as browser } from 'browser-detect';
 import type { RequestHandler } from 'express';
 
 /**

@@ -1,4 +1,4 @@
-import type { IPasswordService } from '.';
+import type { IPasswordService } from './index.js';
 
 export class PasswordService implements IPasswordService {
 

@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getAllSchoolsInteractor } from '../../interactors/administrators';
-import type { GetAllSchoolsResponseDTO } from '../../interactors/administrators/getAllSchoolsInteractor';
-import { BaseController } from '../baseController';
+import type { GetAllSchoolsResponseDTO } from '../../interactors/administrators/getAllSchoolsInteractor.js';
+import { getAllSchoolsInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

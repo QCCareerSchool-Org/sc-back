@@ -8,14 +8,14 @@
     "node": ">=14.16"
   },
   "scripts": {
-    "test": "jest --coverage",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/frameworks/express"
   },
   "author": "Dave Welsh",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@faker-js/faker": "^6.1.2",
+    "@faker-js/faker": "^7.1.0",
     "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.2",

@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewPartMediumInteractor } from '../../interactors/administrators';
-import type { InsertNewPartMediumResponseDTO } from '../../interactors/administrators/insertNewPartMediumInteractor';
-import { InsertNewPartMediumCaptionEmpty, InsertNewPartMediumCaptionTooLong, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumFileSaveError, InsertNewPartMediumInvalidContentLength, InsertNewPartMediumInvalidMimeType, InsertNewPartMediumMissingContentLength, InsertNewPartMediumMissingContentType, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnableToFetchExternalData, InsertNewPartMediumUnacceptableMimeType, InsertNewPartMediumUnitsEnabled } from '../../interactors/administrators/insertNewPartMediumInteractor';
-import { BaseController } from '../baseController';
+import { insertNewPartMediumInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewPartMediumResponseDTO } from '../../interactors/administrators/insertNewPartMediumInteractor.js';
+import { InsertNewPartMediumCaptionEmpty, InsertNewPartMediumCaptionTooLong, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumFileSaveError, InsertNewPartMediumInvalidContentLength, InsertNewPartMediumInvalidMimeType, InsertNewPartMediumMissingContentLength, InsertNewPartMediumMissingContentType, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnableToFetchExternalData, InsertNewPartMediumUnacceptableMimeType, InsertNewPartMediumUnitsEnabled } from '../../interactors/administrators/insertNewPartMediumInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

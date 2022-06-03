@@ -1,15 +1,15 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CourseDTO } from '../../domain/courseDTO';
-import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { StudentDTO } from '../../domain/tutors/studentDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { CourseDTO } from '../../domain/courseDTO.js';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { StudentDTO } from '../../domain/tutors/studentDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type GetNewUnitRequestDTO = {
   tutorId: number;

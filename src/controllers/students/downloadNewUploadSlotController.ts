@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { downloadNewUploadSlotInteractor } from '../../interactors/students';
-import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/students/downloadNewUploadSlotInteractor';
-import type { ByteRange } from '../baseController';
-import { BaseController } from '../baseController';
+import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/students/downloadNewUploadSlotInteractor.js';
+import { downloadNewUploadSlotInteractor } from '../../interactors/students/index.js';
+import type { ByteRange } from '../baseController.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   headers: {

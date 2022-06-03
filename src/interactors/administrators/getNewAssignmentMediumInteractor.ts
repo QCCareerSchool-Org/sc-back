@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
-import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO';
-import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
+import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
+import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type GetNewAssignmentMediumRequestDTO = {
   mediumId: string;

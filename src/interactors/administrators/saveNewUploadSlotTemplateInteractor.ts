@@ -1,12 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
-import type { IDateService } from '../../services/date';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type SaveNewUploadSlotTemplateRequestDTO = {
   uploadSlotId: string;

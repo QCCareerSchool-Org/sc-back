@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { deleteNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor';
-import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { DeleteNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor.js';
+import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor.js';
+import { deleteNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

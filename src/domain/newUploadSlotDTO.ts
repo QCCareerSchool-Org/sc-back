@@ -1,4 +1,4 @@
-import type { NewUploadSlotAllowedType } from './newUploadSlotTemplateDTO';
+import type { NewUploadSlotAllowedType } from './newUploadSlotTemplateDTO.js';
 
 export type NewUploadSlotDTO = {
   /** uuid */

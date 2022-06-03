@@ -1,12 +1,12 @@
 import * as yup from 'yup';
 
-import type { Privileges } from '../../domain/accessTokenPayload';
-import { isAccessTokenPayload } from '../../domain/accessTokenPayload';
-import { InsufficientPrivileges } from '../../interactors';
-import { replaceNewUnitTemplatePricesInteractor } from '../../interactors/administrators';
-import type { ReplaceNewUnitTemplatePricesResponseDTO } from '../../interactors/administrators/replaceNewUnitTemplatePricesInteractor';
-import { ReplaceNewUnitTemplatePricesCourseNotFound, ReplaceNewUnitTemplatePricesMissingUnits } from '../../interactors/administrators/replaceNewUnitTemplatePricesInteractor';
-import { BaseController } from '../baseController';
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { replaceNewUnitTemplatePricesInteractor } from '../../interactors/administrators/index.js';
+import type { ReplaceNewUnitTemplatePricesResponseDTO } from '../../interactors/administrators/replaceNewUnitTemplatePricesInteractor.js';
+import { ReplaceNewUnitTemplatePricesCourseNotFound, ReplaceNewUnitTemplatePricesMissingUnits } from '../../interactors/administrators/replaceNewUnitTemplatePricesInteractor.js';
+import { InsufficientPrivileges } from '../../interactors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

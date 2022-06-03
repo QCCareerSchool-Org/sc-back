@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getAllNewMaterialsInteractor } from '../../interactors/administrators';
-import type { GetAllNewMaterialsResponseDTO } from '../../interactors/administrators/getAllNewMaterialsInteractor';
-import { BaseController } from '../baseController';
+import type { GetAllNewMaterialsResponseDTO } from '../../interactors/administrators/getAllNewMaterialsInteractor.js';
+import { getAllNewMaterialsInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

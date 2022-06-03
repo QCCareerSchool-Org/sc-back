@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import { downloadNewUnitFeedbackInteractor } from '../../interactors/tutors';
-import { DownloadNewUnitFeedbackFileNotFound, DownloadNewUnitFeedbackFileReadError, DownloadNewUnitFeedbackNotFound, DownloadNewUnitFeedbackUnitNotSubmitted, DownloadNewUnitFeedbackUnitSkipped, DownloadNewUnitFeedbackWrongTutor } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor';
-import type { DownloadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor';
-import type { ByteRange } from '../baseController';
-import { BaseController } from '../baseController';
+import { DownloadNewUnitFeedbackFileNotFound, DownloadNewUnitFeedbackFileReadError, DownloadNewUnitFeedbackNotFound, DownloadNewUnitFeedbackUnitNotSubmitted, DownloadNewUnitFeedbackUnitSkipped, DownloadNewUnitFeedbackWrongTutor } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor.js';
+import type { DownloadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/downloadNewUnitFeedbackInteractor.js';
+import { downloadNewUnitFeedbackInteractor } from '../../interactors/tutors/index.js';
+import type { ByteRange } from '../baseController.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   headers: {

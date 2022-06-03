@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import type { InsertNewAssignmentMediumResponseDTO } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
-import { InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumFileSaveError, InsertNewAssignmentMediumFileTooLarge, InsertNewAssignmentMediumInvalidContentLength, InsertNewAssignmentMediumInvalidMimeType, InsertNewAssignmentMediumMissingContentLength, InsertNewAssignmentMediumMissingContentType, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnableToFetchExternalData, InsertNewAssignmentMediumUnacceptableMimeType, InsertNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentMediumInteractor';
-import { BaseController } from '../baseController';
+import { insertNewAssignmentMediumInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewAssignmentMediumResponseDTO } from '../../interactors/administrators/insertNewAssignmentMediumInteractor.js';
+import { InsertNewAssignmentMediCaptionTooLong, InsertNewAssignmentMediumAssignmentNotFound, InsertNewAssignmentMediumCaptionEmpty, InsertNewAssignmentMediumDataMissing, InsertNewAssignmentMediumExternalDataInvalid, InsertNewAssignmentMediumFileSaveError, InsertNewAssignmentMediumFileTooLarge, InsertNewAssignmentMediumInvalidContentLength, InsertNewAssignmentMediumInvalidMimeType, InsertNewAssignmentMediumMissingContentLength, InsertNewAssignmentMediumMissingContentType, InsertNewAssignmentMediumOrderLessThanZero, InsertNewAssignmentMediumOrderTooLarge, InsertNewAssignmentMediumUnableToFetchExternalData, InsertNewAssignmentMediumUnacceptableMimeType, InsertNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentMediumInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import type { InsertNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor';
-import { InsertNewUploadSlotTemplateAllowedTypesEmpty, InsertNewUploadSlotTemplateInvalidAllowedType, InsertNewUploadSlotTemplateLabelEmpty, InsertNewUploadSlotTemplateOrderLessThanZero, InsertNewUploadSlotTemplateOrderTooLarge, InsertNewUploadSlotTemplatePartNotFound, InsertNewUploadSlotTemplatePointsLessThanZero, InsertNewUploadSlotTemplatePointsTooLarge, InsertNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor';
-import { BaseController } from '../baseController';
+import { insertNewUploadSlotTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor.js';
+import { InsertNewUploadSlotTemplateAllowedTypesEmpty, InsertNewUploadSlotTemplateInvalidAllowedType, InsertNewUploadSlotTemplateLabelEmpty, InsertNewUploadSlotTemplateOrderLessThanZero, InsertNewUploadSlotTemplateOrderTooLarge, InsertNewUploadSlotTemplatePartNotFound, InsertNewUploadSlotTemplatePointsLessThanZero, InsertNewUploadSlotTemplatePointsTooLarge, InsertNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

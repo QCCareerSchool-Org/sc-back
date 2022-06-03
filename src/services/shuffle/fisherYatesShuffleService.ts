@@ -1,4 +1,4 @@
-import type { IShuffleService } from '.';
+import type { IShuffleService } from './index.js';
 
 export class FisherYatesShuffleService implements IShuffleService {
 

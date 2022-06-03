@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewUnitTemplateInteractor } from '../../interactors/administrators';
-import type { InsertNewUnitTemplateResponseDTO } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
-import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateDescriptionTooLong, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateMarkingCriteriaTooLong, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateTitleTooLong, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong, InsertNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUnitTemplateInteractor';
-import { BaseController } from '../baseController';
+import { insertNewUnitTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewUnitTemplateResponseDTO } from '../../interactors/administrators/insertNewUnitTemplateInteractor.js';
+import { InsertNewUnitTemplateCourseNotFound, InsertNewUnitTemplateDescriptionTooLong, InsertNewUnitTemplateInvalidUnitLetter, InsertNewUnitTemplateMarkingCriteriaTooLong, InsertNewUnitTemplateOrderLessThanZero, InsertNewUnitTemplateOrderTooLarge, InsertNewUnitTemplateTitleTooLong, InsertNewUnitTemplateUnitLetterAlreadyInUse, InsertNewUnitTemplateUnitLetterEmpty, InsertNewUnitTemplateUnitLetterTooLong, InsertNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUnitTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

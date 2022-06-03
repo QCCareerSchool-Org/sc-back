@@ -1,7 +1,7 @@
-import axios from 'axios';
+import { default as axios } from 'axios';
 
-import type { IHttpService } from '.';
-import { HttpServiceError } from '.';
+import type { IHttpService } from './index.js';
+import { HttpServiceError } from './index.js';
 
 export class AxiosHttpService implements IHttpService {
 

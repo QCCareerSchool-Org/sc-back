@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewPartTemplateInteractor } from '../../interactors/administrators';
-import type { SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor';
-import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateMarkingCriteriaTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor';
-import { BaseController } from '../baseController';
+import { saveNewPartTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor.js';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateMarkingCriteriaTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

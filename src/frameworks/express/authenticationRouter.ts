@@ -1,15 +1,15 @@
 import { Router } from 'express';
 
-import { CreatePasswordResetController } from '../../controllers/authentication/createPasswordResetController';
-import { GetPasswordResetController } from '../../controllers/authentication/getPasswordResetController';
-import { LoginController } from '../../controllers/authentication/loginController';
-import { LogoutController } from '../../controllers/authentication/logoutController';
-import { RefreshController } from '../../controllers/authentication/refreshController';
-import { UsePasswordResetController } from '../../controllers/authentication/usePasswordResetController';
-import type { Route } from './applyRoutes';
-import { applyRoutes } from './applyRoutes';
-import { browserDetectMiddleware } from './browserDetectMiddleware';
-import { locationMiddleware } from './locationMiddleware';
+import { CreatePasswordResetController } from '../../controllers/authentication/createPasswordResetController.js';
+import { GetPasswordResetController } from '../../controllers/authentication/getPasswordResetController.js';
+import { LoginController } from '../../controllers/authentication/loginController.js';
+import { LogoutController } from '../../controllers/authentication/logoutController.js';
+import { RefreshController } from '../../controllers/authentication/refreshController.js';
+import { UsePasswordResetController } from '../../controllers/authentication/usePasswordResetController.js';
+import type { Route } from './applyRoutes.js';
+import { applyRoutes } from './applyRoutes.js';
+import { browserDetectMiddleware } from './browserDetectMiddleware.js';
+import { locationMiddleware } from './locationMiddleware.js';
 
 export const authenticationRouter = Router();
 

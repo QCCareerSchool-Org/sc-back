@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { usePasswordResetInteractor } from '../../interactors/authentication';
-import { UsePasswordResetAlreadyUsed, UsePasswordResetExpired, UsePasswordResetInvalidCode, UsePasswordResetNotFound, UsePasswordResetPoorPassword } from '../../interactors/authentication/usePasswordResetInteractor';
-import { BaseController } from '../baseController';
+import { usePasswordResetInteractor } from '../../interactors/authentication/index.js';
+import { UsePasswordResetAlreadyUsed, UsePasswordResetExpired, UsePasswordResetInvalidCode, UsePasswordResetNotFound, UsePasswordResetPoorPassword } from '../../interactors/authentication/usePasswordResetInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

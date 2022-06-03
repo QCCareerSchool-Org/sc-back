@@ -6,7 +6,7 @@
 [{}^~`]           # URL unsafe characters https://www.ietf.org/rfc/rfc1738.txt
 */
 
-import type { ISanitizerService } from '.';
+import type { ISanitizerService } from './index.js';
 
 export class SanitizerService implements ISanitizerService {
 

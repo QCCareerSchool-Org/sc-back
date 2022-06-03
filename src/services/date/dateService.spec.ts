@@ -1,4 +1,4 @@
-import { DateService } from './dateService';
+import { DateService } from './dateService.js';
 
 describe('dateService', () => {
   let dateService: DateService;

@@ -1,13 +1,13 @@
 import type { Course, Enrollment, NewUnit, PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { IDateService } from '../../services/date';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
-import { unitIsComplete } from './unitIsComplete';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
+import { unitIsComplete } from './unitIsComplete.js';
 
 export type SubmitNewUnitRequestDTO = {
   studentId: number;

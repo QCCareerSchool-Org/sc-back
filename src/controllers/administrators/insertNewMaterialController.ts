@@ -1,12 +1,12 @@
 import * as yup from 'yup';
 
-import type { Privileges } from '../../domain/accessTokenPayload';
-import { isAccessTokenPayload } from '../../domain/accessTokenPayload';
-import { InsufficientPrivileges } from '../../interactors';
-import { insertNewMaterialInteractor } from '../../interactors/administrators';
-import type { InsertNewMaterialResponseDTO } from '../../interactors/administrators/insertNewMaterialInteractor';
-import { InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialCourseNotFound, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileMissing, InsertNewMaterialFilePresent, InsertNewMaterialFileSaveError, InsertNewMaterialFileTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong } from '../../interactors/administrators/insertNewMaterialInteractor';
-import { BaseController } from '../baseController';
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { insertNewMaterialInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewMaterialResponseDTO } from '../../interactors/administrators/insertNewMaterialInteractor.js';
+import { InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialCourseNotFound, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileMissing, InsertNewMaterialFilePresent, InsertNewMaterialFileSaveError, InsertNewMaterialFileTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong } from '../../interactors/administrators/insertNewMaterialInteractor.js';
+import { InsufficientPrivileges } from '../../interactors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,17 +1,17 @@
 import type { NewMaterial, PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileDiskUpload } from '..';
-import { InsufficientPrivileges } from '..';
-import type { Privileges } from '../../domain/accessTokenPayload';
-import type { NewMaterialDTO } from '../../domain/newMaterialDTO';
-import { materialType } from '../../domain/newMaterialDTO';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IUnzipService } from '../../services/unzip';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import type { NewMaterialDTO } from '../../domain/newMaterialDTO.js';
+import { materialType } from '../../domain/newMaterialDTO.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUnzipService } from '../../services/unzip/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import { InsufficientPrivileges } from '../index.js';
+import type { IInteractor, InteractorFileDiskUpload } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type ReplaceNewMaterialFileRequestDTO = {
   /** uuid */

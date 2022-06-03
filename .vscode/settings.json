@@ -1,4 +1,7 @@
 {
   "jest.autoRun": "off",
+  "jest.nodeEnv": {
+    "NODE_OPTIONS": "--experimental-vm-modules"
+  },
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }

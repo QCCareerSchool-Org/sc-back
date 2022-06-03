@@ -1,5 +1,6 @@
 import type { Logger } from 'winston';
-import type { ILoggerService } from '.';
+
+import type { ILoggerService } from './index.js';
 
 export class WinstonLoggerService implements ILoggerService {
 

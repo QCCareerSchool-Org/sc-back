@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { deleteNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor';
-import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor';
-import { BaseController } from '../baseController';
+import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor.js';
+import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor.js';
+import { deleteNewAssignmentMediumInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

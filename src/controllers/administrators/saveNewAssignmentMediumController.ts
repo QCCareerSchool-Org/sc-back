@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewAssignmentMediumInteractor } from '../../interactors/administrators';
-import type { SaveNewAssignmentMediumResponseDTO } from '../../interactors/administrators/saveNewAssignmentMediumInteractor';
-import { SaveNewAssignmentMediumNotFound, SaveNewAssignmentMediumOrderLessThanZero, SaveNewAssignmentMediumOrderTooLarge, SaveNewAssignmentMediumPartCaptionEmpty, SaveNewAssignmentMediumPartCaptionTooLong, SaveNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentMediumInteractor';
-import { BaseController } from '../baseController';
+import { saveNewAssignmentMediumInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewAssignmentMediumResponseDTO } from '../../interactors/administrators/saveNewAssignmentMediumInteractor.js';
+import { SaveNewAssignmentMediumNotFound, SaveNewAssignmentMediumOrderLessThanZero, SaveNewAssignmentMediumOrderTooLarge, SaveNewAssignmentMediumPartCaptionEmpty, SaveNewAssignmentMediumPartCaptionTooLong, SaveNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentMediumInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

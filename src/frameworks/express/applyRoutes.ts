@@ -1,7 +1,8 @@
 import type { NextFunction, Request, RequestHandler, Response, Router } from 'express';
-import type { BaseController } from '../../controllers/baseController';
-import type { BaseMiddleware } from '../../controllers/baseMiddleware';
-import { asyncWrapper } from './asyncWrapper';
+
+import type { BaseController } from '../../controllers/baseController.js';
+import type { BaseMiddleware } from '../../controllers/baseMiddleware.js';
+import { asyncWrapper } from './asyncWrapper.js';
 
 type Controller = { new (req: Readonly<Request>, res: Readonly<Response>): Readonly<BaseController> };
 type Middleware = { new (req: Readonly<Request>, res: Readonly<Response>, next: NextFunction): Readonly<BaseMiddleware> };

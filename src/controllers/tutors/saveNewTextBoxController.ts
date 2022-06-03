@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewTextBoxInteractor } from '../../interactors/tutors';
-import type { SaveNewTextBoxResponseDTO } from '../../interactors/tutors/saveNewTextBoxInteractor';
-import { SaveNewTextBoxAlreadyReturned, SaveNewTextBoxIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxNotesTooLong, SaveNewTextBoxNotFound, SaveNewTextBoxUnitAlreadyClosed, SaveNewTextBoxUnitNotSubmitted, SaveNewTextBoxUnitSkipped, SaveNewTextBoxWrongTutor, SaveNewTextBoxZeroPoints } from '../../interactors/tutors/saveNewTextBoxInteractor';
-import { BaseController } from '../baseController';
+import { saveNewTextBoxInteractor } from '../../interactors/tutors/index.js';
+import type { SaveNewTextBoxResponseDTO } from '../../interactors/tutors/saveNewTextBoxInteractor.js';
+import { SaveNewTextBoxAlreadyReturned, SaveNewTextBoxIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxNotesTooLong, SaveNewTextBoxNotFound, SaveNewTextBoxUnitAlreadyClosed, SaveNewTextBoxUnitNotSubmitted, SaveNewTextBoxUnitSkipped, SaveNewTextBoxWrongTutor, SaveNewTextBoxZeroPoints } from '../../interactors/tutors/saveNewTextBoxInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

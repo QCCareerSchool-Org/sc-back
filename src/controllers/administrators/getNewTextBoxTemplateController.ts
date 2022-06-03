@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import type { GetNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/getNewTextBoxTemplateInteractor';
-import { GetNewTextBoxTemplateNotFound } from '../../interactors/administrators/getNewTextBoxTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { GetNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/getNewTextBoxTemplateInteractor.js';
+import { GetNewTextBoxTemplateNotFound } from '../../interactors/administrators/getNewTextBoxTemplateInteractor.js';
+import { getNewTextBoxTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

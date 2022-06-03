@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getNewUnitTemplatePricesInteractor } from '../../interactors/administrators';
-import type { GetNewUnitTemplatePricesResponseDTO } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor';
-import { GetNewUnitTemplatePricesCourseNotFound } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor';
-import { BaseController } from '../baseController';
+import type { GetNewUnitTemplatePricesResponseDTO } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor.js';
+import { GetNewUnitTemplatePricesCourseNotFound } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor.js';
+import { getNewUnitTemplatePricesInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

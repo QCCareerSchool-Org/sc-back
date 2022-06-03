@@ -1,18 +1,18 @@
 import path from 'path';
 import type { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
-import type { AccountType } from '../../domain/accountType';
-import type { IInteractor } from '../../interactors';
-import type { ResultType } from '../../interactors/result';
-import { Result } from '../../interactors/result';
-import type { IConfigService } from '../../services/config';
-import type { ICryptoService } from '../../services/crypto';
-import type { IDateService } from '../../services/date';
-import type { IEmailService } from '../../services/email';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IStudentService } from '../../services/student';
-import type { ITelephoneNumberService } from '../../services/telephoneNumber';
+import type { AccountType } from '../../domain/accountType.js';
+import type { IInteractor } from '../../interactors/index.js';
+import type { ResultType } from '../../interactors/result.js';
+import { Result } from '../../interactors/result.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { ICryptoService } from '../../services/crypto/index.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { IEmailService } from '../../services/email/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IStudentService } from '../../services/student/index.js';
+import type { ITelephoneNumberService } from '../../services/telephoneNumber/index.js';
 
 type CreatePasswordResetRequestDTO = {
   username: string;

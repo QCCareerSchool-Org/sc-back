@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getEnrollmentInteractor } from '../../interactors/students';
-import type { GetEnrollmentResponseDTO } from '../../interactors/students/getEnrollment';
-import { GetEnrollmentNotFound } from '../../interactors/students/getEnrollment';
-import { BaseController } from '../baseController';
+import type { GetEnrollmentResponseDTO } from '../../interactors/students/getEnrollment.js';
+import { GetEnrollmentNotFound } from '../../interactors/students/getEnrollment.js';
+import { getEnrollmentInteractor } from '../../interactors/students/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

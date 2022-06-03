@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import { downloadNewAssignmentMediumInteractor } from '../../interactors/students';
-import type { DownloadNewAssignmentMediumResponseDTO } from '../../interactors/students/downloadNewAssignmentMediumInteractor';
-import { DownloadNewAssignmentMediumFileNotFound, DownloadNewAssignmentMediumFileReadError, DownloadNewAssignmentMediumNotFound } from '../../interactors/students/downloadNewAssignmentMediumInteractor';
-import type { ByteRange } from '../baseController';
-import { BaseController } from '../baseController';
+import type { DownloadNewAssignmentMediumResponseDTO } from '../../interactors/students/downloadNewAssignmentMediumInteractor.js';
+import { DownloadNewAssignmentMediumFileNotFound, DownloadNewAssignmentMediumFileReadError, DownloadNewAssignmentMediumNotFound } from '../../interactors/students/downloadNewAssignmentMediumInteractor.js';
+import { downloadNewAssignmentMediumInteractor } from '../../interactors/students/index.js';
+import type { ByteRange } from '../baseController.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   headers: {

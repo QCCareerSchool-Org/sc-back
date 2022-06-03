@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileMemoryUpload } from '..';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type UploadNewUnitFeedbackRequestDTO = {
   tutorId: number;

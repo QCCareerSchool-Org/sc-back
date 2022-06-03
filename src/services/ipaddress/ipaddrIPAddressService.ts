@@ -1,6 +1,6 @@
 import ipaddr from 'ipaddr.js';
 
-import type { IIPAddressService } from '.';
+import type { IIPAddressService } from './index.js';
 
 export class IpaddrJSIPAddressService implements IIPAddressService {
 

@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getPasswordResetInteractor } from '../../interactors/authentication';
-import type { GetPasswordResetResponseDTO } from '../../interactors/authentication/getPasswordResetInteractor';
-import { GetPasswordResetInvalidCode, GetPasswordResetNotFound } from '../../interactors/authentication/getPasswordResetInteractor';
-import { BaseController } from '../baseController';
+import type { GetPasswordResetResponseDTO } from '../../interactors/authentication/getPasswordResetInteractor.js';
+import { GetPasswordResetInvalidCode, GetPasswordResetNotFound } from '../../interactors/authentication/getPasswordResetInteractor.js';
+import { getPasswordResetInteractor } from '../../interactors/authentication/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

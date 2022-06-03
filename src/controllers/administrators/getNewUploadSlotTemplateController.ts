@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getNewUploadSlotTemplateInteractor } from '../../interactors/administrators';
-import type { GetNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor';
-import { GetNewUploadSlotTemplateNotFound } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { GetNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor.js';
+import { GetNewUploadSlotTemplateNotFound } from '../../interactors/administrators/getNewUploadSlotTemplateInteractor.js';
+import { getNewUploadSlotTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

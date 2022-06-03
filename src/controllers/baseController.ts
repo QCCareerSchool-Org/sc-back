@@ -1,5 +1,6 @@
 import type { CookieOptions, Request, Response } from 'express';
-import type { InteractorFileStreamDownload } from '../interactors';
+
+import type { InteractorFileStreamDownload } from '../interactors/index.js';
 
 export type ByteRange = Readonly<{
   start: number;

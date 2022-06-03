@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor, InteractorFileStreamDownload } from '..';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { ISanitizerService } from '../../services/sanitizer';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type DownloadNewAssignmentMediumRequestDTO = {
   studentId: number;

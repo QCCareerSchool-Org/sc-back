@@ -1,16 +1,16 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CountryDTO } from '../../domain/countryDTO';
-import type { CourseDTO } from '../../domain/courseDTO';
-import type { CurrencyDTO } from '../../domain/currencyDTO';
-import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { CountryDTO } from '../../domain/countryDTO.js';
+import type { CourseDTO } from '../../domain/courseDTO.js';
+import type { CurrencyDTO } from '../../domain/currencyDTO.js';
+import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
+import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type GetNewUnitTemplateRequestDTO = {
   unitId: string;

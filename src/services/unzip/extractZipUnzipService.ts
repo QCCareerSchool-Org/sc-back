@@ -1,6 +1,6 @@
 import extract from 'extract-zip';
 
-import type { IUnzipService } from '.';
+import type { IUnzipService } from './index.js';
 
 export class ExtractZipUnzipService implements IUnzipService {
 

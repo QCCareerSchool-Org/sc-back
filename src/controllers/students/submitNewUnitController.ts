@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { submitNewUnitInteractor } from '../../interactors/students';
-import type { SubmitNewUnitResponseDTO } from '../../interactors/students/submitNewUnitInteractor';
-import { SubmitNewUnitAlreadySubmitted, SubmitNewUnitDefaultPriceNotFound, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitMultipleDefaultPricesFound, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor';
-import { BaseController } from '../baseController';
+import { submitNewUnitInteractor } from '../../interactors/students/index.js';
+import type { SubmitNewUnitResponseDTO } from '../../interactors/students/submitNewUnitInteractor.js';
+import { SubmitNewUnitAlreadySubmitted, SubmitNewUnitDefaultPriceNotFound, SubmitNewUnitEnrollmentOnHold, SubmitNewUnitIncomplete, SubmitNewUnitMultipleDefaultPricesFound, SubmitNewUnitNotFound, SubmitNewUnitTutorNotAssigned } from '../../interactors/students/submitNewUnitInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

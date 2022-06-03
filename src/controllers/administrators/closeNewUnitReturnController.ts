@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { closeNewUnitReturnInteractor } from '../../interactors/administrators';
-import type { CloseNewUnitReturnResponseDTO } from '../../interactors/administrators/closeNewUnitReturnInteractor';
-import { CloseNewUnitReturnAdminCommentEmpty, CloseNewUnitReturnAlreadyCompleted, CloseNewUnitReturnNotFound } from '../../interactors/administrators/closeNewUnitReturnInteractor';
-import { BaseController } from '../baseController';
+import type { CloseNewUnitReturnResponseDTO } from '../../interactors/administrators/closeNewUnitReturnInteractor.js';
+import { CloseNewUnitReturnAdminCommentEmpty, CloseNewUnitReturnAlreadyCompleted, CloseNewUnitReturnNotFound } from '../../interactors/administrators/closeNewUnitReturnInteractor.js';
+import { closeNewUnitReturnInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

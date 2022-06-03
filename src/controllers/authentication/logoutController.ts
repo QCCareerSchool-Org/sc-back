@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import type { AccountType } from '../../domain/accountType';
-import { logoutInteractor } from '../../interactors/authentication';
-import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor';
-import { environmentConfigService } from '../../services';
-import { BaseController } from '../baseController';
+import type { AccountType } from '../../domain/accountType.js';
+import { logoutInteractor } from '../../interactors/authentication/index.js';
+import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor.js';
+import { environmentConfigService } from '../../services/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   cookies: {

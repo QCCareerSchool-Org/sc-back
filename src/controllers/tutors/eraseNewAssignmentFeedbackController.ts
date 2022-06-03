@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { eraseNewUnitFeedbackInteractor } from '../../interactors/tutors';
-import type { EraseNewUnitFeedbackResponseDTO } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
-import { EraseNewUnitFeedbackFileUnlinkError, EraseNewUnitFeedbackNotFound, EraseNewUnitFeedbackUnitAlreadyClosed, EraseNewUnitFeedbackUnitNotSubmitted, EraseNewUnitFeedbackUnitSkipped, EraseNewUnitFeedbackWrongTutor } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor';
-import { BaseController } from '../baseController';
+import type { EraseNewUnitFeedbackResponseDTO } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor.js';
+import { EraseNewUnitFeedbackFileUnlinkError, EraseNewUnitFeedbackNotFound, EraseNewUnitFeedbackUnitAlreadyClosed, EraseNewUnitFeedbackUnitNotSubmitted, EraseNewUnitFeedbackUnitSkipped, EraseNewUnitFeedbackWrongTutor } from '../../interactors/tutors/eraseNewUnitFeedbackInteractor.js';
+import { eraseNewUnitFeedbackInteractor } from '../../interactors/tutors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

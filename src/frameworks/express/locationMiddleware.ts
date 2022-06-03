@@ -3,8 +3,8 @@ import type { RequestHandler } from 'express';
 import type { CityResponse } from 'maxmind';
 import maxmind from 'maxmind';
 
-import { winstonLoggerService } from '../../services';
-import { asyncWrapper } from './asyncWrapper';
+import { winstonLoggerService } from '../../services/index.js';
+import { asyncWrapper } from './asyncWrapper.js';
 
 dotenv.config();
 

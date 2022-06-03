@@ -1,6 +1,6 @@
 import type { Transform } from 'stream';
 import zlib from 'zlib';
-import type { ICompressionService } from '.';
+import type { ICompressionService } from './index.js';
 
 export class ZLibCompressionService implements ICompressionService {
 

@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CountryDTO } from '../../domain/countryDTO';
-import type { ILoggerService } from '../../services/logger';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { CountryDTO } from '../../domain/countryDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type GetCountryRequestDTO = {
   countryId: number;

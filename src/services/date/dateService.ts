@@ -1,4 +1,4 @@
-import type { IDateService } from '.';
+import type { IDateService } from './index.js';
 
 export class DateService implements IDateService {
   private static readonly months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];

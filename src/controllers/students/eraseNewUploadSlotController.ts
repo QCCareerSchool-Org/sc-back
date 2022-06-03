@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { eraseNewUploadSlotInteractor } from '../../interactors/students';
-import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor';
-import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor';
-import { BaseController } from '../baseController';
+import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
+import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
+import { eraseNewUploadSlotInteractor } from '../../interactors/students/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

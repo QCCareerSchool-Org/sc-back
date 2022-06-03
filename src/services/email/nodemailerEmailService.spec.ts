@@ -1,7 +1,8 @@
+import { jest } from '@jest/globals';
 import nodemailer from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 
-import { NodemailerEmailService } from './nodemailerEmailService';
+import { NodemailerEmailService } from './nodemailerEmailService.js';
 
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn(() => ({ sendMail: jest.fn(), close: jest.fn() })),

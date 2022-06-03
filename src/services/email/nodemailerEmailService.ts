@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport.js';
 
-import type { Attachment, IEmailService } from '.';
+import type { Attachment, IEmailService } from './index.js';
 
 export class NodemailerEmailService implements IEmailService {
 

@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { NewUnitReturnDTO } from '../../domain/newUnitReturnDTO';
-import type { IDateService } from '../../services/date';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { NewUnitReturnDTO } from '../../domain/newUnitReturnDTO.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type CloseNewUnitReturnRequestDTO = {
   unitReturnId: string;

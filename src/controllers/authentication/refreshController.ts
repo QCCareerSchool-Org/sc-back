@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { refreshInteractor } from '../../interactors/authentication';
-import { RefreshAccountNotFound, RefreshStudentInvalidType, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor';
-import { BaseController } from '../baseController';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { refreshInteractor } from '../../interactors/authentication/index.js';
+import { RefreshAccountNotFound, RefreshStudentInvalidType, RefreshTokenExpired, RefreshTokenInvalidType, RefreshTokenNotFound } from '../../interactors/authentication/refreshInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   cookies: {

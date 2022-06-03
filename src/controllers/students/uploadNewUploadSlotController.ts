@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { uploadNewUploadSlotInteractor } from '../../interactors/students';
-import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor';
-import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor';
-import { BaseController } from '../baseController';
+import { uploadNewUploadSlotInteractor } from '../../interactors/students/index.js';
+import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
+import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

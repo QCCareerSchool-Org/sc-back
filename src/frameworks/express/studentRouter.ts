@@ -1,24 +1,24 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController';
-import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController';
-import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController';
-import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController';
-import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController';
-import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController';
-import { GetNewUnitController } from '../../controllers/students/getNewUnitController';
-import { GetStudentController } from '../../controllers/students/getStudentController';
-import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController';
-import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware';
-import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware';
-import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController';
-import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController';
-import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware';
-import { SubmitNewUnitController } from '../../controllers/students/submitNewUnitController';
-import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController';
-import type { Route } from './applyRoutes';
-import { applyRoutes } from './applyRoutes';
+import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController.js';
+import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController.js';
+import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController.js';
+import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController.js';
+import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController.js';
+import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
+import { GetNewUnitController } from '../../controllers/students/getNewUnitController.js';
+import { GetStudentController } from '../../controllers/students/getStudentController.js';
+import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController.js';
+import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
+import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
+import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController.js';
+import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController.js';
+import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware.js';
+import { SubmitNewUnitController } from '../../controllers/students/submitNewUnitController.js';
+import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController.js';
+import type { Route } from './applyRoutes.js';
+import { applyRoutes } from './applyRoutes.js';
 
 export const studentRouter = Router();
 

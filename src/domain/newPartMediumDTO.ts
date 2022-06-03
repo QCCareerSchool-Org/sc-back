@@ -1,4 +1,4 @@
-import type { NewMediumType } from './newAssignmentMediumDTO';
+import type { NewMediumType } from './newAssignmentMediumDTO.js';
 
 export type NewPartMediumDTO = {
   /** uuid */

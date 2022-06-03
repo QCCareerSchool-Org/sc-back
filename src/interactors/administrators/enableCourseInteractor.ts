@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CourseDTO } from '../../domain/courseDTO';
-import type { ILoggerService } from '../../services/logger';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { CourseDTO } from '../../domain/courseDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type EnableCourseRequestDTO = {
   courseId: number;

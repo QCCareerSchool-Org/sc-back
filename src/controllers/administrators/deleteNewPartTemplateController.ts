@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { deleteNewPartTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deleteNewPartTemplateInteractor';
-import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewPartTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { DeleteNewPartTemplateResponseDTO } from '../../interactors/administrators/deleteNewPartTemplateInteractor.js';
+import { DeleteNewPartTemplateNotFound, DeleteNewPartTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewPartTemplateInteractor.js';
+import { deleteNewPartTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

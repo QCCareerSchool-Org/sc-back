@@ -1,4 +1,4 @@
-import type { ITelephoneNumberService } from '.';
+import type { ITelephoneNumberService } from './index.js';
 
 export class TelephoneNumberService implements ITelephoneNumberService {
 

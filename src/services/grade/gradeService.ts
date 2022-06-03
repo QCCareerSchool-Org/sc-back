@@ -1,4 +1,4 @@
-import type { Grade, GradeScheme, IGradeService } from '.';
+import type { Grade, GradeScheme, IGradeService } from './index.js';
 
 export class GradeService implements IGradeService {
 

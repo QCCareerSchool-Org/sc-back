@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { closeNewUnitInteractor } from '../../interactors/tutors';
-import type { CloseNewUnitResponseDTO } from '../../interactors/tutors/closeNewUnitInteractor';
-import { CloseNewUnitAlreadyClosed, CloseNewUnitAlreadyReturned, CloseNewUnitNoFeedback, CloseNewUnitNotFound, CloseNewUnitNotMarked, CloseNewUnitNotSubmitted, CloseNewUnitSkipped, CloseNewUnitWrongTutor } from '../../interactors/tutors/closeNewUnitInteractor';
-import { BaseController } from '../baseController';
+import type { CloseNewUnitResponseDTO } from '../../interactors/tutors/closeNewUnitInteractor.js';
+import { CloseNewUnitAlreadyClosed, CloseNewUnitAlreadyReturned, CloseNewUnitNoFeedback, CloseNewUnitNotFound, CloseNewUnitNotMarked, CloseNewUnitNotSubmitted, CloseNewUnitSkipped, CloseNewUnitWrongTutor } from '../../interactors/tutors/closeNewUnitInteractor.js';
+import { closeNewUnitInteractor } from '../../interactors/tutors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

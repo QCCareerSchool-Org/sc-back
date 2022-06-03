@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { ILoggerService } from '../../services/logger';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type LessonGuardRequestDTO = {
   studentId: number;

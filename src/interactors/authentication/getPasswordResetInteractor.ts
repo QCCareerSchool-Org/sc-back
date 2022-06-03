@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
-import type { PasswordResetRequestDTO } from '../../domain/passwordResetRequestDTO';
 
-import type { IInteractor } from '../../interactors';
-import type { ResultType } from '../../interactors/result';
-import { Result } from '../../interactors/result';
-import type { ILoggerService } from '../../services/logger';
+import type { PasswordResetRequestDTO } from '../../domain/passwordResetRequestDTO.js';
+import type { IInteractor } from '../../interactors/index.js';
+import type { ResultType } from '../../interactors/result.js';
+import { Result } from '../../interactors/result.js';
+import type { ILoggerService } from '../../services/logger/index.js';
 
 type GetPasswordResetRequestDTO = {
   id: number;

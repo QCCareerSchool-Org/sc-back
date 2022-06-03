@@ -1,17 +1,17 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO';
-import type { NewPartDTO } from '../../domain/newPartDTO';
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
-import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/newPartDTO.js';
+import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type GetNewUnitRequestDTO = {
   studentId: number;

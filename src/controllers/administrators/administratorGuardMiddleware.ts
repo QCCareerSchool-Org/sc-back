@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { BaseMiddleware } from '../baseMiddleware';
+import { BaseMiddleware } from '../baseMiddleware.js';
 
 type Request = {
   params: {

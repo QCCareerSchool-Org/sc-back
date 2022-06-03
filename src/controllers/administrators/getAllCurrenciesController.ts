@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { getAllCurrenciesInteractor } from '../../interactors/administrators';
-import type { GetAllCurrenciesResponseDTO } from '../../interactors/administrators/getAllCurrenciesInteractor';
-import { BaseController } from '../baseController';
+import type { GetAllCurrenciesResponseDTO } from '../../interactors/administrators/getAllCurrenciesInteractor.js';
+import { getAllCurrenciesInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

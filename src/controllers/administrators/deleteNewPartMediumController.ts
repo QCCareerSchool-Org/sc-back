@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { deleteNewPartMediumInteractor } from '../../interactors/administrators';
-import type { DeleteNewPartMediumResponseDTO } from '../../interactors/administrators/deleteNewPartMediumInteractor';
-import { DeleteNewPartMediumNotFound, DeleteNewPartMediumUnitsEnabled, DeleteNewPartMediumUnlinkError } from '../../interactors/administrators/deleteNewPartMediumInteractor';
-import { BaseController } from '../baseController';
+import type { DeleteNewPartMediumResponseDTO } from '../../interactors/administrators/deleteNewPartMediumInteractor.js';
+import { DeleteNewPartMediumNotFound, DeleteNewPartMediumUnitsEnabled, DeleteNewPartMediumUnlinkError } from '../../interactors/administrators/deleteNewPartMediumInteractor.js';
+import { deleteNewPartMediumInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

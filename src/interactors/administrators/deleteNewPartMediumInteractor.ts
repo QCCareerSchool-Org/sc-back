@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type DeleteNewPartMediumRequestDTO = {
   mediumId: string;

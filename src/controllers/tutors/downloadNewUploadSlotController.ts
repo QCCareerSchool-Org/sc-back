@@ -1,10 +1,10 @@
 import * as yup from 'yup';
 
-import { downloadNewUploadSlotInteractor } from '../../interactors/tutors';
-import type { DownloadNewUploadSlotResponseDTO } from '../../interactors/tutors/downloadNewUploadSlotInteractor';
-import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/tutors/downloadNewUploadSlotInteractor';
-import type { ByteRange } from '../baseController';
-import { BaseController } from '../baseController';
+import type { DownloadNewUploadSlotResponseDTO } from '../../interactors/tutors/downloadNewUploadSlotInteractor.js';
+import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/tutors/downloadNewUploadSlotInteractor.js';
+import { downloadNewUploadSlotInteractor } from '../../interactors/tutors/index.js';
+import type { ByteRange } from '../baseController.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   headers: {

@@ -1,4 +1,4 @@
-import { BaseController } from './baseController';
+import { BaseController } from './baseController.js';
 
 export class NotFoundController extends BaseController<void, void> {
 

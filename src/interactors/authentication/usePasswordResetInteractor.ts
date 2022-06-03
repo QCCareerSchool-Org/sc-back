@@ -1,14 +1,14 @@
 import type { PasswordResetRequest, PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { AccountType } from '../../domain/accountType';
-import type { IConfigService } from '../../services/config';
-import type { ICryptoService } from '../../services/crypto';
-import type { IDateService } from '../../services/date';
-import type { ILoggerService } from '../../services/logger';
-import type { IPasswordService } from '../../services/password';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { AccountType } from '../../domain/accountType.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { ICryptoService } from '../../services/crypto/index.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IPasswordService } from '../../services/password/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 type UsePasswordResetRequestDTO = {
   id: number;

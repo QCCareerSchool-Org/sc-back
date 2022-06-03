@@ -1,12 +1,12 @@
 import * as yup from 'yup';
 
-import type { Privileges } from '../../domain/accessTokenPayload';
-import { isAccessTokenPayload } from '../../domain/accessTokenPayload';
-import { InsufficientPrivileges } from '../../interactors';
-import { saveNewMaterialInteractor } from '../../interactors/administrators';
-import type { SaveNewMaterialResponseDTO } from '../../interactors/administrators/saveNewMaterialInteractor';
-import { SaveNewMaterialDescriptionEmpty, SaveNewMaterialDescriptionTooLong, SaveNewMaterialNotFound, SaveNewMaterialOrderLessThanZero, SaveNewMaterialOrderTooLarge, SaveNewMaterialTitleEmpty, SaveNewMaterialTitleTooLong, SaveNewMaterialUnitLetterEmpty, SaveNewMaterialUnitLetterTooLong } from '../../interactors/administrators/saveNewMaterialInteractor';
-import { BaseController } from '../baseController';
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { saveNewMaterialInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewMaterialResponseDTO } from '../../interactors/administrators/saveNewMaterialInteractor.js';
+import { SaveNewMaterialDescriptionEmpty, SaveNewMaterialDescriptionTooLong, SaveNewMaterialNotFound, SaveNewMaterialOrderLessThanZero, SaveNewMaterialOrderTooLarge, SaveNewMaterialTitleEmpty, SaveNewMaterialTitleTooLong, SaveNewMaterialUnitLetterEmpty, SaveNewMaterialUnitLetterTooLong } from '../../interactors/administrators/saveNewMaterialInteractor.js';
+import { InsufficientPrivileges } from '../../interactors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { deleteNewTextBoxTemplateInteractor } from '../../interactors/administrators';
-import type { DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor';
-import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor.js';
+import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor.js';
+import { deleteNewTextBoxTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

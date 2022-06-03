@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewUnitTemplateInteractor } from '../../interactors/administrators';
-import type { SaveNewUnitTemplateResponseDTO } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
-import { SaveNewUnitTemplateDescriptionTooLong, SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateMarkingCriteriaTooLong, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateTitleTooLong, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong, SaveNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUnitTemplateInteractor';
-import { BaseController } from '../baseController';
+import { saveNewUnitTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewUnitTemplateResponseDTO } from '../../interactors/administrators/saveNewUnitTemplateInteractor.js';
+import { SaveNewUnitTemplateDescriptionTooLong, SaveNewUnitTemplateInvalidUnitLetter, SaveNewUnitTemplateMarkingCriteriaTooLong, SaveNewUnitTemplateNotFound, SaveNewUnitTemplateOrderLessThanZero, SaveNewUnitTemplateOrderTooLarge, SaveNewUnitTemplateTitleTooLong, SaveNewUnitTemplateUnitLetterAlreadyInUse, SaveNewUnitTemplateUnitLetterEmpty, SaveNewUnitTemplateUnitLetterTooLong, SaveNewUnitTemplateUnitsEnabled } from '../../interactors/administrators/saveNewUnitTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

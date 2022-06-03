@@ -1,8 +1,8 @@
 import * as yup from 'yup';
-import { lessonGuardInteractor } from '../../interactors/students';
-import { LessonGuardNotEnrolled } from '../../interactors/students/lessonGuardInteractor';
 
-import { BaseMiddleware } from '../baseMiddleware';
+import { lessonGuardInteractor } from '../../interactors/students/index.js';
+import { LessonGuardNotEnrolled } from '../../interactors/students/lessonGuardInteractor.js';
+import { BaseMiddleware } from '../baseMiddleware.js';
 
 type Request = {
   params: {

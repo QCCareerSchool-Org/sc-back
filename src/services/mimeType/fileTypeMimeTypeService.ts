@@ -1,8 +1,8 @@
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type';
 
-// import type { IMimeTypeService } from '.';
+import type { IMimeTypeService } from './index.js';
 
-export class FileTypeMimeTypeService {
+export class FileTypeMimeTypeService implements IMimeTypeService {
 
   public async getTypeFromBuffer(buffer: Buffer): Promise<string> {
     const result = await fileTypeFromBuffer(buffer);

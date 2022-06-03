@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getCountryInteractor } from '../../interactors/administrators';
-import type { GetCountryResponseDTO } from '../../interactors/administrators/getCountryInteractor';
-import { GetCountryNotFound } from '../../interactors/administrators/getCountryInteractor';
-import { BaseController } from '../baseController';
+import type { GetCountryResponseDTO } from '../../interactors/administrators/getCountryInteractor.js';
+import { GetCountryNotFound } from '../../interactors/administrators/getCountryInteractor.js';
+import { getCountryInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

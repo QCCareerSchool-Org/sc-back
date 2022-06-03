@@ -1,13 +1,12 @@
 import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
-import type { IInteractor } from '..';
-import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
-import type { IDateService } from '../../services/date';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type SaveNewAssignmentTemplateRequestDTO = {
   assignmentId: string;

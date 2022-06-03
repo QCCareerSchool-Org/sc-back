@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { uploadNewUnitFeedbackInteractor } from '../../interactors/tutors';
-import type { UploadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor';
-import { UploadNewUnitFeedbackCouldNotCreateDirectory, UploadNewUnitFeedbackFileWriteError, UploadNewUnitFeedbackNotFound, UploadNewUnitFeedbackUnitAlreadyClosed, UploadNewUnitFeedbackUnitNotSubmitted, UploadNewUnitFeedbackUnitSkipped, UploadNewUnitFeedbackWrongTutor, UploadNewUnitInvalidMimeType, UploadNewUnitUnknownMimeType } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor';
-import { BaseController } from '../baseController';
+import { uploadNewUnitFeedbackInteractor } from '../../interactors/tutors/index.js';
+import type { UploadNewUnitFeedbackResponseDTO } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor.js';
+import { UploadNewUnitFeedbackCouldNotCreateDirectory, UploadNewUnitFeedbackFileWriteError, UploadNewUnitFeedbackNotFound, UploadNewUnitFeedbackUnitAlreadyClosed, UploadNewUnitFeedbackUnitNotSubmitted, UploadNewUnitFeedbackUnitSkipped, UploadNewUnitFeedbackWrongTutor, UploadNewUnitInvalidMimeType, UploadNewUnitUnknownMimeType } from '../../interactors/tutors/uploadNewUnitFeedbackInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

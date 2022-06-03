@@ -1,13 +1,13 @@
 import * as yup from 'yup';
 
-import type { IInteractor } from '..';
-import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import type { AccountType } from '../../domain/accountType';
-import type { StudentTypeType } from '../../domain/studentType';
-import type { IJWTService } from '../../services/jwt';
-import type { ILoggerService } from '../../services/logger';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import type { AccountType } from '../../domain/accountType.js';
+import type { StudentTypeType } from '../../domain/studentType.js';
+import type { IJWTService } from '../../services/jwt/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 type CheckAuthenticationRequestDTO = {
   accessToken: string;

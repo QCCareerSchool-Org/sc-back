@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { InsertNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
-import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateDescriptionTooLong, InsertNewAssignmentTemplateMarkingCriteriaTooLong, InsertNewAssignmentTemplateTitleTooLong, InsertNewAssignmentTemplateUnitNotFound, InsertNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor';
-import { BaseController } from '../baseController';
+import { insertNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor.js';
+import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateDescriptionTooLong, InsertNewAssignmentTemplateMarkingCriteriaTooLong, InsertNewAssignmentTemplateTitleTooLong, InsertNewAssignmentTemplateUnitNotFound, InsertNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

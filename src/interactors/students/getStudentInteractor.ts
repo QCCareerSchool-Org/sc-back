@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CountryDTO } from '../../domain/countryDTO';
-import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import type { ProvinceDTO } from '../../domain/provinceDTO';
-import type { StudentDTO } from '../../domain/students/studentDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { CountryDTO } from '../../domain/countryDTO.js';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { ProvinceDTO } from '../../domain/provinceDTO.js';
+import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type GetStudentRequestDTO = {
   studentId: number;

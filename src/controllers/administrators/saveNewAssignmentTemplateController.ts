@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
-import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor';
-import { BaseController } from '../baseController';
+import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

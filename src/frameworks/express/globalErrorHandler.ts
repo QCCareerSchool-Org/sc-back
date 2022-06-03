@@ -1,6 +1,6 @@
 import type { ErrorRequestHandler } from 'express';
 
-import { winstonLoggerService } from '../../services';
+import { winstonLoggerService } from '../../services/index.js';
 
 const INTERNAL_SERVER_ERROR_CODE = 500;
 

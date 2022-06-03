@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { environmentConfigService } from '../../services';
-import { BaseMiddleware } from '../baseMiddleware';
+import { environmentConfigService } from '../../services/index.js';
+import { BaseMiddleware } from '../baseMiddleware.js';
 
 export class LessonsStaticFilesMiddleware extends BaseMiddleware<void, void> {
   public static readonly path = environmentConfigService.config.paths.lessonsPath;

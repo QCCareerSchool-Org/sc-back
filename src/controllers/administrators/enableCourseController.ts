@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { enableCourseInteractor } from '../../interactors/administrators';
-import type { EnableCourseResponseDTO } from '../../interactors/administrators/enableCourseInteractor';
-import { EnableCourseNotFound, EnableCourseWrongUnitType } from '../../interactors/administrators/enableCourseInteractor';
-import { BaseController } from '../baseController';
+import type { EnableCourseResponseDTO } from '../../interactors/administrators/enableCourseInteractor.js';
+import { EnableCourseNotFound, EnableCourseWrongUnitType } from '../../interactors/administrators/enableCourseInteractor.js';
+import { enableCourseInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,15 +1,15 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO';
-import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO';
-import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO';
-import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO';
-import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
+import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
+import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
+import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type GetNewPartTemplateRequestDTO = {
   partId: string;

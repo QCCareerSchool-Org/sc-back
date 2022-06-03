@@ -1,12 +1,12 @@
-import { prisma } from '../../frameworks/prisma';
-import { dateService, environmentConfigService, ipaddrJSIPAddressService, jwtService, nodeCryptoService, nodeFileService, nodeMailerEmailService, passwordService, studentService, telephoneNumberService, uuidService, winstonLoggerService } from '../../services';
-import { CheckAuthenticationInteractor } from './checkAuthenticationInteractor';
-import { CreatePasswordResetInteractor } from './createPasswordResetInteractor';
-import { GetPasswordResetInteractor } from './getPasswordResetInteractor';
-import { LoginInteractor } from './loginInteractor';
-import { LogoutInteractor } from './logoutInteractor';
-import { RefreshInteractor } from './refreshInteractor';
-import { UsePasswordResetInteractor } from './usePasswordResetInteractor';
+import { prisma } from '../../frameworks/prisma/index.js';
+import { dateService, environmentConfigService, ipaddrJSIPAddressService, jwtService, nodeCryptoService, nodeFileService, nodeMailerEmailService, passwordService, studentService, telephoneNumberService, uuidService, winstonLoggerService } from '../../services/index.js';
+import { CheckAuthenticationInteractor } from './checkAuthenticationInteractor.js';
+import { CreatePasswordResetInteractor } from './createPasswordResetInteractor.js';
+import { GetPasswordResetInteractor } from './getPasswordResetInteractor.js';
+import { LoginInteractor } from './loginInteractor.js';
+import { LogoutInteractor } from './logoutInteractor.js';
+import { RefreshInteractor } from './refreshInteractor.js';
+import { UsePasswordResetInteractor } from './usePasswordResetInteractor.js';
 
 // use-case interactor singletons
 export const checkAuthenticationInteractor = new CheckAuthenticationInteractor(jwtService, winstonLoggerService);

@@ -1,11 +1,11 @@
-import type { BrowserDetectInfo } from 'browser-detect/dist/types/browser-detect.interface';
+import type { BrowserDetectInfo } from 'browser-detect/dist/types/browser-detect.interface.js';
 import type { CityResponse } from 'maxmind';
 import * as yup from 'yup';
 
-import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import { loginInteractor } from '../../interactors/authentication';
-import { LoginArears, LoginExpired, LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor';
-import { BaseController } from '../baseController';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import { loginInteractor } from '../../interactors/authentication/index.js';
+import { LoginArears, LoginExpired, LoginNoPasswordHash, LoginNotFound, LoginWrongPassword } from '../../interactors/authentication/loginInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   body: {

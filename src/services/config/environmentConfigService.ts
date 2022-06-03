@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-import type { Config, IConfigService } from '.';
+import type { Config, IConfigService } from './index.js';
 
 dotenv.config();
 

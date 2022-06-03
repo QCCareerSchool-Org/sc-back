@@ -1,4 +1,4 @@
-import type { IStudentService } from '.';
+import type { IStudentService } from './index.js';
 
 export class StudentService implements IStudentService {
 

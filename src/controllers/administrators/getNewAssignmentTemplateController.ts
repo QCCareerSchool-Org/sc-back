@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getNewAssignmentTemplateInteractor } from '../../interactors/administrators';
-import type { GetNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/getNewAssignmentTemplateInteractor';
-import { GetNewAssignmentTemplateNotFound } from '../../interactors/administrators/getNewAssignmentTemplateInteractor';
-import { BaseController } from '../baseController';
+import type { GetNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/getNewAssignmentTemplateInteractor.js';
+import { GetNewAssignmentTemplateNotFound } from '../../interactors/administrators/getNewAssignmentTemplateInteractor.js';
+import { getNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

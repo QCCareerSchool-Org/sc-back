@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewPartMediumInteractor } from '../../interactors/administrators';
-import type { SaveNewPartMediumResponseDTO } from '../../interactors/administrators/saveNewPartMediumInteractor';
-import { SaveNewPartMediumNotFound, SaveNewPartMediumOrderLessThanZero, SaveNewPartMediumOrderTooLarge, SaveNewPartMediumPartCaptionEmpty, SaveNewPartMediumPartCaptionTooLong, SaveNewPartMediumUnitsEnabled } from '../../interactors/administrators/saveNewPartMediumInteractor';
-import { BaseController } from '../baseController';
+import { saveNewPartMediumInteractor } from '../../interactors/administrators/index.js';
+import type { SaveNewPartMediumResponseDTO } from '../../interactors/administrators/saveNewPartMediumInteractor.js';
+import { SaveNewPartMediumNotFound, SaveNewPartMediumOrderLessThanZero, SaveNewPartMediumOrderTooLarge, SaveNewPartMediumPartCaptionEmpty, SaveNewPartMediumPartCaptionTooLong, SaveNewPartMediumUnitsEnabled } from '../../interactors/administrators/saveNewPartMediumInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

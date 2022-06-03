@@ -1,20 +1,20 @@
 import type { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
+import { Decimal } from '@prisma/client/runtime/index.js';
 
-import type { IInteractor } from '..';
-import type { AccessTokenPayload } from '../../domain/accessTokenPayload';
-import type { AccountType } from '../../domain/accountType';
-import { isValidStudentType } from '../../domain/studentType';
-import type { IConfigService } from '../../services/config';
-import type { ICryptoService } from '../../services/crypto';
-import type { IDateService } from '../../services/date';
-import type { IIPAddressService } from '../../services/ipaddress';
-import type { IJWTService } from '../../services/jwt';
-import type { ILoggerService } from '../../services/logger';
-import type { IStudentService } from '../../services/student';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import type { AccountType } from '../../domain/accountType.js';
+import { isValidStudentType } from '../../domain/studentType.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { ICryptoService } from '../../services/crypto/index.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { IIPAddressService } from '../../services/ipaddress/index.js';
+import type { IJWTService } from '../../services/jwt/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IStudentService } from '../../services/student/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 type LoginRequestDTO = {
   username: string;

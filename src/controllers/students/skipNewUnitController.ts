@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { skipNewUnitInteractor } from '../../interactors/students';
-import type { SkipNewUnitResponseDTO } from '../../interactors/students/skipNewUnitInteractor';
-import { SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/students/skipNewUnitInteractor';
-import { BaseController } from '../baseController';
+import { skipNewUnitInteractor } from '../../interactors/students/index.js';
+import type { SkipNewUnitResponseDTO } from '../../interactors/students/skipNewUnitInteractor.js';
+import { SkipNewUnitAlreadySubmitted, SkipNewUnitEnrollmentOnHold, SkipNewUnitNotFound } from '../../interactors/students/skipNewUnitInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

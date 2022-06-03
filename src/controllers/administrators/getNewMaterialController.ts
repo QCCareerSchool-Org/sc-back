@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getNewMaterialInteractor } from '../../interactors/administrators';
-import type { GetNewMaterialResponseDTO } from '../../interactors/administrators/getNewMaterialInteractor';
-import { GetNewMaterialNotFound } from '../../interactors/administrators/getNewMaterialInteractor';
-import { BaseController } from '../baseController';
+import type { GetNewMaterialResponseDTO } from '../../interactors/administrators/getNewMaterialInteractor.js';
+import { GetNewMaterialNotFound } from '../../interactors/administrators/getNewMaterialInteractor.js';
+import { getNewMaterialInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

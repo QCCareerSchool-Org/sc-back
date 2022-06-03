@@ -1,14 +1,14 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO';
-import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type EraseNewUploadSlotRequestDTO = {
   studentId: number;

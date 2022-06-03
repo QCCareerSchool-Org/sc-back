@@ -1,6 +1,6 @@
-import faker from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
-import { FisherYatesShuffleService } from './fisherYatesShuffleService';
+import { FisherYatesShuffleService } from './fisherYatesShuffleService.js';
 
 describe('FisherYatesShuffleService', () => {
   let fisherYatesShuffleService: FisherYatesShuffleService;

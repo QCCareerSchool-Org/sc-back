@@ -1,20 +1,20 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { IInteractor } from '..';
-import type { CourseDTO } from '../../domain/courseDTO';
-import type { EnrollmentDTO } from '../../domain/enrollmentDTO';
-import type { NewUnitDTO } from '../../domain/newUnitDTO';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import type { OldUnitDTO } from '../../domain/oldUnitDTO';
-import type { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO';
-import type { StudentDTO } from '../../domain/students/studentDTO';
-import type { TutorDTO } from '../../domain/tutorDTO';
-import type { IConfigService } from '../../services/config';
-import type { IFileService } from '../../services/file';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import type { ResultType } from '../result';
-import { Result } from '../result';
+import type { CourseDTO } from '../../domain/courseDTO.js';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
+import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
+import type { OldUnitDTO } from '../../domain/oldUnitDTO.js';
+import type { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO.js';
+import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { TutorDTO } from '../../domain/tutorDTO.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
 
 export type GetEnrollmentRequestDTO = {
   studentId: number;

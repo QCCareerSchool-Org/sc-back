@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { saveNewUploadSlotInteractor } from '../../interactors/tutors';
-import type { SaveNewUploadSlotResponseDTO } from '../../interactors/tutors/saveNewUploadSlotInteractor';
-import { SaveNewUploadSlotAlreadyReturned, SaveNewUploadSlotIncomplete, SaveNewUploadSlotMarkLessThanZero, SaveNewUploadSlotMarkTooHigh, SaveNewUploadSlotNotesTooLong, SaveNewUploadSlotNotFound, SaveNewUploadSlotUnitAlreadyClosed, SaveNewUploadSlotUnitNotSubmitted, SaveNewUploadSlotUnitSkipped, SaveNewUploadSlotWrongTutor, SaveNewUploadSlotZeroPoints } from '../../interactors/tutors/saveNewUploadSlotInteractor';
-import { BaseController } from '../baseController';
+import { saveNewUploadSlotInteractor } from '../../interactors/tutors/index.js';
+import type { SaveNewUploadSlotResponseDTO } from '../../interactors/tutors/saveNewUploadSlotInteractor.js';
+import { SaveNewUploadSlotAlreadyReturned, SaveNewUploadSlotIncomplete, SaveNewUploadSlotMarkLessThanZero, SaveNewUploadSlotMarkTooHigh, SaveNewUploadSlotNotesTooLong, SaveNewUploadSlotNotFound, SaveNewUploadSlotUnitAlreadyClosed, SaveNewUploadSlotUnitNotSubmitted, SaveNewUploadSlotUnitSkipped, SaveNewUploadSlotWrongTutor, SaveNewUploadSlotZeroPoints } from '../../interactors/tutors/saveNewUploadSlotInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

@@ -1,5 +1,5 @@
-import type { AccountType } from './accountType';
-import type { StudentTypeType } from './studentType';
+import type { AccountType } from './accountType.js';
+import type { StudentTypeType } from './studentType.js';
 
 export type Privileges = {
   unitPriceChange?: boolean;

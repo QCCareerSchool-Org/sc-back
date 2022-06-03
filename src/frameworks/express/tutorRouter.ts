@@ -1,21 +1,21 @@
 import { Router } from 'express';
 import multer from 'multer';
 
-import { CloseNewUnitController } from '../../controllers/tutors/closeNewUnitController';
-import { DownloadNewUnitFeedbackController } from '../../controllers/tutors/downloadNewAssignmentFeedbackController';
-import { DownloadNewAssignmentMediumController } from '../../controllers/tutors/downloadNewAssignmentMediumController';
-import { DownloadNewPartMediumController } from '../../controllers/tutors/downloadNewPartMediumController';
-import { DownloadNewUploadSlotController } from '../../controllers/tutors/downloadNewUploadSlotController';
-import { EraseNewUnitFeedbackController } from '../../controllers/tutors/eraseNewAssignmentFeedbackController';
-import { GetNewAssignmentController } from '../../controllers/tutors/getNewAssignmentController';
-import { GetNewUnitController } from '../../controllers/tutors/getNewUnitController';
-import { ReturnNewUnitController } from '../../controllers/tutors/returnNewUnitController';
-import { SaveNewTextBoxController } from '../../controllers/tutors/saveNewTextBoxController';
-import { SaveNewUploadSlotController } from '../../controllers/tutors/saveNewUploadSlotController';
-import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware';
-import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController';
-import type { Route } from './applyRoutes';
-import { applyRoutes } from './applyRoutes';
+import { CloseNewUnitController } from '../../controllers/tutors/closeNewUnitController.js';
+import { DownloadNewUnitFeedbackController } from '../../controllers/tutors/downloadNewAssignmentFeedbackController.js';
+import { DownloadNewAssignmentMediumController } from '../../controllers/tutors/downloadNewAssignmentMediumController.js';
+import { DownloadNewPartMediumController } from '../../controllers/tutors/downloadNewPartMediumController.js';
+import { DownloadNewUploadSlotController } from '../../controllers/tutors/downloadNewUploadSlotController.js';
+import { EraseNewUnitFeedbackController } from '../../controllers/tutors/eraseNewAssignmentFeedbackController.js';
+import { GetNewAssignmentController } from '../../controllers/tutors/getNewAssignmentController.js';
+import { GetNewUnitController } from '../../controllers/tutors/getNewUnitController.js';
+import { ReturnNewUnitController } from '../../controllers/tutors/returnNewUnitController.js';
+import { SaveNewTextBoxController } from '../../controllers/tutors/saveNewTextBoxController.js';
+import { SaveNewUploadSlotController } from '../../controllers/tutors/saveNewUploadSlotController.js';
+import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware.js';
+import { UploadNewUnitFeedbackController } from '../../controllers/tutors/uploadNewAssignmentFeedbackController.js';
+import type { Route } from './applyRoutes.js';
+import { applyRoutes } from './applyRoutes.js';
 
 export const tutorRouter = Router();
 

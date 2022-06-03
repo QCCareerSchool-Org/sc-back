@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { initializeNextNewUnitInteractor } from '../../interactors/students';
-import type { InitializeNextNewUnitResponseDTO } from '../../interactors/students/initializeNextNewUnitInteractor';
-import { InitializeNextCourseDisabled, InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitDefaultPriceNotFound, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitMultipleDefaultPricesFound, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor';
-import { BaseController } from '../baseController';
+import { initializeNextNewUnitInteractor } from '../../interactors/students/index.js';
+import type { InitializeNextNewUnitResponseDTO } from '../../interactors/students/initializeNextNewUnitInteractor.js';
+import { InitializeNextCourseDisabled, InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitDefaultPriceNotFound, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitMultipleDefaultPricesFound, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

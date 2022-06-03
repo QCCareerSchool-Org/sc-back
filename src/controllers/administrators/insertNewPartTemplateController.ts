@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { insertNewPartTemplateInteractor } from '../../interactors/administrators';
-import type { InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplateMarkingCriteriaTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor';
-import { BaseController } from '../baseController';
+import { insertNewPartTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor.js';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplateMarkingCriteriaTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {

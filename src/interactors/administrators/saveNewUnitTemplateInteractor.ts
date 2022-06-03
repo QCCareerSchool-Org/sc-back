@@ -1,12 +1,12 @@
 import type { NewUnitTemplate, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
-import type { IInteractor } from '..';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO';
-import type { ILoggerService } from '../../services/logger';
-import type { IUUIDService } from '../../services/uuid';
-import { Result } from '../result';
-import type { ResultType } from '../result';
+import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
 export type SaveNewUnitTemplateRequestDTO = {
   unitId: string;

@@ -1,5 +1,6 @@
 import type { Stream } from 'stream';
-import type { ResultType } from './result';
+
+import type { ResultType } from './result.js';
 
 export class InsufficientPrivileges extends Error { }
 

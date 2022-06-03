@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
-import { getCourseInteractor } from '../../interactors/administrators';
-import type { GetCourseResponseDTO } from '../../interactors/administrators/getCourseInteractor';
-import { GetCourseNotFound } from '../../interactors/administrators/getCourseInteractor';
-import { BaseController } from '../baseController';
+import type { GetCourseResponseDTO } from '../../interactors/administrators/getCourseInteractor.js';
+import { GetCourseNotFound } from '../../interactors/administrators/getCourseInteractor.js';
+import { getCourseInteractor } from '../../interactors/administrators/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {
