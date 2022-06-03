@@ -1,20 +1,16 @@
-// /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {},
   resetMocks: true,
-  testPathIgnorePatterns: [
-    'dist',
-  ],
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: [
-    'dist',
-  ],
+  coverageProvider: 'v8',
   globals: {
     'ts-jest': {
       useESM: true,
+      isolatedModules: true,
     },
   },
   moduleNameMapper: {
