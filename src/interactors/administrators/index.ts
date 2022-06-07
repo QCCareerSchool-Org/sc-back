@@ -3,6 +3,7 @@ import { axiosHttpService, dateService, environmentConfigService, extractZipUnzi
 import { CloseNewUnitReturnInteractor } from './closeNewUnitReturnInteractor.js';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor.js';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor.js';
+import { DeleteNewMaterialInteractor } from './deleteNewMaterialInteractor.js';
 import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor.js';
 import { DeleteNewPartTemplateInteractor } from './deleteNewPartTemplateInteractor.js';
 import { DeleteNewTextBoxTemplateInteractor } from './deleteNewTextBoxTemplateInteractor.js';
@@ -111,3 +112,4 @@ export const getNewMaterialInteractor = new GetNewMaterialInteractor(prisma, uui
 export const insertNewMaterialInteractor = new InsertNewMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
 export const saveNewMaterialInteractor = new SaveNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const replaceNewMaterialFileInteractor = new ReplaceNewMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
+export const deleteNewMaterialInteractor = new DeleteNewMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);

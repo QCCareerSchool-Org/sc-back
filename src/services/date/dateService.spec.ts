@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+import type { SpyInstance } from 'jest-mock';
 import { DateService } from './dateService.js';
 
 describe('dateService', () => {
@@ -10,9 +12,10 @@ describe('dateService', () => {
   describe('getDate', () => {
 
     it('should return the current date', () => {
-      const now = new Date().getTime();
-      expect(dateService.getDate().getTime()).toBeGreaterThanOrEqual(now - 20);
-      expect(dateService.getDate().getTime()).toBeLessThanOrEqual(now + 20);
+      const mockDate = new Date(1466424490000);
+      const dateSpy = jest.spyOn(global, 'Date') as SpyInstance<unknown, []> as SpyInstance<Date, []>;
+      dateSpy.mockImplementation(() => mockDate);
+      expect(dateService.getDate().getTime()).toBe(1466424490000);
     });
   });
 

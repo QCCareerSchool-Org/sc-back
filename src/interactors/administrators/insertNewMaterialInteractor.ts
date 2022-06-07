@@ -58,7 +58,7 @@ export class InsertNewMaterialContentTypeMissing extends InsertNewMaterialError 
 
 export class InsertNewMaterialInteractor implements IInteractor<InsertNewMaterialRequestDTO, InsertNewMaterialResponseDTO> {
   public static allowedMimeTypes = [
-    'application/z-zip-compressed',
+    'application/x-zip-compressed',
     'image/jpeg',
     'image/png',
     'image/svg',
@@ -179,7 +179,7 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
       ? await this.mimeTypeService.getTypeFromFile(request.fileData.path)
       : request.fileData.mimeType;
 
-    if (mimeType !== 'application/zip') {
+    if (mimeType !== 'application/x-zip-compressed') {
       throw new InsertNewMaterialInvalidMimeType(mimeType);
     }
 

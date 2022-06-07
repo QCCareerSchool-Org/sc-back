@@ -5,6 +5,7 @@ import { AdministratorGuardMiddleware } from '../../controllers/administrators/a
 import { CloseNewUnitReturnController } from '../../controllers/administrators/closeNewUnitReturnController.js';
 import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController.js';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController.js';
+import { DeleteNewMaterialController } from '../../controllers/administrators/deleteNewMaterialController.js';
 import { DeleteNewPartMediumController } from '../../controllers/administrators/deleteNewPartMediumController.js';
 import { DeleteNewPartTemplateController } from '../../controllers/administrators/deleteNewPartTemplateController.js';
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController.js';
@@ -23,6 +24,7 @@ import { GetCountryController } from '../../controllers/administrators/getCountr
 import { GetCourseController } from '../../controllers/administrators/getCourseController.js';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController.js';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController.js';
+import { GetNewMaterialController } from '../../controllers/administrators/getNewMaterialController.js';
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController.js';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController.js';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController.js';
@@ -116,8 +118,10 @@ const routes: Route[] = [
   // new materials
   [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
   [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'get', '/:administratorId/newMaterials/:materialId', GetNewMaterialController ],
   [ 'put', '/:administratorId/newMaterials/:materialId', SaveNewMaterialController ],
   [ 'post', '/:administratorId/newMaterials/:materialId/file', ReplaceNewMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'delete', '/:administratorId/newMaterials/:materialId', DeleteNewMaterialController ],
 ];
 
 applyRoutes(administratorRouter, routes);

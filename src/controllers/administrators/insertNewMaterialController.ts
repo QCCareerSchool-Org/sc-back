@@ -95,8 +95,6 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
       return this.methodNotAllowed();
     }
 
-    console.log(file);
-
     const result = await insertNewMaterialInteractor.execute({
       courseId: body.courseId,
       type: body.type,
