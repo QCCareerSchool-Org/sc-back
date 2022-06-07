@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { jest } from '@jest/globals';
 import type { Course, Currency, NewUnitTemplate, NewUnitTemplatePrice, PrismaClient, School } from '@prisma/client';
 
 import type { ILoggerService } from '../../../services/logger/index.js';
@@ -13,15 +14,11 @@ type MockPrismaClient = {
   };
 };
 
-type MockLogger = {
-  error: jest.Mock;
-};
-
 describe('GetCourseInteractor', () => {
 
   let mockPrisma: MockPrismaClient;
   let uuidService: IUUIDService;
-  let mockLogger: MockLogger;
+  let mockLogger: ILoggerService;
 
   let interactor: GetCourseInteractor;
   let courseId: number;
@@ -46,6 +43,8 @@ describe('GetCourseInteractor', () => {
 
     mockLogger = {
       error: jest.fn(() => { /* */ }),
+      warn: jest.fn(() => { /* */ }),
+      info: jest.fn(() => { /* */ }),
     };
 
     interactor = new GetCourseInteractor(mockPrisma as unknown as PrismaClient, uuidService, mockLogger as unknown as ILoggerService);
