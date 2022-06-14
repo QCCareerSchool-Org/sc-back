@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
-import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateDescriptionTypeEmpty, SaveNewAssignmentTemplateInvalidDescriptionType, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -16,6 +16,7 @@ type Request = {
     assignmentNumber: number;
     title: string | null;
     description: string | null;
+    descriptionType: string;
     markingCriteria: string | null;
     optional: boolean;
   };
@@ -34,6 +35,7 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
       assignmentNumber: yup.number().defined(),
       title: yup.string().nullable().defined(),
       description: yup.string().nullable().defined(),
+      descriptionType: yup.string().defined(),
       markingCriteria: yup.string().nullable().defined(),
       optional: yup.boolean().defined(),
     });
@@ -63,6 +65,7 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
       assignmentNumber: body.assignmentNumber,
       title: body.title,
       description: body.description,
+      descriptionType: body.descriptionType,
       markingCriteria: body.markingCriteria,
       optional: body.optional,
     });
@@ -84,6 +87,10 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
         return this.badRequest('Title length exceeds maximum');
       case SaveNewAssignmentTemplateDescriptionTooLong:
         return this.badRequest('Description length exceeds maximum');
+      case SaveNewAssignmentTemplateDescriptionTypeEmpty:
+        return this.badRequest('Description type is empty');
+      case SaveNewAssignmentTemplateInvalidDescriptionType:
+        return this.badRequest('Invalid description type');
       case SaveNewAssignmentTemplateMarkingCriteriaTooLong:
         return this.badRequest('Marking criteria length exceeds maximum');
       case SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse:

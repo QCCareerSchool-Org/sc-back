@@ -1259,6 +1259,7 @@ model NewAssignmentTemplate {
   assignmentNumber     Int                   @db.UnsignedInt @map("assignment_number")
   title                String?
   description          String?               @db.Text
+  descriptionType      NewDescriptionType    @default(text) @map("description_type")
   markingCriteria      String?               @db.Text @map("marking_criteria")
   optional             Boolean               @default(false)
   created              DateTime              @default(now()) @db.Timestamp(0)
@@ -1277,6 +1278,7 @@ model NewAssignment {
   assignmentNumber   Int                                  @db.UnsignedInt @map("assignment_number")
   title              String?
   description        String?                              @db.Text
+  descriptionType    NewDescriptionType                   @default(text) @map("description_type")
   markingCriteria    String?                              @db.Text @map("marking_criteria")
   optional           Boolean                              @default(false)
   // complete           Boolean                              @default(false)

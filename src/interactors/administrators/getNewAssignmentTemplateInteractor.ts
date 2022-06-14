@@ -64,6 +64,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         assignmentNumber: assignmentTemplate.assignmentNumber,
         title: assignmentTemplate.title,
         description: assignmentTemplate.description,
+        descriptionType: assignmentTemplate.descriptionType,
         markingCriteria: assignmentTemplate.markingCriteria,
         optional: assignmentTemplate.optional,
         created: assignmentTemplate.created,

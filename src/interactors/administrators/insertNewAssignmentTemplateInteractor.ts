@@ -2,6 +2,7 @@ import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -13,6 +14,7 @@ export type InsertNewAssignmentTemplateRequestDTO = {
   assignmentNumber: number;
   title: string | null;
   description: string | null;
+  descriptionType: string;
   markingCriteria: string | null;
   optional: boolean;
 };
@@ -25,6 +27,8 @@ export class InsertNewAssignmentTemplateAssignmentNumberLessThanOne extends Erro
 export class InsertNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class InsertNewAssignmentTemplateTitleTooLong extends Error { }
 export class InsertNewAssignmentTemplateDescriptionTooLong extends Error { }
+export class InsertNewAssignmentTemplateDescriptionTypeEmpty extends Error { }
+export class InsertNewAssignmentTemplateInvalidDescriptionType extends Error { }
 export class InsertNewAssignmentTemplateMarkingCriteriaTooLong extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
 
@@ -38,7 +42,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
 
   public async execute(request: InsertNewAssignmentTemplateRequestDTO): Promise<ResultType<InsertNewAssignmentTemplateResponseDTO>> {
     try {
-      const { assignmentNumber, title, description, markingCriteria, optional } = request;
+      const { assignmentNumber, title, description, descriptionType, markingCriteria, optional } = request;
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
       // find the unit template
@@ -74,6 +78,13 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         }
       }
 
+      if (descriptionType.length === 0) {
+        return Result.fail(new InsertNewAssignmentTemplateDescriptionTypeEmpty());
+      }
+      if (!isNewDescriptionType(descriptionType)) {
+        return Result.fail(new InsertNewAssignmentTemplateInvalidDescriptionType());
+      }
+
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
           return Result.fail(new InsertNewAssignmentTemplateMarkingCriteriaTooLong());
@@ -90,6 +101,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
           },
@@ -110,6 +122,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         assignmentNumber: insertedAssignmentTemplate.assignmentNumber,
         title: insertedAssignmentTemplate.title,
         description: insertedAssignmentTemplate.description,
+        descriptionType: insertedAssignmentTemplate.descriptionType,
         markingCriteria: insertedAssignmentTemplate.markingCriteria,
         optional: insertedAssignmentTemplate.optional,
         created: insertedAssignmentTemplate.created,

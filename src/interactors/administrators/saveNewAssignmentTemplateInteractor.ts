@@ -2,6 +2,7 @@ import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
+import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -13,6 +14,7 @@ export type SaveNewAssignmentTemplateRequestDTO = {
   assignmentNumber: number;
   title: string | null;
   description: string | null;
+  descriptionType: string;
   markingCriteria: string | null;
   optional: boolean;
 };
@@ -25,6 +27,8 @@ export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends Error 
 export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class SaveNewAssignmentTemplateTitleTooLong extends Error { }
 export class SaveNewAssignmentTemplateDescriptionTooLong extends Error { }
+export class SaveNewAssignmentTemplateDescriptionTypeEmpty extends Error { }
+export class SaveNewAssignmentTemplateInvalidDescriptionType extends Error { }
 export class SaveNewAssignmentTemplateMarkingCriteriaTooLong extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
 
@@ -38,7 +42,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
 
   public async execute(request: SaveNewAssignmentTemplateRequestDTO): Promise<ResultType<SaveNewAssignmentTemplateResponseDTO>> {
     try {
-      const { assignmentNumber, title, description, markingCriteria, optional } = request;
+      const { assignmentNumber, title, description, descriptionType, markingCriteria, optional } = request;
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
 
       // find the assignment template
@@ -76,6 +80,13 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         }
       }
 
+      if (descriptionType.length === 0) {
+        return Result.fail(new SaveNewAssignmentTemplateDescriptionTypeEmpty());
+      }
+      if (!isNewDescriptionType(descriptionType)) {
+        return Result.fail(new SaveNewAssignmentTemplateInvalidDescriptionType());
+      }
+
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
           return Result.fail(new SaveNewAssignmentTemplateMarkingCriteriaTooLong());
@@ -90,6 +101,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
+            descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
           },
@@ -111,6 +123,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         assignmentNumber: updatedAssignmentTemplate.assignmentNumber,
         title: updatedAssignmentTemplate.title,
         description: updatedAssignmentTemplate.description,
+        descriptionType: updatedAssignmentTemplate.descriptionType,
         markingCriteria: updatedAssignmentTemplate.markingCriteria,
         optional: updatedAssignmentTemplate.optional,
         created: updatedAssignmentTemplate.created,

@@ -73,6 +73,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
           return Result.fail(new InsertNewPartTemplateDescriptionTooLong());
         }
       }
+
       if (descriptionType.length === 0) {
         return Result.fail(new InsertNewPartTemplateDescriptionTypeEmpty());
       }

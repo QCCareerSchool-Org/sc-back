@@ -95,6 +95,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         assignmentNumber: newAssignment.assignmentNumber,
         title: newAssignment.title,
         description: newAssignment.description,
+        descriptionType: newAssignment.descriptionType,
         markingCriteria: newAssignment.markingCriteria,
         optional: newAssignment.optional,
         created: newAssignment.created,

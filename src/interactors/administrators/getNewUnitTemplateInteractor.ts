@@ -84,6 +84,7 @@ export class GetNewUnitTemplateInteractor implements IInteractor<GetNewUnitTempl
           assignmentNumber: a.assignmentNumber,
           title: a.title,
           description: a.description,
+          descriptionType: a.descriptionType,
           markingCriteria: a.markingCriteria,
           optional: a.optional,
           created: a.created,

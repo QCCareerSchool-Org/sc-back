@@ -170,6 +170,7 @@ export class InitializeNextNewUnitInteractor implements IInteractor<InitializeNe
                 assignmentNumber: newAssignmentTemplate.assignmentNumber,
                 title: newAssignmentTemplate.title,
                 description: newAssignmentTemplate.description,
+                descriptionType: newAssignmentTemplate.descriptionType,
                 markingCriteria: newAssignmentTemplate.markingCriteria,
                 optional: newAssignmentTemplate.optional,
                 newParts: {

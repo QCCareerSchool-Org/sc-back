@@ -73,6 +73,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
           return Result.fail(new SaveNewPartTemplateDescriptionTooLong());
         }
       }
+
       if (descriptionType.length === 0) {
         return Result.fail(new SaveNewPartTemplateDescriptionTypeEmpty());
       }

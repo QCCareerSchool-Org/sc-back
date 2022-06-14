@@ -1,3 +1,5 @@
+import type { NewDescriptionType } from './newDescriptionType.js';
+
 export type NewAssignmentDTO = {
   /** uuid */
   assignmentId: string;
@@ -6,6 +8,7 @@ export type NewAssignmentDTO = {
   assignmentNumber: number;
   title: string | null;
   description: string | null;
+  descriptionType: NewDescriptionType;
   /** should always be null for students */
   markingCriteria: string | null;
   optional: boolean;

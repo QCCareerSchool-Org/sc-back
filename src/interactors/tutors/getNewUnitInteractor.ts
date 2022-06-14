@@ -208,6 +208,7 @@ export class GetNewUnitInteractor implements IInteractor<GetNewUnitRequestDTO, G
             assignmentNumber: a.assignmentNumber,
             title: a.title,
             description: a.description,
+            descriptionType: a.descriptionType,
             markingCriteria: a.markingCriteria,
             optional: a.optional,
             complete: assignmentComplete,

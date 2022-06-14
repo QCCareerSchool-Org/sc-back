@@ -76,6 +76,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         assignmentNumber: assignment.assignmentNumber,
         title: assignment.title,
         description: assignment.description,
+        descriptionType: assignment.descriptionType,
         markingCriteria: null, // students should never see the marking criteria
         optional: assignment.optional,
         created: assignment.created,
