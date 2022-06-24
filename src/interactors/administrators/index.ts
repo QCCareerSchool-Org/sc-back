@@ -16,7 +16,6 @@ import { EnableCourseInteractor } from './enableCourseInteractor.js';
 import { GetAllCountriesInteractor } from './getAllCountriesInteractor.js';
 import { GetAllCoursesInteractor } from './getAllCoursesInteractor.js';
 import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor.js';
-import { GetAllNewMaterialsInteractor } from './getAllNewMaterialsInteractor.js';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor.js';
 import { GetCountryInteractor } from './getCountryInteractor.js';
 import { GetCourseInteractor } from './getCourseInteractor.js';
@@ -107,7 +106,6 @@ export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePr
 export const getNewUnitReturnInteractor = new GetNewUnitReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const closeNewUnitReturnInteractor = new CloseNewUnitReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
-export const getAllNewMaterialsInteractor = new GetAllNewMaterialsInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewMaterialInteractor = new GetNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const insertNewMaterialInteractor = new InsertNewMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
 export const saveNewMaterialInteractor = new SaveNewMaterialInteractor(prisma, uuidService, winstonLoggerService);

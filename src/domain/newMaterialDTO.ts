@@ -3,11 +3,11 @@ export type MaterialType = 'lesson' | 'video' | 'download' | 'assignment';
 export type NewMaterialDTO = {
   /** uuid string */
   materialId: string;
-  courseId: number;
+  /** uuid string */
+  materialUnitId: string;
   type: MaterialType;
   title: string;
   description: string;
-  unitLetter: string;
   order: number;
   filename: string | null;
   mimeTypeId: string | null;

@@ -2,6 +2,8 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewMaterialDTO } from '../../domain/newMaterialDTO.js';
+import type { NewMaterialUnitDTO } from '../../domain/newMaterialUnitDTO.js';
 import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
 import type { OldUnitDTO } from '../../domain/oldUnitDTO.js';
@@ -26,6 +28,9 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   course: CourseDTO & {
     oldUnitTemplates: OldUnitTemplateDTO[];
     newUnitTemplates: NewUnitTemplateDTO[];
+    newMaterialUnits: Array<NewMaterialUnitDTO & {
+      newMaterials: NewMaterialDTO[];
+    }>;
   };
   tutor: TutorDTO | null;
   oldUnits: OldUnitDTO[];
@@ -50,10 +55,35 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         where: { studentId, courseId },
         include: {
           student: true,
-          course: { include: { newUnitTemplates: true, oldUnitTemplates: true } },
+          course: {
+            include: {
+              newUnitTemplates: true,
+              oldUnitTemplates: true,
+              newMaterialUnits: {
+                include: { newMaterials: { orderBy: [ { order: 'asc' } ] } },
+                orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
+              },
+            },
+          },
           tutor: true,
           oldUnits: true,
-          newUnits: { include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } } },
+          newUnits: {
+            include: {
+              newAssignments: {
+                include: {
+                  newParts: {
+                    include: {
+                      newTextBoxes: { orderBy: [ { order: 'asc' } ] },
+                      newUploadSlots: { orderBy: [ { order: 'asc' } ] },
+                    },
+                    orderBy: [ { partNumber: 'asc' } ],
+                  },
+                },
+                orderBy: [ { assignmentNumber: 'asc' } ],
+              },
+            },
+            orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
+          },
         },
       });
 
@@ -143,6 +173,24 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             order: unit.order,
             created: unit.created,
             modified: unit.modified,
+          })),
+          newMaterialUnits: enrollment.course.newMaterialUnits.map(materialUnit => ({
+            materialUnitId: this.uuidService.binToUUID(materialUnit.materialUnitId),
+            courseId: materialUnit.courseId,
+            unitLetter: materialUnit.unitLetter,
+            title: materialUnit.title,
+            order: materialUnit.order,
+            newMaterials: materialUnit.newMaterials.map(material => ({
+              materialId: this.uuidService.binToUUID(material.materialId),
+              materialUnitId: this.uuidService.binToUUID(material.materialUnitId),
+              type: material.type,
+              title: material.title,
+              description: material.description,
+              order: material.order,
+              filename: material.filename,
+              mimeTypeId: material.mimeTypeId,
+              externalData: material.externalData,
+            })),
           })),
         },
         tutor: enrollment.tutor === null ? null : {

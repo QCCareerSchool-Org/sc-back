@@ -18,7 +18,6 @@ import { EnableCourseController } from '../../controllers/administrators/enableC
 import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController.js';
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController.js';
 import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController.js';
-import { GetAllNewMaterialsController } from '../../controllers/administrators/getAllNewMaterialsController.js';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController.js';
 import { GetCountryController } from '../../controllers/administrators/getCountryController.js';
 import { GetCourseController } from '../../controllers/administrators/getCourseController.js';
@@ -116,7 +115,7 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
   [ 'put', '/:administratorId/newUnitReturns/:unitReturnId', CloseNewUnitReturnController ],
   // new materials
-  [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
+  // [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
   [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).single('file') ],
   [ 'get', '/:administratorId/newMaterials/:materialId', GetNewMaterialController ],
   [ 'put', '/:administratorId/newMaterials/:materialId', SaveNewMaterialController ],

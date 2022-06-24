@@ -29,7 +29,6 @@ export class ReplaceNewMaterialFileInvalidMimeType extends ReplaceNewMaterialFil
 export class ReplaceNewMaterialFileSaveError extends ReplaceNewMaterialFileError { }
 
 export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewMaterialFileRequestDTO, ReplaceNewMaterialFileResponseDTO> {
-  private static readonly maxFilesize = 33_554_432; // 33 MiB
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -60,13 +59,16 @@ export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewM
       try {
         updatedMaterial = await this.prisma.$transaction(async transaction => {
 
-          const material = await transaction.newMaterial.findUnique({ where: { materialId: materialIdBin } });
+          const material = await transaction.newMaterial.findUnique({
+            include: { newMaterialUnit: true },
+            where: { materialId: materialIdBin },
+          });
           if (!material) {
             throw new ReplaceNewMaterialFileMaterialNotFound();
           }
 
           try {
-            await this.extract(material.materialId, material.courseId, request.fileData);
+            await this.extract(material.materialId, material.newMaterialUnit.courseId, request.fileData);
           } catch (err) {
             this.logger.error('Unable to extract material', err);
             throw new ReplaceNewMaterialFileSaveError();
@@ -83,11 +85,10 @@ export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewM
 
       return Result.success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
-        courseId: updatedMaterial.courseId,
+        materialUnitId: this.uuidService.binToUUID(updatedMaterial.materialUnitId),
         type: materialType(updatedMaterial.type),
         title: updatedMaterial.title,
         description: updatedMaterial.description,
-        unitLetter: updatedMaterial.unitLetter,
         order: updatedMaterial.order,
         filename: updatedMaterial.filename,
         mimeTypeId: updatedMaterial.mimeTypeId,

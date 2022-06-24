@@ -4,7 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import { insertNewMaterialInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewMaterialResponseDTO } from '../../interactors/administrators/insertNewMaterialInteractor.js';
-import { InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialCourseNotFound, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileMissing, InsertNewMaterialFilePresent, InsertNewMaterialFileSaveError, InsertNewMaterialFileTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong } from '../../interactors/administrators/insertNewMaterialInteractor.js';
+import { InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileMissing, InsertNewMaterialFilePresent, InsertNewMaterialFileSaveError, InsertNewMaterialFileTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong, InsertNewMaterialUnitNotFound } from '../../interactors/administrators/insertNewMaterialInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -14,11 +14,11 @@ type Request = {
     administratorId: string;
   };
   body: {
-    courseId: number;
+    /** uuid */
+    materialUnitId: string;
     title: string;
     type: 'lesson' | 'video' | 'download' | 'assignment';
     description: string;
-    unitLetter: string;
     order: number;
     externalData?: string | null; // because we're accepting multi-part/form-data, we have to accept undefined
   };
@@ -46,11 +46,10 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
       administratorId: yup.string().matches(/^\d+$/u).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      courseId: yup.number().defined(),
+      materialUnitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       type: yup.string().oneOf([ 'lesson', 'video', 'download', 'assignment' ]).defined() as yup.StringSchema<'lesson' | 'video' | 'download' | 'assignment'>,
       title: yup.string().defined(),
       description: yup.string().defined(),
-      unitLetter: yup.string().defined(),
       order: yup.number().defined(),
       externalData: yup.string().nullable(),
     });
@@ -96,11 +95,10 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
     }
 
     const result = await insertNewMaterialInteractor.execute({
-      courseId: body.courseId,
+      materialUnitId: body.materialUnitId,
       type: body.type,
       title: body.title,
       description: body.description,
-      unitLetter: body.unitLetter,
       order: body.order,
       externalData: body.externalData ?? null,
       fileData: typeof file === 'undefined' ? undefined : {
@@ -119,8 +117,8 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
     switch (result.error.constructor) {
       case InsufficientPrivileges:
         return this.forbidden('Insufficient privileges');
-      case InsertNewMaterialCourseNotFound:
-        return this.notFound('Course not found');
+      case InsertNewMaterialUnitNotFound:
+        return this.notFound('Unit not found');
       case InsertNewMaterialIncorrectUnitType:
         return this.badRequest('Incorrect unit type');
       case InsertNewMaterialTitleEmpty:

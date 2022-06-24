@@ -38,11 +38,10 @@ export class GetNewMaterialInteractor implements IInteractor<GetNewMaterialReque
 
       return Result.success({
         materialId: this.uuidService.binToUUID(material.materialId),
-        courseId: material.courseId,
+        materialUnitId: this.uuidService.binToUUID(material.materialUnitId),
         type: materialType(material.type),
         title: material.title,
         description: material.description,
-        unitLetter: material.unitLetter,
         order: material.order,
         filename: material.filename,
         mimeTypeId: material.mimeTypeId,

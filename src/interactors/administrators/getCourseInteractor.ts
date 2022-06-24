@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { CurrencyDTO } from '../../domain/currencyDTO.js';
+import type { NewMaterialUnitDTO } from '../../domain/newMaterialUnitDTO.js';
 import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
 import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
@@ -22,6 +23,7 @@ export type GetCourseResponseDTO = CourseDTO & {
       currency: CurrencyDTO;
     }>;
   }>;
+  newMaterialUnits: NewMaterialUnitDTO[];
 };
 
 export class GetCourseNotFound extends Error { }
@@ -42,6 +44,10 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           school: true,
           newUnitTemplates: {
             include: { prices: { include: { currency: true } } },
+            orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
+          },
+          newMaterialUnits: {
+            include: { newMaterials: { orderBy: [ { order: 'asc' } ] } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
         },
@@ -98,6 +104,13 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
               symbol: p.currency.symbol,
             },
           })),
+        })),
+        newMaterialUnits: course.newMaterialUnits.map(u => ({
+          materialUnitId: this.uuidService.binToUUID(u.materialUnitId),
+          courseId: u.courseId,
+          unitLetter: u.unitLetter,
+          title: u.title,
+          order: u.order,
         })),
       });
 

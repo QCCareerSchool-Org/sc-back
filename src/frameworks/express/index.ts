@@ -13,6 +13,7 @@ import { asyncWrapper } from './asyncWrapper.js';
 import { authenticationRouter } from './authenticationRouter.js';
 import { globalErrorHandler } from './globalErrorHandler.js';
 import { multerErrorHandler } from './multerErrorHandler.js';
+import { router } from './router.js';
 import { studentRouter } from './studentRouter.js';
 import { tutorRouter } from './tutorRouter.js';
 
@@ -31,6 +32,8 @@ app.use(compression());
 app.use(express.json({ limit: 524_288 })); // 512 KB
 app.use(cookieParser());
 app.use(cors(corsOptions));
+
+app.use('/v1', router);
 
 app.use('/v1/auth', authenticationRouter);
 

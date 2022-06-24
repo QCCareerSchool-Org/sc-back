@@ -1,4 +1,6 @@
 import type { Stream } from 'stream';
+import { environmentConfigService, nodeFileService, winstonLoggerService } from '../services/index.js';
+import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
 
 import type { ResultType } from './result.js';
 
@@ -40,3 +42,5 @@ export type InteractorFileStreamDownload = {
   byteRange?: { start: number; end: number };
   download?: boolean;
 };
+
+export const downloadCourseHeaderImageInteractor = new DownloadCourseHeaderImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);

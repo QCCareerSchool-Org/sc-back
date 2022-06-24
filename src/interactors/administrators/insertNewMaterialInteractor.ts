@@ -1,4 +1,4 @@
-import type { NewMaterial, PrismaClient } from '@prisma/client';
+import type { NewMaterial, NewMaterialUnit, PrismaClient } from '@prisma/client';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { NewMaterialDTO } from '../../domain/newMaterialDTO.js';
@@ -16,11 +16,10 @@ import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
 export type InsertNewMaterialRequestDTO = {
-  courseId: number;
+  materialUnitId: string;
   title: string;
   type: 'lesson' | 'video' | 'download' | 'assignment';
   description: string;
-  unitLetter: string;
   order: number;
   externalData: string | null;
   fileData?: InteractorFileDiskUpload;
@@ -31,7 +30,7 @@ export type InsertNewMaterialResponseDTO = NewMaterialDTO;
 
 abstract class InsertNewMaterialError extends Error { }
 
-export class InsertNewMaterialCourseNotFound extends InsertNewMaterialError { }
+export class InsertNewMaterialUnitNotFound extends InsertNewMaterialError { }
 export class InsertNewMaterialIncorrectUnitType extends InsertNewMaterialError { }
 export class InsertNewMaterialTitleEmpty extends InsertNewMaterialError { }
 export class InsertNewMaterialTitleTooLong extends InsertNewMaterialError { }
@@ -86,14 +85,12 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         return Result.fail(new InsufficientPrivileges());
       }
 
-      // find the course
-      const course = await this.prisma.course.findUnique({ where: { courseId: request.courseId } });
-      if (!course) {
-        return Result.fail(new InsertNewMaterialCourseNotFound());
-      }
+      const materialUnitIdBin = this.uuidService.uuidToBin(request.materialUnitId);
 
-      if (course.unitType !== 1) {
-        return Result.fail(new InsertNewMaterialIncorrectUnitType());
+      // find the material unit
+      const materialUnit = await this.prisma.newMaterialUnit.findUnique({ where: { materialUnitId: materialUnitIdBin } });
+      if (!materialUnit) {
+        return Result.fail(new InsertNewMaterialUnitNotFound());
       }
 
       // validate the data common to all material types
@@ -111,13 +108,6 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         return Result.fail(new InsertNewMaterialDescriptionTooLong());
       }
 
-      if (request.unitLetter.length === 0) {
-        return Result.fail(new InsertNewMaterialUnitLetterEmpty());
-      }
-      if ([ ...request.unitLetter ].length > 1) {
-        return Result.fail(new InsertNewMaterialUnitLetterTooLong());
-      }
-
       if (request.order < 0) {
         return Result.fail(new InsertNewMaterialOrderLessThanZero());
       }
@@ -128,13 +118,13 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
       let material: NewMaterial;
       try {
         if (request.type === 'lesson') {
-          material = await this.insertLesson(request);
+          material = await this.insertLesson(request, materialUnit);
         } else if (request.type === 'video') {
-          material = await this.insertVideo(request);
+          material = await this.insertVideo(request, materialUnit);
         } else if (request.type === 'download') {
-          material = await this.insertDownload(request);
+          material = await this.insertDownload(request, materialUnit);
         } else if (request.type === 'assignment') {
-          material = await this.insertAssignment(request);
+          material = await this.insertAssignment(request, materialUnit);
         } else {
           return Result.fail(new InsertNewMaterialInvalidType());
         }
@@ -147,11 +137,10 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
 
       return Result.success({
         materialId: this.uuidService.binToUUID(material.materialId),
-        courseId: material.courseId,
+        materialUnitId: this.uuidService.binToUUID(material.materialUnitId),
         type: materialType(material.type),
         title: material.title,
         description: material.description,
-        unitLetter: material.unitLetter,
         order: material.order,
         filename: material.filename,
         mimeTypeId: material.mimeTypeId,
@@ -164,7 +153,7 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     }
   }
 
-  private async insertLesson(request: InsertNewMaterialRequestDTO): Promise<NewMaterial> {
+  private async insertLesson(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
     if (request.externalData !== null) {
       throw new InsertNewMaterialExternalDataPresent();
     }
@@ -187,11 +176,10 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
       const material = await transaction.newMaterial.create({
         data: {
           materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId: request.courseId,
+          materialUnitId: materialUnit.materialUnitId,
           type: request.type,
           title: request.title,
           description: request.description,
-          unitLetter: request.unitLetter,
           order: request.order,
           filename: null,
           mimeTypeId: null,
@@ -199,13 +187,13 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         },
       });
 
-      await this.extractArchive(material.materialId, material.courseId, fileData);
+      await this.extractArchive(material.materialId, materialUnit.courseId, fileData);
 
       return material;
     });
   }
 
-  private async insertVideo(request: InsertNewMaterialRequestDTO): Promise<NewMaterial> {
+  private async insertVideo(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
     if (request.externalData === null) {
       throw new InsertNewMaterialExternalDataMissing();
     }
@@ -218,11 +206,10 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     return this.prisma.newMaterial.create({
       data: {
         materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-        courseId: request.courseId,
+        materialUnitId: materialUnit.materialUnitId,
         type: request.type,
         title: request.title,
         description: request.description,
-        unitLetter: request.unitLetter,
         order: request.order,
         filename: null,
         mimeTypeId,
@@ -231,7 +218,7 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     });
   }
 
-  private async insertDownload(request: InsertNewMaterialRequestDTO): Promise<NewMaterial> {
+  private async insertDownload(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
     if (request.externalData !== null) {
       throw new InsertNewMaterialExternalDataPresent();
     }
@@ -253,11 +240,10 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
       const material = await transaction.newMaterial.create({
         data: {
           materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId: request.courseId,
+          materialUnitId: materialUnit.materialUnitId,
           type: request.type,
           title: request.title,
           description: request.description,
-          unitLetter: request.unitLetter,
           order: request.order,
           filename: fileData.filename,
           mimeTypeId: fileData.mimeType,
@@ -265,13 +251,13 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         },
       });
 
-      await this.saveFile(material.materialId, material.courseId, fileData);
+      await this.saveFile(material.materialId, materialUnit.courseId, fileData);
 
       return material;
     });
   }
 
-  private async insertAssignment(request: InsertNewMaterialRequestDTO): Promise<NewMaterial> {
+  private async insertAssignment(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
     if (request.externalData !== null) {
       throw new InsertNewMaterialExternalDataPresent();
     }
@@ -282,11 +268,10 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     return this.prisma.newMaterial.create({
       data: {
         materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-        courseId: request.courseId,
+        materialUnitId: materialUnit.materialUnitId,
         type: request.type,
         title: request.title,
         description: request.description,
-        unitLetter: request.unitLetter,
         order: request.order,
         filename: null,
         mimeTypeId: null,

@@ -85,11 +85,8 @@ export class SaveNewMaterialInteractor implements IInteractor<SaveNewMaterialReq
 
       const updatedMaterial = await this.prisma.newMaterial.update({
         data: {
-          materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId: request.courseId,
           title: request.title,
           description: request.description,
-          unitLetter: request.unitLetter,
           order: request.order,
         },
         where: { materialId: materialIdBin },
@@ -97,11 +94,10 @@ export class SaveNewMaterialInteractor implements IInteractor<SaveNewMaterialReq
 
       return Result.success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
-        courseId: updatedMaterial.courseId,
+        materialUnitId: this.uuidService.binToUUID(updatedMaterial.materialUnitId),
         type: materialType(updatedMaterial.type),
         title: updatedMaterial.title,
         description: updatedMaterial.description,
-        unitLetter: updatedMaterial.unitLetter,
         order: updatedMaterial.order,
         filename: updatedMaterial.filename,
         mimeTypeId: updatedMaterial.mimeTypeId,

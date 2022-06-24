@@ -421,7 +421,7 @@ model Course {
   enrollments       Enrollment[]
   newUnitTemplates  NewUnitTemplate[]
   oldUnitTemplates  OldUnitTemplate[]
-  newMaterials      NewMaterial[]
+  newMaterialUnits  NewMaterialUnit[]
 
   @@map("courses")
   @@unique([courseId, entityVersion], map: "id_entity_version")
@@ -862,21 +862,34 @@ model Province {
 // Course Materials system v5
 /////////////////////////////////////////////////////////////////////////
 
+model NewMaterialUnit {
+  materialUnitId Bytes         @id @db.Binary(16) @map("material_unit_id")
+  courseId       Int           @db.UnsignedInt @map("course_id")
+  unitLetter     String        @db.Char(1) @map("unit_letter")
+  title          String?       @db.VarChar(50)
+  order          Int           @db.Int
+  course         Course        @relation(fields: [courseId], references: [courseId], map: "FK_new_material_units_courses")
+  newMaterials   NewMaterial[]
+
+  @@map("new_material_units")
+  @@unique([courseId, unitLetter], map: "course_id_unit_letter")
+  @@index([courseId, order, unitLetter], map: "course_id_order_unit_letter")
+}
+
 model NewMaterial {
-  materialId   Bytes           @id @db.Binary(16) @map("material_id")
-  courseId     Int             @db.UnsignedInt @map("course_id")
-  type         NewMaterialType
-  course       Course          @relation(fields: [courseId], references: [courseId], map: "FK_new_materials_courses")
-  title        String          @db.VarChar(50)
-  description  String          @db.Text
-  unitLetter   String          @db.Char(1) @map("unit_letter")
-  filename     String?         @db.VarChar(255)
-  mimeTypeId   String?         @db.VarChar(255) @map("mime_type_id")
-  externalData String?         @db.VarChar(1024) @map("external_data")
-  order        Int             @db.Int
+  materialId      Bytes           @id @db.Binary(16) @map("material_id")
+  materialUnitId  Bytes           @db.Binary(16) @map("material_unit_id")
+  type            NewMaterialType
+  title           String          @db.VarChar(50)
+  description     String          @db.Text
+  filename        String?         @db.VarChar(255)
+  mimeTypeId      String?         @db.VarChar(255) @map("mime_type_id")
+  externalData    String?         @db.VarChar(1024) @map("external_data")
+  order           Int             @db.Int
+  newMaterialUnit NewMaterialUnit @relation(fields: [materialUnitId], references: [materialUnitId], map: "FK_new_materials_new_material_units")
 
   @@map("new_materials")
-  @@index([courseId], map: "course_id")
+  @@index([materialUnitId, order], map: "material_unit_id_order")
 }
 
 enum NewMaterialType {
@@ -1217,6 +1230,7 @@ model NewUnitTemplate {
 
   @@map("new_unit_templates")
   @@unique([courseId, unitLetter], map: "course_id_unit_letter")
+  @@index([order, unitLetter], map: "order_unit_letter")
 }
 
 model NewUnit {
@@ -1251,6 +1265,7 @@ model NewUnit {
   @@map("new_units")
   @@index([enrollmentId], map: "student_id")
   @@unique([unitId, entityVersion], map: "unit_id_entity_version")
+  @@index([order, unitLetter], map: "order_unit_letter")
 }
 
 model NewAssignmentTemplate {
