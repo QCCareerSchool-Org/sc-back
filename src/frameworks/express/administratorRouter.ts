@@ -24,6 +24,7 @@ import { GetCourseController } from '../../controllers/administrators/getCourseC
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController.js';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController.js';
 import { GetNewMaterialController } from '../../controllers/administrators/getNewMaterialController.js';
+import { GetNewMaterialUnitController } from '../../controllers/administrators/getNewMaterialUnitController.js';
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController.js';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController.js';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController.js';
@@ -35,6 +36,7 @@ import { GetSchoolController } from '../../controllers/administrators/getSchoolC
 import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController.js';
 import { InsertNewAssignmentTemplateController } from '../../controllers/administrators/insertNewAssignmentTemplateController.js';
 import { InsertNewMaterialController } from '../../controllers/administrators/insertNewMaterialController.js';
+import { InsertNewMaterialUnitController } from '../../controllers/administrators/insertNewMaterialUnitController.js';
 import { InsertNewPartMediumController } from '../../controllers/administrators/insertNewPartMediumController.js';
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController.js';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController.js';
@@ -114,9 +116,12 @@ const routes: Route[] = [
   // new unit returns
   [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
   [ 'put', '/:administratorId/newUnitReturns/:unitReturnId', CloseNewUnitReturnController ],
+  // new material units
+  [ 'get', '/:administratorId/newMaterialUnits/:materialUnitId', GetNewMaterialUnitController ],
+  [ 'post', '/:administratorId/newMaterialUnits', InsertNewMaterialUnitController ],
   // new materials
   // [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
-  [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
   [ 'get', '/:administratorId/newMaterials/:materialId', GetNewMaterialController ],
   [ 'put', '/:administratorId/newMaterials/:materialId', SaveNewMaterialController ],
   [ 'post', '/:administratorId/newMaterials/:materialId/file', ReplaceNewMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],

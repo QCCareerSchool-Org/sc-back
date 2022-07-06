@@ -16,7 +16,7 @@ import { SubmitNewUnitInteractor } from './submitNewUnitInteractor.js';
 import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor.js';
 
 // use-case interactor singletons
-export const lessonGuardInteractor = new LessonGuardInteractor(prisma, winstonLoggerService);
+export const lessonGuardInteractor = new LessonGuardInteractor(prisma, uuidService, winstonLoggerService);
 
 export const getStudentInteractor = new GetStudentInteractor(prisma, winstonLoggerService);
 export const getNewUnitInteractor = new GetNewUnitInteractor(prisma, uuidService, winstonLoggerService);

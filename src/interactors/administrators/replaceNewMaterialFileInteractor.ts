@@ -68,7 +68,7 @@ export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewM
           }
 
           try {
-            await this.extract(material.materialId, material.newMaterialUnit.courseId, request.fileData);
+            await this.extract(material.materialId, request.fileData);
           } catch (err) {
             this.logger.error('Unable to extract material', err);
             throw new ReplaceNewMaterialFileSaveError();
@@ -91,8 +91,12 @@ export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewM
         description: updatedMaterial.description,
         order: updatedMaterial.order,
         filename: updatedMaterial.filename,
-        mimeTypeId: updatedMaterial.mimeTypeId,
+        contentMimeTypeId: updatedMaterial.contentMimeTypeId,
+        imageMimeTypeId: updatedMaterial.imageMimeTypeId,
         externalData: updatedMaterial.externalData,
+        entryPoint: updatedMaterial.entryPoint,
+        created: updatedMaterial.created,
+        modified: updatedMaterial.modified,
       });
 
     } catch (err) {
@@ -101,9 +105,9 @@ export class ReplaceNewMaterialFileInteractor implements IInteractor<ReplaceNewM
     }
   }
 
-  private async extract(materialId: Buffer, courseId: number, fileData: InteractorFileDiskUpload): Promise<void> {
-    const temporaryPath = `${this.configService.config.paths.lessonsPath}/${courseId}/${this.uuidService.createUUID()}`;
-    const path = `${this.configService.config.paths.lessonsPath}/${courseId}/${this.uuidService.binToUUID(materialId)}`;
+  private async extract(materialId: Buffer, fileData: InteractorFileDiskUpload): Promise<void> {
+    const temporaryPath = `${this.configService.config.paths.materials.content}/${this.uuidService.createUUID()}`;
+    const path = `${this.configService.config.paths.materials.content}/${this.uuidService.binToUUID(materialId)}`;
     // create temporary path
     await this.fileService.mkdir(temporaryPath);
     // extract new archive to temporary path

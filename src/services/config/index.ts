@@ -22,13 +22,17 @@ export type Config = {
     unitFeedbackPath: string;
     assignmentMediaPath: string;
     partMediaPath: string;
-    lessonsPath: string;
-    downloadsPath: string;
+    materials: {
+      content: string;
+      images: string;
+    };
   };
   /** maximum filesize of a lesson archive */
   lessonArchiveMaxFileSize: number;
   /** maximum filesize of a lesson download */
   downloadMaxFileSize: number;
+  /** maximum filesize of a material image */
+  materialImageMaxFileSize: number;
   auth: {
     cookieDomain: string;
     /** how long before access tokens should expire, in seconds */

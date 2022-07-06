@@ -52,18 +52,27 @@ export class DeleteNewMaterialInteractor implements IInteractor<DeleteNewMateria
       await this.prisma.newMaterial.delete({ where: { materialId: materialIdBin } });
 
       if (material.type === 'lesson') {
-        const path = `${this.configService.config.paths.lessonsPath}/${material.newMaterialUnit.courseId}/${request.materialId}`;
+        const path = `${this.configService.config.paths.materials.content}/${request.materialId}`;
         try {
           await this.fileService.rmdir(path);
         } catch (err) {
-          this.logger.warn('Could not delete lesson', err);
+          this.logger.warn('Could not delete content', err);
         }
       } else if (material.type === 'download') {
-        const path = `${this.configService.config.paths.downloadsPath}/${material.newMaterialUnit.courseId}/${request.materialId}`;
+        const path = `${this.configService.config.paths.materials.content}/${request.materialId}`;
         try {
           await this.fileService.unlink(path);
         } catch (err) {
-          this.logger.warn('Could not delete download', err);
+          this.logger.warn('Could not delete content', err);
+        }
+      }
+
+      if (material.imageMimeTypeId) {
+        const path = `${this.configService.config.paths.materials.images}/${request.materialId}`;
+        try {
+          await this.fileService.unlink(path);
+        } catch (err) {
+          this.logger.warn('Could not delete image', err);
         }
       }
 

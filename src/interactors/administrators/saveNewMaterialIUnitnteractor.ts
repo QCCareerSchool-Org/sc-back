@@ -67,7 +67,7 @@ export class SaveNewMaterialUnitInteractor implements IInteractor<SaveNewMateria
         return Result.fail(new SaveNewMaterialUnitOrderTooLarge());
       }
 
-      const updatedMaterial = await this.prisma.newMaterialUnit.update({
+      const updatedMaterialUnit = await this.prisma.newMaterialUnit.update({
         data: {
           title: request.title,
           order: request.order,
@@ -76,11 +76,13 @@ export class SaveNewMaterialUnitInteractor implements IInteractor<SaveNewMateria
       });
 
       return Result.success({
-        materialUnitId: this.uuidService.binToUUID(updatedMaterial.materialUnitId),
-        courseId: updatedMaterial.courseId,
-        unitLetter: updatedMaterial.unitLetter,
-        title: updatedMaterial.title,
-        order: updatedMaterial.order,
+        materialUnitId: this.uuidService.binToUUID(updatedMaterialUnit.materialUnitId),
+        courseId: updatedMaterialUnit.courseId,
+        unitLetter: updatedMaterialUnit.unitLetter,
+        title: updatedMaterialUnit.title,
+        order: updatedMaterialUnit.order,
+        created: updatedMaterialUnit.created,
+        modified: updatedMaterialUnit.modified,
       });
 
     } catch (err) {

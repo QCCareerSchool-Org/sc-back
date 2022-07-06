@@ -4,9 +4,22 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import { insertNewMaterialInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewMaterialResponseDTO } from '../../interactors/administrators/insertNewMaterialInteractor.js';
-import { InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileMissing, InsertNewMaterialFilePresent, InsertNewMaterialFileSaveError, InsertNewMaterialFileTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong, InsertNewMaterialUnitNotFound } from '../../interactors/administrators/insertNewMaterialInteractor.js';
+import { InsertNewMaterialContentMissing, InsertNewMaterialContentPresent, InsertNewMaterialContentTooLarge, InsertNewMaterialContentTypeMissing, InsertNewMaterialCouldNotFetchExternalData, InsertNewMaterialDescriptionEmpty, InsertNewMaterialDescriptionTooLong, InsertNewMaterialExternalDataMissing, InsertNewMaterialExternalDataPresent, InsertNewMaterialFileSaveError, InsertNewMaterialImageTooLarge, InsertNewMaterialIncorrectUnitType, InsertNewMaterialInvalidContentMimeType, InsertNewMaterialInvalidImageMimeType, InsertNewMaterialInvalidType, InsertNewMaterialOrderLessThanZero, InsertNewMaterialOrderTooLarge, InsertNewMaterialTitleEmpty, InsertNewMaterialTitleTooLong, InsertNewMaterialUnitLetterEmpty, InsertNewMaterialUnitLetterTooLong, InsertNewMaterialUnitNotFound } from '../../interactors/administrators/insertNewMaterialInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
+
+type MulterFile = {
+  fieldname: string;
+  originalname: string;
+  size: number;
+  mimetype: string;
+  /** The folder to which the file has been saved (DiskStorage) */
+  destination: string;
+  /** The name of the file within the destination (DiskStorage) */
+  filename: string;
+  /** The full path to the uploaded file (DiskStorage) **/
+  path: string;
+};
 
 type Request = {
   params: {
@@ -22,17 +35,9 @@ type Request = {
     order: number;
     externalData?: string | null; // because we're accepting multi-part/form-data, we have to accept undefined
   };
-  file?: {
-    fieldname: string;
-    originalname: string;
-    size: number;
-    mimetype: string;
-    /** The folder to which the file has been saved (DiskStorage) */
-    destination: string;
-    /** The name of the file within the destination (DiskStorage) */
-    filename: string;
-    /** The full path to the uploaded file (DiskStorage) **/
-    path: string;
+  files: {
+    content?: MulterFile;
+    image?: MulterFile;
   };
   privileges?: Privileges;
 };
@@ -53,7 +58,7 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
       order: yup.number().defined(),
       externalData: yup.string().nullable(),
     });
-    const fileSchema: yup.SchemaOf<Request['file']> = yup.object({
+    const multerFileSchema: yup.SchemaOf<MulterFile> = yup.object({
       fieldname: yup.string().defined(),
       originalname: yup.string().defined(),
       size: yup.number().defined(),
@@ -66,19 +71,19 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
       if (!isAccessTokenPayload(this.res.locals.jwt)) {
         throw Error('access token not found');
       }
-      if (this.req.file) {
-        const [ params, body, file ] = await Promise.all([
-          paramsSchema.validate(this.req.params),
-          bodySchema.validate(this.req.body),
-          fileSchema.validate(this.req.file),
-        ]);
-        return { params, body, file, privileges: this.res.locals.jwt.privileges };
+      let content: MulterFile | undefined;
+      if (this.req.files && 'content' in this.req.files && this.req.files.content.length > 0) {
+        content = await multerFileSchema.validate(this.req.files.content[0]);
+      }
+      let image: MulterFile | undefined;
+      if (this.req.files && 'image' in this.req.files && this.req.files.image.length > 0) {
+        image = await multerFileSchema.validate(this.req.files.image[0]);
       }
       const [ params, body ] = await Promise.all([
         paramsSchema.validate(this.req.params),
         bodySchema.validate(this.req.body),
       ]);
-      return { params, body, privileges: this.res.locals.jwt.privileges };
+      return { params, body, files: { content, image }, privileges: this.res.locals.jwt.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -89,7 +94,7 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
     }
   }
 
-  protected async executeImpl({ body, file, privileges }: Request): Promise<void> {
+  protected async executeImpl({ body, files, privileges }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
     }
@@ -101,11 +106,17 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
       description: body.description,
       order: body.order,
       externalData: body.externalData ?? null,
-      fileData: typeof file === 'undefined' ? undefined : {
-        path: file.path,
-        filename: file.originalname,
-        mimeType: file.mimetype,
-        size: file.size,
+      contentFile: typeof files.content === 'undefined' ? undefined : {
+        path: files.content.path,
+        filename: files.content.originalname,
+        mimeType: files.content.mimetype,
+        size: files.content.size,
+      },
+      imageFile: typeof files.image === 'undefined' ? undefined : {
+        path: files.image.path,
+        filename: files.image.originalname,
+        mimeType: files.image.mimetype,
+        size: files.image.size,
       },
       privileges,
     });
@@ -143,18 +154,27 @@ export class InsertNewMaterialController extends BaseController<Request, Respons
         return this.badRequest('External data is  forbidden for this material type');
       case InsertNewMaterialExternalDataMissing:
         return this.badRequest('External data is required for this material type');
-      case InsertNewMaterialFilePresent:
-        return this.badRequest('A file is forbidden for this material type');
-      case InsertNewMaterialFileMissing:
-        return this.badRequest('A file is required for this material type');
-      case InsertNewMaterialFileTooLarge: {
-        const e = result.error as InsertNewMaterialFileTooLarge;
-        const message = `File of size ${e.actualSize} exceeds maximum size of ${e.maxSize}`;
+      case InsertNewMaterialImageTooLarge: {
+        const e = result.error as InsertNewMaterialImageTooLarge;
+        const message = `Image file of size ${e.actualSize} exceeds maximum size of ${e.maxSize}`;
         return this.badRequest(message);
       }
-      case InsertNewMaterialInvalidMimeType: {
-        const e = result.error as InsertNewMaterialInvalidMimeType;
-        return this.badRequest(`${e.mimeType} is an invalid file type`);
+      case InsertNewMaterialInvalidImageMimeType: {
+        const e = result.error as InsertNewMaterialInvalidImageMimeType;
+        return this.badRequest(`${e.mimeType} is an invalid file type for an image file`);
+      }
+      case InsertNewMaterialContentPresent:
+        return this.badRequest('A content file is forbidden for this material type');
+      case InsertNewMaterialContentMissing:
+        return this.badRequest('A content file is required for this material type');
+      case InsertNewMaterialContentTooLarge: {
+        const e = result.error as InsertNewMaterialContentTooLarge;
+        const message = `Content file of size ${e.actualSize} exceeds maximum size of ${e.maxSize}`;
+        return this.badRequest(message);
+      }
+      case InsertNewMaterialInvalidContentMimeType: {
+        const e = result.error as InsertNewMaterialInvalidContentMimeType;
+        return this.badRequest(`${e.mimeType} is an invalid file type for a content file`);
       }
       case InsertNewMaterialFileSaveError:
         return this.internalServerError('Could not save file');

@@ -22,6 +22,7 @@ import { GetCourseInteractor } from './getCourseInteractor.js';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor.js';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor.js';
 import { GetNewMaterialInteractor } from './getNewMaterialInteractor.js';
+import { GetNewMaterialUnitInteractor } from './getNewMaterialUnitInteractor.js';
 import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor.js';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor.js';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor.js';
@@ -33,6 +34,7 @@ import { GetSchoolInteractor } from './getSchoolInteractor.js';
 import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor.js';
 import { InsertNewAssignmentTemplateInteractor } from './insertNewAssignmentTemplateInteractor.js';
 import { InsertNewMaterialInteractor } from './insertNewMaterialInteractor.js';
+import { InsertNewMaterialUnitInteractor } from './insertNewMaterialUnitInteractor.js';
 import { InsertNewPartMediumInteractor } from './insertNewPartMediumInteractor.js';
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor.js';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
@@ -105,6 +107,9 @@ export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePr
 
 export const getNewUnitReturnInteractor = new GetNewUnitReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const closeNewUnitReturnInteractor = new CloseNewUnitReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
+
+export const getNewMaterialUnitInteractor = new GetNewMaterialUnitInteractor(prisma, uuidService, winstonLoggerService);
+export const insertNewMaterialUnitInteractor = new InsertNewMaterialUnitInteractor(prisma, uuidService, winstonLoggerService);
 
 export const getNewMaterialInteractor = new GetNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const insertNewMaterialInteractor = new InsertNewMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);

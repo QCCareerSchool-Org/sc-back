@@ -1,5 +1,6 @@
-import type { PrismaClient } from '@prisma/client';
+import type { NewMaterialUnit, PrismaClient } from '@prisma/client';
 
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { NewMaterialUnitDTO } from '../../domain/newMaterialUnitDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -25,26 +26,11 @@ export class InsertNewMaterialUnitCourseNotFound extends InsertNewMaterialUnitEr
 export class InsertNewMaterialUnitIncorrectUnitType extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitTitleEmpty extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitTitleTooLong extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitDescriptionEmpty extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitDescriptionTooLong extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitUnitLetterEmpty extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitUnitLetterTooLong extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitOrderLessThanZero extends InsertNewMaterialUnitError { }
 export class InsertNewMaterialUnitOrderTooLarge extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitInvalidType extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitExternalDataPresent extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitExternalDataMissing extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitFilePresent extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitFileMissing extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitFileTooLarge extends InsertNewMaterialUnitError {
-  public constructor(public readonly maxSize: number, public readonly actualSize: number) { super(); }
-}
-export class InsertNewMaterialUnitInvalidMimeType extends InsertNewMaterialUnitError {
-  public constructor(public readonly mimeType: string) { super(); }
-}
-export class InsertNewMaterialUnitFileSaveError extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitCouldNotFetchExternalData extends InsertNewMaterialUnitError { }
-export class InsertNewMaterialUnitContentTypeMissing extends InsertNewMaterialUnitError { }
+export class InsertNewMaterialUnitUnitLetterAlreadyExists extends InsertNewMaterialUnitError { }
 
 export class InsertNewMaterialUnitInteractor implements IInteractor<InsertNewMaterialUnitRequestDTO, InsertNewMaterialUnitResponseDTO> {
 
@@ -93,15 +79,23 @@ export class InsertNewMaterialUnitInteractor implements IInteractor<InsertNewMat
         return Result.fail(new InsertNewMaterialUnitOrderTooLarge());
       }
 
-      const insertedMaterialUnit = await this.prisma.newMaterialUnit.create({
-        data: {
-          materialUnitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-          courseId: request.courseId,
-          unitLetter: request.unitLetter,
-          title: request.title,
-          order: request.order,
-        },
-      });
+      let insertedMaterialUnit: NewMaterialUnit;
+      try {
+        insertedMaterialUnit = await this.prisma.newMaterialUnit.create({
+          data: {
+            materialUnitId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            courseId: request.courseId,
+            unitLetter: request.unitLetter,
+            title: request.title,
+            order: request.order,
+          },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta?.target === 'course_id_unit_letter') {
+          return Result.fail(new InsertNewMaterialUnitUnitLetterAlreadyExists());
+        }
+        throw err;
+      }
 
       return Result.success({
         materialUnitId: this.uuidService.binToUUID(insertedMaterialUnit.materialUnitId),
@@ -109,6 +103,8 @@ export class InsertNewMaterialUnitInteractor implements IInteractor<InsertNewMat
         unitLetter: insertedMaterialUnit.unitLetter,
         title: insertedMaterialUnit.title,
         order: insertedMaterialUnit.order,
+        created: insertedMaterialUnit.created,
+        modified: insertedMaterialUnit.modified,
       });
 
     } catch (err) {

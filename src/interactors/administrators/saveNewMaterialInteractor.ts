@@ -100,8 +100,12 @@ export class SaveNewMaterialInteractor implements IInteractor<SaveNewMaterialReq
         description: updatedMaterial.description,
         order: updatedMaterial.order,
         filename: updatedMaterial.filename,
-        mimeTypeId: updatedMaterial.mimeTypeId,
+        contentMimeTypeId: updatedMaterial.contentMimeTypeId,
+        imageMimeTypeId: updatedMaterial.imageMimeTypeId,
         externalData: updatedMaterial.externalData,
+        entryPoint: updatedMaterial.entryPoint,
+        created: updatedMaterial.created,
+        modified: updatedMaterial.modified,
       });
 
     } catch (err) {

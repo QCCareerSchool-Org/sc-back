@@ -1,33 +1,44 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
 
 export type LessonGuardRequestDTO = {
   studentId: number;
-  courseId: number;
+  materialId: string;
 };
 
 export type LessonGuardResponseDTO = void;
 
+export class LessonGuardNotFound extends Error { }
 export class LessonGuardNotEnrolled extends Error { }
 
 export class LessonGuardInteractor implements IInteractor<LessonGuardRequestDTO, LessonGuardResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
   public async execute(request: LessonGuardRequestDTO): Promise<ResultType<LessonGuardResponseDTO>> {
     try {
-      const { studentId, courseId } = request;
+      const materialIdBin = this.uuidService.uuidToBin(request.materialId);
+
+      const material = await this.prisma.newMaterial.findFirst({
+        where: { materialId: materialIdBin },
+        include: { newMaterialUnit: true },
+      });
+      if (!material) {
+        return Result.fail(new LessonGuardNotFound());
+      }
 
       const enrollment = await this.prisma.enrollment.findUnique({
         // eslint-disable-next-line camelcase
-        where: { studentId_courseId: { studentId, courseId } },
+        where: { studentId_courseId: { studentId: request.studentId, courseId: material.newMaterialUnit.courseId } },
       });
       if (!enrollment) {
         return Result.fail(new LessonGuardNotEnrolled());

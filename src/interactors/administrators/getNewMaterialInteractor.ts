@@ -44,8 +44,12 @@ export class GetNewMaterialInteractor implements IInteractor<GetNewMaterialReque
         description: material.description,
         order: material.order,
         filename: material.filename,
-        mimeTypeId: material.mimeTypeId,
+        contentMimeTypeId: material.contentMimeTypeId,
+        imageMimeTypeId: material.imageMimeTypeId,
         externalData: material.externalData,
+        entryPoint: material.entryPoint,
+        created: material.created,
+        modified: material.modified,
       });
 
     } catch (err) {

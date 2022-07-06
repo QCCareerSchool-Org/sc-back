@@ -76,6 +76,15 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable LESSON_ARCHIVE_MAX_FILESIZE is invalid');
     }
 
+    const materialImageMaxFileSize = process.env.MATERIAL_IMAGE_MAX_FILESIZE;
+    if (typeof materialImageMaxFileSize === 'undefined') {
+      throw Error('Environment variable MATERIAL_IMAGE_MAX_FILESIZE is undefined');
+    }
+    const materialImageMaxFileSizeNumber = parseInt(materialImageMaxFileSize, 10);
+    if (isNaN(materialImageMaxFileSizeNumber)) {
+      throw Error('Environment variable MATERIAL_IMAGE_MAX_FILESIZE is invalid');
+    }
+
     const downloadMaxFileSize = process.env.DOWNLOAD_MAX_FILESIZE;
     if (typeof downloadMaxFileSize === 'undefined') {
       throw Error('Environment variable DOWNLOAD_MAX_FILESIZE is undefined');
@@ -107,11 +116,14 @@ export class EnvironmentConfigService implements IConfigService {
         unitFeedbackPath: basePath + '/unit-feedback',
         assignmentMediaPath: basePath + '/course-materials/assignment-media',
         partMediaPath: basePath + '/course-materials/part-media',
-        lessonsPath: basePath + '/lessons',
-        downloadsPath: basePath + '/downloads',
+        materials: {
+          content: basePath + '/materials/content',
+          images: basePath + '/materials/images',
+        },
       },
       lessonArchiveMaxFileSize: lessonArchiveMaxFileSizeNumber,
       downloadMaxFileSize: downloadMaxFileSizeNumber,
+      materialImageMaxFileSize: materialImageMaxFileSizeNumber,
       auth: {
         cookieDomain: process.env.COOKIE_DOMAIN ?? 'sc.qccareerschool.com',
         accessTokenLifetime: process.env.ACCESS_TOKEN_LIFETIME ? parseInt(process.env.ACCESS_TOKEN_LIFETIME, 10) : 30 * 60, // 30-minute default

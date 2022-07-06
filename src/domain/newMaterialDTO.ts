@@ -10,8 +10,12 @@ export type NewMaterialDTO = {
   description: string;
   order: number;
   filename: string | null;
-  mimeTypeId: string | null;
+  contentMimeTypeId: string | null;
+  imageMimeTypeId: string | null;
   externalData: string | null;
+  entryPoint: string | null;
+  created: Date;
+  modified: Date | null;
 };
 
 export const materialType = (raw: string): MaterialType => {

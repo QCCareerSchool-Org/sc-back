@@ -592,6 +592,8 @@ model MimeType {
   writingProfiles        WritingProfile[]
   outfits                Outfit[]
   courseMaterialsV3      CourseMaterialV3[]
+  newNaterialContents    NewMaterial[]         @relation("mime_typesTonew_materials_content_mime_type")
+  newNaterialImages      NewMaterial[]         @relation("mime_typesTonew_materials_image_mime_type")
 
   @@map("mime_types")
   @@unique([mimeTypeId, entityVersion], map: "type_entity_version")
@@ -868,6 +870,8 @@ model NewMaterialUnit {
   unitLetter     String        @db.Char(1) @map("unit_letter")
   title          String?       @db.VarChar(50)
   order          Int           @db.Int
+  created        DateTime      @default(now()) @db.Timestamp(0)
+  modified       DateTime?     @db.Timestamp(0) @updatedAt
   course         Course        @relation(fields: [courseId], references: [courseId], map: "FK_new_material_units_courses")
   newMaterials   NewMaterial[]
 
@@ -877,19 +881,27 @@ model NewMaterialUnit {
 }
 
 model NewMaterial {
-  materialId      Bytes           @id @db.Binary(16) @map("material_id")
-  materialUnitId  Bytes           @db.Binary(16) @map("material_unit_id")
-  type            NewMaterialType
-  title           String          @db.VarChar(50)
-  description     String          @db.Text
-  filename        String?         @db.VarChar(255)
-  mimeTypeId      String?         @db.VarChar(255) @map("mime_type_id")
-  externalData    String?         @db.VarChar(1024) @map("external_data")
-  order           Int             @db.Int
-  newMaterialUnit NewMaterialUnit @relation(fields: [materialUnitId], references: [materialUnitId], map: "FK_new_materials_new_material_units")
+  materialId        Bytes           @id @db.Binary(16) @map("material_id")
+  materialUnitId    Bytes           @db.Binary(16) @map("material_unit_id")
+  type              NewMaterialType
+  title             String          @db.VarChar(50)
+  description       String          @db.Text
+  filename          String?         @db.VarChar(255)
+  contentMimeTypeId String?         @db.VarChar(255) @map("content_mime_type_id")
+  imageMimeTypeId   String?         @db.VarChar(255) @map("image_mime_type_id")
+  externalData      String?         @db.VarChar(1024) @map("external_data")
+  entryPoint        String?         @db.VarChar(255) @map("entry_point")
+  order             Int             @db.Int
+  created           DateTime        @default(now()) @db.Timestamp(0)
+  modified          DateTime?       @db.Timestamp(0) @updatedAt
+  newMaterialUnit   NewMaterialUnit @relation(fields: [materialUnitId], references: [materialUnitId], map: "FK_new_materials_new_material_units")
+  contentMimeType   MimeType?       @relation("mime_typesTonew_materials_content_mime_type", fields: [contentMimeTypeId], references: [mimeTypeId], map: "FK_new_materials_content_mime_types")
+  imageMimeType     MimeType?       @relation("mime_typesTonew_materials_image_mime_type", fields: [imageMimeTypeId], references: [mimeTypeId], map: "FK_new_materials_image_mime_types")
 
   @@map("new_materials")
   @@index([materialUnitId, order], map: "material_unit_id_order")
+  @@index([contentMimeTypeId], map: "content_mime_type_id")
+  @@index([imageMimeTypeId], map: "image_mime_type_id")
 }
 
 enum NewMaterialType {

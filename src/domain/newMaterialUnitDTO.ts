@@ -5,4 +5,6 @@ export type NewMaterialUnitDTO = {
   unitLetter: string;
   title: string | null;
   order: number;
+  created: Date;
+  modified: Date | null;
 };

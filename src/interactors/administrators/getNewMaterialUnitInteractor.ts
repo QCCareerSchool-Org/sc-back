@@ -33,7 +33,7 @@ export class GetNewMaterialUnitInteractor implements IInteractor<GetNewMaterialU
 
       // find the material
       const materialUnit = await this.prisma.newMaterialUnit.findUnique({
-        include: { newMaterials: { orderBy: [ { order: 'asc' } ] } },
+        include: { newMaterials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
         where: { materialUnitId: materialUnitIdBin },
       });
       if (!materialUnit) {
@@ -46,6 +46,8 @@ export class GetNewMaterialUnitInteractor implements IInteractor<GetNewMaterialU
         unitLetter: materialUnit.unitLetter,
         title: materialUnit.title,
         order: materialUnit.order,
+        created: materialUnit.created,
+        modified: materialUnit.modified,
         newMaterials: materialUnit.newMaterials.map(m => ({
           materialId: this.uuidService.binToUUID(m.materialId),
           materialUnitId: this.uuidService.binToUUID(m.materialUnitId),
@@ -54,8 +56,12 @@ export class GetNewMaterialUnitInteractor implements IInteractor<GetNewMaterialU
           description: m.description,
           order: m.order,
           filename: m.filename,
-          mimeTypeId: m.mimeTypeId,
+          contentMimeTypeId: m.contentMimeTypeId,
+          imageMimeTypeId: m.imageMimeTypeId,
           externalData: m.externalData,
+          entryPoint: m.entryPoint,
+          created: m.created,
+          modified: m.modified,
         })),
       });
 

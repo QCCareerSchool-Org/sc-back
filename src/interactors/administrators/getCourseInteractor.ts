@@ -47,7 +47,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
           newMaterialUnits: {
-            include: { newMaterials: { orderBy: [ { order: 'asc' } ] } },
+            include: { newMaterials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
         },
@@ -111,6 +111,8 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           unitLetter: u.unitLetter,
           title: u.title,
           order: u.order,
+          created: u.created,
+          modified: u.modified,
         })),
       });
 

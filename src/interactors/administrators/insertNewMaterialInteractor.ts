@@ -22,7 +22,8 @@ export type InsertNewMaterialRequestDTO = {
   description: string;
   order: number;
   externalData: string | null;
-  fileData?: InteractorFileDiskUpload;
+  contentFile?: InteractorFileDiskUpload;
+  imageFile?: InteractorFileDiskUpload;
   privileges?: Privileges;
 };
 
@@ -43,12 +44,18 @@ export class InsertNewMaterialOrderTooLarge extends InsertNewMaterialError { }
 export class InsertNewMaterialInvalidType extends InsertNewMaterialError { }
 export class InsertNewMaterialExternalDataPresent extends InsertNewMaterialError { }
 export class InsertNewMaterialExternalDataMissing extends InsertNewMaterialError { }
-export class InsertNewMaterialFilePresent extends InsertNewMaterialError { }
-export class InsertNewMaterialFileMissing extends InsertNewMaterialError { }
-export class InsertNewMaterialFileTooLarge extends InsertNewMaterialError {
+export class InsertNewMaterialImageTooLarge extends InsertNewMaterialError {
   public constructor(public readonly maxSize: number, public readonly actualSize: number) { super(); }
 }
-export class InsertNewMaterialInvalidMimeType extends InsertNewMaterialError {
+export class InsertNewMaterialInvalidImageMimeType extends InsertNewMaterialError {
+  public constructor(public readonly mimeType: string) { super(); }
+}
+export class InsertNewMaterialContentPresent extends InsertNewMaterialError { }
+export class InsertNewMaterialContentMissing extends InsertNewMaterialError { }
+export class InsertNewMaterialContentTooLarge extends InsertNewMaterialError {
+  public constructor(public readonly maxSize: number, public readonly actualSize: number) { super(); }
+}
+export class InsertNewMaterialInvalidContentMimeType extends InsertNewMaterialError {
   public constructor(public readonly mimeType: string) { super(); }
 }
 export class InsertNewMaterialFileSaveError extends InsertNewMaterialError { }
@@ -115,6 +122,15 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         return Result.fail(new InsertNewMaterialOrderTooLarge());
       }
 
+      if (request.imageFile) {
+        if (request.imageFile.size >= this.configService.config.materialImageMaxFileSize) {
+          return Result.fail(new InsertNewMaterialImageTooLarge(this.configService.config.materialImageMaxFileSize, request.imageFile.size));
+        }
+        if (request.imageFile.mimeType !== 'image/jpeg' && request.imageFile.mimeType !== 'image/png') {
+          return Result.fail(new InsertNewMaterialInvalidImageMimeType(request.imageFile.mimeType));
+        }
+      }
+
       let material: NewMaterial;
       try {
         if (request.type === 'lesson') {
@@ -143,13 +159,24 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
         description: material.description,
         order: material.order,
         filename: material.filename,
-        mimeTypeId: material.mimeTypeId,
+        contentMimeTypeId: material.contentMimeTypeId,
+        imageMimeTypeId: material.imageMimeTypeId,
         externalData: material.externalData,
+        entryPoint: material.entryPoint,
+        created: material.created,
+        modified: material.modified,
       });
 
     } catch (err) {
       this.logger.error('error inserting new material', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    } finally {
+      try {
+        await Promise.allSettled([
+          request.contentFile ? this.fileService.unlink(request.contentFile.path) : Promise.resolve(),
+          request.imageFile ? this.fileService.unlink(request.imageFile.path) : Promise.resolve(),
+        ]);
+      } catch (err) { /* empty */ }
     }
   }
 
@@ -157,23 +184,23 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     if (request.externalData !== null) {
       throw new InsertNewMaterialExternalDataPresent();
     }
-    if (!request.fileData) {
-      throw new InsertNewMaterialFileMissing();
+    const contentFile = request.contentFile;
+    if (!contentFile) {
+      throw new InsertNewMaterialContentMissing();
     }
-    const fileData = request.fileData;
-    if (request.fileData.size >= this.configService.config.lessonArchiveMaxFileSize) {
-      throw new InsertNewMaterialFileTooLarge(this.configService.config.lessonArchiveMaxFileSize, request.fileData.size);
+    if (contentFile.size >= this.configService.config.lessonArchiveMaxFileSize) {
+      throw new InsertNewMaterialContentTooLarge(this.configService.config.lessonArchiveMaxFileSize, contentFile.size);
     }
-    const mimeType = request.fileData.mimeType === 'application/octet-stream'
-      ? await this.mimeTypeService.getTypeFromFile(request.fileData.path)
-      : request.fileData.mimeType;
+    const mimeType = contentFile.mimeType === 'application/octet-stream'
+      ? await this.mimeTypeService.getTypeFromFile(contentFile.path)
+      : contentFile.mimeType;
 
     if (mimeType !== 'application/x-zip-compressed') {
-      throw new InsertNewMaterialInvalidMimeType(mimeType);
+      throw new InsertNewMaterialInvalidContentMimeType(mimeType);
     }
 
-    return this.prisma.$transaction(async transaction => {
-      const material = await transaction.newMaterial.create({
+    const material = await this.prisma.$transaction(async transaction => {
+      const inserted = await transaction.newMaterial.create({
         data: {
           materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           materialUnitId: materialUnit.materialUnitId,
@@ -182,62 +209,40 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
           description: request.description,
           order: request.order,
           filename: null,
-          mimeTypeId: null,
+          contentMimeTypeId: null,
+          imageMimeTypeId: request.imageFile?.mimeType ?? null,
+          entryPoint: '/content',
           externalData: null,
         },
       });
-
-      await this.extractArchive(material.materialId, materialUnit.courseId, fileData);
-
-      return material;
+      await this.extractArchive(inserted.materialId, contentFile);
+      if (request.imageFile) {
+        await this.saveImage(inserted.materialId, request.imageFile);
+      }
+      return inserted;
     });
+
+    try {
+      await this.fileService.unlink(contentFile.path);
+    } catch (err) {
+      this.logger.error('Unable to delete temporary file');
+    }
+
+    return material;
   }
 
   private async insertVideo(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
     if (request.externalData === null) {
       throw new InsertNewMaterialExternalDataMissing();
     }
-    if (request.fileData) {
-      throw new InsertNewMaterialFilePresent();
+    if (request.contentFile) {
+      throw new InsertNewMaterialContentPresent();
     }
 
-    const mimeTypeId = await this.fetchExternalData(request.externalData);
-
-    return this.prisma.newMaterial.create({
-      data: {
-        materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-        materialUnitId: materialUnit.materialUnitId,
-        type: request.type,
-        title: request.title,
-        description: request.description,
-        order: request.order,
-        filename: null,
-        mimeTypeId,
-        externalData: request.externalData,
-      },
-    });
-  }
-
-  private async insertDownload(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
-    if (request.externalData !== null) {
-      throw new InsertNewMaterialExternalDataPresent();
-    }
-    if (!request.fileData) {
-      throw new InsertNewMaterialFileMissing();
-    }
-    const fileData = request.fileData;
-    if (request.fileData.size >= this.configService.config.downloadMaxFileSize) {
-      throw new InsertNewMaterialFileTooLarge(this.configService.config.downloadMaxFileSize, request.fileData.size);
-    }
-    const mimeType = request.fileData.mimeType === 'application/octet-stream'
-      ? await this.mimeTypeService.getTypeFromFile(request.fileData.path)
-      : request.fileData.mimeType;
-    if (!InsertNewMaterialInteractor.allowedMimeTypes.includes(mimeType)) {
-      throw new InsertNewMaterialInvalidMimeType(mimeType);
-    }
+    const [ contentMimeTypeId, filename ] = await this.fetchExternalData(request.externalData);
 
     return this.prisma.$transaction(async transaction => {
-      const material = await transaction.newMaterial.create({
+      const inserted = await transaction.newMaterial.create({
         data: {
           materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
           materialUnitId: materialUnit.materialUnitId,
@@ -245,15 +250,59 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
           title: request.title,
           description: request.description,
           order: request.order,
-          filename: fileData.filename,
-          mimeTypeId: fileData.mimeType,
+          filename,
+          contentMimeTypeId,
+          imageMimeTypeId: request.imageFile?.mimeType ?? null,
           externalData: request.externalData,
+          entryPoint: null,
         },
       });
+      if (request.imageFile) {
+        await this.saveImage(inserted.materialId, request.imageFile);
+      }
+      return inserted;
+    });
+  }
 
-      await this.saveFile(material.materialId, materialUnit.courseId, fileData);
+  private async insertDownload(request: InsertNewMaterialRequestDTO, materialUnit: NewMaterialUnit): Promise<NewMaterial> {
+    if (request.externalData !== null) {
+      throw new InsertNewMaterialExternalDataPresent();
+    }
+    const contentFile = request.contentFile;
+    if (!contentFile) {
+      throw new InsertNewMaterialContentMissing();
+    }
+    if (contentFile.size >= this.configService.config.downloadMaxFileSize) {
+      throw new InsertNewMaterialContentTooLarge(this.configService.config.downloadMaxFileSize, contentFile.size);
+    }
+    const contentMimeType = contentFile.mimeType === 'application/octet-stream'
+      ? await this.mimeTypeService.getTypeFromFile(contentFile.path)
+      : contentFile.mimeType;
+    if (!InsertNewMaterialInteractor.allowedMimeTypes.includes(contentMimeType)) {
+      throw new InsertNewMaterialInvalidContentMimeType(contentMimeType);
+    }
 
-      return material;
+    return this.prisma.$transaction(async transaction => {
+      const inserted = await transaction.newMaterial.create({
+        data: {
+          materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+          materialUnitId: materialUnit.materialUnitId,
+          type: request.type,
+          title: request.title,
+          description: request.description,
+          order: request.order,
+          filename: contentFile.filename,
+          contentMimeTypeId: contentMimeType,
+          imageMimeTypeId: request.imageFile?.mimeType ?? null,
+          externalData: request.externalData,
+          entryPoint: null,
+        },
+      });
+      await this.saveContent(inserted.materialId, contentFile);
+      if (request.imageFile) {
+        await this.saveImage(inserted.materialId, request.imageFile);
+      }
+      return inserted;
     });
   }
 
@@ -261,38 +310,50 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     if (request.externalData !== null) {
       throw new InsertNewMaterialExternalDataPresent();
     }
-    if (request.fileData) {
-      throw new InsertNewMaterialFilePresent();
+    if (request.contentFile) {
+      throw new InsertNewMaterialContentPresent();
     }
 
-    return this.prisma.newMaterial.create({
-      data: {
-        materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-        materialUnitId: materialUnit.materialUnitId,
-        type: request.type,
-        title: request.title,
-        description: request.description,
-        order: request.order,
-        filename: null,
-        mimeTypeId: null,
-        externalData: null,
-      },
+    return this.prisma.$transaction(async transaction => {
+      const inserted = await transaction.newMaterial.create({
+        data: {
+          materialId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+          materialUnitId: materialUnit.materialUnitId,
+          type: request.type,
+          title: request.title,
+          description: request.description,
+          order: request.order,
+          filename: null,
+          contentMimeTypeId: null,
+          imageMimeTypeId: request.imageFile?.mimeType ?? null,
+          externalData: null,
+          entryPoint: null,
+        },
+      });
+      if (request.imageFile) {
+        await this.saveImage(inserted.materialId, request.imageFile);
+      }
+      return inserted;
     });
   }
 
-  private async extractArchive(materialId: Buffer, courseId: number, fileData: InteractorFileDiskUpload): Promise<void> {
+  private async extractArchive(materialId: Buffer, contentFile: InteractorFileDiskUpload): Promise<void> {
     try {
-      const path = `${this.configService.config.paths.lessonsPath}/${courseId}/${this.uuidService.binToUUID(materialId)}`;
+      const path = `${this.configService.config.paths.materials.content}/${this.uuidService.binToUUID(materialId)}`;
       await this.fileService.mkdir(path);
-      await this.unzipService.extractFiles(fileData.path, path);
-      await this.fileService.unlink(fileData.path);
+      await this.unzipService.extractFiles(contentFile.path, path);
     } catch (err) {
       this.logger.error('Unable to extract material', err);
       throw new InsertNewMaterialFileSaveError();
     }
   }
 
-  private async fetchExternalData(externalData: string): Promise<string> {
+  /**
+   * Requests the HTTP headers from a remote resource and returns the content type and filename
+   * @param externalData the URL to the external data
+   * @returns the content type
+   */
+  private async fetchExternalData(externalData: string): Promise<[ contentType: string, filename: string ]> {
     let headers: Record<string, string>;
     try {
       headers = await this.httpService.getHeaders(externalData);
@@ -304,17 +365,41 @@ export class InsertNewMaterialInteractor implements IInteractor<InsertNewMateria
     if (typeof headers['content-type'] === 'undefined') {
       throw new InsertNewMaterialContentTypeMissing();
     }
-    return headers['content-type'];
+    const contentType = headers['content-type'].split(';')[0];
+
+    let filename = 'unknown';
+    if (typeof headers['content-disposition'] !== 'undefined') {
+      // get the filename from a header such as 'Content-Type: attachment; filename="foo.txt"'
+      const regExp = /filename="(.*)"/iu;
+      const matches = headers['content-disposition'].match(regExp);
+      if (matches && matches.length >= 2) {
+        filename = matches[1];
+      }
+    }
+
+    return [ contentType, filename ];
   }
 
-  private async saveFile(materialId: Buffer, courseId: number, fileData: InteractorFileDiskUpload): Promise<void> {
+  private async saveContent(materialId: Buffer, contentFile: InteractorFileDiskUpload): Promise<void> {
     try {
-      const basePath = `${this.configService.config.paths.downloadsPath}/${courseId}`;
+      const basePath = `${this.configService.config.paths.materials.content}`;
       await this.fileService.mkdir(basePath);
       const path = `${basePath}/${this.uuidService.binToUUID(materialId)}`;
-      await this.fileService.rename(fileData.path, path);
+      await this.fileService.rename(contentFile.path, path);
     } catch (err) {
-      this.logger.error('Unable to save material', err);
+      this.logger.error('Unable to save content file', err);
+      throw new InsertNewMaterialFileSaveError();
+    }
+  }
+
+  private async saveImage(materialId: Buffer, imageFile: InteractorFileDiskUpload): Promise<void> {
+    try {
+      const basePath = `${this.configService.config.paths.materials.images}`;
+      await this.fileService.mkdir(basePath);
+      const path = `${basePath}/${this.uuidService.binToUUID(materialId)}`;
+      await this.fileService.rename(imageFile.path, path);
+    } catch (err) {
+      this.logger.error('Unable to save image file', err);
       throw new InsertNewMaterialFileSaveError();
     }
   }

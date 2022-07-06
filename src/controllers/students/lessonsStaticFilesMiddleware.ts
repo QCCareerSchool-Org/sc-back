@@ -4,7 +4,7 @@ import { environmentConfigService } from '../../services/index.js';
 import { BaseMiddleware } from '../baseMiddleware.js';
 
 export class LessonsStaticFilesMiddleware extends BaseMiddleware<void, void> {
-  public static readonly path = environmentConfigService.config.paths.lessonsPath;
+  public static readonly path = environmentConfigService.config.paths.materials.content;
 
   protected async validate(): Promise<void | false> {
     /* empty */
