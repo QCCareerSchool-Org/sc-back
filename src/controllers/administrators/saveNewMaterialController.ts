@@ -49,7 +49,7 @@ export class SaveNewMaterialController extends BaseController<Request, Response>
       if (!isAccessTokenPayload(this.res.locals.jwt)) {
         throw Error('access token not found');
       }
-      return { params, body, privileges: this.res.locals.jwt.privileges };
+      return { params, body, privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

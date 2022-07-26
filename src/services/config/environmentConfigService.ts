@@ -125,7 +125,9 @@ export class EnvironmentConfigService implements IConfigService {
       downloadMaxFileSize: downloadMaxFileSizeNumber,
       materialImageMaxFileSize: materialImageMaxFileSizeNumber,
       auth: {
-        cookieDomain: process.env.COOKIE_DOMAIN ?? 'sc.qccareerschool.com',
+        cookieDomain: process.env.COOKIE_DOMAIN ?? 'studentcenter.qccareerschool.com',
+        cookiePath: process.env.COOKIE_PATH ?? '/api/sc',
+        accessCookiePath: process.env.ACCESS_COOKIE_PATH,
         accessTokenLifetime: process.env.ACCESS_TOKEN_LIFETIME ? parseInt(process.env.ACCESS_TOKEN_LIFETIME, 10) : 30 * 60, // 30-minute default
         refreshTokenLifetime: process.env.REFRESH_TOKEN_LIFETIME ? parseInt(process.env.REFRESH_TOKEN_LIFETIME, 10) : 30 * 60 * 60 * 24, // 30-day default
       },

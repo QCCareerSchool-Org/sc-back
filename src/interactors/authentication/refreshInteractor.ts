@@ -94,8 +94,10 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       // create a new jwt access token
       const accessTokenPayload: AccessTokenPayload = {
-        id: accountId,
-        type: accountType,
+        studentCenter: {
+          id: accountId,
+          type: accountType,
+        },
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
@@ -103,7 +105,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         if (!refreshToken.administrator) {
           return Result.fail(new RefreshAccountNotFound());
         }
-        accessTokenPayload.privileges = {
+        accessTokenPayload.studentCenter.privileges = {
           unitPriceChange: refreshToken.administrator.unitPricePriv,
           courseDevelopment: refreshToken.administrator.courseDevelopmentPriv,
         };
@@ -113,8 +115,13 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
           return Result.fail(new RefreshAccountNotFound());
         }
         if (isValidStudentType(refreshToken.student.studentTypeId)) {
-          accessTokenPayload.studentType = refreshToken.student.studentTypeId;
-          accessTokenPayload.crmId = refreshToken.student.apiUsername ?? undefined;
+          accessTokenPayload.studentCenter.studentType = refreshToken.student.studentTypeId;
+          if (refreshToken.student.apiUsername !== null) {
+            accessTokenPayload.crm = {
+              id: refreshToken.student.apiUsername,
+              type: 'student',
+            };
+          }
         } else {
           return Result.fail(new RefreshStudentInvalidType());
         }
@@ -122,7 +129,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       const accessToken = await this.jwtService.sign(accessTokenPayload);
 
       const baseCookieOptions = {
-        secure: this.configService.config.environment !== 'development',
+        secure: this.configService.config.environment === 'production',
         httpOnly: true,
         domain: this.configService.config.auth.cookieDomain,
         sameSite: 'strict',
@@ -130,7 +137,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       const accessCookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.environment !== 'development' ? '/api/v1' : '/v1', // strip proxy path prefix in development
+        path: this.configService.config.auth.cookiePath,
         maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
       };
 

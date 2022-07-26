@@ -41,7 +41,7 @@ export class DeleteNewUnitTemplatePricesController extends BaseController<Reques
       if (!isAccessTokenPayload(this.res.locals.jwt)) {
         throw Error('access token not found');
       }
-      return { params, query, privileges: this.res.locals.jwt.privileges };
+      return { params, query, privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

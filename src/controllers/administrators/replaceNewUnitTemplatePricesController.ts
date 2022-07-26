@@ -61,7 +61,7 @@ export class ReplaceNewUnitTemplatePricesController extends BaseController<Reque
       if (!isAccessTokenPayload(this.res.locals.jwt)) {
         throw Error('access token not found');
       }
-      return { params, query, body: body as Request['body'], privileges: this.res.locals.jwt.privileges };
+      return { params, query, body: body as Request['body'], privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

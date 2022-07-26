@@ -44,7 +44,7 @@ export class InsertNewMaterialUnitController extends BaseController<Request, Res
         paramsSchema.validate(this.req.params),
         bodySchema.validate(this.req.body),
       ]);
-      return { params, body, privileges: this.res.locals.jwt.privileges };
+      return { params, body, privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

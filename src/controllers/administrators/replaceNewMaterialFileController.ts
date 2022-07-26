@@ -56,7 +56,7 @@ export class ReplaceNewMaterialFileController extends BaseController<Request, Re
       if (!isAccessTokenPayload(this.res.locals.jwt)) {
         throw Error('access token not found');
       }
-      return { params, file, privileges: this.res.locals.jwt.privileges };
+      return { params, file, privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

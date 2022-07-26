@@ -32,7 +32,7 @@ export class DeleteNewMaterialController extends BaseController<Request, Respons
         throw Error('access token not found');
       }
       const params = await paramsSchema.validate(this.req.params);
-      return { params, privileges: this.res.locals.jwt.privileges };
+      return { params, privileges: this.res.locals.jwt.studentCenter.privileges };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);

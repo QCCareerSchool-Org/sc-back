@@ -35,6 +35,8 @@ export type Config = {
   materialImageMaxFileSize: number;
   auth: {
     cookieDomain: string;
+    cookiePath: string;
+    accessCookiePath: string | undefined;
     /** how long before access tokens should expire, in seconds */
     accessTokenLifetime: number;
     /** how long before refresh tokens should expire, in seconds */

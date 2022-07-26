@@ -113,14 +113,16 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       // create a jwt access token
       const accessTokenPayload: AccessTokenPayload = {
-        id: accountId,
-        type: accountType,
+        studentCenter: {
+          id: accountId,
+          type: accountType,
+        },
         exp: accessExp,
         xsrf: xsrfTokenString, // store the XSRF token in the payload
       };
       if (accountType === 'admin') {
         const adminAccount = account as Administrator;
-        accessTokenPayload.privileges = {
+        accessTokenPayload.studentCenter.privileges = {
           unitPriceChange: adminAccount.unitPricePriv,
           courseDevelopment: adminAccount.courseDevelopmentPriv,
         };
@@ -128,8 +130,13 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       if (accountType === 'student') { // add student-only data to payload
         const studentAccount = account as Student;
         if (isValidStudentType(studentAccount.studentTypeId)) {
-          accessTokenPayload.studentType = studentAccount.studentTypeId;
-          accessTokenPayload.crmId = studentAccount.apiUsername ?? undefined;
+          accessTokenPayload.studentCenter.studentType = studentAccount.studentTypeId;
+          if (studentAccount.apiUsername !== null) {
+            accessTokenPayload.crm = {
+              id: studentAccount.apiUsername,
+              type: 'student',
+            };
+          }
         }
       }
       const accessToken = await this.jwtService.sign(accessTokenPayload);
@@ -163,7 +170,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       });
 
       const baseCookieOptions = {
-        secure: this.configService.config.environment !== 'development',
+        secure: this.configService.config.environment === 'production',
         httpOnly: true,
         domain: this.configService.config.auth.cookieDomain,
         sameSite: 'strict',
@@ -171,13 +178,13 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       const accessCookieOptions: CookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.environment !== 'development' ? '/api/v1' : '/v1', // strip proxy path prefix in development
+        path: this.configService.config.auth.accessCookiePath ?? this.configService.config.auth.cookiePath,
         maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
       };
 
       const refreshCookieOptions: CookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.environment !== 'development' ? '/api/v1/auth/refresh' : '/v1/auth/refresh', // strip proxy path prefix in development
+        path: this.configService.config.auth.cookiePath + 'v1/auth/refresh/',
       };
 
       if (request.stayLoggedIn) {

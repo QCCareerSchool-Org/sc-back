@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 
 import { BaseMiddleware } from '../baseMiddleware.js';
 
@@ -38,9 +39,8 @@ export class AdministratorGuardMiddleware extends BaseMiddleware<Request, void> 
   }
 
   private isAllowed(administratorId: number): boolean {
-    if (typeof this.res.locals.jwt === 'object' && this.res.locals.jwt !== null) {
-      const jwt = this.res.locals.jwt as Record<string, unknown>;
-      return jwt.type === 'admin' && jwt.id === administratorId;
+    if (isAccessTokenPayload(this.res.locals.jwt)) {
+      return this.res.locals.jwt.studentCenter.type === 'admin' && this.res.locals.jwt.studentCenter.id === administratorId;
     }
     return false;
   }

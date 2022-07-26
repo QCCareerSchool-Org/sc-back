@@ -38,18 +38,24 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
         return Result.fail(new CheckAuthenticationVerifyError());
       }
 
-      const schema: yup.SchemaOf<AccessTokenPayload> = yup.object({
-        id: yup.number().defined(),
-        type: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]).defined(),
-        studentType: yup.mixed().oneOf<StudentTypeType>([ 'general', 'writing' ]),
-        privileges: yup.object({
-          unitPrice: yup.boolean(),
-          courseDevelopment: yup.boolean(),
-        }),
-        crmId: yup.number(),
+      const schema = yup.object({ // const schema: yup.SchemaOf<AccessTokenPayload> = yup.object({
+        studentCenter: yup.object({
+          id: yup.number().defined(),
+          type: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]).defined(),
+          studentType: yup.mixed().oneOf<StudentTypeType>([ 'general', 'writing' ]),
+          privileges: yup.object({
+            unitPrice: yup.boolean(),
+            courseDevelopment: yup.boolean(),
+          }),
+        }).defined(),
+        crm: yup.object({
+          id: yup.number().defined(),
+          type: yup.mixed().oneOf<'student' | 'admin'>([ 'admin', 'student' ]).defined(),
+        }).default(undefined),
         exp: yup.number().defined(),
         xsrf: yup.string().defined(),
       });
+
       let accessTokenPayload: AccessTokenPayload;
       try {
         accessTokenPayload = await schema.validate(decoded);
@@ -72,7 +78,7 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
       return Result.success<CheckAuthenticationResponseDTO>(accessTokenPayload);
 
     } catch (err) {
-      this.logger.error('error getting courses', err instanceof Error ? err.message : err);
+      this.logger.error('error checking authentication', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

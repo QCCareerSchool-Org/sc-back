@@ -7,20 +7,26 @@ export type Privileges = {
 };
 
 export type AccessTokenPayload = {
-  id: number;
-  type: AccountType;
-  studentType?: StudentTypeType;
-  crmId?: number;
-  privileges?: Privileges;
+  studentCenter: {
+    id: number;
+    type: AccountType;
+    studentType?: StudentTypeType;
+    privileges?: Privileges;
+  };
+  crm?: {
+    id: number;
+    type: AccountType;
+  };
   exp: number;
   xsrf: string;
 };
 
 export const isAccessTokenPayload = (value: unknown): value is AccessTokenPayload => {
   if (typeof value === 'object' && value !== null) {
-    if ('id' in value && 'type' in value && 'exp' in value && 'xsrf' in value) {
-      const v = value as AccessTokenPayload;
-      return typeof v.id === 'number' && typeof v.exp === 'number' && typeof v.xsrf === 'string';
+    const v = value as Record<string, unknown>;
+    if (typeof v.exp === 'number' && typeof v.xsrf === 'string' && typeof v.studentCenter === 'object' && v.studentCenter !== null) {
+      const s = v.studentCenter as Record<string, unknown>;
+      return (typeof s.id === 'number' && typeof s.type === 'string' && [ 'admin', 'tutor', 'student' ].includes(s.type));
     }
   }
   return false;
