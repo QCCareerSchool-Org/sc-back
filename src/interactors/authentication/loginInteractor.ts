@@ -1,3 +1,4 @@
+import path from 'path';
 import type { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/index.js';
 
@@ -190,7 +191,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       const refreshCookieOptions: CookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.auth.cookiePath + 'v1/auth/refresh/',
+        path: path.join(this.configService.config.auth.cookiePath, '/v1/auth/refresh'),
       };
 
       if (request.stayLoggedIn) {
