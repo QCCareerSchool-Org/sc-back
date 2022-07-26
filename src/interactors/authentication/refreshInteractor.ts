@@ -143,7 +143,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
       const accessCookieOptions = {
         ...baseCookieOptions,
-        path: this.configService.config.auth.cookiePath,
+        path: this.configService.config.auth.accessCookiePath ?? this.configService.config.auth.cookiePath,
         maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
       };
 
