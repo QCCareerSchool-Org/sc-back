@@ -126,6 +126,12 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           unitPriceChange: adminAccount.unitPricePriv,
           courseDevelopment: adminAccount.courseDevelopmentPriv,
         };
+        if (adminAccount.apiUsername !== null) {
+          accessTokenPayload.crm = {
+            id: adminAccount.apiUsername,
+            type: 'admin',
+          };
+        }
       }
       if (accountType === 'student') { // add student-only data to payload
         const studentAccount = account as Student;

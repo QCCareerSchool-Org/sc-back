@@ -44,6 +44,7 @@ model Administrator {
   forumPasswordNew        String?                     @db.VarChar(255) @map("forum_password_new")
   forumIV                 Bytes?                      @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16) @map("forum_iv")
   forumPasswordTemp       String?                     @db.VarChar(255) @map("forum_password_temp")
+  apiUsername             Int?                        @db.UnsignedInt @map("api_username")
   unitPricePriv           Boolean                     @default(false) @map("unit_price_priv")
   courseDevelopmentPriv   Boolean                     @default(false) @map("course_development_priv")
   entityVersion           Int                         @default(0) @map("entity_version")

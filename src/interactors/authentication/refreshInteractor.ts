@@ -109,6 +109,12 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
           unitPriceChange: refreshToken.administrator.unitPricePriv,
           courseDevelopment: refreshToken.administrator.courseDevelopmentPriv,
         };
+        if (refreshToken.administrator.apiUsername !== null) {
+          accessTokenPayload.crm = {
+            id: refreshToken.administrator.apiUsername,
+            type: 'admin',
+          };
+        }
       }
       if (accountType === 'student') { // add student-only data to payload
         if (!refreshToken.student) {
