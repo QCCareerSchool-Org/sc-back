@@ -54,7 +54,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { studentId, courseId },
         include: {
-          student: true,
+          student: { include: { caSocialInsuranceNumber: true } },
           course: {
             include: {
               newUnitTemplates: true,
@@ -135,6 +135,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           upgradeNotification: enrollment.student.upgradeNotification,
           entityVersion: enrollment.student.entityVersion,
           timestamp: enrollment.student.timestamp,
+          hasCASocialInsuranceNumber: !!enrollment.student.caSocialInsuranceNumber,
         },
         course: {
           courseId: enrollment.course.courseId,

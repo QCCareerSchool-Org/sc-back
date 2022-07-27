@@ -30,4 +30,5 @@ export type StudentDTO = {
   upgradeNotification: boolean;
   entityVersion: number;
   timestamp: Date;
+  hasCASocialInsuranceNumber: boolean;
 };

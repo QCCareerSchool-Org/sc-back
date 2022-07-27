@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { CountryDTO } from '../../domain/countryDTO.js';
+import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { ProvinceDTO } from '../../domain/provinceDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
@@ -16,7 +17,9 @@ export type GetStudentRequestDTO = {
 export type GetStudentResponseDTO = StudentDTO & {
   country: CountryDTO;
   province: ProvinceDTO | null;
-  enrollments: EnrollmentDTO[];
+  enrollments: Array<EnrollmentDTO & {
+    course: CourseDTO;
+  }>;
 };
 
 export class GetStudentNotFound extends Error { }
@@ -33,7 +36,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
       const student = await this.prisma.student.findUnique({
         where: { studentId },
         include: {
-          enrollments: { where: { course: { enabled: true } } },
+          caSocialInsuranceNumber: true,
+          enrollments: { include: { course: true }, where: { course: { enabled: true } } },
           country: true,
           province: true,
         },
@@ -68,6 +72,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         upgradeNotification: student.upgradeNotification,
         entityVersion: student.entityVersion,
         timestamp: student.timestamp,
+        hasCASocialInsuranceNumber: !!student.caSocialInsuranceNumber,
         country: {
           countryId: student.country.countryId,
           code: student.country.code,
@@ -107,6 +112,22 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           updated: e.updated,
           entityVersion: e.entityVersion,
           timestamp: e.timestamp,
+          course: {
+            courseId: e.course.courseId,
+            schoolId: e.course.schoolId,
+            code: e.course.code,
+            version: e.course.version,
+            studentTypeId: e.course.studentTypeId,
+            name: e.course.name,
+            courseGuide: e.course.courseGuide,
+            quizzesEnabled: e.course.quizzesEnabled,
+            noTutor: e.course.noTutor,
+            unitType: e.course.unitType,
+            enabled: e.course.enabled,
+            order: e.course.order,
+            newUnitsEnabled: e.course.newUnitsEnabled,
+            entityVersion: e.course.entityVersion,
+          },
         })),
       });
 
