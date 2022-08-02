@@ -16,6 +16,7 @@ import { SaveNewTextBoxTextController } from '../../controllers/students/saveNew
 import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController.js';
 import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware.js';
 import { SubmitNewUnitController } from '../../controllers/students/submitNewUnitController.js';
+import { UpdateEmailAddressController } from '../../controllers/students/updateEmailAddressController.js';
 import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController.js';
 import type { Route } from './applyRoutes.js';
 import { applyRoutes } from './applyRoutes.js';
@@ -31,6 +32,7 @@ const routes: Route[] = [
   [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware ],
   // student
   [ 'get', '/:studentId', GetStudentController ],
+  [ 'put', '/:studentId/emailAddress', UpdateEmailAddressController ],
   // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
   // units
