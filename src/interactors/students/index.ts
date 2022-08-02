@@ -8,6 +8,7 @@ import { GetEnrollmentInteractor } from './getEnrollment.js';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewUnitInteractor } from './getNewUnitInteractor.js';
 import { GetStudentInteractor } from './getStudentInteractor.js';
+import { GetT2202ReceiptsInteractor } from './getT2202Receipts.js';
 import { InitializeNextNewUnitInteractor } from './initializeNextNewUnitInteractor.js';
 import { LessonGuardInteractor } from './lessonGuardInteractor.js';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor.js';
@@ -33,3 +34,4 @@ export const initializeNextNewUnitInteractor = new InitializeNextNewUnitInteract
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const updateEmailAddressInteractor = new UpdateEmailAddressInteractor(prisma, emailValidatorService, winstonLoggerService);
+export const getT2202ReceiptsInteractor = new GetT2202ReceiptsInteractor(prisma, winstonLoggerService);

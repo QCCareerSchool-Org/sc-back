@@ -9,6 +9,7 @@ import { GetEnrollmentController } from '../../controllers/students/getEnrollmen
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
 import { GetNewUnitController } from '../../controllers/students/getNewUnitController.js';
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
+import { GetT2202ReceiptsController } from '../../controllers/students/getT2202ReceiptsController.js';
 import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
 import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
@@ -33,6 +34,8 @@ const routes: Route[] = [
   // student
   [ 'get', '/:studentId', GetStudentController ],
   [ 'put', '/:studentId/emailAddress', UpdateEmailAddressController ],
+  // tax receipts
+  [ 'get', '/:studentId/t2202Receipts', GetT2202ReceiptsController ],
   // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
   // units

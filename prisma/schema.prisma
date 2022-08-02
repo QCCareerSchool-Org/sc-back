@@ -490,24 +490,24 @@ model FinalSubmission {
 }
 
 model T2202Receipt {
-  id           Int        @id @default(autoincrement()) @db.UnsignedInt
-  enrollmentId Int        @db.UnsignedInt @map("student_id")
-  startYear    Int        @db.MediumInt @map("start_year")
-  startMonth   Int        @db.TinyInt @map("start_month")
-  endYear      Int        @db.MediumInt @map("end_year")
-  endMonth     Int        @db.TinyInt @map("end_month")
-  tuition      Decimal    @db.Decimal(8, 2)
-  address1     String     @db.VarChar(40)
-  address2     String?    @db.VarChar(40)
-  city         String     @db.VarChar(31)
-  postalCode   String?    @db.VarChar(10) @map("postal_code")
-  provinceId   Int?       @db.UnsignedInt @map("province_id")
-  countryId    Int        @db.UnsignedInt @map("country_id")
-  accessed     Int        @default(0) @db.UnsignedInt
-  version      Int        @default(1) @db.UnsignedInt
-  country      Country    @relation(fields: [countryId], references: [countryId], onUpdate: Restrict, map: "t2202a_receipts_ibfk_2")
-  province     Province?  @relation(fields: [provinceId], references: [provinceId], onDelete: Restrict, onUpdate: Restrict, map: "t2202a_receipts_ibfk_3")
-  enrollment   Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onUpdate: Restrict, map: "t2202a_receipts_ibfk_1")
+  t2202ReceiptId Int        @id @default(autoincrement()) @db.UnsignedInt @map("id")
+  enrollmentId   Int        @db.UnsignedInt @map("student_id")
+  startYear      Int        @db.MediumInt @map("start_year")
+  startMonth     Int        @db.TinyInt @map("start_month")
+  endYear        Int        @db.MediumInt @map("end_year")
+  endMonth       Int        @db.TinyInt @map("end_month")
+  tuition        Decimal    @db.Decimal(8, 2)
+  address1       String     @db.VarChar(40)
+  address2       String?    @db.VarChar(40)
+  city           String     @db.VarChar(31)
+  postalCode     String?    @db.VarChar(10) @map("postal_code")
+  provinceId     Int?       @db.UnsignedInt @map("province_id")
+  countryId      Int        @db.UnsignedInt @map("country_id")
+  accessed       Int        @default(0) @db.UnsignedInt
+  version        Int        @default(1) @db.UnsignedInt
+  enrollment     Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onUpdate: Restrict, map: "t2202a_receipts_ibfk_1")
+  country        Country    @relation(fields: [countryId], references: [countryId], onUpdate: Restrict, map: "t2202a_receipts_ibfk_2")
+  province       Province?  @relation(fields: [provinceId], references: [provinceId], onDelete: Restrict, onUpdate: Restrict, map: "t2202a_receipts_ibfk_3")
 
   @@map("t2202a_receipts")
   @@index([countryId], map: "country_id")
