@@ -42,7 +42,6 @@
   "dependencies": {
     "@prisma/client": "^3.14.0",
     "@qccareerschool/winston-nodemailer": "^4.0.1",
-    "@types/email-validator": "^1.0.6",
     "axios": "^0.26.0",
     "bcrypt": "^5.0.1",
     "browser-detect": "^0.2.28",
