@@ -15,7 +15,7 @@ export type DeleteNewPartMediumRequestDTO = {
 export type DeleteNewPartMediumResponseDTO = void;
 
 export class DeleteNewPartMediumNotFound extends Error { }
-export class DeleteNewPartMediumUnitsEnabled extends Error { }
+export class DeleteNewPartMediumSubmissionsEnabled extends Error { }
 export class DeleteNewPartMediumUnlinkError extends Error { }
 
 export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartMediumRequestDTO, DeleteNewPartMediumResponseDTO> {
@@ -37,15 +37,15 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
         where: { partMediumId: mediumIdBin },
         include: {
           newParts: true,
-          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } } },
         },
       });
       if (!partMedium) {
         return Result.fail(new DeleteNewPartMediumNotFound());
       }
 
-      if (partMedium.newPartTemplate?.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewPartMediumUnitsEnabled());
+      if (partMedium.newPartTemplate?.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewPartMediumSubmissionsEnabled());
       }
 
       if (partMedium.newParts.length > 0) {

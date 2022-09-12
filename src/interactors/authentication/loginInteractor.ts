@@ -124,7 +124,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       if (accountType === 'admin') {
         const adminAccount = account as Administrator;
         accessTokenPayload.studentCenter.privileges = {
-          unitPriceChange: adminAccount.unitPricePriv,
+          submissionPriceChange: adminAccount.submissionPricePriv,
           courseDevelopment: adminAccount.courseDevelopmentPriv,
         };
         if (adminAccount.apiUsername !== null) {

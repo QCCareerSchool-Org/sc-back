@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DeleteNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor.js';
-import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor.js';
+import { DeleteNewAssignmentTemplateNotFound, DeleteNewAssignmentTemplateSubmissionsEnabled } from '../../interactors/administrators/deleteNewAssignmentTemplateInteractor.js';
 import { deleteNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,8 +50,8 @@ export class DeleteNewAssignmentTemplateController extends BaseController<Reques
     switch (result.error.constructor) {
       case DeleteNewAssignmentTemplateNotFound:
         return this.notFound('Assignment template not found');
-      case DeleteNewAssignmentTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case DeleteNewAssignmentTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

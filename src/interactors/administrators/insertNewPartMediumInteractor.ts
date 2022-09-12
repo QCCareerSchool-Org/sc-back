@@ -22,7 +22,7 @@ export type InsertNewPartMediumRequestDTO = {
 export type InsertNewPartMediumResponseDTO = NewPartMediumDTO;
 
 export class InsertNewPartMediumPartNotFound extends Error { }
-export class InsertNewPartMediumUnitsEnabled extends Error { }
+export class InsertNewPartMediumSubmissionsEnabled extends Error { }
 export class InsertNewPartMediumCaptionEmpty extends Error { }
 export class InsertNewPartMediumCaptionTooLong extends Error { }
 export class InsertNewPartMediumOrderLessThanZero extends Error { }
@@ -65,14 +65,14 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       // find the part template
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin },
-        include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } },
+        include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } },
       });
       if (!partTemplate) {
         return Result.fail(new InsertNewPartMediumPartNotFound());
       }
 
-      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new InsertNewPartMediumUnitsEnabled());
+      if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new InsertNewPartMediumSubmissionsEnabled());
       }
 
       // validate the data

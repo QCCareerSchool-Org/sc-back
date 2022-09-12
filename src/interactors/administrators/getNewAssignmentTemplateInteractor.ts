@@ -4,8 +4,8 @@ import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
+import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -19,7 +19,7 @@ export type GetNewAssignmentTemplateRequestDTO = {
 };
 
 export type GetNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO & {
-  newUnitTemplate: NewUnitTemplateDTO;
+  newSubmissionTemplate: NewSubmissionTemplateDTO;
   newPartTemplates: NewPartTemplateDTO[] | Array<NewPartTemplateDTO & {
     newTextBoxTemplates: NewTextBoxTemplateDTO[];
     newUploadSlotTemplates: NewUploadSlotTemplateDTO[];
@@ -46,7 +46,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin },
         include: {
-          newUnitTemplate: true,
+          newSubmissionTemplate: true,
           newPartTemplates: {
             include: { newTextBoxTemplates: true, newUploadSlotTemplates: true, newPartMedia: true },
             orderBy: [ { partNumber: 'asc' } ],
@@ -60,7 +60,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
 
       return Result.success({
         assignmentTemplateId: this.uuidService.binToUUID(assignmentTemplate.assignmentTemplateId),
-        unitTemplateId: this.uuidService.binToUUID(assignmentTemplate.unitTemplateId),
+        submissionTemplateId: this.uuidService.binToUUID(assignmentTemplate.submissionTemplateId),
         assignmentNumber: assignmentTemplate.assignmentNumber,
         title: assignmentTemplate.title,
         description: assignmentTemplate.description,
@@ -69,17 +69,17 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         optional: assignmentTemplate.optional,
         created: assignmentTemplate.created,
         modified: assignmentTemplate.modified,
-        newUnitTemplate: {
-          unitTemplateId: this.uuidService.binToUUID(assignmentTemplate.newUnitTemplate.unitTemplateId),
-          courseId: assignmentTemplate.newUnitTemplate.courseId,
-          unitLetter: assignmentTemplate.newUnitTemplate.unitLetter,
-          title: assignmentTemplate.newUnitTemplate.title,
-          description: assignmentTemplate.newUnitTemplate.description,
-          markingCriteria: assignmentTemplate.newUnitTemplate.markingCriteria,
-          optional: assignmentTemplate.newUnitTemplate.optional,
-          order: assignmentTemplate.newUnitTemplate.order,
-          created: assignmentTemplate.newUnitTemplate.created,
-          modified: assignmentTemplate.newUnitTemplate.modified,
+        newSubmissionTemplate: {
+          submissionTemplateId: this.uuidService.binToUUID(assignmentTemplate.newSubmissionTemplate.submissionTemplateId),
+          courseId: assignmentTemplate.newSubmissionTemplate.courseId,
+          unitLetter: assignmentTemplate.newSubmissionTemplate.unitLetter,
+          title: assignmentTemplate.newSubmissionTemplate.title,
+          description: assignmentTemplate.newSubmissionTemplate.description,
+          markingCriteria: assignmentTemplate.newSubmissionTemplate.markingCriteria,
+          optional: assignmentTemplate.newSubmissionTemplate.optional,
+          order: assignmentTemplate.newSubmissionTemplate.order,
+          created: assignmentTemplate.newSubmissionTemplate.created,
+          modified: assignmentTemplate.newSubmissionTemplate.modified,
         },
         newPartTemplates: assignmentTemplate.newPartTemplates.map(p => ({
           partTemplateId: this.uuidService.binToUUID(p.partTemplateId),

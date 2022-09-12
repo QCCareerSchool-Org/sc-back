@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import type { GetNewUnitReturnResponseDTO } from '../../interactors/administrators/getNewUnitReturnInteractor.js';
-import { GetNewUnitReturnNotFound, GetNewUnitReturnTutorNotFound } from '../../interactors/administrators/getNewUnitReturnInteractor.js';
-import { getNewUnitReturnInteractor } from '../../interactors/administrators/index.js';
+import type { GetNewSubmissionReturnResponseDTO } from '../../interactors/administrators/getNewSubmissionReturnInteractor.js';
+import { GetNewSubmissionReturnNotFound, GetNewSubmissionReturnTutorNotFound } from '../../interactors/administrators/getNewSubmissionReturnInteractor.js';
+import { getNewSubmissionReturnInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -10,18 +10,18 @@ type Request = {
     /** numeric string */
     administratorId: string;
     /** uuid */
-    unitReturnId: string;
+    submissionReturnId: string;
   };
 };
 
-type Response = GetNewUnitReturnResponseDTO;
+type Response = GetNewSubmissionReturnResponseDTO;
 
-export class GetNewUnitReturnController extends BaseController<Request, Response> {
+export class GetNewSubmissionReturnController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      unitReturnId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionReturnId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -41,16 +41,16 @@ export class GetNewUnitReturnController extends BaseController<Request, Response
       return this.methodNotAllowed();
     }
 
-    const result = await getNewUnitReturnInteractor.execute({ unitReturnId: params.unitReturnId });
+    const result = await getNewSubmissionReturnInteractor.execute({ submissionReturnId: params.submissionReturnId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitReturnNotFound:
-        return this.notFound('Unit return not found');
-      case GetNewUnitReturnTutorNotFound:
+      case GetNewSubmissionReturnNotFound:
+        return this.notFound('Submission return not found');
+      case GetNewSubmissionReturnTutorNotFound:
         return this.notFound('Tutor not found');
       default:
         return this.internalServerError(result.error.message);

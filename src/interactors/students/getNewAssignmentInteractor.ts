@@ -16,7 +16,7 @@ import { Result } from '../result.js';
 export type GetNewAssignmentRequestDTO = {
   studentId: number;
   courseId: number;
-  unitId: string;
+  submissionId: string;
   assignmentId: string;
 };
 
@@ -39,16 +39,16 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
+  public async execute({ studentId, courseId, submissionId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
     try {
       const assignment = await this.prisma.newAssignment.findFirst({
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
-          unitId: this.uuidService.uuidToBin(unitId),
-          newUnit: { enrollment: { studentId, courseId, course: { enabled: true } } },
+          submissionId: this.uuidService.uuidToBin(submissionId),
+          newSubmission: { enrollment: { studentId, courseId, course: { enabled: true } } },
         },
         include: {
-          newUnit: true,
+          newSubmission: true,
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
@@ -72,7 +72,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
       return Result.success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
-        unitId: this.uuidService.binToUUID(assignment.unitId),
+        submissionId: this.uuidService.binToUUID(assignment.submissionId),
         assignmentNumber: assignment.assignmentNumber,
         title: assignment.title,
         description: assignment.description,
@@ -129,7 +129,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 description: t.description,
                 lines: t.lines,
                 points: t.points,
-                mark: assignment.newUnit.closed ? t.mark : null, // hide the mark unless the unit is marked
+                mark: assignment.newSubmission.closed ? t.mark : null, // hide the mark unless the submission is marked
                 notes: null, // students should never see the tutor's notes
                 optional: t.optional,
                 order: t.order,
@@ -158,7 +158,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                 points: u.points,
-                mark: assignment.newUnit.closed ? u.mark : null, // hide the mark unless the unit is marked
+                mark: assignment.newSubmission.closed ? u.mark : null, // hide the mark unless the submission is marked
                 notes: null, // students should never see the tutor's notes
                 optional: u.optional,
                 order: u.order,
@@ -185,7 +185,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             })),
             complete: partComplete,
             points: partPoints,
-            mark: assignment.newUnit.closed && partMarked ? partMark : null,
+            mark: assignment.newSubmission.closed && partMarked ? partMark : null,
           };
           if (!partComplete) {
             assignmentComplete = false;
@@ -200,7 +200,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         }),
         complete: assignmentComplete,
         points: assignmentPoints,
-        mark: assignment.newUnit.closed && assignmentMarked ? assignmentMark : null,
+        mark: assignment.newSubmission.closed && assignmentMarked ? assignmentMark : null,
       });
 
     } catch (err) {

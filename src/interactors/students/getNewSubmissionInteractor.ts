@@ -1,0 +1,239 @@
+import type { PrismaClient } from '@prisma/client';
+
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/newPartDTO.js';
+import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import type { ResultType } from '../result.js';
+import { Result } from '../result.js';
+
+export type GetNewSubmissionRequestDTO = {
+  studentId: number;
+  courseId: number;
+  submissionId: string;
+};
+
+export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
+  enrollment: EnrollmentDTO;
+  newAssignments: Array<NewAssignmentDTO & {
+    newParts: Array<NewPartDTO & {
+      newTextBoxes: NewTextBoxDTO[];
+      newUploadSlots: NewUploadSlotDTO[];
+    }>;
+  }>;
+};
+
+export class GetNewSubmissionNotFound extends Error { }
+
+export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
+
+  public constructor(
+    private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
+    private readonly logger: ILoggerService,
+  ) { /* empty */ }
+
+  public async execute({ studentId, courseId, submissionId }: GetNewSubmissionRequestDTO): Promise<ResultType<GetNewSubmissionResponseDTO>> {
+    try {
+      const submission = await this.prisma.newSubmission.findFirst({
+        where: {
+          enrollment: { studentId, courseId, course: { enabled: true } },
+          submissionId: this.uuidService.uuidToBin(submissionId),
+        },
+        include: {
+          enrollment: { include: { course: true } },
+          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+        },
+      });
+
+      if (!submission) {
+        return Result.fail(new GetNewSubmissionNotFound());
+      }
+
+      let submissionComplete = true;
+      let submissionMarked = true;
+      let submissionPoints = 0;
+      let submissionMark = 0;
+
+      return Result.success({
+        submissionId: this.uuidService.binToUUID(submission.submissionId),
+        enrollmentId: submission.enrollmentId,
+        tutorId: submission.tutorId,
+        unitLetter: submission.unitLetter,
+        title: submission.title,
+        description: submission.description,
+        markingCriteria: null, // students should never see the marking criteria
+        optional: submission.optional,
+        order: submission.order,
+        tutorComment: null, // students should never see the tutor comment
+        adminComment: submission.adminComment,
+        submitted: submission.submitted,
+        transferred: submission.transferred,
+        closed: submission.closed,
+        skipped: submission.skipped,
+        responseFilename: submission.responseFilename === null ? null : `${submission.enrollment.course.code}${submission.enrollment.enrollmentId} Submission ${submission.unitLetter}.mp3`,
+        responseFilesize: submission.responseFilesize,
+        responseMimeTypeId: submission.responseMimeTypeId,
+        created: submission.created,
+        modified: submission.modified,
+        enrollment: {
+          enrollmentId: submission.enrollment.enrollmentId,
+          courseId: submission.enrollment.courseId,
+          studentId: submission.enrollment.studentId,
+          studentNumber: submission.enrollment.studentNumber,
+          tutorId: submission.enrollment.tutorId,
+          maxAssignments: submission.enrollment.maxAssignments,
+          graduated: submission.enrollment.graduated,
+          assignmentsDisabled: submission.enrollment.assignmentsDisabled,
+          quizzesDisabled: submission.enrollment.quizzesDisabled,
+          onHold: submission.enrollment.onHold,
+          holdReason: submission.enrollment.holdReason,
+          currencyCode: submission.enrollment.currencyCode,
+          courseCost: submission.enrollment.courseCost.toNumber(),
+          amountPaid: submission.enrollment.amountPaid.toNumber(),
+          monthlyInstallment: submission.enrollment.monthlyInstallment === null ? null : submission.enrollment.monthlyInstallment.toNumber(),
+          enrollmentDate: submission.enrollment.enrollmentDate,
+          fastTrack: submission.enrollment.fastTrack,
+          paymentsDisabled: submission.enrollment.paymentsDisabled,
+        },
+        newAssignments: submission.newAssignments.map(a => {
+          let assignmentComplete = true;
+          let assignmentMarked = false;
+          let assignmentPoints = 0;
+          let assignmentMark = 0;
+          const assignment = {
+            assignmentId: this.uuidService.binToUUID(a.assignmentId),
+            submissionId: this.uuidService.binToUUID(a.submissionId),
+            assignmentNumber: a.assignmentNumber,
+            title: a.title,
+            description: a.description,
+            descriptionType: a.descriptionType,
+            markingCriteria: null, // students should never see the marking criteria
+            optional: a.optional,
+            created: a.created,
+            modified: a.modified,
+            newParts: a.newParts.map(p => {
+              let partComplete = true;
+              let partMarked = true;
+              let partPoints = 0;
+              let partMark = 0;
+              const part = {
+                partId: this.uuidService.binToUUID(p.partId),
+                assignmentId: this.uuidService.binToUUID(p.assignmentId),
+                partNumber: p.partNumber,
+                title: p.title,
+                description: p.description,
+                descriptionType: p.descriptionType,
+                markingCriteria: null, // students should never see the marking criteria
+                markingComments: null, // students should never see the marking comments
+                created: p.created,
+                modified: p.modified,
+                newTextBoxes: p.newTextBoxes.map(t => {
+                  const textBoxComplete = t.text.length > 0;
+                  if (!t.optional && !textBoxComplete) {
+                    partComplete = false;
+                  }
+                  if (textBoxComplete && t.mark === null && t.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (textBoxComplete || !t.optional) {
+                    partPoints += t.points;
+                    partMark += t.mark ?? 0;
+                  }
+                  return {
+                    textBoxId: this.uuidService.binToUUID(t.textBoxId),
+                    partId: this.uuidService.binToUUID(t.partId),
+                    description: t.description,
+                    lines: t.lines,
+                    points: t.points,
+                    mark: t.mark,
+                    notes: null, // students should never see the tutor's notes
+                    optional: t.optional,
+                    order: t.order,
+                    text: t.text,
+                    complete: textBoxComplete,
+                    created: t.created,
+                    modified: t.modified,
+                  };
+                }),
+                newUploadSlots: p.newUploadSlots.map(u => {
+                  const uploadSlotComplete = u.filename !== null;
+                  if (!u.optional && !uploadSlotComplete) {
+                    partComplete = false;
+                  }
+                  if (uploadSlotComplete && u.mark === null && u.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (uploadSlotComplete || !u.optional) {
+                    partPoints += u.points;
+                    partMark += u.mark ?? 0;
+                  }
+                  return {
+                    uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
+                    partId: this.uuidService.binToUUID(u.partId),
+                    label: u.label,
+                    allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+                    points: u.points,
+                    mark: u.mark,
+                    notes: null, // students should never see the tutor's notes
+                    optional: u.optional,
+                    order: u.order,
+                    filename: u.filename,
+                    filesize: u.filesize,
+                    mimeTypeId: u.mimeTypeId,
+                    complete: uploadSlotComplete,
+                    created: u.created,
+                    modified: u.modified,
+                  };
+                }),
+                complete: partComplete,
+                points: partPoints,
+                mark: submission.closed && partMark,
+              };
+              if (!partComplete) {
+                assignmentComplete = false;
+              }
+              if (partComplete && !partMarked) {
+                assignmentMarked = false;
+              }
+              // parts can't be optional, so we always add these
+              assignmentPoints += partPoints;
+              assignmentMark += partMark;
+              return part;
+            }),
+            complete: assignmentComplete,
+            points: assignmentPoints,
+            mark: submission.closed && assignmentMarked ? assignmentMark : null,
+          };
+          if (!a.optional && !assignmentComplete) {
+            submissionComplete = false;
+          }
+          // ignore incomplete, optional assignments
+          if (assignmentComplete || !a.optional) {
+            submissionPoints += assignmentPoints;
+            submissionMark += assignmentMark;
+          }
+          if (assignmentComplete && !assignmentMarked) {
+            submissionMarked = false;
+          }
+          return assignment;
+        }),
+        complete: submissionComplete,
+        points: submissionPoints,
+        mark: submission.closed && submissionMarked ? submissionMark : null,
+      });
+
+    } catch (err) {
+      this.logger.error('error getting new submission', err instanceof Error ? err.message : err);
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+}

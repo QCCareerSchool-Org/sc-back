@@ -19,7 +19,7 @@ export type SaveNewTextBoxTemplateRequestDTO = {
 export type SaveNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
 
 export class SaveNewTextBoxTemplateNotFound extends Error { }
-export class SaveNewTextBoxTemplateUnitsEnabled extends Error { }
+export class SaveNewTextBoxTemplateSubmissionsEnabled extends Error { }
 export class SaveNewTextBoxTemplateLinesLessThanOne extends Error { }
 export class SaveNewTextBoxTemplateLinesTooLarge extends Error { }
 export class SaveNewTextBoxTemplatePointsLessThanZero extends Error { }
@@ -44,15 +44,15 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
         where: { textBoxTemplateId: textBoxIdBin },
         include: {
-          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } } },
         },
       });
       if (!textBoxTemplate) {
         return Result.fail(new SaveNewTextBoxTemplateNotFound());
       }
 
-      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new SaveNewTextBoxTemplateUnitsEnabled());
+      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new SaveNewTextBoxTemplateSubmissionsEnabled());
       }
 
       // validate the data

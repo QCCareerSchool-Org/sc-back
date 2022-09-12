@@ -15,7 +15,7 @@ export type DeleteNewAssignmentMediumRequestDTO = {
 export type DeleteNewAssignmentMediumResponseDTO = void;
 
 export class DeleteNewAssignmentMediumNotFound extends Error { }
-export class DeleteNewAssignmentMediumUnitsEnabled extends Error { }
+export class DeleteNewAssignmentMediumSubmissionsEnabled extends Error { }
 export class DeleteNewAssignmentMediumUnlinkError extends Error { }
 
 export class DeleteNewAssignmentMediumInteractor implements IInteractor<DeleteNewAssignmentMediumRequestDTO, DeleteNewAssignmentMediumResponseDTO> {
@@ -37,15 +37,15 @@ export class DeleteNewAssignmentMediumInteractor implements IInteractor<DeleteNe
         where: { assignmentMediumId: mediumIdBin },
         include: {
           newAssignments: true,
-          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+          newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } },
         },
       });
       if (!assignmentMedium) {
         return Result.fail(new DeleteNewAssignmentMediumNotFound());
       }
 
-      if (assignmentMedium.newAssignmentTemplate?.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewAssignmentMediumUnitsEnabled());
+      if (assignmentMedium.newAssignmentTemplate?.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewAssignmentMediumSubmissionsEnabled());
       }
 
       if (assignmentMedium.newAssignments.length > 0) {

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { EnableCourseResponseDTO } from '../../interactors/administrators/enableCourseInteractor.js';
-import { EnableCourseNotFound, EnableCourseWrongUnitType } from '../../interactors/administrators/enableCourseInteractor.js';
+import { EnableCourseNotFound, EnableCourseWrongSubmissionType } from '../../interactors/administrators/enableCourseInteractor.js';
 import { enableCourseInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -61,7 +61,7 @@ export class EnableCourseController extends BaseController<Request, Response> {
     switch (result.error.constructor) {
       case EnableCourseNotFound:
         return this.notFound('Course not found');
-      case EnableCourseWrongUnitType:
+      case EnableCourseWrongSubmissionType:
         return this.badRequest('Wrong unit type');
       default:
         return this.internalServerError(result.error.message);

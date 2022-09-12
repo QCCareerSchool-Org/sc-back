@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { initializeNextNewUnitInteractor } from '../../interactors/students/index.js';
-import type { InitializeNextNewUnitResponseDTO } from '../../interactors/students/initializeNextNewUnitInteractor.js';
-import { InitializeNextCourseDisabled, InitializeNextNewUnitCantDetermineUnit, InitializeNextNewUnitDefaultPriceNotFound, InitializeNextNewUnitEnrollmentNotFound, InitializeNextNewUnitEnrollmentOnHold, InitializeNextNewUnitMultipleDefaultPricesFound, InitializeNextNewUnitNoAssignmentsFound, InitializeNextNewUnitNoInputsFound, InitializeNextNewUnitNoMoreUnits, InitializeNextNewUnitNoPartsFound, InitializeNextNewUnitNotReady, InitializeNextNewUnitStudentArrears, InitializeNextNewUnitTemplateNotFound } from '../../interactors/students/initializeNextNewUnitInteractor.js';
+import { initializeNextNewSubmissionInteractor } from '../../interactors/students/index.js';
+import type { InitializeNextNewSubmissionResponseDTO } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
+import { InitializeNextCourseDisabled, InitializeNextNewSubmissionCantDetermineSubmission, InitializeNextNewSubmissionDefaultPriceNotFound, InitializeNextNewSubmissionEnrollmentNotFound, InitializeNextNewSubmissionEnrollmentOnHold, InitializeNextNewSubmissionMultipleDefaultPricesFound, InitializeNextNewSubmissionNoAssignmentsFound, InitializeNextNewSubmissionNoInputsFound, InitializeNextNewSubmissionNoMoreSubmissions, InitializeNextNewSubmissionNoPartsFound, InitializeNextNewSubmissionNotReady, InitializeNextNewSubmissionStudentArrears, InitializeNextNewSubmissionTemplateNotFound } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -14,9 +14,9 @@ type Request = {
   };
 };
 
-type Response = InitializeNextNewUnitResponseDTO;
+type Response = InitializeNextNewSubmissionResponseDTO;
 
-export class InitializeNextNewUnitController extends BaseController<Request, Response> {
+export class InitializeNextNewSubmissionController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -44,38 +44,38 @@ export class InitializeNextNewUnitController extends BaseController<Request, Res
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
 
-    const result = await initializeNextNewUnitInteractor.execute({ studentId, courseId });
+    const result = await initializeNextNewSubmissionInteractor.execute({ studentId, courseId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case InitializeNextNewUnitEnrollmentNotFound:
+      case InitializeNextNewSubmissionEnrollmentNotFound:
         return this.notFound('Enrollment not found');
-      case InitializeNextNewUnitStudentArrears:
+      case InitializeNextNewSubmissionStudentArrears:
         return this.badRequest('Account is in arrears');
-      case InitializeNextNewUnitEnrollmentOnHold:
+      case InitializeNextNewSubmissionEnrollmentOnHold:
         return this.badRequest('Course is on hold');
       case InitializeNextCourseDisabled:
         return this.badRequest('This course is currently undergoing maintenance');
-      case InitializeNextNewUnitNotReady:
-        return this.badRequest('There are outstanding unmarked units');
-      case InitializeNextNewUnitNoMoreUnits:
-        return this.badRequest('There are no more units for this course');
-      case InitializeNextNewUnitCantDetermineUnit:
-        return this.internalServerError('Could not determine next unit');
-      case InitializeNextNewUnitTemplateNotFound:
-        return this.internalServerError('Could not find next unit');
-      case InitializeNextNewUnitDefaultPriceNotFound:
+      case InitializeNextNewSubmissionNotReady:
+        return this.badRequest('There are outstanding unmarked submissions');
+      case InitializeNextNewSubmissionNoMoreSubmissions:
+        return this.badRequest('There are no more submissions for this course');
+      case InitializeNextNewSubmissionCantDetermineSubmission:
+        return this.internalServerError('Could not determine next submission');
+      case InitializeNextNewSubmissionTemplateNotFound:
+        return this.internalServerError('Could not find next submission');
+      case InitializeNextNewSubmissionDefaultPriceNotFound:
         return this.internalServerError('No default price found');
-      case InitializeNextNewUnitMultipleDefaultPricesFound:
+      case InitializeNextNewSubmissionMultipleDefaultPricesFound:
         return this.internalServerError('Multiple default prices found');
-      case InitializeNextNewUnitNoAssignmentsFound:
-        return this.internalServerError('Unit has no assignments');
-      case InitializeNextNewUnitNoPartsFound:
+      case InitializeNextNewSubmissionNoAssignmentsFound:
+        return this.internalServerError('Submission has no assignments');
+      case InitializeNextNewSubmissionNoPartsFound:
         return this.internalServerError('Assignment has no parts');
-      case InitializeNextNewUnitNoInputsFound:
+      case InitializeNextNewSubmissionNoInputsFound:
         return this.internalServerError('Part has no inputs');
       default:
         return this.internalServerError(result.error.message);

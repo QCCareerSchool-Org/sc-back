@@ -4,7 +4,7 @@ export type NewAssignmentTemplateDTO = {
   /** uuid */
   assignmentTemplateId: string;
   /** uuid */
-  unitTemplateId: string;
+  submissionTemplateId: string;
   assignmentNumber: number;
   title: string | null;
   description: string | null;

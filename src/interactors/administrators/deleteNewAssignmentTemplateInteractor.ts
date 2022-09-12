@@ -15,7 +15,7 @@ export type DeleteNewAssignmentTemplateRequestDTO = {
 export type DeleteNewAssignmentTemplateResponseDTO = void;
 
 export class DeleteNewAssignmentTemplateNotFound extends Error { }
-export class DeleteNewAssignmentTemplateUnitsEnabled extends Error { }
+export class DeleteNewAssignmentTemplateSubmissionsEnabled extends Error { }
 
 export class DeleteNewAssignmentTemplateInteractor implements IInteractor<DeleteNewAssignmentTemplateRequestDTO, DeleteNewAssignmentTemplateResponseDTO> {
 
@@ -37,15 +37,15 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
         include: {
           newAssignmentMedia: { include: { newAssignments: true } },
           newPartTemplates: { include: { newPartMedia: { include: { newParts: true } } } },
-          newUnitTemplate: { include: { course: true } },
+          newSubmissionTemplate: { include: { course: true } },
         },
       });
       if (!assignmentTemplate) {
         return Result.fail(new DeleteNewAssignmentTemplateNotFound());
       }
 
-      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewAssignmentTemplateUnitsEnabled());
+      if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // delete the assignment template

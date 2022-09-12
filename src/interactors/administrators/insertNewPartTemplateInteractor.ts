@@ -21,7 +21,7 @@ export type InsertNewPartTemplateRequestDTO = {
 export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class InsertNewPartTemplateAssignmentNotFound extends Error { }
-export class InsertNewPartTemplateUnitsEnabled extends Error { }
+export class InsertNewPartTemplateSubmissionsEnabled extends Error { }
 export class InsertNewPartTemplatePartTitleEmpty extends Error { }
 export class InsertNewPartTemplatePartTitleTooLong extends Error { }
 export class InsertNewPartTemplateDescriptionTooLong extends Error { }
@@ -49,15 +49,15 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin },
         include: {
-          newUnitTemplate: { include: { course: true } },
+          newSubmissionTemplate: { include: { course: true } },
         },
       });
       if (!assignmentTemplate) {
         return Result.fail(new InsertNewPartTemplateAssignmentNotFound());
       }
 
-      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new InsertNewPartTemplateUnitsEnabled());
+      if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new InsertNewPartTemplateSubmissionsEnabled());
       }
 
       // validate the data

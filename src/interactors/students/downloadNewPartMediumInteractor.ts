@@ -13,7 +13,7 @@ import { Result } from '../result.js';
 export type DownloadNewPartMediumRequestDTO = {
   studentId: number;
   courseId: number;
-  unitId: string;
+  submissionId: string;
   assignmentId: string;
   partId: string;
   mediumId: string;
@@ -42,7 +42,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
   public async execute(request: DownloadNewPartMediumRequestDTO): Promise<ResultType<DownloadNewPartMediumResponseDTO>> {
     try {
       const { studentId, courseId, startByte, endByte } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(request.submissionId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const mediumIdBin = this.uuidService.uuidToBin(request.mediumId);
@@ -57,8 +57,8 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
               newPart: {
                 newAssignment: {
                   assignmentId: assignmentIdBin,
-                  newUnit: {
-                    unitId: unitIdBin,
+                  newSubmission: {
+                    submissionId: submissionIdBin,
                     enrollment: { studentId, courseId, course: { enabled: true } },
                   },
                 },

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewPartMediumInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewPartMediumResponseDTO } from '../../interactors/administrators/insertNewPartMediumInteractor.js';
-import { InsertNewPartMediumCaptionEmpty, InsertNewPartMediumCaptionTooLong, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumFileSaveError, InsertNewPartMediumInvalidContentLength, InsertNewPartMediumInvalidMimeType, InsertNewPartMediumMissingContentLength, InsertNewPartMediumMissingContentType, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumUnableToFetchExternalData, InsertNewPartMediumUnacceptableMimeType, InsertNewPartMediumUnitsEnabled } from '../../interactors/administrators/insertNewPartMediumInteractor.js';
+import { InsertNewPartMediumCaptionEmpty, InsertNewPartMediumCaptionTooLong, InsertNewPartMediumDataMissing, InsertNewPartMediumExternalDataInvalid, InsertNewPartMediumFileSaveError, InsertNewPartMediumInvalidContentLength, InsertNewPartMediumInvalidMimeType, InsertNewPartMediumMissingContentLength, InsertNewPartMediumMissingContentType, InsertNewPartMediumOrderLessThanZero, InsertNewPartMediumOrderTooLarge, InsertNewPartMediumPartNotFound, InsertNewPartMediumSubmissionsEnabled, InsertNewPartMediumUnableToFetchExternalData, InsertNewPartMediumUnacceptableMimeType } from '../../interactors/administrators/insertNewPartMediumInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -97,8 +97,8 @@ export class InsertNewPartMediumController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case InsertNewPartMediumPartNotFound:
         return this.badRequest('Part template not found');
-      case InsertNewPartMediumUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case InsertNewPartMediumSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case InsertNewPartMediumCaptionEmpty:
         return this.badRequest('Caption cannot be empty');
       case InsertNewPartMediumCaptionTooLong:

@@ -2,16 +2,17 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware.js';
-import { CloseNewUnitReturnController } from '../../controllers/administrators/closeNewUnitReturnController.js';
+import { CloseNewSubmissionReturnController } from '../../controllers/administrators/closeNewSubmissionReturnController.js';
+import { DeleteMaterialController } from '../../controllers/administrators/deleteMaterialController.js';
 import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController.js';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController.js';
-import { DeleteNewMaterialController } from '../../controllers/administrators/deleteNewMaterialController.js';
 import { DeleteNewPartMediumController } from '../../controllers/administrators/deleteNewPartMediumController.js';
 import { DeleteNewPartTemplateController } from '../../controllers/administrators/deleteNewPartTemplateController.js';
+import { DeleteNewSubmissionTemplateController } from '../../controllers/administrators/deleteNewSubmissionTemplateController.js';
+import { DeleteNewSubmissionTemplatePricesController } from '../../controllers/administrators/deleteNewSubmissionTemplatePricesController.js';
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController.js';
-import { DeleteNewUnitTemplateController } from '../../controllers/administrators/deleteNewUnitTemplateController.js';
-import { DeleteNewUnitTemplatePricesController } from '../../controllers/administrators/deleteNewUnitTemplatePricesController.js';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController.js';
+import { DeleteUnitController } from '../../controllers/administrators/deleteUnitController.js';
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController.js';
 import { EnableCourseController } from '../../controllers/administrators/enableCourseController.js';
@@ -21,37 +22,38 @@ import { GetAllCurrenciesController } from '../../controllers/administrators/get
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController.js';
 import { GetCountryController } from '../../controllers/administrators/getCountryController.js';
 import { GetCourseController } from '../../controllers/administrators/getCourseController.js';
+import { GetMaterialController } from '../../controllers/administrators/getMaterialController.js';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController.js';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController.js';
-import { GetNewMaterialController } from '../../controllers/administrators/getNewMaterialController.js';
-import { GetNewMaterialUnitController } from '../../controllers/administrators/getNewMaterialUnitController.js';
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController.js';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController.js';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController.js';
-import { GetNewUnitReturnController } from '../../controllers/administrators/getNewUnitReturnController.js';
-import { GetNewUnitTemplateController } from '../../controllers/administrators/getNewUnitTemplateController.js';
-import { GetNewUnitTemplatePricesController } from '../../controllers/administrators/getNewUnitTemplatePricesController.js';
+import { GetNewSubmissionReturnController } from '../../controllers/administrators/getNewUnitReturnController.js';
+import { GetNewSubmissionTemplateController } from '../../controllers/administrators/getNewUnitTemplateController.js';
+import { GetNewSubmissionTemplatePricesController } from '../../controllers/administrators/getNewUnitTemplatePricesController.js';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController.js';
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController.js';
+import { GetUnitController } from '../../controllers/administrators/getUnitController.js';
+import { InsertMaterialController } from '../../controllers/administrators/insertMaterialController.js';
 import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController.js';
 import { InsertNewAssignmentTemplateController } from '../../controllers/administrators/insertNewAssignmentTemplateController.js';
-import { InsertNewMaterialController } from '../../controllers/administrators/insertNewMaterialController.js';
-import { InsertNewMaterialUnitController } from '../../controllers/administrators/insertNewMaterialUnitController.js';
 import { InsertNewPartMediumController } from '../../controllers/administrators/insertNewPartMediumController.js';
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController.js';
+import { InsertNewSubmissionTemplateController } from '../../controllers/administrators/insertNewSubmissionTemplateController.js';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController.js';
-import { InsertNewUnitTemplateController } from '../../controllers/administrators/insertNewUnitTemplateController.js';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController.js';
-import { ReplaceNewMaterialFileController } from '../../controllers/administrators/replaceNewMaterialFileController.js';
-import { ReplaceNewUnitTemplatePricesController } from '../../controllers/administrators/replaceNewUnitTemplatePricesController.js';
+import { InsertUnitController } from '../../controllers/administrators/insertUnitController.js';
+import { ReplaceMaterialFileController } from '../../controllers/administrators/replaceMaterialFileController.js';
+import { ReplaceNewSubmissionTemplatePricesController } from '../../controllers/administrators/replaceNewSubmissionTemplatePricesController.js';
+import { SaveMaterialController } from '../../controllers/administrators/saveMaterialController.js';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController.js';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController.js';
-import { SaveNewMaterialController } from '../../controllers/administrators/saveNewMaterialController.js';
 import { SaveNewPartMediumController } from '../../controllers/administrators/saveNewPartMediumController.js';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController.js';
+import { SaveNewSubmissionTemplateController } from '../../controllers/administrators/saveNewSubmissionTemplateController.js';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController.js';
-import { SaveNewUnitTemplateController } from '../../controllers/administrators/saveNewUnitTemplateController.js';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController.js';
+import { SaveUnitController } from '../../controllers/administrators/saveUnitController.js';
 import type { Route } from './applyRoutes.js';
 import { applyRoutes } from './applyRoutes.js';
 
@@ -72,11 +74,11 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/countries/:countryId', GetCountryController ],
   // currencies
   [ 'get', '/:administratorId/currencies', GetAllCurrenciesController ],
-  // new unit templates
-  [ 'post', '/:administratorId/newUnitTemplates', InsertNewUnitTemplateController ],
-  [ 'get', '/:administratorId/newUnitTemplates/:unitId', GetNewUnitTemplateController ],
-  [ 'put', '/:administratorId/newUnitTemplates/:unitId', SaveNewUnitTemplateController ],
-  [ 'delete', '/:administratorId/newUnitTemplates/:unitId', DeleteNewUnitTemplateController ],
+  // new submission templates
+  [ 'post', '/:administratorId/newSubmissionTemplates', InsertNewSubmissionTemplateController ],
+  [ 'get', '/:administratorId/newSubmissionTemplates/:submissionId', GetNewSubmissionTemplateController ],
+  [ 'put', '/:administratorId/newSubmissionTemplates/:submissionId', SaveNewSubmissionTemplateController ],
+  [ 'delete', '/:administratorId/newSubmissionTemplates/:submissionId', DeleteNewSubmissionTemplateController ],
   // new assignment templates
   [ 'post', '/:administratorId/newAssignmentTemplates', InsertNewAssignmentTemplateController ],
   [ 'get', '/:administratorId/newAssignmentTemplates/:assignmentId', GetNewAssignmentTemplateController ],
@@ -109,23 +111,25 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/newPartMedia/:mediumId', SaveNewPartMediumController ],
   [ 'delete', '/:administratorId/newPartMedia/:mediumId', DeleteNewPartMediumController ],
   [ 'get', '/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
-  // new unit template prices
-  [ 'get', '/:administratorId/courses/:courseId/newUnitTemplatePrices', GetNewUnitTemplatePricesController ],
-  [ 'put', '/:administratorId/courses/:courseId/newUnitTemplatePrices', ReplaceNewUnitTemplatePricesController ],
-  [ 'delete', '/:administratorId/courses/:courseId/newUnitTemplatePrices', DeleteNewUnitTemplatePricesController ],
-  // new unit returns
-  [ 'get', '/:administratorId/newUnitReturns/:unitReturnId', GetNewUnitReturnController ],
-  [ 'put', '/:administratorId/newUnitReturns/:unitReturnId', CloseNewUnitReturnController ],
-  // new material units
-  [ 'get', '/:administratorId/newMaterialUnits/:materialUnitId', GetNewMaterialUnitController ],
-  [ 'post', '/:administratorId/newMaterialUnits', InsertNewMaterialUnitController ],
-  // new materials
-  // [ 'get', '/:administratorId/newMaterials', GetAllNewMaterialsController ],
-  [ 'post', '/:administratorId/newMaterials', InsertNewMaterialController, multer({ dest: '/tmp/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
-  [ 'get', '/:administratorId/newMaterials/:materialId', GetNewMaterialController ],
-  [ 'put', '/:administratorId/newMaterials/:materialId', SaveNewMaterialController ],
-  [ 'post', '/:administratorId/newMaterials/:materialId/file', ReplaceNewMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],
-  [ 'delete', '/:administratorId/newMaterials/:materialId', DeleteNewMaterialController ],
+  // new submission template prices
+  [ 'get', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', GetNewSubmissionTemplatePricesController ],
+  [ 'put', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', ReplaceNewSubmissionTemplatePricesController ],
+  [ 'delete', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', DeleteNewSubmissionTemplatePricesController ],
+  // new submission returns
+  [ 'get', '/:administratorId/newSubmissionReturns/:unitReturnId', GetNewSubmissionReturnController ],
+  [ 'put', '/:administratorId/newSubmissionReturns/:unitReturnId', CloseNewSubmissionReturnController ],
+  // units
+  [ 'post', '/:administratorId/units', InsertUnitController ],
+  [ 'get', '/:administratorId/units/:unitId', GetUnitController ],
+  [ 'put', '/:administratorId/units/:unitId', SaveUnitController ],
+  [ 'delete', '/:administratorId/units/:unitId', DeleteUnitController ],
+  // materials
+  // [ 'get', '/:administratorId/materials', GetAllNewMaterialsController ],
+  [ 'post', '/:administratorId/materials', InsertMaterialController, multer({ dest: '/tmp/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
+  [ 'get', '/:administratorId/materials/:materialId', GetMaterialController ],
+  [ 'put', '/:administratorId/materials/:materialId', SaveMaterialController ],
+  [ 'post', '/:administratorId/materials/:materialId/file', ReplaceMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'delete', '/:administratorId/materials/:materialId', DeleteMaterialController ],
 ];
 
 applyRoutes(administratorRouter, routes);

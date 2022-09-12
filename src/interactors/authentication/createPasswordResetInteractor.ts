@@ -71,7 +71,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
           code,
           used: false,
           requestDate: this.dateService.getDate(),
-          expiryDate: new Date(this.dateService.getDate().getTime() + this.configService.config.passwordResetTimeout),
+          expiryDate: new Date(this.dateService.getDate().getTime() + (this.configService.config.passwordResetTimeout * 1000)),
           entityVersion: 0,
         },
       });

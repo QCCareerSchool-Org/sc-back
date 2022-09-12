@@ -106,7 +106,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
           return Result.fail(new RefreshAccountNotFound());
         }
         accessTokenPayload.studentCenter.privileges = {
-          unitPriceChange: refreshToken.administrator.unitPricePriv,
+          submissionPriceChange: refreshToken.administrator.submissionPricePriv,
           courseDevelopment: refreshToken.administrator.courseDevelopmentPriv,
         };
         if (refreshToken.administrator.apiUsername !== null) {

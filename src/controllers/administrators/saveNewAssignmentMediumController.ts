@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewAssignmentMediumInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewAssignmentMediumResponseDTO } from '../../interactors/administrators/saveNewAssignmentMediumInteractor.js';
-import { SaveNewAssignmentMediumNotFound, SaveNewAssignmentMediumOrderLessThanZero, SaveNewAssignmentMediumOrderTooLarge, SaveNewAssignmentMediumPartCaptionEmpty, SaveNewAssignmentMediumPartCaptionTooLong, SaveNewAssignmentMediumUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentMediumInteractor.js';
+import { SaveNewAssignmentMediumNotFound, SaveNewAssignmentMediumOrderLessThanZero, SaveNewAssignmentMediumOrderTooLarge, SaveNewAssignmentMediumPartCaptionEmpty, SaveNewAssignmentMediumPartCaptionTooLong, SaveNewAssignmentMediumSubmissionsEnabled } from '../../interactors/administrators/saveNewAssignmentMediumInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -65,8 +65,8 @@ export class SaveNewAssignmentMediumController extends BaseController<Request, R
     switch (result.error.constructor) {
       case SaveNewAssignmentMediumNotFound:
         return this.notFound('Assignment medium not found');
-      case SaveNewAssignmentMediumUnitsEnabled:
-        return this.internalServerError('Units must be disabled');
+      case SaveNewAssignmentMediumSubmissionsEnabled:
+        return this.internalServerError('Submissions must be disabled');
       case SaveNewAssignmentMediumPartCaptionEmpty:
         return this.internalServerError('Caption is empty');
       case SaveNewAssignmentMediumPartCaptionTooLong:

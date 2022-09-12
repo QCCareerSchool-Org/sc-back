@@ -35,10 +35,10 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
         courseGuide: c.courseGuide,
         quizzesEnabled: c.quizzesEnabled,
         noTutor: c.noTutor,
-        unitType: c.unitType,
+        submissionType: c.submissionType,
         enabled: c.enabled,
         order: c.order,
-        newUnitsEnabled: c.newUnitsEnabled,
+        submissionsEnabled: c.submissionsEnabled,
         entityVersion: c.entityVersion,
         school: {
           schoolId: c.school.schoolId,

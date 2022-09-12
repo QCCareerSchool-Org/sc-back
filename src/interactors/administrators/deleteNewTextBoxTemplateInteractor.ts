@@ -13,7 +13,7 @@ export type DeleteNewTextBoxTemplateRequestDTO = {
 export type DeleteNewTextBoxTemplateResponseDTO = void;
 
 export class DeleteNewTextBoxTemplateNotFound extends Error { }
-export class DeleteNewTextBoxTemplateUnitsEnabled extends Error { }
+export class DeleteNewTextBoxTemplateSubmissionsEnabled extends Error { }
 
 export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNewTextBoxTemplateRequestDTO, DeleteNewTextBoxTemplateResponseDTO> {
 
@@ -31,15 +31,15 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
       const textBoxTemplate = await this.prisma.newTextBoxTemplate.findFirst({
         where: { textBoxTemplateId: textBoxIdBin },
         include: {
-          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } } },
         },
       });
       if (!textBoxTemplate) {
         return Result.fail(new DeleteNewTextBoxTemplateNotFound());
       }
 
-      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewTextBoxTemplateUnitsEnabled());
+      if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewTextBoxTemplateSubmissionsEnabled());
       }
 
       // delete the text box template

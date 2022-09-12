@@ -1,0 +1,141 @@
+import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
+
+import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
+
+export type SaveNewSubmissionTemplateRequestDTO = {
+  submissionId: string;
+  unitLetter: string;
+  title: string | null;
+  description: string | null;
+  markingCriteria: string | null;
+  optional: boolean;
+  order: number;
+};
+
+export type SaveNewSubmissionTemplateResponseDTO = NewSubmissionTemplateDTO;
+
+export class SaveNewSubmissionTemplateNotFound extends Error { }
+export class SaveNewSubmissionTemplateSubmissionsEnabled extends Error { }
+export class SaveNewSubmissionTemplateUnitLetterEmpty extends Error { }
+export class SaveNewSubmissionTemplateUnitLetterTooLong extends Error { }
+export class SaveNewSubmissionTemplateInvalidUnitLetter extends Error { }
+export class SaveNewSubmissionTemplateTitleTooLong extends Error { }
+export class SaveNewSubmissionTemplateDescriptionTooLong extends Error { }
+export class SaveNewSubmissionTemplateMarkingCriteriaTooLong extends Error { }
+export class SaveNewSubmissionTemplateOrderLessThanZero extends Error { }
+export class SaveNewSubmissionTemplateOrderTooLarge extends Error { }
+export class SaveNewSubmissionTemplateUnitLetterAlreadyInUse extends Error { }
+
+export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewSubmissionTemplateRequestDTO, SaveNewSubmissionTemplateResponseDTO> {
+
+  public constructor(
+    private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
+    private readonly logger: ILoggerService,
+  ) { /* empty */ }
+
+  public async execute(request: SaveNewSubmissionTemplateRequestDTO): Promise<ResultType<SaveNewSubmissionTemplateResponseDTO>> {
+    try {
+      const { unitLetter, title, description, markingCriteria, order, optional } = request;
+      const submissionIdBin = this.uuidService.uuidToBin(request.submissionId);
+
+      // find the submission template
+      const submissionTemplate = await this.prisma.newSubmissionTemplate.findFirst({
+        where: { submissionTemplateId: submissionIdBin },
+        include: {
+          course: true,
+        },
+      });
+      if (!submissionTemplate) {
+        return Result.fail(new SaveNewSubmissionTemplateNotFound());
+      }
+
+      if (submissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new SaveNewSubmissionTemplateSubmissionsEnabled());
+      }
+
+      // validate the data
+      if (unitLetter.length === 0) {
+        return Result.fail(new SaveNewSubmissionTemplateUnitLetterEmpty());
+      }
+      if (unitLetter.length > 1) {
+        return Result.fail(new SaveNewSubmissionTemplateUnitLetterTooLong());
+      }
+      if (!/^[a-z0-9]$/iu.test(unitLetter)) {
+        return Result.fail(new SaveNewSubmissionTemplateInvalidUnitLetter());
+      }
+
+      if (title !== null) {
+        if ([ ...title ].length > 191) {
+          return Result.fail(new SaveNewSubmissionTemplateTitleTooLong());
+        }
+      }
+
+      if (description !== null) {
+        if ([ ...description ].length > 65_535) {
+          return Result.fail(new SaveNewSubmissionTemplateDescriptionTooLong());
+        }
+      }
+
+      if (markingCriteria !== null) {
+        if ([ ...markingCriteria ].length > 65_535) {
+          return Result.fail(new SaveNewSubmissionTemplateMarkingCriteriaTooLong());
+        }
+      }
+
+      if (order < 0) {
+        return Result.fail(new SaveNewSubmissionTemplateOrderLessThanZero());
+      }
+      if (order > 127) {
+        return Result.fail(new SaveNewSubmissionTemplateOrderTooLarge());
+      }
+
+      // update the submission template
+      let updatedSubmissionTemplate: NewSubmissionTemplate;
+      try {
+        updatedSubmissionTemplate = await this.prisma.newSubmissionTemplate.update({
+          data: {
+            unitLetter,
+            title: title?.length ? title : null,
+            description: description?.length ? description : null,
+            markingCriteria: markingCriteria?.length ? markingCriteria : null,
+            order,
+            optional,
+          },
+          where: { submissionTemplateId: submissionIdBin },
+        });
+      } catch (err) {
+        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+          const meta = err.meta as { target: string };
+          if (meta.target === 'course_id_submission_letter') {
+            return Result.fail(new SaveNewSubmissionTemplateUnitLetterAlreadyInUse());
+          }
+        }
+        throw err;
+      }
+
+      return Result.success({
+        submissionTemplateId: this.uuidService.binToUUID(updatedSubmissionTemplate.submissionTemplateId),
+        courseId: updatedSubmissionTemplate.courseId,
+        unitLetter: updatedSubmissionTemplate.unitLetter,
+        title: updatedSubmissionTemplate.title,
+        description: updatedSubmissionTemplate.description,
+        markingCriteria: updatedSubmissionTemplate.markingCriteria,
+        optional: updatedSubmissionTemplate.optional,
+        order: updatedSubmissionTemplate.order,
+        created: updatedSubmissionTemplate.created,
+        modified: updatedSubmissionTemplate.modified,
+      });
+
+    } catch (err) {
+      this.logger.error('error saving submission template', err instanceof Error ? err.message : err);
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+}

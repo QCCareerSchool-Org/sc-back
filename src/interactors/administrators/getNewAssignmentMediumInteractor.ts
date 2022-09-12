@@ -58,7 +58,7 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         modified: assignmentMedium.modified,
         newAssignmentTemplate: assignmentMedium.newAssignmentTemplate === null ? null : {
           assignmentTemplateId: this.uuidService.binToUUID(assignmentMedium.newAssignmentTemplate.assignmentTemplateId),
-          unitTemplateId: this.uuidService.binToUUID(assignmentMedium.newAssignmentTemplate.unitTemplateId),
+          submissionTemplateId: this.uuidService.binToUUID(assignmentMedium.newAssignmentTemplate.submissionTemplateId),
           assignmentNumber: assignmentMedium.newAssignmentTemplate.assignmentNumber,
           title: assignmentMedium.newAssignmentTemplate.title,
           description: assignmentMedium.newAssignmentTemplate.description,
@@ -70,7 +70,7 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         },
         newAssignments: assignmentMedium.newAssignments.map(a => ({
           assignmentId: this.uuidService.binToUUID(a.newAssignment.assignmentId),
-          unitId: this.uuidService.binToUUID(a.newAssignment.unitId),
+          submissionId: this.uuidService.binToUUID(a.newAssignment.submissionId),
           assignmentNumber: a.newAssignment.assignmentNumber,
           title: a.newAssignment.title,
           description: a.newAssignment.description,

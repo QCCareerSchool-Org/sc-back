@@ -2,7 +2,7 @@ import type { AccountType } from './accountType.js';
 import type { StudentTypeType } from './studentType.js';
 
 export type Privileges = {
-  unitPriceChange?: boolean;
+  submissionPriceChange?: boolean;
   courseDevelopment?: boolean;
 };
 

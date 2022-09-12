@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DeleteNewAssignmentMediumResponseDTO } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor.js';
-import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumUnitsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor.js';
+import { DeleteNewAssignmentMediumNotFound, DeleteNewAssignmentMediumSubmissionsEnabled, DeleteNewAssignmentMediumUnlinkError } from '../../interactors/administrators/deleteNewAssignmentMediumInteractor.js';
 import { deleteNewAssignmentMediumInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,8 +50,8 @@ export class DeleteNewAssignmentMediumController extends BaseController<Request,
     switch (result.error.constructor) {
       case DeleteNewAssignmentMediumNotFound:
         return this.notFound('Assignment medium not found');
-      case DeleteNewAssignmentMediumUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case DeleteNewAssignmentMediumSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case DeleteNewAssignmentMediumUnlinkError:
         return this.internalServerError('Could not unlink file');
       default:

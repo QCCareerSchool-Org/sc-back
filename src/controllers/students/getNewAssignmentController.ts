@@ -12,7 +12,7 @@ type Request = {
     /** numeric string */
     courseId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
   };
@@ -26,7 +26,7 @@ export class GetNewAssignmentController extends BaseController<Request, Response
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -49,9 +49,9 @@ export class GetNewAssignmentController extends BaseController<Request, Response
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId } = params;
+    const { submissionId, assignmentId } = params;
 
-    const result = await getNewAssignmentInteractor.execute({ studentId, courseId, unitId, assignmentId });
+    const result = await getNewAssignmentInteractor.execute({ studentId, courseId, submissionId, assignmentId });
 
     if (result.success) {
       return this.ok(result.value);

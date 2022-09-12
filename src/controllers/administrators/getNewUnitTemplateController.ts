@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import type { GetNewUnitTemplateResponseDTO } from '../../interactors/administrators/getNewUnitTemplateInteractor.js';
-import { GetNewUnitTemplateNotFound } from '../../interactors/administrators/getNewUnitTemplateInteractor.js';
-import { getNewUnitTemplateInteractor } from '../../interactors/administrators/index.js';
+import type { GetNewSubmissionTemplateResponseDTO } from '../../interactors/administrators/getNewSubmissionTemplateInteractor.js';
+import { GetNewSubmissionTemplateNotFound } from '../../interactors/administrators/getNewSubmissionTemplateInteractor.js';
+import { getNewSubmissionTemplateInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -10,18 +10,18 @@ type Request = {
     /** numeric string */
     administratorId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
   };
 };
 
-type Response = GetNewUnitTemplateResponseDTO;
+type Response = GetNewSubmissionTemplateResponseDTO;
 
-export class GetNewUnitTemplateController extends BaseController<Request, Response> {
+export class GetNewSubmissionTemplateController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -41,15 +41,15 @@ export class GetNewUnitTemplateController extends BaseController<Request, Respon
       return this.methodNotAllowed();
     }
 
-    const result = await getNewUnitTemplateInteractor.execute({ unitId: params.unitId });
+    const result = await getNewSubmissionTemplateInteractor.execute({ submissionId: params.submissionId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitTemplateNotFound:
-        return this.notFound('Unit template not found');
+      case GetNewSubmissionTemplateNotFound:
+        return this.notFound('Submission template not found');
       default:
         return this.internalServerError(result.error.message);
     }

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { uploadNewUploadSlotInteractor } from '../../interactors/students/index.js';
 import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
-import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotUnitSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
+import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotSubmissionSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -12,7 +12,7 @@ type Request = {
     /** numeric string */
     courseId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
     /** uuid */
@@ -38,7 +38,7 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -74,12 +74,12 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, uploadSlotId } = params;
+    const { submissionId, assignmentId, partId, uploadSlotId } = params;
 
     const result = await uploadNewUploadSlotInteractor.execute({
       studentId,
       courseId,
-      unitId,
+      submissionId,
       assignmentId,
       partId,
       uploadSlotId,
@@ -98,8 +98,8 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case UploadNewUploadSlotNotFound:
         return this.notFound('Upload slot not found');
-      case UploadNewUploadSlotUnitSubmitted:
-        return this.badRequest('Unit already submitted');
+      case UploadNewUploadSlotSubmissionSubmitted:
+        return this.badRequest('Submission already submitted');
       case UploadNewUploadSlotFileTooLarge:
         return this.badRequest('File too large');
       case UploadNewUploadSlotInvalidFileType:

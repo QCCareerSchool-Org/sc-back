@@ -15,7 +15,7 @@ export type UploadNewUploadSlotRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
-  unitId: string;
+  submissionId: string;
   /** uuid */
   assignmentId: string;
   /** uuid */
@@ -28,7 +28,7 @@ export type UploadNewUploadSlotRequestDTO = {
 export type UploadNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
 export class UploadNewUploadSlotNotFound extends Error { }
-export class UploadNewUploadSlotUnitSubmitted extends Error { }
+export class UploadNewUploadSlotSubmissionSubmitted extends Error { }
 export class UploadNewUploadSlotFileTooLarge extends Error { }
 export class UploadNewUploadSlotInvalidFileType extends Error { }
 export class UploadNewUploadSlotEntityNotFound extends Error { }
@@ -46,23 +46,23 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotRequestDTO): Promise<ResultType<UploadNewUploadSlotResponseDTO>> {
+  public async execute({ studentId, courseId, submissionId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotRequestDTO): Promise<ResultType<UploadNewUploadSlotResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(submissionId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newUploadSlot) {
         throw new UploadNewUploadSlotNotFound();
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.submitted) {
-        throw new UploadNewUploadSlotUnitSubmitted();
+      if (newUploadSlot.newPart.newAssignment.newSubmission.submitted) {
+        throw new UploadNewUploadSlotSubmissionSubmitted();
       }
 
       if (file.size > this.configService.config.uploadSlotMaxFilesize) {
@@ -91,7 +91,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
             compressed: mimeType.compress,
           },
           where: { uploadSlotId: uploadSlotIdBin },
-          include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+          include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
         });
 
         const paddedStudentId = studentId.toString().padStart(8, '0');
@@ -148,7 +148,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
         label: updatedUploadSlot.label,
         allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
-        mark: updatedUploadSlot.newPart.newAssignment.newUnit.closed ? updatedUploadSlot.mark : null, // hide mark unless the unit is marked
+        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,

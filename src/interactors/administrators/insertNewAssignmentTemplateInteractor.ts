@@ -10,7 +10,7 @@ import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
 export type InsertNewAssignmentTemplateRequestDTO = {
-  unitId: string;
+  submissionId: string;
   assignmentNumber: number;
   title: string | null;
   description: string | null;
@@ -21,8 +21,8 @@ export type InsertNewAssignmentTemplateRequestDTO = {
 
 export type InsertNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 
-export class InsertNewAssignmentTemplateUnitNotFound extends Error { }
-export class InsertNewAssignmentTemplateUnitsEnabled extends Error { }
+export class InsertNewAssignmentTemplateSubmissionNotFound extends Error { }
+export class InsertNewAssignmentTemplateSubmissionsEnabled extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class InsertNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class InsertNewAssignmentTemplateTitleTooLong extends Error { }
@@ -43,19 +43,19 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
   public async execute(request: InsertNewAssignmentTemplateRequestDTO): Promise<ResultType<InsertNewAssignmentTemplateResponseDTO>> {
     try {
       const { assignmentNumber, title, description, descriptionType, markingCriteria, optional } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(request.submissionId);
 
-      // find the unit template
-      const unitTemplate = await this.prisma.newUnitTemplate.findFirst({
-        where: { unitTemplateId: unitIdBin },
+      // find the submission template
+      const submissionTemplate = await this.prisma.newSubmissionTemplate.findFirst({
+        where: { submissionTemplateId: submissionIdBin },
         include: { course: true },
       });
-      if (!unitTemplate) {
-        return Result.fail(new InsertNewAssignmentTemplateUnitNotFound());
+      if (!submissionTemplate) {
+        return Result.fail(new InsertNewAssignmentTemplateSubmissionNotFound());
       }
 
-      if (unitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new InsertNewAssignmentTemplateUnitsEnabled());
+      if (submissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new InsertNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // validate the data
@@ -97,7 +97,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         insertedAssignmentTemplate = await this.prisma.newAssignmentTemplate.create({
           data: {
             assignmentTemplateId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-            unitTemplateId: unitIdBin,
+            submissionTemplateId: submissionIdBin,
             assignmentNumber,
             title: title?.length ? title : null,
             description: description?.length ? description : null,
@@ -109,7 +109,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
-          if (meta.target === 'unit_template_id_assignment_number') {
+          if (meta.target === 'submission_template_id_assignment_number') {
             return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse());
           }
         }
@@ -118,7 +118,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
 
       return Result.success({
         assignmentTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.assignmentTemplateId),
-        unitTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.unitTemplateId),
+        submissionTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.submissionTemplateId),
         assignmentNumber: insertedAssignmentTemplate.assignmentNumber,
         title: insertedAssignmentTemplate.title,
         description: insertedAssignmentTemplate.description,

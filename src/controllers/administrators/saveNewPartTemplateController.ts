@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewPartTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewPartTemplateResponseDTO } from '../../interactors/administrators/saveNewPartTemplateInteractor.js';
-import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateMarkingCriteriaTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateUnitsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor.js';
+import { SaveNewPartTemplateDescriptionTooLong, SaveNewPartTemplateDescriptionTypeEmpty, SaveNewPartTemplateInvalidDescriptionType, SaveNewPartTemplateMarkingCriteriaTooLong, SaveNewPartTemplateNotFound, SaveNewPartTemplatePartNumberAlreadyInUse, SaveNewPartTemplatePartNumberLessThanOne, SaveNewPartTemplatePartNumberTooLarge, SaveNewPartTemplatePartTitleEmpty, SaveNewPartTemplatePartTitleTooLong, SaveNewPartTemplateSubmissionsEnabled } from '../../interactors/administrators/saveNewPartTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -74,8 +74,8 @@ export class SaveNewPartTemplateController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case SaveNewPartTemplateNotFound:
         return this.notFound('Part template not found');
-      case SaveNewPartTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case SaveNewPartTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case SaveNewPartTemplatePartTitleEmpty:
         return this.badRequest('Title is empty');
       case SaveNewPartTemplatePartTitleTooLong:

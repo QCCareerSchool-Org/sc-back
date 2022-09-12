@@ -109,7 +109,7 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
     if (passwordReset.expiryDate) {
       return this.dateService.getDate() >= passwordReset.expiryDate;
     }
-    return this.dateService.getDate().getTime() >= passwordReset.requestDate.getTime() + this.configService.config.passwordResetTimeout;
+    return this.dateService.getDate().getTime() >= passwordReset.requestDate.getTime() + (this.configService.config.passwordResetTimeout * 1000);
   }
 
   private getAccountId(passwordRest: PasswordResetRequest): [number, AccountType] {

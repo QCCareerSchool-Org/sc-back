@@ -2,14 +2,14 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-import type { NewMaterialDTO } from '../../domain/newMaterialDTO.js';
-import type { NewMaterialUnitDTO } from '../../domain/newMaterialUnitDTO.js';
-import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
-import type { OldUnitDTO } from '../../domain/oldUnitDTO.js';
-import type { OldUnitTemplateDTO } from '../../domain/oldUnitTemplateDTO.js';
+import type { MaterialDTO } from '../../domain/materialDTO.js';
+import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { OldSubmissionDTO } from '../../domain/oldSubmissionDTO.js';
+import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplateDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
+import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -26,15 +26,15 @@ export type GetEnrollmentRequestDTO = {
 export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   student: StudentDTO;
   course: CourseDTO & {
-    oldUnitTemplates: OldUnitTemplateDTO[];
-    newUnitTemplates: NewUnitTemplateDTO[];
-    newMaterialUnits: Array<NewMaterialUnitDTO & {
-      newMaterials: NewMaterialDTO[];
+    oldSubmissionTemplates: OldSubmissionTemplateDTO[];
+    newSubmissionTemplates: NewSubmissionTemplateDTO[];
+    units: Array<UnitDTO & {
+      materials: MaterialDTO[];
     }>;
   };
   tutor: TutorDTO | null;
-  oldUnits: OldUnitDTO[];
-  newUnits: NewUnitDTO[];
+  oldSubmissions: OldSubmissionDTO[];
+  newSubmissions: NewSubmissionDTO[];
 };
 
 export class GetEnrollmentNotFound extends Error { }
@@ -57,17 +57,17 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           student: { include: { caSocialInsuranceNumber: true } },
           course: {
             include: {
-              newUnitTemplates: true,
-              oldUnitTemplates: true,
-              newMaterialUnits: {
-                include: { newMaterials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
+              newSubmissionTemplates: true,
+              oldSubmissionTemplates: true,
+              units: {
+                include: { materials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
                 orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
               },
             },
           },
           tutor: true,
-          oldUnits: true,
-          newUnits: {
+          oldSubmissions: true,
+          newSubmissions: {
             include: {
               newAssignments: {
                 include: {
@@ -147,56 +147,61 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           courseGuide: enrollment.course.courseGuide,
           quizzesEnabled: enrollment.course.quizzesEnabled,
           noTutor: enrollment.course.noTutor,
-          unitType: enrollment.course.unitType,
+          submissionType: enrollment.course.submissionType,
           enabled: enrollment.course.enabled,
           order: enrollment.course.order,
-          newUnitsEnabled: enrollment.course.newUnitsEnabled,
+          submissionsEnabled: enrollment.course.submissionsEnabled,
           entityVersion: enrollment.course.entityVersion,
-          oldUnitTemplates: enrollment.course.oldUnitTemplates.map(unit => ({
-            unitId: unit.unitId,
-            courseId: unit.courseId,
-            unitLetter: unit.unitLetter,
-            title: unit.title,
-            responseType: unit.responseType,
-            optional: unit.optional,
-            noMarks: unit.noMarks,
-            noAssignments: unit.noAssignments,
-            optionalUpload: unit.optionalUpload,
+          oldSubmissionTemplates: enrollment.course.oldSubmissionTemplates.map(s => ({
+            submissionTemplateId: s.submissionTemplateId,
+            courseId: s.courseId,
+            unitLetter: s.unitLetter,
+            title: s.title,
+            responseType: s.responseType,
+            optional: s.optional,
+            noMarks: s.noMarks,
+            noAssignments: s.noAssignments,
+            optionalUpload: s.optionalUpload,
           })),
-          newUnitTemplates: enrollment.course.newUnitTemplates.map(unit => ({
-            unitTemplateId: this.uuidService.binToUUID(unit.unitTemplateId),
-            courseId: unit.courseId,
-            unitLetter: unit.unitLetter,
-            title: unit.title,
-            description: unit.description,
+          newSubmissionTemplates: enrollment.course.newSubmissionTemplates.map(s => ({
+            submissionTemplateId: this.uuidService.binToUUID(s.submissionTemplateId),
+            courseId: s.courseId,
+            unitLetter: s.unitLetter,
+            title: s.title,
+            description: s.description,
             markingCriteria: null, // students should never see the marking criteria
-            optional: unit.optional,
-            order: unit.order,
-            created: unit.created,
-            modified: unit.modified,
+            optional: s.optional,
+            order: s.order,
+            created: s.created,
+            modified: s.modified,
           })),
-          newMaterialUnits: enrollment.course.newMaterialUnits.map(materialUnit => ({
-            materialUnitId: this.uuidService.binToUUID(materialUnit.materialUnitId),
-            courseId: materialUnit.courseId,
-            unitLetter: materialUnit.unitLetter,
-            title: materialUnit.title,
-            order: materialUnit.order,
-            created: materialUnit.created,
-            modified: materialUnit.modified,
-            newMaterials: materialUnit.newMaterials.map(material => ({
-              materialId: this.uuidService.binToUUID(material.materialId),
-              materialUnitId: this.uuidService.binToUUID(material.materialUnitId),
-              type: material.type,
-              title: material.title,
-              description: material.description,
-              order: material.order,
-              filename: material.filename,
-              contentMimeTypeId: material.contentMimeTypeId,
-              imageMimeTypeId: material.imageMimeTypeId,
-              externalData: material.externalData,
-              entryPoint: material.entryPoint,
-              created: material.created,
-              modified: material.modified,
+          units: enrollment.course.units.map(u => ({
+            unitId: this.uuidService.binToUUID(u.unitId),
+            courseId: u.courseId,
+            unitLetter: u.unitLetter,
+            title: u.title,
+            order: u.order,
+            created: u.created,
+            modified: u.modified,
+            materials: u.materials.map(m => ({
+              materialId: this.uuidService.binToUUID(m.materialId),
+              unitId: this.uuidService.binToUUID(m.unitId),
+              type: m.type,
+              title: m.title,
+              description: m.description,
+              order: m.order,
+              filename: m.filename,
+              contentMimeTypeId: m.contentMimeTypeId,
+              imageMimeTypeId: m.imageMimeTypeId,
+              externalData: m.externalData,
+              entryPoint: m.entryPoint,
+              minutes: m.minutes,
+              chapters: m.chapters,
+              videos: m.videos,
+              knowledgeChecks: m.knowledgeChecks,
+              complete: m.complete,
+              created: m.created,
+              modified: m.modified,
             })),
           })),
         },
@@ -206,40 +211,40 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           lastName: enrollment.tutor.lastName,
           introduction: await this.isTutorIntroductionPresent(enrollment.tutorId, enrollment.course.code),
         },
-        oldUnits: enrollment.oldUnits.map(unit => ({
-          unitId: unit.unitId,
-          enrollmentId: unit.enrollmentId,
-          unitLetter: unit.unitLetter,
-          title: unit.title,
-          responseType: unit.responseType,
-          responseFilename: unit.responseFilename,
-          points: unit.points,
-          mark: unit.mark,
-          creationDate: unit.creationDate,
-          finalizedDate: unit.finalizedDate,
-          transferredDate: unit.transferredDate,
-          tutorId: unit.tutorId,
-          markedDate: unit.markedDate,
+        oldSubmissions: enrollment.oldSubmissions.map(submission => ({
+          submissionId: submission.submissionId,
+          enrollmentId: submission.enrollmentId,
+          unitLetter: submission.unitLetter,
+          title: submission.title,
+          responseType: submission.responseType,
+          responseFilename: submission.responseFilename,
+          points: submission.points,
+          mark: submission.mark,
+          creationDate: submission.creationDate,
+          finalizedDate: submission.finalizedDate,
+          transferredDate: submission.transferredDate,
+          tutorId: submission.tutorId,
+          markedDate: submission.markedDate,
           tutorComment: null, // students should never see the tutor comment
-          adminComment: unit.adminComment,
-          optional: unit.optional,
-          noMarks: unit.noMarks,
-          noAssignments: unit.noAssignments,
-          optionalUpload: unit.optionalUpload,
-          order: unit.order,
-          skipped: unit.skipped,
-          cost: unit.cost?.toNumber() ?? null,
-          currencyId: unit.currencyId,
-          audioProgress: unit.audioProgress,
-          timestamp: unit.timestamp,
-          entityVersion: unit.entityVersion,
+          adminComment: submission.adminComment,
+          optional: submission.optional,
+          noMarks: submission.noMarks,
+          noAssignments: submission.noAssignments,
+          optionalUpload: submission.optionalUpload,
+          order: submission.order,
+          skipped: submission.skipped,
+          cost: submission.cost?.toNumber() ?? null,
+          currencyId: submission.currencyId,
+          audioProgress: submission.audioProgress,
+          timestamp: submission.timestamp,
+          entityVersion: submission.entityVersion,
         })),
-        newUnits: enrollment.newUnits.map(newUnit => {
-          let unitComplete = true;
-          let unitMarked = true;
-          let unitPoints = 0;
-          let unitMark = 0;
-          for (const newAssignment of newUnit.newAssignments) {
+        newSubmissions: enrollment.newSubmissions.map(newSubmission => {
+          let submissionComplete = true;
+          let submissionMarked = true;
+          let submissionPoints = 0;
+          let submissionMark = 0;
+          for (const newAssignment of newSubmission.newAssignments) {
             let assignmentComplete = true;
             let assignmentMarked = true;
             let assignmentPoints = 0;
@@ -288,40 +293,40 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               assignmentMark += partMark;
             }
             if (!assignmentComplete && !newAssignment.optional) {
-              unitComplete = false;
+              submissionComplete = false;
             }
             if (assignmentComplete && !assignmentMarked) {
-              unitMarked = false;
+              submissionMarked = false;
             }
             if (assignmentComplete || !newAssignment.optional) {
-              unitPoints += assignmentPoints;
-              unitMark += assignmentMark;
+              submissionPoints += assignmentPoints;
+              submissionMark += assignmentMark;
             }
           }
           return {
-            unitId: this.uuidService.binToUUID(newUnit.unitId),
-            enrollmentId: newUnit.enrollmentId,
-            tutorId: newUnit.tutorId,
-            unitLetter: newUnit.unitLetter,
-            title: newUnit.title,
-            description: newUnit.description,
+            submissionId: this.uuidService.binToUUID(newSubmission.submissionId),
+            enrollmentId: newSubmission.enrollmentId,
+            tutorId: newSubmission.tutorId,
+            unitLetter: newSubmission.unitLetter,
+            title: newSubmission.title,
+            description: newSubmission.description,
             markingCriteria: null, // students should never see the marking criteria
-            optional: newUnit.optional,
-            order: newUnit.order,
+            optional: newSubmission.optional,
+            order: newSubmission.order,
             tutorComment: null, // students should never see the tutor comment
-            adminComment: newUnit.adminComment,
-            submitted: newUnit.submitted,
-            transferred: newUnit.transferred,
-            closed: newUnit.closed,
-            skipped: newUnit.skipped,
-            responseFilename: newUnit.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Unit ${newUnit.unitLetter}.mp3`,
-            responseFilesize: newUnit.responseFilesize,
-            responseMimeTypeId: newUnit.responseMimeTypeId,
-            complete: unitComplete,
-            points: unitPoints,
-            mark: newUnit.closed && unitMarked ? unitMark : null,
-            created: newUnit.created,
-            modified: newUnit.modified,
+            adminComment: newSubmission.adminComment,
+            submitted: newSubmission.submitted,
+            transferred: newSubmission.transferred,
+            closed: newSubmission.closed,
+            skipped: newSubmission.skipped,
+            responseFilename: newSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${newSubmission.unitLetter}.mp3`,
+            responseFilesize: newSubmission.responseFilesize,
+            responseMimeTypeId: newSubmission.responseMimeTypeId,
+            complete: submissionComplete,
+            points: submissionPoints,
+            mark: newSubmission.closed && submissionMarked ? submissionMark : null,
+            created: newSubmission.created,
+            modified: newSubmission.modified,
           };
         }),
       });

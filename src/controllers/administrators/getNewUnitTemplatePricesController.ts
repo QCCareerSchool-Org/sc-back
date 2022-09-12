@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import type { GetNewUnitTemplatePricesResponseDTO } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor.js';
-import { GetNewUnitTemplatePricesCourseNotFound } from '../../interactors/administrators/getNewUnitTemplatePricesInteractor.js';
-import { getNewUnitTemplatePricesInteractor } from '../../interactors/administrators/index.js';
+import type { GetNewSubmissionTemplatePricesResponseDTO } from '../../interactors/administrators/getNewSubmissionTemplatePricesInteractor.js';
+import { GetNewSubmissionTemplatePricesCourseNotFound } from '../../interactors/administrators/getNewSubmissionTemplatePricesInteractor.js';
+import { getNewSubmissionTemplatePricesInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -18,9 +18,9 @@ type Request = {
   };
 };
 
-type Response = GetNewUnitTemplatePricesResponseDTO;
+type Response = GetNewSubmissionTemplatePricesResponseDTO;
 
-export class GetNewUnitTemplatePricesController extends BaseController<Request, Response> {
+export class GetNewSubmissionTemplatePricesController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -54,14 +54,14 @@ export class GetNewUnitTemplatePricesController extends BaseController<Request, 
     const courseId = parseInt(params.courseId, 10);
     const countryId = typeof query.countryId === 'undefined' ? null : parseInt(query.countryId, 10);
 
-    const result = await getNewUnitTemplatePricesInteractor.execute({ courseId, countryId });
+    const result = await getNewSubmissionTemplatePricesInteractor.execute({ courseId, countryId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetNewUnitTemplatePricesCourseNotFound:
+      case GetNewSubmissionTemplatePricesCourseNotFound:
         return this.notFound('Course not found');
       default:
         return this.internalServerError(result.error.message);

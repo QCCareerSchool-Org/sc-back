@@ -16,7 +16,7 @@ export type SaveNewPartMediumRequestDTO = {
 export type SaveNewPartMediumResponseDTO = NewPartMediumDTO;
 
 export class SaveNewPartMediumNotFound extends Error { }
-export class SaveNewPartMediumUnitsEnabled extends Error { }
+export class SaveNewPartMediumSubmissionsEnabled extends Error { }
 export class SaveNewPartMediumPartCaptionEmpty extends Error { }
 export class SaveNewPartMediumPartCaptionTooLong extends Error { }
 export class SaveNewPartMediumOrderLessThanZero extends Error { }
@@ -38,15 +38,15 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
       const partMedium = await this.prisma.newPartMedium.findFirst({
         where: { partMediumId: mediumIdBin },
         include: {
-          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } } },
         },
       });
       if (!partMedium) {
         return Result.fail(new SaveNewPartMediumNotFound());
       }
 
-      if (partMedium.newPartTemplate?.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new SaveNewPartMediumUnitsEnabled());
+      if (partMedium.newPartTemplate?.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new SaveNewPartMediumSubmissionsEnabled());
       }
 
       // validate the data

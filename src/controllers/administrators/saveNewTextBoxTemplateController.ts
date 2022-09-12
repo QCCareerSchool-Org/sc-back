@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewTextBoxTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor.js';
-import { SaveNewTextBoxTemplateLinesLessThanOne, SaveNewTextBoxTemplateLinesTooLarge, SaveNewTextBoxTemplateNotFound, SaveNewTextBoxTemplateOrderLessThanZero, SaveNewTextBoxTemplateOrderTooLarge, SaveNewTextBoxTemplatePointsLessThanZero, SaveNewTextBoxTemplatePointsTooLarge, SaveNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor.js';
+import { SaveNewTextBoxTemplateLinesLessThanOne, SaveNewTextBoxTemplateLinesTooLarge, SaveNewTextBoxTemplateNotFound, SaveNewTextBoxTemplateOrderLessThanZero, SaveNewTextBoxTemplateOrderTooLarge, SaveNewTextBoxTemplatePointsLessThanZero, SaveNewTextBoxTemplatePointsTooLarge, SaveNewTextBoxTemplateSubmissionsEnabled } from '../../interactors/administrators/saveNewTextBoxTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -74,8 +74,8 @@ export class SaveNewTextBoxTemplateController extends BaseController<Request, Re
     switch (result.error.constructor) {
       case SaveNewTextBoxTemplateNotFound:
         return this.notFound('Text box template not found');
-      case SaveNewTextBoxTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case SaveNewTextBoxTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case SaveNewTextBoxTemplateLinesLessThanOne:
         return this.badRequest('Lines must be greater than or equal to 1');
       case SaveNewTextBoxTemplateLinesTooLarge:

@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewUploadSlotTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor.js';
-import { InsertNewUploadSlotTemplateAllowedTypesEmpty, InsertNewUploadSlotTemplateInvalidAllowedType, InsertNewUploadSlotTemplateLabelEmpty, InsertNewUploadSlotTemplateOrderLessThanZero, InsertNewUploadSlotTemplateOrderTooLarge, InsertNewUploadSlotTemplatePartNotFound, InsertNewUploadSlotTemplatePointsLessThanZero, InsertNewUploadSlotTemplatePointsTooLarge, InsertNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor.js';
+import { InsertNewUploadSlotTemplateAllowedTypesEmpty, InsertNewUploadSlotTemplateInvalidAllowedType, InsertNewUploadSlotTemplateLabelEmpty, InsertNewUploadSlotTemplateOrderLessThanZero, InsertNewUploadSlotTemplateOrderTooLarge, InsertNewUploadSlotTemplatePartNotFound, InsertNewUploadSlotTemplatePointsLessThanZero, InsertNewUploadSlotTemplatePointsTooLarge, InsertNewUploadSlotTemplateSubmissionsEnabled } from '../../interactors/administrators/insertNewUploadSlotTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -74,8 +74,8 @@ export class InsertNewUploadSlotTemplateController extends BaseController<Reques
     switch (result.error.constructor) {
       case InsertNewUploadSlotTemplatePartNotFound:
         return this.notFound('Part template not found');
-      case InsertNewUploadSlotTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case InsertNewUploadSlotTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case InsertNewUploadSlotTemplateLabelEmpty:
         return this.badRequest('Label must not be empty');
       case InsertNewUploadSlotTemplateAllowedTypesEmpty:

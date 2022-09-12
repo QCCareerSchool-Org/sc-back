@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewTextBoxInteractor } from '../../interactors/tutors/index.js';
 import type { SaveNewTextBoxResponseDTO } from '../../interactors/tutors/saveNewTextBoxInteractor.js';
-import { SaveNewTextBoxAlreadyReturned, SaveNewTextBoxIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxNotesTooLong, SaveNewTextBoxNotFound, SaveNewTextBoxUnitAlreadyClosed, SaveNewTextBoxUnitNotSubmitted, SaveNewTextBoxUnitSkipped, SaveNewTextBoxWrongTutor, SaveNewTextBoxZeroPoints } from '../../interactors/tutors/saveNewTextBoxInteractor.js';
+import { SaveNewTextBoxAlreadyReturned, SaveNewTextBoxIncomplete, SaveNewTextBoxMarkLessThanZero, SaveNewTextBoxMarkTooHigh, SaveNewTextBoxNotesTooLong, SaveNewTextBoxNotFound, SaveNewTextBoxSubmissionAlreadyClosed, SaveNewTextBoxSubmissionNotSubmitted, SaveNewTextBoxSubmissionSkipped, SaveNewTextBoxWrongTutor, SaveNewTextBoxZeroPoints } from '../../interactors/tutors/saveNewTextBoxInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -64,15 +64,15 @@ export class SaveNewTextBoxController extends BaseController<Request, Response> 
 
     switch (result.error.constructor) {
       case SaveNewTextBoxNotFound:
-      case SaveNewTextBoxUnitNotSubmitted:
-      case SaveNewTextBoxUnitSkipped:
+      case SaveNewTextBoxSubmissionNotSubmitted:
+      case SaveNewTextBoxSubmissionSkipped:
         return this.notFound('Text box not found');
-      case SaveNewTextBoxUnitAlreadyClosed:
-        return this.badRequest('Unit is already closed');
+      case SaveNewTextBoxSubmissionAlreadyClosed:
+        return this.badRequest('Submission is already closed');
       case SaveNewTextBoxWrongTutor:
-        return this.forbidden('No access to this unit');
+        return this.forbidden('No access to this submission');
       case SaveNewTextBoxAlreadyReturned:
-        return this.badRequest('Unit is already retured');
+        return this.badRequest('Submission is already retured');
       case SaveNewTextBoxIncomplete:
         return this.badRequest('Text box is not complete');
       case SaveNewTextBoxZeroPoints:

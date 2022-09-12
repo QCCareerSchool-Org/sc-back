@@ -66,7 +66,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
         modified: partTemplate.modified,
         newAssignmentTemplate: {
           assignmentTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.assignmentTemplateId),
-          unitTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.unitTemplateId),
+          submissionTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.submissionTemplateId),
           assignmentNumber: partTemplate.newAssignmentTemplate.assignmentNumber,
           title: partTemplate.newAssignmentTemplate.title,
           description: partTemplate.newAssignmentTemplate.description,

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DeleteNewPartMediumResponseDTO } from '../../interactors/administrators/deleteNewPartMediumInteractor.js';
-import { DeleteNewPartMediumNotFound, DeleteNewPartMediumUnitsEnabled, DeleteNewPartMediumUnlinkError } from '../../interactors/administrators/deleteNewPartMediumInteractor.js';
+import { DeleteNewPartMediumNotFound, DeleteNewPartMediumSubmissionsEnabled, DeleteNewPartMediumUnlinkError } from '../../interactors/administrators/deleteNewPartMediumInteractor.js';
 import { deleteNewPartMediumInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,8 +50,8 @@ export class DeleteNewPartMediumController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case DeleteNewPartMediumNotFound:
         return this.notFound('Part medium not found');
-      case DeleteNewPartMediumUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case DeleteNewPartMediumSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case DeleteNewPartMediumUnlinkError:
         return this.internalServerError('Could not unlink file');
       default:

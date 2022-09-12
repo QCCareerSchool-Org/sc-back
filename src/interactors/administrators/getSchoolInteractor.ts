@@ -54,10 +54,10 @@ export class GetSchoolInteractor implements IInteractor<GetSchoolRequestDTO, Get
           courseGuide: c.courseGuide,
           quizzesEnabled: c.quizzesEnabled,
           noTutor: c.noTutor,
-          unitType: c.unitType,
+          submissionType: c.submissionType,
           enabled: c.enabled,
           order: c.order,
-          newUnitsEnabled: c.newUnitsEnabled,
+          submissionsEnabled: c.submissionsEnabled,
           entityVersion: c.entityVersion,
         })),
       });

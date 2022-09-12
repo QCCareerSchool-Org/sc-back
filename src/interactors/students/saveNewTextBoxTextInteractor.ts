@@ -11,7 +11,7 @@ export type SaveNewTextBoxTextRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
-  unitId: string;
+  submissionId: string;
   /** uuid */
   assignmentId: string;
   /** uuid */
@@ -24,7 +24,7 @@ export type SaveNewTextBoxTextRequestDTO = {
 export type SaveNewTextBoxTextResponseDTO = NewTextBoxDTO;
 
 export class SaveNewTextBoxTextNotFound extends Error { }
-export class SaveNewTextBoxTextUnitSubmitted extends Error { }
+export class SaveNewTextBoxTextSubmissionSubmitted extends Error { }
 export class SaveNewTextBoxTextTooLong extends Error { }
 
 export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
@@ -35,23 +35,23 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, textBoxId, text }: SaveNewTextBoxTextRequestDTO): Promise<ResultType<SaveNewTextBoxTextResponseDTO>> {
+  public async execute({ studentId, courseId, submissionId, assignmentId, partId, textBoxId, text }: SaveNewTextBoxTextRequestDTO): Promise<ResultType<SaveNewTextBoxTextResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(submissionId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
 
       const newTextBox = await this.prisma.newTextBox.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newTextBox) {
         throw new SaveNewTextBoxTextNotFound();
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.submitted) {
-        throw new SaveNewTextBoxTextUnitSubmitted();
+      if (newTextBox.newPart.newAssignment.newSubmission.submitted) {
+        throw new SaveNewTextBoxTextSubmissionSubmitted();
       }
 
       const maxLength = 65_535;
@@ -63,7 +63,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
       const updatedTextBox = await this.prisma.newTextBox.update({
         data: { text },
         where: { textBoxId: textBoxIdBin },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
 
       return Result.success({
@@ -72,7 +72,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
-        mark: updatedTextBox.newPart.newAssignment.newUnit.closed ? updatedTextBox.mark : null, // hide mark unless the unit is marked
+        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? updatedTextBox.mark : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,

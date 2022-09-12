@@ -22,7 +22,7 @@ export type SaveNewAssignmentTemplateRequestDTO = {
 export type SaveNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 
 export class SaveNewAssignmentTemplateNotFound extends Error { }
-export class SaveNewAssignmentTemplateUnitsEnabled extends Error { }
+export class SaveNewAssignmentTemplateSubmissionsEnabled extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
 export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
 export class SaveNewAssignmentTemplateTitleTooLong extends Error { }
@@ -49,15 +49,15 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin },
         include: {
-          newUnitTemplate: { include: { course: true } },
+          newSubmissionTemplate: { include: { course: true } },
         },
       });
       if (!assignmentTemplate) {
         return Result.fail(new SaveNewAssignmentTemplateNotFound());
       }
 
-      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new SaveNewAssignmentTemplateUnitsEnabled());
+      if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new SaveNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // validate the data
@@ -110,7 +110,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
       } catch (err) {
         if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
-          if (meta.target === 'unit_template_id_assignment_number') {
+          if (meta.target === 'submission_template_id_assignment_number') {
             return Result.fail(new SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse());
           }
         }
@@ -119,7 +119,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
 
       return Result.success({
         assignmentTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.assignmentTemplateId),
-        unitTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.unitTemplateId),
+        submissionTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.submissionTemplateId),
         assignmentNumber: updatedAssignmentTemplate.assignmentNumber,
         title: updatedAssignmentTemplate.title,
         description: updatedAssignmentTemplate.description,

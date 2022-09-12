@@ -28,9 +28,9 @@ export class LessonGuardInteractor implements IInteractor<LessonGuardRequestDTO,
     try {
       const materialIdBin = this.uuidService.uuidToBin(request.materialId);
 
-      const material = await this.prisma.newMaterial.findFirst({
+      const material = await this.prisma.material.findFirst({
         where: { materialId: materialIdBin },
-        include: { newMaterialUnit: true },
+        include: { unit: true },
       });
       if (!material) {
         return Result.fail(new LessonGuardNotFound());
@@ -38,7 +38,7 @@ export class LessonGuardInteractor implements IInteractor<LessonGuardRequestDTO,
 
       const enrollment = await this.prisma.enrollment.findUnique({
         // eslint-disable-next-line camelcase
-        where: { studentId_courseId: { studentId: request.studentId, courseId: material.newMaterialUnit.courseId } },
+        where: { studentId_courseId: { studentId: request.studentId, courseId: material.unit.courseId } },
       });
       if (!enrollment) {
         return Result.fail(new LessonGuardNotEnrolled());

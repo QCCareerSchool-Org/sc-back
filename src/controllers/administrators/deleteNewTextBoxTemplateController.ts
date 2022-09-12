@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DeleteNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor.js';
-import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor.js';
+import { DeleteNewTextBoxTemplateNotFound, DeleteNewTextBoxTemplateSubmissionsEnabled } from '../../interactors/administrators/deleteNewTextBoxTemplateInteractor.js';
 import { deleteNewTextBoxTemplateInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,8 +50,8 @@ export class DeleteNewTextBoxTemplateController extends BaseController<Request, 
     switch (result.error.constructor) {
       case DeleteNewTextBoxTemplateNotFound:
         return this.notFound('Text box template not found');
-      case DeleteNewTextBoxTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case DeleteNewTextBoxTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

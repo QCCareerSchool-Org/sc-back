@@ -14,7 +14,7 @@ export type EnableCourseRequestDTO = {
 export type EnableCourseResponseDTO = CourseDTO;
 
 export class EnableCourseNotFound extends Error { }
-export class EnableCourseWrongUnitType extends Error { }
+export class EnableCourseWrongSubmissionType extends Error { }
 
 export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDTO, EnableCourseResponseDTO> {
 
@@ -32,13 +32,13 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         return Result.fail(new EnableCourseNotFound());
       }
 
-      if (course.unitType !== 1) {
-        return Result.fail(new EnableCourseWrongUnitType());
+      if (course.submissionType !== 1) {
+        return Result.fail(new EnableCourseWrongSubmissionType());
       }
 
       const updatedCourse = await this.prisma.course.update({
         where: { courseId },
-        data: { newUnitsEnabled: enable },
+        data: { submissionsEnabled: enable },
       });
 
       return Result.success({
@@ -51,10 +51,10 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         courseGuide: updatedCourse.courseGuide,
         quizzesEnabled: updatedCourse.quizzesEnabled,
         noTutor: updatedCourse.noTutor,
-        unitType: updatedCourse.unitType,
+        submissionType: updatedCourse.submissionType,
         enabled: updatedCourse.enabled,
         order: updatedCourse.order,
-        newUnitsEnabled: updatedCourse.newUnitsEnabled,
+        submissionsEnabled: updatedCourse.submissionsEnabled,
         entityVersion: updatedCourse.entityVersion,
       });
 

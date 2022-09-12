@@ -21,7 +21,7 @@ export type InsertNewAssignmentMediumRequestDTO = {
 export type InsertNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO;
 
 export class InsertNewAssignmentMediumAssignmentNotFound extends Error { }
-export class InsertNewAssignmentMediumUnitsEnabled extends Error { }
+export class InsertNewAssignmentMediumSubmissionsEnabled extends Error { }
 export class InsertNewAssignmentMediumCaptionEmpty extends Error { }
 export class InsertNewAssignmentMediCaptionTooLong extends Error { }
 export class InsertNewAssignmentMediumOrderLessThanZero extends Error { }
@@ -64,14 +64,14 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       // find the assignment template
       const assignmentTemplate = await this.prisma.newAssignmentTemplate.findFirst({
         where: { assignmentTemplateId: assignmentIdBin },
-        include: { newUnitTemplate: { include: { course: true } } },
+        include: { newSubmissionTemplate: { include: { course: true } } },
       });
       if (!assignmentTemplate) {
         return Result.fail(new InsertNewAssignmentMediumAssignmentNotFound());
       }
 
-      if (assignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new InsertNewAssignmentMediumUnitsEnabled());
+      if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new InsertNewAssignmentMediumSubmissionsEnabled());
       }
 
       // validate the data

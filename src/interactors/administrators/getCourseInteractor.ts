@@ -2,10 +2,10 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { CurrencyDTO } from '../../domain/currencyDTO.js';
-import type { NewMaterialUnitDTO } from '../../domain/newMaterialUnitDTO.js';
-import type { NewUnitTemplateDTO } from '../../domain/newUnitTemplateDTO.js';
-import type { NewUnitTemplatePriceDTO } from '../../domain/newUnitTemplatePriceDTO.js';
+import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { NewSubmissionTemplatePriceDTO } from '../../domain/newSubmissionTemplatePriceDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
+import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -18,12 +18,12 @@ export type GetCourseRequestDTO = {
 
 export type GetCourseResponseDTO = CourseDTO & {
   school: SchoolDTO;
-  newUnitTemplates: Array<NewUnitTemplateDTO & {
-    prices: Array<NewUnitTemplatePriceDTO & {
+  newSubmissionTemplates: Array<NewSubmissionTemplateDTO & {
+    prices: Array<NewSubmissionTemplatePriceDTO & {
       currency: CurrencyDTO;
     }>;
   }>;
-  newMaterialUnits: NewMaterialUnitDTO[];
+  units: UnitDTO[];
 };
 
 export class GetCourseNotFound extends Error { }
@@ -42,12 +42,12 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         where: { courseId },
         include: {
           school: true,
-          newUnitTemplates: {
+          newSubmissionTemplates: {
             include: { prices: { include: { currency: true } } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
-          newMaterialUnits: {
-            include: { newMaterials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
+          units: {
+            include: { materials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
         },
@@ -66,10 +66,10 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         courseGuide: course.courseGuide,
         quizzesEnabled: course.quizzesEnabled,
         noTutor: course.noTutor,
-        unitType: course.unitType,
+        submissionType: course.submissionType,
         enabled: course.enabled,
         order: course.order,
-        newUnitsEnabled: course.newUnitsEnabled,
+        submissionsEnabled: course.submissionsEnabled,
         entityVersion: course.entityVersion,
         school: {
           schoolId: course.school.schoolId,
@@ -78,8 +78,8 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           order: course.school.order,
           entityVersion: course.school.entityVersion,
         },
-        newUnitTemplates: course.newUnitTemplates.map(u => ({
-          unitTemplateId: this.uuidService.binToUUID(u.unitTemplateId),
+        newSubmissionTemplates: course.newSubmissionTemplates.map(u => ({
+          submissionTemplateId: this.uuidService.binToUUID(u.submissionTemplateId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,
           title: u.title,
@@ -90,8 +90,8 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
           created: u.created,
           modified: u.modified,
           prices: u.prices.map(p => ({
-            unitTemplatePriceId: this.uuidService.binToUUID(p.unitTemplatePriceId),
-            unitTemplateId: this.uuidService.binToUUID(p.unitTemplateId),
+            submissionTemplatePriceId: this.uuidService.binToUUID(p.submissionTemplatePriceId),
+            submissionTemplateId: this.uuidService.binToUUID(p.submissionTemplateId),
             countryId: p.countryId,
             currencyId: p.currencyId,
             price: p.price.toNumber(),
@@ -105,8 +105,8 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
             },
           })),
         })),
-        newMaterialUnits: course.newMaterialUnits.map(u => ({
-          materialUnitId: this.uuidService.binToUUID(u.materialUnitId),
+        units: course.units.map(u => ({
+          unitId: this.uuidService.binToUUID(u.unitId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,
           title: u.title,

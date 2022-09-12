@@ -18,9 +18,9 @@ export type SaveNewUploadSlotRequestDTO = {
 export type SaveNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
 export class SaveNewUploadSlotNotFound extends Error { }
-export class SaveNewUploadSlotUnitNotSubmitted extends Error { }
-export class SaveNewUploadSlotUnitSkipped extends Error { }
-export class SaveNewUploadSlotUnitAlreadyClosed extends Error { }
+export class SaveNewUploadSlotSubmissionNotSubmitted extends Error { }
+export class SaveNewUploadSlotSubmissionSkipped extends Error { }
+export class SaveNewUploadSlotSubmissionAlreadyClosed extends Error { }
 export class SaveNewUploadSlotWrongTutor extends Error { }
 export class SaveNewUploadSlotAlreadyReturned extends Error { }
 export class SaveNewUploadSlotIncomplete extends Error { }
@@ -48,7 +48,7 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
           newPart: {
             include: {
               newAssignment: {
-                include: { newUnit: true },
+                include: { newSubmission: true },
               },
             },
           },
@@ -58,23 +58,23 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         throw new SaveNewUploadSlotNotFound();
       }
 
-      if (!newUploadSlot.newPart.newAssignment.newUnit.submitted) {
-        throw new SaveNewUploadSlotUnitNotSubmitted();
+      if (!newUploadSlot.newPart.newAssignment.newSubmission.submitted) {
+        throw new SaveNewUploadSlotSubmissionNotSubmitted();
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.skipped) {
-        throw new SaveNewUploadSlotUnitSkipped();
+      if (newUploadSlot.newPart.newAssignment.newSubmission.skipped) {
+        throw new SaveNewUploadSlotSubmissionSkipped();
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.closed) {
-        return Result.fail(new SaveNewUploadSlotUnitAlreadyClosed());
+      if (newUploadSlot.newPart.newAssignment.newSubmission.closed) {
+        return Result.fail(new SaveNewUploadSlotSubmissionAlreadyClosed());
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.tutorId !== tutorId) {
+      if (newUploadSlot.newPart.newAssignment.newSubmission.tutorId !== tutorId) {
         return Result.fail(new SaveNewUploadSlotWrongTutor());
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.tutorComment) {
+      if (newUploadSlot.newPart.newAssignment.newSubmission.tutorComment) {
         return Result.fail(new SaveNewUploadSlotAlreadyReturned());
       }
 

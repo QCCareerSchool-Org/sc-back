@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewUploadSlotInteractor } from '../../interactors/tutors/index.js';
 import type { SaveNewUploadSlotResponseDTO } from '../../interactors/tutors/saveNewUploadSlotInteractor.js';
-import { SaveNewUploadSlotAlreadyReturned, SaveNewUploadSlotIncomplete, SaveNewUploadSlotMarkLessThanZero, SaveNewUploadSlotMarkTooHigh, SaveNewUploadSlotNotesTooLong, SaveNewUploadSlotNotFound, SaveNewUploadSlotUnitAlreadyClosed, SaveNewUploadSlotUnitNotSubmitted, SaveNewUploadSlotUnitSkipped, SaveNewUploadSlotWrongTutor, SaveNewUploadSlotZeroPoints } from '../../interactors/tutors/saveNewUploadSlotInteractor.js';
+import { SaveNewUploadSlotAlreadyReturned, SaveNewUploadSlotIncomplete, SaveNewUploadSlotMarkLessThanZero, SaveNewUploadSlotMarkTooHigh, SaveNewUploadSlotNotesTooLong, SaveNewUploadSlotNotFound, SaveNewUploadSlotSubmissionAlreadyClosed, SaveNewUploadSlotSubmissionNotSubmitted, SaveNewUploadSlotSubmissionSkipped, SaveNewUploadSlotWrongTutor, SaveNewUploadSlotZeroPoints } from '../../interactors/tutors/saveNewUploadSlotInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -64,15 +64,15 @@ export class SaveNewUploadSlotController extends BaseController<Request, Respons
 
     switch (result.error.constructor) {
       case SaveNewUploadSlotNotFound:
-      case SaveNewUploadSlotUnitNotSubmitted:
-      case SaveNewUploadSlotUnitSkipped:
+      case SaveNewUploadSlotSubmissionNotSubmitted:
+      case SaveNewUploadSlotSubmissionSkipped:
         return this.notFound('Text box not found');
-      case SaveNewUploadSlotUnitAlreadyClosed:
-        return this.badRequest('Unit is already closed');
+      case SaveNewUploadSlotSubmissionAlreadyClosed:
+        return this.badRequest('Submission is already closed');
       case SaveNewUploadSlotWrongTutor:
-        return this.forbidden('No access to this unit');
+        return this.forbidden('No access to this submission');
       case SaveNewUploadSlotAlreadyReturned:
-        return this.badRequest('Unit is already retured');
+        return this.badRequest('Submission is already retured');
       case SaveNewUploadSlotIncomplete:
         return this.badRequest('Text box is not complete');
       case SaveNewUploadSlotZeroPoints:

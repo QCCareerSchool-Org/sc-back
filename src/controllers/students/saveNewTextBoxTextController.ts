@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewTextBoxTextInteractor } from '../../interactors/students/index.js';
 import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/students/saveNewTextBoxTextInteractor.js';
-import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextTooLong, SaveNewTextBoxTextUnitSubmitted } from '../../interactors/students/saveNewTextBoxTextInteractor.js';
+import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextSubmissionSubmitted, SaveNewTextBoxTextTooLong } from '../../interactors/students/saveNewTextBoxTextInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -12,7 +12,7 @@ type Request = {
     /** numeric string */
     courseId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
     /** uuid */
@@ -33,7 +33,7 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       textBoxId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -64,10 +64,10 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, textBoxId } = params;
+    const { submissionId, assignmentId, partId, textBoxId } = params;
     const { text } = body;
 
-    const result = await saveNewTextBoxTextInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, textBoxId, text });
+    const result = await saveNewTextBoxTextInteractor.execute({ studentId, courseId, submissionId, assignmentId, partId, textBoxId, text });
 
     if (result.success) {
       return this.ok(result.value);
@@ -76,8 +76,8 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
     switch (result.error.constructor) {
       case SaveNewTextBoxTextNotFound:
         return this.notFound('Text box not found');
-      case SaveNewTextBoxTextUnitSubmitted:
-        return this.badRequest('Unit already submitted');
+      case SaveNewTextBoxTextSubmissionSubmitted:
+        return this.badRequest('Submission already submitted');
       case SaveNewTextBoxTextTooLong:
         return this.badRequest('Text exceeds maximum length');
       default:

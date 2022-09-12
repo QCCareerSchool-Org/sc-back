@@ -42,20 +42,24 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: {
           uploadSlotId: uploadSlotIdBin,
-          newPart: { newAssignment: { newUnit: {
-            NOT: { submitted: null },
-            skipped: false,
-            enrollment: { tutorId },
-          } } },
+          newPart: {
+            newAssignment: {
+              newSubmission: {
+                NOT: { submitted: null },
+                skipped: false,
+                enrollment: { tutorId },
+              },
+            },
+          },
         },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: { include: { enrollment: true } } } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: { include: { enrollment: true } } } } } } },
       });
 
       if (!newUploadSlot) {
         return Result.fail(new DownloadNewUploadSlotNotFound());
       }
 
-      const paddedStudentId = newUploadSlot.newPart.newAssignment.newUnit.enrollment.studentId.toString().padStart(8, '0');
+      const paddedStudentId = newUploadSlot.newPart.newAssignment.newSubmission.enrollment.studentId.toString().padStart(8, '0');
       const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(newUploadSlot.uploadSlotId)}`;
 
       // check if the file exists

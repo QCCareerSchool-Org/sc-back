@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DeleteNewUploadSlotTemplateResponseDTO } from '../../interactors/administrators/deleteNewUploadSlotTemplateInteractor.js';
-import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateUnitsEnabled } from '../../interactors/administrators/deleteNewUploadSlotTemplateInteractor.js';
+import { DeleteNewUploadSlotTemplateNotFound, DeleteNewUploadSlotTemplateSubmissionsEnabled } from '../../interactors/administrators/deleteNewUploadSlotTemplateInteractor.js';
 import { deleteNewUploadSlotTemplateInteractor } from '../../interactors/administrators/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,8 +50,8 @@ export class DeleteNewUploadSlotTemplateController extends BaseController<Reques
     switch (result.error.constructor) {
       case DeleteNewUploadSlotTemplateNotFound:
         return this.notFound('Upload slot template not found');
-      case DeleteNewUploadSlotTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case DeleteNewUploadSlotTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       default:
         return this.internalServerError(result.error.message);
     }

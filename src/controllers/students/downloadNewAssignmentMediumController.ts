@@ -16,7 +16,7 @@ type Request = {
     /** numeric string */
     courseId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
     /** uuid */
@@ -35,7 +35,7 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       mediumId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
@@ -70,12 +70,12 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, mediumId } = params;
+    const { submissionId, assignmentId, mediumId } = params;
 
     const result = await downloadNewAssignmentMediumInteractor.execute({
       studentId,
       courseId,
-      unitId,
+      submissionId,
       assignmentId,
       mediumId,
       startByte: byteRange?.start,

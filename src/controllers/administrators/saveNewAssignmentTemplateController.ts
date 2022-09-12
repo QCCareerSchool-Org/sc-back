@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
-import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateDescriptionTypeEmpty, SaveNewAssignmentTemplateInvalidDescriptionType, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateTitleTooLong, SaveNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
+import { SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse, SaveNewAssignmentTemplateAssignmentNumberLessThanOne, SaveNewAssignmentTemplateAssignmentNumberTooLarge, SaveNewAssignmentTemplateDescriptionTooLong, SaveNewAssignmentTemplateDescriptionTypeEmpty, SaveNewAssignmentTemplateInvalidDescriptionType, SaveNewAssignmentTemplateMarkingCriteriaTooLong, SaveNewAssignmentTemplateNotFound, SaveNewAssignmentTemplateSubmissionsEnabled, SaveNewAssignmentTemplateTitleTooLong } from '../../interactors/administrators/saveNewAssignmentTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -77,8 +77,8 @@ export class SaveNewAssignmentTemplateController extends BaseController<Request,
     switch (result.error.constructor) {
       case SaveNewAssignmentTemplateNotFound:
         return this.notFound('Part template not found');
-      case SaveNewAssignmentTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case SaveNewAssignmentTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case SaveNewAssignmentTemplateAssignmentNumberLessThanOne:
         return this.badRequest('Assignment number must be greater than or equal to one');
       case SaveNewAssignmentTemplateAssignmentNumberTooLarge:

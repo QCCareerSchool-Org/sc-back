@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
-import { EraseNewUploadSlotNotFound, EraseNewUploadSlotUnitSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
+import { EraseNewUploadSlotNotFound, EraseNewUploadSlotSubmissionSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
 import { eraseNewUploadSlotInteractor } from '../../interactors/students/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -12,7 +12,7 @@ type Request = {
     /** numeric string */
     courseId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
     /** uuid */
@@ -30,7 +30,7 @@ export class EraseNewUploadSlotController extends BaseController<Request, Respon
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       partId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       uploadSlotId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
@@ -55,9 +55,9 @@ export class EraseNewUploadSlotController extends BaseController<Request, Respon
 
     const studentId = parseInt(params.studentId, 10);
     const courseId = parseInt(params.courseId, 10);
-    const { unitId, assignmentId, partId, uploadSlotId } = params;
+    const { submissionId, assignmentId, partId, uploadSlotId } = params;
 
-    const result = await eraseNewUploadSlotInteractor.execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId });
+    const result = await eraseNewUploadSlotInteractor.execute({ studentId, courseId, submissionId, assignmentId, partId, uploadSlotId });
 
     if (result.success) {
       return this.ok(result.value);
@@ -66,8 +66,8 @@ export class EraseNewUploadSlotController extends BaseController<Request, Respon
     switch (result.error.constructor) {
       case EraseNewUploadSlotNotFound:
         return this.notFound('Upload slot not found');
-      case EraseNewUploadSlotUnitSubmitted:
-        return this.badRequest('Unit already submitted');
+      case EraseNewUploadSlotSubmissionSubmitted:
+        return this.badRequest('Submission already submitted');
       case EraseNewUploadSlotUnlinkError:
         return this.internalServerError('Can\'t delete file');
       default:

@@ -4,8 +4,8 @@ import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartDTO } from '../../domain/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
+import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
-import type { NewUnitDTO } from '../../domain/newUnitDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -17,12 +17,12 @@ import { Result } from '../result.js';
 export type GetNewAssignmentRequestDTO = {
   tutorId: number;
   studentId: number;
-  unitId: string;
+  submissionId: string;
   assignmentId: string;
 };
 
 export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
-  newUnit: Omit<NewUnitDTO, 'complete' | 'points' | 'mark'>;
+  newSubmission: Omit<NewSubmissionDTO, 'complete' | 'points' | 'mark'>;
   newAssignmentMedia: NewAssignmentMediumDTO[];
   newParts: Array<NewPartDTO & {
     newTextBoxes: NewTextBoxDTO[];
@@ -32,8 +32,8 @@ export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
 };
 
 export class GetNewAssignmentNotFound extends Error { }
-export class GetNewAssignmentUnitNotSubmitted extends Error { }
-export class GetNewAssignmentUnitSkipped extends Error { }
+export class GetNewAssignmentSubmissionNotSubmitted extends Error { }
+export class GetNewAssignmentSubmissionSkipped extends Error { }
 export class GetNewAssignmentWrongTutor extends Error { }
 
 export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
@@ -44,18 +44,18 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ tutorId, studentId, unitId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
+  public async execute({ tutorId, studentId, submissionId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
     try {
       const newAssignment = await this.prisma.newAssignment.findFirst({
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
-          newUnit: {
-            unitId: this.uuidService.uuidToBin(unitId),
+          newSubmission: {
+            submissionId: this.uuidService.uuidToBin(submissionId),
             enrollment: { studentId },
           },
         },
         include: {
-          newUnit: { include: { enrollment: true } },
+          newSubmission: { include: { enrollment: true } },
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
@@ -72,15 +72,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentNotFound());
       }
 
-      if (!newAssignment.newUnit.submitted) {
-        return Result.fail(new GetNewAssignmentUnitNotSubmitted());
+      if (!newAssignment.newSubmission.submitted) {
+        return Result.fail(new GetNewAssignmentSubmissionNotSubmitted());
       }
 
-      if (newAssignment.newUnit.skipped) {
-        return Result.fail(new GetNewAssignmentUnitSkipped());
+      if (newAssignment.newSubmission.skipped) {
+        return Result.fail(new GetNewAssignmentSubmissionSkipped());
       }
 
-      if (newAssignment.newUnit.tutorId !== tutorId && newAssignment.newUnit.enrollment.tutorId !== tutorId) {
+      if (newAssignment.newSubmission.tutorId !== tutorId && newAssignment.newSubmission.enrollment.tutorId !== tutorId) {
         return Result.fail(new GetNewAssignmentWrongTutor());
       }
 
@@ -91,7 +91,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
       return Result.success({
         assignmentId: this.uuidService.binToUUID(newAssignment.assignmentId),
-        unitId: this.uuidService.binToUUID(newAssignment.unitId),
+        submissionId: this.uuidService.binToUUID(newAssignment.submissionId),
         assignmentNumber: newAssignment.assignmentNumber,
         title: newAssignment.title,
         description: newAssignment.description,
@@ -100,45 +100,45 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         optional: newAssignment.optional,
         created: newAssignment.created,
         modified: newAssignment.modified,
-        newUnit: {
-          unitId: this.uuidService.binToUUID(newAssignment.newUnit.unitId),
-          enrollmentId: newAssignment.newUnit.enrollmentId,
-          tutorId: newAssignment.newUnit.tutorId,
-          unitLetter: newAssignment.newUnit.unitLetter,
-          title: newAssignment.newUnit.title,
-          description: newAssignment.newUnit.description,
-          markingCriteria: newAssignment.newUnit.markingCriteria,
-          optional: newAssignment.newUnit.optional,
-          order: newAssignment.newUnit.order,
-          tutorComment: newAssignment.newUnit.tutorComment,
-          adminComment: newAssignment.newUnit.adminComment,
-          submitted: newAssignment.newUnit.submitted,
-          transferred: newAssignment.newUnit.transferred,
-          closed: newAssignment.newUnit.closed,
-          skipped: newAssignment.newUnit.skipped,
-          responseFilename: newAssignment.newUnit.responseFilename,
-          responseFilesize: newAssignment.newUnit.responseFilesize,
-          responseMimeTypeId: newAssignment.newUnit.responseMimeTypeId,
-          created: newAssignment.newUnit.created,
-          modified: newAssignment.newUnit.modified,
+        newSubmission: {
+          submissionId: this.uuidService.binToUUID(newAssignment.newSubmission.submissionId),
+          enrollmentId: newAssignment.newSubmission.enrollmentId,
+          tutorId: newAssignment.newSubmission.tutorId,
+          unitLetter: newAssignment.newSubmission.unitLetter,
+          title: newAssignment.newSubmission.title,
+          description: newAssignment.newSubmission.description,
+          markingCriteria: newAssignment.newSubmission.markingCriteria,
+          optional: newAssignment.newSubmission.optional,
+          order: newAssignment.newSubmission.order,
+          tutorComment: newAssignment.newSubmission.tutorComment,
+          adminComment: newAssignment.newSubmission.adminComment,
+          submitted: newAssignment.newSubmission.submitted,
+          transferred: newAssignment.newSubmission.transferred,
+          closed: newAssignment.newSubmission.closed,
+          skipped: newAssignment.newSubmission.skipped,
+          responseFilename: newAssignment.newSubmission.responseFilename,
+          responseFilesize: newAssignment.newSubmission.responseFilesize,
+          responseMimeTypeId: newAssignment.newSubmission.responseMimeTypeId,
+          created: newAssignment.newSubmission.created,
+          modified: newAssignment.newSubmission.modified,
           enrollment: {
-            enrollmentId: newAssignment.newUnit.enrollment.enrollmentId,
-            courseId: newAssignment.newUnit.enrollment.courseId,
-            studentNumber: newAssignment.newUnit.enrollment.studentNumber,
-            tutorId: newAssignment.newUnit.enrollment.tutorId,
-            maxAssignments: newAssignment.newUnit.enrollment.maxAssignments,
-            graduated: newAssignment.newUnit.enrollment.graduated,
-            assignmentsDisabled: newAssignment.newUnit.enrollment.assignmentsDisabled,
-            quizzesDisabled: newAssignment.newUnit.enrollment.quizzesDisabled,
-            onHold: newAssignment.newUnit.enrollment.onHold,
-            holdReason: newAssignment.newUnit.enrollment.holdReason,
-            currencyCode: newAssignment.newUnit.enrollment.currencyCode,
-            courseCost: newAssignment.newUnit.enrollment.courseCost.toNumber(),
-            amountPaid: newAssignment.newUnit.enrollment.amountPaid.toNumber(),
-            monthlyInstallment: newAssignment.newUnit.enrollment.monthlyInstallment === null ? null : newAssignment.newUnit.enrollment.monthlyInstallment.toNumber(),
-            enrollmentDate: newAssignment.newUnit.enrollment.enrollmentDate,
-            fastTrack: newAssignment.newUnit.enrollment.fastTrack,
-            paymentsDisabled: newAssignment.newUnit.enrollment.paymentsDisabled,
+            enrollmentId: newAssignment.newSubmission.enrollment.enrollmentId,
+            courseId: newAssignment.newSubmission.enrollment.courseId,
+            studentNumber: newAssignment.newSubmission.enrollment.studentNumber,
+            tutorId: newAssignment.newSubmission.enrollment.tutorId,
+            maxAssignments: newAssignment.newSubmission.enrollment.maxAssignments,
+            graduated: newAssignment.newSubmission.enrollment.graduated,
+            assignmentsDisabled: newAssignment.newSubmission.enrollment.assignmentsDisabled,
+            quizzesDisabled: newAssignment.newSubmission.enrollment.quizzesDisabled,
+            onHold: newAssignment.newSubmission.enrollment.onHold,
+            holdReason: newAssignment.newSubmission.enrollment.holdReason,
+            currencyCode: newAssignment.newSubmission.enrollment.currencyCode,
+            courseCost: newAssignment.newSubmission.enrollment.courseCost.toNumber(),
+            amountPaid: newAssignment.newSubmission.enrollment.amountPaid.toNumber(),
+            monthlyInstallment: newAssignment.newSubmission.enrollment.monthlyInstallment === null ? null : newAssignment.newSubmission.enrollment.monthlyInstallment.toNumber(),
+            enrollmentDate: newAssignment.newSubmission.enrollment.enrollmentDate,
+            fastTrack: newAssignment.newSubmission.enrollment.fastTrack,
+            paymentsDisabled: newAssignment.newSubmission.enrollment.paymentsDisabled,
           },
         },
         newAssignmentMedia: newAssignment.newAssignmentMedia.map(m => ({

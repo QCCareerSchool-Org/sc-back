@@ -42,7 +42,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
       const newPartMedium = await this.prisma.newPartMedium.findFirst({
         where: {
           partMediumId: partMediumIdBin,
-          newParts: { some: { newPart: { newAssignment: { newUnit: { NOT: { submitted: null }, enrollment: { tutorId } } } } } },
+          newParts: { some: { newPart: { newAssignment: { newSubmission: { NOT: { submitted: null }, enrollment: { tutorId } } } } } },
         },
       });
 

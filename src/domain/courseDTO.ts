@@ -8,9 +8,9 @@ export type CourseDTO = {
   courseGuide: boolean;
   quizzesEnabled: boolean;
   noTutor: boolean;
-  unitType: number;
+  submissionType: number;
   order: number;
   enabled: boolean;
-  newUnitsEnabled: boolean;
+  submissionsEnabled: boolean;
   entityVersion: number;
 };

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { DownloadMaterialImageController } from '../../controllers/students/downloadMaterialImageController.js';
 
 import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController.js';
@@ -7,16 +8,16 @@ import { DownloadNewUploadSlotController } from '../../controllers/students/down
 import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController.js';
 import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController.js';
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
-import { GetNewUnitController } from '../../controllers/students/getNewUnitController.js';
+import { GetNewSubmissionController } from '../../controllers/students/getNewSubmissionController.js';
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
 import { GetT2202ReceiptsController } from '../../controllers/students/getT2202ReceiptsController.js';
-import { InitializeNextNewUnitController } from '../../controllers/students/initializeNextNewUnitController.js';
+import { InitializeNextNewSubmissionController } from '../../controllers/students/initializeNextNewUnitController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
 import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
 import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController.js';
-import { SkipNewUnitController } from '../../controllers/students/skipNewUnitController.js';
+import { SkipNewSubmissionController } from '../../controllers/students/skipNewSubmissionController.js';
 import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware.js';
-import { SubmitNewUnitController } from '../../controllers/students/submitNewUnitController.js';
+import { SubmitNewSubmissionController } from '../../controllers/students/submitNewSubmissionController.js';
 import { UpdateEmailAddressController } from '../../controllers/students/updateEmailAddressController.js';
 import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController.js';
 import type { Route } from './applyRoutes.js';
@@ -38,18 +39,20 @@ const routes: Route[] = [
   [ 'get', '/:studentId/t2202Receipts', GetT2202ReceiptsController ],
   // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
-  // units
-  [ 'post', '/:studentId/courses/:courseId/newUnits/initializeNext', InitializeNextNewUnitController ],
-  [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId', GetNewUnitController ],
-  [ 'post', '/:studentId/courses/:courseId/newUnits/:unitId/submissions', SubmitNewUnitController ],
-  [ 'post', '/:studentId/courses/:courseId/newUnits/:unitId/skips', SkipNewUnitController ],
-  [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId', GetNewAssignmentController ],
-  [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/media/:mediumId/file', DownloadNewAssignmentMediumController ],
-  [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/media/:mediumId/file', DownloadNewPartMediumController ],
-  [ 'put', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', SaveNewTextBoxTextController ],
-  [ 'get', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
-  [ 'put', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', UploadNewUploadSlotController, multer().single('file') ],
-  [ 'delete', '/:studentId/courses/:courseId/newUnits/:unitId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', EraseNewUploadSlotController ],
+  // submissions
+  [ 'post', '/:studentId/courses/:courseId/newSubmissions/initializeNext', InitializeNextNewSubmissionController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId', GetNewSubmissionController ],
+  [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/submissions', SubmitNewSubmissionController ],
+  [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/skips', SkipNewSubmissionController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/media/:mediumId/file', DownloadNewAssignmentMediumController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/media/:mediumId/file', DownloadNewPartMediumController ],
+  [ 'put', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/textBoxes/:textBoxId', SaveNewTextBoxTextController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
+  [ 'put', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', UploadNewUploadSlotController, multer().single('file') ],
+  [ 'delete', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', EraseNewUploadSlotController ],
+  // materials
+  [ 'get', '/:studentId/materials/:materialId/image', DownloadMaterialImageController ],
 ];
 
 applyRoutes(studentRouter, routes);

@@ -19,7 +19,7 @@ export type InsertNewUploadSlotTemplateRequestDTO = {
 export type InsertNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO;
 
 export class InsertNewUploadSlotTemplatePartNotFound extends Error { }
-export class InsertNewUploadSlotTemplateUnitsEnabled extends Error { }
+export class InsertNewUploadSlotTemplateSubmissionsEnabled extends Error { }
 export class InsertNewUploadSlotTemplateLabelEmpty extends Error { }
 export class InsertNewUploadSlotTemplateAllowedTypesEmpty extends Error { }
 export class InsertNewUploadSlotTemplateInvalidAllowedType extends Error { }
@@ -45,15 +45,15 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin },
         include: {
-          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+          newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } },
         },
       });
       if (!partTemplate) {
         return Result.fail(new InsertNewUploadSlotTemplatePartNotFound());
       }
 
-      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new InsertNewUploadSlotTemplateUnitsEnabled());
+      if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new InsertNewUploadSlotTemplateSubmissionsEnabled());
       }
 
       // validate the data

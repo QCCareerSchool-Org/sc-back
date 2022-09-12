@@ -21,7 +21,7 @@ export type SaveNewPartTemplateRequestDTO = {
 export type SaveNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
 export class SaveNewPartTemplateNotFound extends Error { }
-export class SaveNewPartTemplateUnitsEnabled extends Error { }
+export class SaveNewPartTemplateSubmissionsEnabled extends Error { }
 export class SaveNewPartTemplatePartTitleEmpty extends Error { }
 export class SaveNewPartTemplatePartTitleTooLong extends Error { }
 export class SaveNewPartTemplateDescriptionTooLong extends Error { }
@@ -49,15 +49,15 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
       const partTemplate = await this.prisma.newPartTemplate.findFirst({
         where: { partTemplateId: partIdBin },
         include: {
-          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+          newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } },
         },
       });
       if (!partTemplate) {
         return Result.fail(new SaveNewPartTemplateNotFound());
       }
 
-      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new SaveNewPartTemplateUnitsEnabled());
+      if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new SaveNewPartTemplateSubmissionsEnabled());
       }
 
       // validate the data

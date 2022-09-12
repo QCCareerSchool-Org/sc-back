@@ -15,7 +15,7 @@ export type DeleteNewPartTemplateRequestDTO = {
 export type DeleteNewPartTemplateResponseDTO = void;
 
 export class DeleteNewPartTemplateNotFound extends Error { }
-export class DeleteNewPartTemplateUnitsEnabled extends Error { }
+export class DeleteNewPartTemplateSubmissionsEnabled extends Error { }
 
 export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPartTemplateRequestDTO, DeleteNewPartTemplateResponseDTO> {
 
@@ -36,15 +36,15 @@ export class DeleteNewPartTemplateInteractor implements IInteractor<DeleteNewPar
         where: { partTemplateId: partIdBin },
         include: {
           newPartMedia: { include: { newParts: true } },
-          newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } },
+          newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } },
         },
       });
       if (!partTemplate) {
         return Result.fail(new DeleteNewPartTemplateNotFound());
       }
 
-      if (partTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewPartTemplateUnitsEnabled());
+      if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewPartTemplateSubmissionsEnabled());
       }
 
       // delete the part template

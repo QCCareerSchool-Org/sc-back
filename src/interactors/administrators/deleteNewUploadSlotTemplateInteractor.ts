@@ -13,7 +13,7 @@ export type DeleteNewUploadSlotTemplateRequestDTO = {
 export type DeleteNewUploadSlotTemplateResponseDTO = void;
 
 export class DeleteNewUploadSlotTemplateNotFound extends Error { }
-export class DeleteNewUploadSlotTemplateUnitsEnabled extends Error { }
+export class DeleteNewUploadSlotTemplateSubmissionsEnabled extends Error { }
 
 export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<DeleteNewUploadSlotTemplateRequestDTO, DeleteNewUploadSlotTemplateResponseDTO> {
 
@@ -31,15 +31,15 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
       const uploadSlotTemplate = await this.prisma.newUploadSlotTemplate.findFirst({
         where: { uploadSlotTemplateId: uploadSlotIdBin },
         include: {
-          newPartTemplate: { include: { newAssignmentTemplate: { include: { newUnitTemplate: { include: { course: true } } } } } },
+          newPartTemplate: { include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } } },
         },
       });
       if (!uploadSlotTemplate) {
         return Result.fail(new DeleteNewUploadSlotTemplateNotFound());
       }
 
-      if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newUnitTemplate.course.newUnitsEnabled) {
-        return Result.fail(new DeleteNewUploadSlotTemplateUnitsEnabled());
+      if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
+        return Result.fail(new DeleteNewUploadSlotTemplateSubmissionsEnabled());
       }
 
       // delete the upload slot template

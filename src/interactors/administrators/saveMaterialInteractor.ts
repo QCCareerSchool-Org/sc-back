@@ -1,0 +1,121 @@
+import type { PrismaClient } from '@prisma/client';
+
+import type { Privileges } from '../../domain/accessTokenPayload.js';
+import type { MaterialDTO } from '../../domain/materialDTO.js';
+import { materialType } from '../../domain/materialDTO.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import { InsufficientPrivileges } from '../index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
+
+export type SaveMaterialRequestDTO = {
+  /** uuid */
+  materialId: string;
+  courseId: number;
+  title: string;
+  description: string;
+  unitLetter: string;
+  order: number;
+  privileges?: Privileges;
+};
+
+export type SaveMaterialResponseDTO = MaterialDTO;
+
+abstract class SaveMaterialError extends Error { }
+export class SaveMaterialNotFound extends SaveMaterialError { }
+export class SaveMaterialTitleEmpty extends SaveMaterialError { }
+export class SaveMaterialTitleTooLong extends SaveMaterialError { }
+export class SaveMaterialDescriptionEmpty extends SaveMaterialError { }
+export class SaveMaterialDescriptionTooLong extends SaveMaterialError { }
+export class SaveMaterialUnitLetterEmpty extends SaveMaterialError { }
+export class SaveMaterialUnitLetterTooLong extends SaveMaterialError { }
+export class SaveMaterialOrderLessThanZero extends SaveMaterialError { }
+export class SaveMaterialOrderTooLarge extends SaveMaterialError { }
+
+export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDTO, SaveMaterialResponseDTO> {
+  public constructor(
+    private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
+    private readonly logger: ILoggerService,
+  ) { /* empty */ }
+
+  public async execute(request: SaveMaterialRequestDTO): Promise<ResultType<SaveMaterialResponseDTO>> {
+    try {
+      if (!request.privileges?.courseDevelopment) {
+        return Result.fail(new InsufficientPrivileges());
+      }
+
+      const materialIdBin = this.uuidService.uuidToBin(request.materialId);
+
+      const material = await this.prisma.material.findUnique({ where: { materialId: materialIdBin } });
+      if (!material) {
+        return Result.fail(new SaveMaterialNotFound());
+      }
+
+      // validate the data
+      if (request.title.length === 0) {
+        return Result.fail(new SaveMaterialTitleEmpty());
+      }
+      if ([ ...request.title ].length > 191) {
+        return Result.fail(new SaveMaterialTitleTooLong());
+      }
+
+      if (request.description.length === 0) {
+        return Result.fail(new SaveMaterialDescriptionEmpty());
+      }
+      if ([ ...request.description ].length > 65_536) {
+        return Result.fail(new SaveMaterialDescriptionTooLong());
+      }
+
+      if (request.unitLetter.length === 0) {
+        return Result.fail(new SaveMaterialUnitLetterEmpty());
+      }
+      if ([ ...request.unitLetter ].length > 1) {
+        return Result.fail(new SaveMaterialUnitLetterTooLong());
+      }
+
+      if (request.order < 0) {
+        return Result.fail(new SaveMaterialOrderLessThanZero());
+      }
+      if (request.order > 127) {
+        return Result.fail(new SaveMaterialOrderTooLarge());
+      }
+
+      const updatedMaterial = await this.prisma.material.update({
+        data: {
+          title: request.title,
+          description: request.description,
+          order: request.order,
+        },
+        where: { materialId: materialIdBin },
+      });
+
+      return Result.success({
+        materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
+        unitId: this.uuidService.binToUUID(updatedMaterial.unitId),
+        type: materialType(updatedMaterial.type),
+        title: updatedMaterial.title,
+        description: updatedMaterial.description,
+        order: updatedMaterial.order,
+        filename: updatedMaterial.filename,
+        contentMimeTypeId: updatedMaterial.contentMimeTypeId,
+        imageMimeTypeId: updatedMaterial.imageMimeTypeId,
+        externalData: updatedMaterial.externalData,
+        entryPoint: updatedMaterial.entryPoint,
+        minutes: updatedMaterial.minutes,
+        chapters: updatedMaterial.chapters,
+        videos: updatedMaterial.videos,
+        knowledgeChecks: updatedMaterial.knowledgeChecks,
+        complete: updatedMaterial.complete,
+        created: updatedMaterial.created,
+        modified: updatedMaterial.modified,
+      });
+
+    } catch (err) {
+      this.logger.error('error updating material', err instanceof Error ? err.message : err);
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+}

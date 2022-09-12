@@ -49,7 +49,7 @@ export type Config = {
     pass: string;
     mode: 'TLS' | 'STARTTLS' | 'INSECURE';
   };
-  /** the number of miliseconds a password reset request is valid for */
+  /** the number of seconds a password reset request is valid for */
   passwordResetTimeout: number;
   uploadSlotMaxFilesize: number;
 };

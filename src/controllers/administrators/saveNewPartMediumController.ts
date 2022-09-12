@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { saveNewPartMediumInteractor } from '../../interactors/administrators/index.js';
 import type { SaveNewPartMediumResponseDTO } from '../../interactors/administrators/saveNewPartMediumInteractor.js';
-import { SaveNewPartMediumNotFound, SaveNewPartMediumOrderLessThanZero, SaveNewPartMediumOrderTooLarge, SaveNewPartMediumPartCaptionEmpty, SaveNewPartMediumPartCaptionTooLong, SaveNewPartMediumUnitsEnabled } from '../../interactors/administrators/saveNewPartMediumInteractor.js';
+import { SaveNewPartMediumNotFound, SaveNewPartMediumOrderLessThanZero, SaveNewPartMediumOrderTooLarge, SaveNewPartMediumPartCaptionEmpty, SaveNewPartMediumPartCaptionTooLong, SaveNewPartMediumSubmissionsEnabled } from '../../interactors/administrators/saveNewPartMediumInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -65,8 +65,8 @@ export class SaveNewPartMediumController extends BaseController<Request, Respons
     switch (result.error.constructor) {
       case SaveNewPartMediumNotFound:
         return this.notFound('Part medium not found');
-      case SaveNewPartMediumUnitsEnabled:
-        return this.internalServerError('Units must be disabled');
+      case SaveNewPartMediumSubmissionsEnabled:
+        return this.internalServerError('Submissions must be disabled');
       case SaveNewPartMediumPartCaptionEmpty:
         return this.internalServerError('Caption is empty');
       case SaveNewPartMediumPartCaptionTooLong:

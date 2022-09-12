@@ -1,15 +1,16 @@
 import { prisma } from '../../frameworks/prisma/index.js';
 import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
-import { CloseNewUnitReturnInteractor } from './closeNewUnitReturnInteractor.js';
+import { CloseNewSubmissionReturnInteractor } from './closeNewSubmissionReturnInteractor.js';
+import { DeleteMaterialInteractor } from './deleteMaterialInteractor.js';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor.js';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor.js';
-import { DeleteNewMaterialInteractor } from './deleteNewMaterialInteractor.js';
 import { DeleteNewPartMediumInteractor } from './deleteNewPartMediumInteractor.js';
 import { DeleteNewPartTemplateInteractor } from './deleteNewPartTemplateInteractor.js';
+import { DeleteNewSubmissionTemplateInteractor } from './deleteNewSubmissionTemplateInteractor.js';
+import { DeleteNewSubmissionTemplatePricesInteractor } from './deleteNewSubmissionTemplatePricesInteractor.js';
 import { DeleteNewTextBoxTemplateInteractor } from './deleteNewTextBoxTemplateInteractor.js';
-import { DeleteNewUnitTemplateInteractor } from './deleteNewUnitTemplateInteractor.js';
-import { DeleteNewUnitTemplatePricesInteractor } from './deleteNewUnitTemplatePricesInteractor.js';
 import { DeleteNewUploadSlotTemplateInteractor } from './deleteNewUploadSlotTemplateInteractor.js';
+import { DeleteUnitInteractor } from './deleteUnitInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
 import { EnableCourseInteractor } from './enableCourseInteractor.js';
@@ -19,37 +20,38 @@ import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor.js';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor.js';
 import { GetCountryInteractor } from './getCountryInteractor.js';
 import { GetCourseInteractor } from './getCourseInteractor.js';
+import { GetMaterialInteractor } from './getMaterialInteractor.js';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor.js';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor.js';
-import { GetNewMaterialInteractor } from './getNewMaterialInteractor.js';
-import { GetNewMaterialUnitInteractor } from './getNewMaterialUnitInteractor.js';
 import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor.js';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor.js';
+import { GetNewSubmissionReturnInteractor } from './getNewSubmissionReturnInteractor.js';
+import { GetNewSubmissionTemplateInteractor } from './getNewSubmissionTemplateInteractor.js';
+import { GetNewSubmissionTemplatePricesInteractor } from './getNewSubmissionTemplatePricesInteractor.js';
 import { GetNewTextBoxTemplateInteractor } from './getNewTextBoxTemplateInteractor.js';
-import { GetNewUnitReturnInteractor } from './getNewUnitReturnInteractor.js';
-import { GetNewUnitTemplateInteractor } from './getNewUnitTemplateInteractor.js';
-import { GetNewUnitTemplatePricesInteractor } from './getNewUnitTemplatePricesInteractor.js';
 import { GetNewUploadSlotTemplateInteractor } from './getNewUploadSlotTemplateInteractor.js';
 import { GetSchoolInteractor } from './getSchoolInteractor.js';
+import { GetUnitInteractor } from './getUnitInteractor.js';
+import { InsertMaterialInteractor } from './insertMaterialInteractor.js';
 import { InsertNewAssignmentMediumInteractor } from './insertNewAssignmentMediumInteractor.js';
 import { InsertNewAssignmentTemplateInteractor } from './insertNewAssignmentTemplateInteractor.js';
-import { InsertNewMaterialInteractor } from './insertNewMaterialInteractor.js';
-import { InsertNewMaterialUnitInteractor } from './insertNewMaterialUnitInteractor.js';
 import { InsertNewPartMediumInteractor } from './insertNewPartMediumInteractor.js';
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor.js';
+import { InsertNewSubmissionTemplateInteractor } from './insertNewSubmissionTemplateInteractor.js';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
-import { InsertNewUnitTemplateInteractor } from './insertNewUnitTemplateInteractor.js';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor.js';
-import { ReplaceNewMaterialFileInteractor } from './replaceNewMaterialFileInteractor.js';
-import { ReplaceNewUnitTemplatePricesInteractor } from './replaceNewUnitTemplatePricesInteractor.js';
+import { InsertUnitInteractor } from './insertUnitInteractor.js';
+import { ReplaceMaterialFileInteractor } from './replaceMaterialFileInteractor.js';
+import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
+import { SaveMaterialInteractor } from './saveMaterialInteractor.js';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor.js';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor.js';
-import { SaveNewMaterialInteractor } from './saveNewMaterialInteractor.js';
 import { SaveNewPartMediumInteractor } from './saveNewPartMediumInteractor.js';
 import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor.js';
+import { SaveNewSubmissionTemplateInteractor } from './saveNewSubmissionTemplateInteractor.js';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor.js';
-import { SaveNewUnitTemplateInteractor } from './saveNewUnitTemplateInteractor.js';
 import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplateInteractor.js';
+import { SaveUnitInteractor } from './saveUnitInteractor.js';
 
 // use-case interactor singletons
 export const getAllSchoolsInteractor = new GetAllSchoolsInteractor(prisma, winstonLoggerService);
@@ -64,10 +66,10 @@ export const getCountryInteractor = new GetCountryInteractor(prisma, winstonLogg
 
 export const getAllCurrenciesInteractor = new GetAllCurrenciesInteractor(prisma, winstonLoggerService);
 
-export const insertNewUnitTemplateInteractor = new InsertNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const getNewUnitTemplateInteractor = new GetNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const saveNewUnitTemplateInteractor = new SaveNewUnitTemplateInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteNewUnitTemplateInteractor = new DeleteNewUnitTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const insertNewSubmissionTemplateInteractor = new InsertNewSubmissionTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const getNewSubmissionTemplateInteractor = new GetNewSubmissionTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewSubmissionTemplateInteractor = new SaveNewSubmissionTemplateInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewSubmissionTemplateInteractor = new DeleteNewSubmissionTemplateInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const insertNewAssignmentTemplateInteractor = new InsertNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentTemplateInteractor = new GetNewAssignmentTemplateInteractor(prisma, uuidService, winstonLoggerService);
@@ -101,18 +103,20 @@ export const saveNewPartMediumInteractor = new SaveNewPartMediumInteractor(prism
 export const deleteNewPartMediumInteractor = new DeleteNewPartMediumInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 
-export const getNewUnitTemplatePricesInteractor = new GetNewUnitTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
-export const replaceNewUnitTemplatePricesInteractor = new ReplaceNewUnitTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteNewUnitTemplatePricesInteractor = new DeleteNewUnitTemplatePricesInteractor(prisma, winstonLoggerService);
+export const getNewSubmissionTemplatePricesInteractor = new GetNewSubmissionTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
+export const replaceNewSubmissionTemplatePricesInteractor = new ReplaceNewSubmissionTemplatePricesInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteNewSubmissionTemplatePricesInteractor = new DeleteNewSubmissionTemplatePricesInteractor(prisma, winstonLoggerService);
 
-export const getNewUnitReturnInteractor = new GetNewUnitReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
-export const closeNewUnitReturnInteractor = new CloseNewUnitReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const getNewSubmissionReturnInteractor = new GetNewSubmissionReturnInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const closeNewSubmissionReturnInteractor = new CloseNewSubmissionReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
-export const getNewMaterialUnitInteractor = new GetNewMaterialUnitInteractor(prisma, uuidService, winstonLoggerService);
-export const insertNewMaterialUnitInteractor = new InsertNewMaterialUnitInteractor(prisma, uuidService, winstonLoggerService);
+export const getUnitInteractor = new GetUnitInteractor(prisma, uuidService, winstonLoggerService);
+export const insertUnitInteractor = new InsertUnitInteractor(prisma, uuidService, winstonLoggerService);
+export const saveUnitInteractor = new SaveUnitInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteUnitInteractor = new DeleteUnitInteractor(prisma, uuidService, winstonLoggerService);
 
-export const getNewMaterialInteractor = new GetNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
-export const insertNewMaterialInteractor = new InsertNewMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
-export const saveNewMaterialInteractor = new SaveNewMaterialInteractor(prisma, uuidService, winstonLoggerService);
-export const replaceNewMaterialFileInteractor = new ReplaceNewMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
-export const deleteNewMaterialInteractor = new DeleteNewMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, winstonLoggerService);
+export const insertMaterialInteractor = new InsertMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
+export const saveMaterialInteractor = new SaveMaterialInteractor(prisma, uuidService, winstonLoggerService);
+export const replaceMaterialFileInteractor = new ReplaceMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
+export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);

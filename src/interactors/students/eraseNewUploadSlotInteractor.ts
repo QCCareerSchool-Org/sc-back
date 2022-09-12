@@ -14,7 +14,7 @@ export type EraseNewUploadSlotRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
-  unitId: string;
+  submissionId: string;
   /** uuid */
   assignmentId: string;
   /** uuid */
@@ -26,7 +26,7 @@ export type EraseNewUploadSlotRequestDTO = {
 export type EraseNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
 export class EraseNewUploadSlotNotFound extends Error { }
-export class EraseNewUploadSlotUnitSubmitted extends Error { }
+export class EraseNewUploadSlotSubmissionSubmitted extends Error { }
 export class EraseNewUploadSlotUnlinkError extends Error { }
 
 export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadSlotRequestDTO, EraseNewUploadSlotResponseDTO> {
@@ -39,23 +39,23 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, unitId, assignmentId, partId, uploadSlotId }: EraseNewUploadSlotRequestDTO): Promise<ResultType<EraseNewUploadSlotResponseDTO>> {
+  public async execute({ studentId, courseId, submissionId, assignmentId, partId, uploadSlotId }: EraseNewUploadSlotRequestDTO): Promise<ResultType<EraseNewUploadSlotResponseDTO>> {
     try {
-      const unitIdBin = this.uuidService.uuidToBin(unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(submissionId);
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newUnit: { unitId: unitIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
-        include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newUploadSlot) {
         throw new EraseNewUploadSlotNotFound();
       }
 
-      if (newUploadSlot.newPart.newAssignment.newUnit.submitted) {
-        throw new EraseNewUploadSlotUnitSubmitted();
+      if (newUploadSlot.newPart.newAssignment.newSubmission.submitted) {
+        throw new EraseNewUploadSlotSubmissionSubmitted();
       }
 
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
@@ -66,7 +66,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
             mimeTypeId: null,
           },
           where: { uploadSlotId: uploadSlotIdBin },
-          include: { newPart: { include: { newAssignment: { include: { newUnit: true } } } } },
+          include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
         });
 
         // delete the file
@@ -88,7 +88,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         label: updatedUploadSlot.label,
         allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
-        mark: updatedUploadSlot.newPart.newAssignment.newUnit.closed ? updatedUploadSlot.mark : null, // hide mark unless the unit is marked
+        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,

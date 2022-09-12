@@ -14,7 +14,7 @@ export type DownloadNewUploadSlotRequestDTO = {
   studentId: number;
   courseId: number;
   /** uuid */
-  unitId: string;
+  submissionId: string;
   /** uuid */
   assignmentId: string;
   /** uuid */
@@ -46,7 +46,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
   public async execute(request: DownloadNewUploadSlotRequestDTO): Promise<ResultType<DownloadNewUploadSlotResponseDTO>> {
     try {
       const { studentId, courseId, startByte, endByte } = request;
-      const unitIdBin = this.uuidService.uuidToBin(request.unitId);
+      const submissionIdBin = this.uuidService.uuidToBin(request.submissionId);
       const assignmentIdBin = this.uuidService.uuidToBin(request.assignmentId);
       const partIdBin = this.uuidService.uuidToBin(request.partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(request.uploadSlotId);
@@ -58,8 +58,8 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
             partId: partIdBin,
             newAssignment: {
               assignmentId: assignmentIdBin,
-              newUnit: {
-                unitId: unitIdBin,
+              newSubmission: {
+                submissionId: submissionIdBin,
                 enrollment: { studentId, courseId, course: { enabled: true } },
               },
             },
@@ -71,7 +71,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         return Result.fail(new DownloadNewUploadSlotNotFound());
       }
 
-      // we can now trust all values for unitId, assignmentId, partId, and textBoxId
+      // we can now trust all values for submissionId, assignmentId, partId, and textBoxId
 
       const paddedStudentId = studentId.toString().padStart(8, '0');
       const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(uploadSlot.uploadSlotId)}`;

@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { GetNewAssignmentResponseDTO } from '../../interactors/tutors/getNewAssignmentInteractor.js';
-import { GetNewAssignmentNotFound, GetNewAssignmentUnitNotSubmitted, GetNewAssignmentUnitSkipped, GetNewAssignmentWrongTutor } from '../../interactors/tutors/getNewAssignmentInteractor.js';
+import { GetNewAssignmentNotFound, GetNewAssignmentSubmissionNotSubmitted, GetNewAssignmentSubmissionSkipped, GetNewAssignmentWrongTutor } from '../../interactors/tutors/getNewAssignmentInteractor.js';
 import { getNewAssignmentInteractor } from '../../interactors/tutors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -12,7 +12,7 @@ type Request = {
     /** numeric string */
     studentId: string;
     /** uuid */
-    unitId: string;
+    submissionId: string;
     /** uuid */
     assignmentId: string;
   };
@@ -26,7 +26,7 @@ export class GetNewAssignmentController extends BaseController<Request, Response
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       tutorId: yup.string().matches(/^\d+$/u).defined(),
       studentId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
@@ -49,9 +49,9 @@ export class GetNewAssignmentController extends BaseController<Request, Response
 
     const tutorId = parseInt(params.tutorId, 10);
     const studentId = parseInt(params.studentId, 10);
-    const { unitId, assignmentId } = params;
+    const { submissionId, assignmentId } = params;
 
-    const result = await getNewAssignmentInteractor.execute({ tutorId, studentId, unitId, assignmentId });
+    const result = await getNewAssignmentInteractor.execute({ tutorId, studentId, submissionId, assignmentId });
 
     if (result.success) {
       return this.ok(result.value);
@@ -59,8 +59,8 @@ export class GetNewAssignmentController extends BaseController<Request, Response
 
     switch (result.error.constructor) {
       case GetNewAssignmentNotFound:
-      case GetNewAssignmentUnitNotSubmitted:
-      case GetNewAssignmentUnitSkipped:
+      case GetNewAssignmentSubmissionNotSubmitted:
+      case GetNewAssignmentSubmissionSkipped:
         return this.notFound('Assignment not found');
       case GetNewAssignmentWrongTutor:
         return this.forbidden('No access to this assignment');

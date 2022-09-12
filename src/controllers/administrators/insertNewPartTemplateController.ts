@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewPartTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewPartTemplateResponseDTO } from '../../interactors/administrators/insertNewPartTemplateInteractor.js';
-import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplateMarkingCriteriaTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateUnitsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor.js';
+import { InsertNewPartTemplateAssignmentNotFound, InsertNewPartTemplateDescriptionTooLong, InsertNewPartTemplateDescriptionTypeEmpty, InsertNewPartTemplateInvalidDescriptionType, InsertNewPartTemplateMarkingCriteriaTooLong, InsertNewPartTemplatePartNumberAlreadyInUse, InsertNewPartTemplatePartNumberLessThanOne, InsertNewPartTemplatePartNumberTooLarge, InsertNewPartTemplatePartTitleEmpty, InsertNewPartTemplatePartTitleTooLong, InsertNewPartTemplateSubmissionsEnabled } from '../../interactors/administrators/insertNewPartTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -74,8 +74,8 @@ export class InsertNewPartTemplateController extends BaseController<Request, Res
     switch (result.error.constructor) {
       case InsertNewPartTemplateAssignmentNotFound:
         return this.notFound('Assignment template not found');
-      case InsertNewPartTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case InsertNewPartTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case InsertNewPartTemplatePartTitleEmpty:
         return this.badRequest('Title is empty');
       case InsertNewPartTemplatePartTitleTooLong:

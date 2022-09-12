@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewTextBoxTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewTextBoxTemplateResponseDTO } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor.js';
-import { InsertNewTextBoxTemplateLinesLessThanOne, InsertNewTextBoxTemplateLinesTooLarge, InsertNewTextBoxTemplateOrderLessThanZero, InsertNewTextBoxTemplateOrderTooLarge, InsertNewTextBoxTemplatePartNotFound, InsertNewTextBoxTemplatePointsLessThanZero, InsertNewTextBoxTemplatePointsTooLarge, InsertNewTextBoxTemplateUnitsEnabled } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor.js';
+import { InsertNewTextBoxTemplateLinesLessThanOne, InsertNewTextBoxTemplateLinesTooLarge, InsertNewTextBoxTemplateOrderLessThanZero, InsertNewTextBoxTemplateOrderTooLarge, InsertNewTextBoxTemplatePartNotFound, InsertNewTextBoxTemplatePointsLessThanZero, InsertNewTextBoxTemplatePointsTooLarge, InsertNewTextBoxTemplateSubmissionsEnabled } from '../../interactors/administrators/insertNewTextBoxTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -74,8 +74,8 @@ export class InsertNewTextBoxTemplateController extends BaseController<Request, 
     switch (result.error.constructor) {
       case InsertNewTextBoxTemplatePartNotFound:
         return this.notFound('Part template not found');
-      case InsertNewTextBoxTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case InsertNewTextBoxTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case InsertNewTextBoxTemplateLinesLessThanOne:
         return this.badRequest('Lines must be greater than or equal to 1');
       case InsertNewTextBoxTemplateLinesTooLarge:

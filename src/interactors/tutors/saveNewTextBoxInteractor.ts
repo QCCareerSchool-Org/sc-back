@@ -17,9 +17,9 @@ export type SaveNewTextBoxRequestDTO = {
 export type SaveNewTextBoxResponseDTO = NewTextBoxDTO;
 
 export class SaveNewTextBoxNotFound extends Error { }
-export class SaveNewTextBoxUnitNotSubmitted extends Error { }
-export class SaveNewTextBoxUnitSkipped extends Error { }
-export class SaveNewTextBoxUnitAlreadyClosed extends Error { }
+export class SaveNewTextBoxSubmissionNotSubmitted extends Error { }
+export class SaveNewTextBoxSubmissionSkipped extends Error { }
+export class SaveNewTextBoxSubmissionAlreadyClosed extends Error { }
 export class SaveNewTextBoxWrongTutor extends Error { }
 export class SaveNewTextBoxAlreadyReturned extends Error { }
 export class SaveNewTextBoxIncomplete extends Error { }
@@ -47,7 +47,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
           newPart: {
             include: {
               newAssignment: {
-                include: { newUnit: true },
+                include: { newSubmission: true },
               },
             },
           },
@@ -57,23 +57,23 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         throw new SaveNewTextBoxNotFound();
       }
 
-      if (!newTextBox.newPart.newAssignment.newUnit.submitted) {
-        throw new SaveNewTextBoxUnitNotSubmitted();
+      if (!newTextBox.newPart.newAssignment.newSubmission.submitted) {
+        throw new SaveNewTextBoxSubmissionNotSubmitted();
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.skipped) {
-        throw new SaveNewTextBoxUnitSkipped();
+      if (newTextBox.newPart.newAssignment.newSubmission.skipped) {
+        throw new SaveNewTextBoxSubmissionSkipped();
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.closed) {
-        return Result.fail(new SaveNewTextBoxUnitAlreadyClosed());
+      if (newTextBox.newPart.newAssignment.newSubmission.closed) {
+        return Result.fail(new SaveNewTextBoxSubmissionAlreadyClosed());
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.tutorId !== tutorId) {
+      if (newTextBox.newPart.newAssignment.newSubmission.tutorId !== tutorId) {
         return Result.fail(new SaveNewTextBoxWrongTutor());
       }
 
-      if (newTextBox.newPart.newAssignment.newUnit.tutorComment) {
+      if (newTextBox.newPart.newAssignment.newSubmission.tutorComment) {
         return Result.fail(new SaveNewTextBoxAlreadyReturned());
       }
 

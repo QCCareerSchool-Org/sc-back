@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertNewAssignmentTemplateInteractor } from '../../interactors/administrators/index.js';
 import type { InsertNewAssignmentTemplateResponseDTO } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor.js';
-import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateDescriptionTooLong, InsertNewAssignmentTemplateDescriptionTypeEmpty, InsertNewAssignmentTemplateInvalidDescriptionType, InsertNewAssignmentTemplateMarkingCriteriaTooLong, InsertNewAssignmentTemplateTitleTooLong, InsertNewAssignmentTemplateUnitNotFound, InsertNewAssignmentTemplateUnitsEnabled } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor.js';
+import { InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse, InsertNewAssignmentTemplateAssignmentNumberLessThanOne, InsertNewAssignmentTemplateAssignmentNumberTooLarge, InsertNewAssignmentTemplateDescriptionTooLong, InsertNewAssignmentTemplateDescriptionTypeEmpty, InsertNewAssignmentTemplateInvalidDescriptionType, InsertNewAssignmentTemplateMarkingCriteriaTooLong, InsertNewAssignmentTemplateSubmissionNotFound, InsertNewAssignmentTemplateSubmissionsEnabled, InsertNewAssignmentTemplateTitleTooLong } from '../../interactors/administrators/insertNewAssignmentTemplateInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -12,7 +12,7 @@ type Request = {
   };
   body: {
     /** uuid */
-    unitId: string;
+    submissionId: string;
     assignmentNumber: number;
     title: string | null;
     description: string | null;
@@ -31,7 +31,7 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
       administratorId: yup.string().matches(/^\d+$/u).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
       assignmentNumber: yup.number().defined(),
       title: yup.string().nullable(true).defined(),
       description: yup.string().nullable(true).defined(),
@@ -61,7 +61,7 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
     }
 
     const result = await insertNewAssignmentTemplateInteractor.execute({
-      unitId: body.unitId,
+      submissionId: body.submissionId,
       assignmentNumber: body.assignmentNumber,
       title: body.title,
       description: body.description,
@@ -75,10 +75,10 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
     }
 
     switch (result.error.constructor) {
-      case InsertNewAssignmentTemplateUnitNotFound:
-        return this.notFound('Unit template not found');
-      case InsertNewAssignmentTemplateUnitsEnabled:
-        return this.badRequest('Units must be disabled');
+      case InsertNewAssignmentTemplateSubmissionNotFound:
+        return this.notFound('Submission template not found');
+      case InsertNewAssignmentTemplateSubmissionsEnabled:
+        return this.badRequest('Submissions must be disabled');
       case InsertNewAssignmentTemplateAssignmentNumberLessThanOne:
         return this.badRequest('Assignment number must be greater than or equal to 1');
       case InsertNewAssignmentTemplateAssignmentNumberTooLarge:
@@ -94,7 +94,7 @@ export class InsertNewAssignmentTemplateController extends BaseController<Reques
       case InsertNewAssignmentTemplateMarkingCriteriaTooLong:
         return this.badRequest('Marking criteria length exceeds maximum');
       case InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse:
-        return this.badRequest('Assignment number already in use for this unit');
+        return this.badRequest('Assignment number already in use for this submission');
       default:
         return this.internalServerError(result.error.message);
     }
