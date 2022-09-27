@@ -64,7 +64,6 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
           chapters: m.chapters,
           videos: m.videos,
           knowledgeChecks: m.knowledgeChecks,
-          complete: m.complete,
           created: m.created,
           modified: m.modified,
         })),

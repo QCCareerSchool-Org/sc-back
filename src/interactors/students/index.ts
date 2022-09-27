@@ -1,5 +1,6 @@
 import { prisma } from '../../frameworks/prisma/index.js';
 import { dateService, emailValidatorService, environmentConfigService, nodeFileService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
+import { DeleteMaterialCompletionInteractor } from './deleteMaterialCompletionInteractor.js';
 import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
@@ -11,6 +12,7 @@ import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
 import { GetStudentInteractor } from './getStudentInteractor.js';
 import { GetT2202ReceiptsInteractor } from './getT2202Receipts.js';
 import { InitializeNextNewSubmissionInteractor } from './initializeNextNewSubmissionInteractor.js';
+import { InsertMaterialCompletionInteractor } from './insertMaterialCompletionInteractor.js';
 import { LessonGuardInteractor } from './lessonGuardInteractor.js';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor.js';
 import { SkipNewSubmissionInteractor } from './skipNewSubmissionInteractor.js';
@@ -37,3 +39,5 @@ export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteract
 export const updateEmailAddressInteractor = new UpdateEmailAddressInteractor(prisma, emailValidatorService, winstonLoggerService);
 export const getT2202ReceiptsInteractor = new GetT2202ReceiptsInteractor(prisma, winstonLoggerService);
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const insertMaterialCompletionInteractor = new InsertMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
+export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);

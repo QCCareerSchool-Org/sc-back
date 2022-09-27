@@ -174,7 +174,6 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
         chapters: material.chapters,
         videos: material.videos,
         knowledgeChecks: material.knowledgeChecks,
-        complete: material.complete,
         created: material.created,
         modified: material.modified,
       });

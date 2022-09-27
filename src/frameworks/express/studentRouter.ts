@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { DeleteMaterialCompletionController } from '../../controllers/students/deleteMaterialCompletionController.js';
 import { DownloadMaterialImageController } from '../../controllers/students/downloadMaterialImageController.js';
 
 import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController.js';
@@ -12,6 +13,7 @@ import { GetNewSubmissionController } from '../../controllers/students/getNewSub
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
 import { GetT2202ReceiptsController } from '../../controllers/students/getT2202ReceiptsController.js';
 import { InitializeNextNewSubmissionController } from '../../controllers/students/initializeNextNewUnitController.js';
+import { InsertMaterialCompletionController } from '../../controllers/students/insertMaterialCompletionController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
 import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
 import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController.js';
@@ -53,6 +55,8 @@ const routes: Route[] = [
   [ 'delete', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', EraseNewUploadSlotController ],
   // materials
   [ 'get', '/:studentId/materials/:materialId/image', DownloadMaterialImageController ],
+  [ 'post', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', InsertMaterialCompletionController ],
+  [ 'delete', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', DeleteMaterialCompletionController ],
 ];
 
 applyRoutes(studentRouter, routes);

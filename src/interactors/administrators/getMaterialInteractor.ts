@@ -52,7 +52,6 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
         chapters: material.chapters,
         videos: material.videos,
         knowledgeChecks: material.knowledgeChecks,
-        complete: material.complete,
         created: material.created,
         modified: material.modified,
       });

@@ -99,7 +99,6 @@ export class ReplaceMaterialFileInteractor implements IInteractor<ReplaceMateria
         chapters: updatedMaterial.chapters,
         videos: updatedMaterial.videos,
         knowledgeChecks: updatedMaterial.knowledgeChecks,
-        complete: updatedMaterial.complete,
         created: updatedMaterial.created,
         modified: updatedMaterial.modified,
       });

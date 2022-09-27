@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
@@ -35,6 +36,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   tutor: TutorDTO | null;
   oldSubmissions: OldSubmissionDTO[];
   newSubmissions: NewSubmissionDTO[];
+  materialCompletions: MaterialCompletionDTO[];
 };
 
 export class GetEnrollmentNotFound extends Error { }
@@ -84,6 +86,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
+          materialCompletions: true,
         },
       });
 
@@ -199,7 +202,6 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               chapters: m.chapters,
               videos: m.videos,
               knowledgeChecks: m.knowledgeChecks,
-              complete: m.complete,
               created: m.created,
               modified: m.modified,
             })),
@@ -329,6 +331,10 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             modified: newSubmission.modified,
           };
         }),
+        materialCompletions: enrollment.materialCompletions.map(m => ({
+          materialId: this.uuidService.binToUUID(m.materialId),
+          enrollmentId: m.enrollmentId,
+        })),
       });
 
     } catch (err) {

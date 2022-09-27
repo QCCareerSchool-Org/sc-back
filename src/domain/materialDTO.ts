@@ -18,7 +18,6 @@ export type MaterialDTO = {
   chapters: number | null;
   videos: number | null;
   knowledgeChecks: number | null;
-  complete: boolean;
   created: Date;
   modified: Date | null;
 };
