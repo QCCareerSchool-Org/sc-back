@@ -860,15 +860,16 @@ model Province {
 /////////////////////////////////////////////////////////////////////////
 
 model Unit {
-  unitId     Bytes      @id @map("material_unit_id") @db.Binary(16)
-  courseId   Int        @map("course_id") @db.UnsignedInt
-  unitLetter String     @map("unit_letter") @db.Char(1)
-  title      String?    @db.VarChar(255)
-  order      Int        @default(0) @db.UnsignedInt
-  created    DateTime   @default(now()) @db.Timestamp(0)
-  modified   DateTime?  @updatedAt @db.Timestamp(0)
-  course     Course     @relation(fields: [courseId], references: [courseId], map: "FK_new_material_units_courses")
+  unitId     Bytes           @id @map("material_unit_id") @db.Binary(16)
+  courseId   Int             @map("course_id") @db.UnsignedInt
+  unitLetter String          @map("unit_letter") @db.Char(1)
+  title      String?         @db.VarChar(255)
+  order      Int             @default(0) @db.UnsignedInt
+  created    DateTime        @default(now()) @db.Timestamp(0)
+  modified   DateTime?       @updatedAt @db.Timestamp(0)
+  course     Course          @relation(fields: [courseId], references: [courseId], map: "FK_new_material_units_courses")
   materials  Material[]
+  videos     VideosOnUnits[]
 
   @@unique([courseId, unitLetter], map: "course_id_unit_letter")
   @@index([courseId, order, unitLetter], map: "course_id_order_unit_letter")
@@ -2075,4 +2076,26 @@ model q_types {
   id          Int           @id @default(autoincrement()) @db.UnsignedInt
   name        String        @db.VarChar(50)
   q_questions q_questions[]
+}
+
+model Video {
+  videoId     Bytes           @id @db.Binary(16)
+  src         String          @db.VarChar(2048)
+  posterSrc   String          @db.VarChar(2048)
+  captionSrc  String?         @db.VarChar(2048)
+  title       String          @db.VarChar(191)
+  description String?         @db.Text
+  units       VideosOnUnits[]
+
+  @@map("videos")
+}
+
+model VideosOnUnits {
+  videoId Bytes @db.Binary(16)
+  unitId  Bytes @db.Binary(16)
+  video   Video @relation(fields: [videoId], references: [videoId], map: "FK_videos_units_videos")
+  unit    Unit  @relation(fields: [unitId], references: [unitId], map: "FK_videos_units_new_material_units")
+
+  @@map("videos_units")
+  @@id([videoId, unitId])
 }

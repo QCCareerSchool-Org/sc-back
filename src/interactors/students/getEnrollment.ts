@@ -11,6 +11,7 @@ import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplat
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { VideoDTO } from '../../domain/videoDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -31,6 +32,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
     newSubmissionTemplates: NewSubmissionTemplateDTO[];
     units: Array<UnitDTO & {
       materials: MaterialDTO[];
+      videos: VideoDTO[];
     }>;
   };
   tutor: TutorDTO | null;
@@ -62,7 +64,10 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               newSubmissionTemplates: true,
               oldSubmissionTemplates: true,
               units: {
-                include: { materials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] } },
+                include: {
+                  materials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
+                  videos: { include: { video: true } },
+                },
                 orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
               },
             },
@@ -204,6 +209,14 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               knowledgeChecks: m.knowledgeChecks,
               created: m.created,
               modified: m.modified,
+            })),
+            videos: u.videos.map(v => ({
+              videoId: this.uuidService.binToUUID(v.videoId),
+              src: v.video.src,
+              posterSrc: v.video.posterSrc,
+              captionSrc: v.video.captionSrc,
+              title: v.video.title,
+              description: v.video.description,
             })),
           })),
         },

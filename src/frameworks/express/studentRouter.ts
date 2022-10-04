@@ -12,6 +12,7 @@ import { GetNewAssignmentController } from '../../controllers/students/getNewAss
 import { GetNewSubmissionController } from '../../controllers/students/getNewSubmissionController.js';
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
 import { GetT2202ReceiptsController } from '../../controllers/students/getT2202ReceiptsController.js';
+import { GetVideoController } from '../../controllers/students/getVideoController.js';
 import { InitializeNextNewSubmissionController } from '../../controllers/students/initializeNextNewUnitController.js';
 import { InsertMaterialCompletionController } from '../../controllers/students/insertMaterialCompletionController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
@@ -57,6 +58,8 @@ const routes: Route[] = [
   [ 'get', '/:studentId/materials/:materialId/image', DownloadMaterialImageController ],
   [ 'post', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', InsertMaterialCompletionController ],
   [ 'delete', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', DeleteMaterialCompletionController ],
+  // videos
+  [ 'get', '/:studentId/videos/:videoId', GetVideoController ],
 ];
 
 applyRoutes(studentRouter, routes);

@@ -148,6 +148,11 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
     this.res.cookie(name, value, options);
   }
 
+  protected sendHtml(html: string): void {
+    this.res.setHeader('Content-Type', 'text/html');
+    this.res.send(html);
+  }
+
   protected sendInteractorFileStream(interactorFileStream: Readonly<InteractorFileStreamDownload>): void {
     const { stream, filename, mimeType, size, lastModified, maxAge, contentEncoding, byteRange, download } = interactorFileStream;
     stream.on('error', () => {

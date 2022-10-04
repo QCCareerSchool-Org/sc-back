@@ -6,6 +6,8 @@
 [{}^~`]           # URL unsafe characters https://www.ietf.org/rfc/rfc1738.txt
 */
 
+import santizeHtml from 'sanitize-html';
+
 import type { ISanitizerService } from './index.js';
 
 export class SanitizerService implements ISanitizerService {
@@ -29,5 +31,9 @@ export class SanitizerService implements ISanitizerService {
       return sanitizedFilename.substring(0, maxLength);
     }
     return sanitizedFilename.substring(0, maxLength - extensionLength) + extension;
+  }
+
+  public sanitizeHtml(html: string): string {
+    return santizeHtml(html);
   }
 }

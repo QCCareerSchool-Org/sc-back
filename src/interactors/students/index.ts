@@ -11,6 +11,7 @@ import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
 import { GetStudentInteractor } from './getStudentInteractor.js';
 import { GetT2202ReceiptsInteractor } from './getT2202Receipts.js';
+import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InitializeNextNewSubmissionInteractor } from './initializeNextNewSubmissionInteractor.js';
 import { InsertMaterialCompletionInteractor } from './insertMaterialCompletionInteractor.js';
 import { LessonGuardInteractor } from './lessonGuardInteractor.js';
@@ -41,3 +42,4 @@ export const getT2202ReceiptsInteractor = new GetT2202ReceiptsInteractor(prisma,
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const insertMaterialCompletionInteractor = new InsertMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
+export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
