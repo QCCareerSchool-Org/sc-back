@@ -35,6 +35,10 @@ export class NodeFileService implements IFileService {
     return fs.promises.rename(source, dest);
   }
 
+  public async copy(source: string, dest: string): Promise<void> {
+    return fs.promises.copyFile(source, dest);
+  }
+
   public async mkdir(filePath: string): Promise<void> {
     if (await this.stat(filePath)) {
       return;

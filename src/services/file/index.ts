@@ -11,6 +11,7 @@ export interface IFileService {
   readFile: (filePath: string) => Promise<Buffer>;
   writeFile: (filePath: string, data: Buffer) => Promise<void>;
   unlink: (filePath: string) => Promise<void>;
+  copy: (source: string, dest: string) => Promise<void>;
   rename: (source: string, dest: string) => Promise<void>;
   /** create a new directory and any parent directories, if needed */
   mkdir: (filePath: string) => Promise<void>;
