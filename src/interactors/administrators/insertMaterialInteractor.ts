@@ -405,7 +405,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       const basePath = `${this.configService.config.paths.materials.content}`;
       await this.fileService.mkdir(basePath);
       const path = `${basePath}/${this.uuidService.binToUUID(materialId)}`;
-      await this.fileService.rename(contentFile.path, path);
+      await this.fileService.copy(contentFile.path, path);
+      await this.fileService.unlink(contentFile.path);
     } catch (err) {
       this.logger.error('Unable to save content file', err);
       throw new InsertMaterialFileSaveError();
@@ -417,7 +418,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       const basePath = `${this.configService.config.paths.materials.images}`;
       await this.fileService.mkdir(basePath);
       const path = `${basePath}/${this.uuidService.binToUUID(materialId)}`;
-      await this.fileService.rename(imageFile.path, path);
+      await this.fileService.copy(imageFile.path, path);
+      await this.fileService.unlink(imageFile.path);
     } catch (err) {
       this.logger.error('Unable to save image file', err);
       throw new InsertMaterialFileSaveError();
