@@ -125,10 +125,10 @@ const routes: Route[] = [
   [ 'delete', '/:administratorId/units/:unitId', DeleteUnitController ],
   // materials
   // [ 'get', '/:administratorId/materials', GetAllNewMaterialsController ],
-  [ 'post', '/:administratorId/materials', InsertMaterialController, multer({ dest: '/tmp/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
+  [ 'post', '/:administratorId/materials', InsertMaterialController, multer({ dest: '/tmp/web/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
   [ 'get', '/:administratorId/materials/:materialId', GetMaterialController ],
   [ 'put', '/:administratorId/materials/:materialId', SaveMaterialController ],
-  [ 'post', '/:administratorId/materials/:materialId/file', ReplaceMaterialFileController, multer({ dest: '/tmp/' }).single('file') ],
+  [ 'post', '/:administratorId/materials/:materialId/file', ReplaceMaterialFileController, multer({ dest: '/tmp/web/' }).single('file') ],
   [ 'delete', '/:administratorId/materials/:materialId', DeleteMaterialController ],
 ];
 
