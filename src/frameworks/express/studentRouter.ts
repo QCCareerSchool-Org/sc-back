@@ -32,9 +32,9 @@ const routes: Route[] = [
   // only the student in question, or any administrator, should be able to access this path
   [ 'use', '/:studentId', StudentGuardMiddleware ],
   // only students enrolled in the course should be able to access this path
-  [ 'use', '/:studentId/static/lessons/:materialId', LessonGuardMiddleware ],
+  [ 'use', '/:studentId/static/lessons/:materialId', LessonGuardMiddleware, (req, res, next) => { console.log('lesson guard', req.path); next(); } ],
   // serve the files directly
-  [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware, (req, res, next) => { console.log('here', req.path); next(); } ],
+  [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware, (req, res, next) => { console.log('lesson static files', req.path); next(); } ],
   // student
   [ 'get', '/:studentId', GetStudentController ],
   [ 'put', '/:studentId/emailAddress', UpdateEmailAddressController ],
