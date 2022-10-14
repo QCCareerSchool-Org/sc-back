@@ -34,7 +34,7 @@ const routes: Route[] = [
   // only students enrolled in the course should be able to access this path
   [ 'use', '/:studentId/static/lessons/:materialId', LessonGuardMiddleware ],
   // serve the files directly
-  [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware ],
+  [ 'use', '/:studentId/static/lessons', LessonsStaticFilesMiddleware, (req, res, next) => { console.log('here', req.path); next(); } ],
   // student
   [ 'get', '/:studentId', GetStudentController ],
   [ 'put', '/:studentId/emailAddress', UpdateEmailAddressController ],
