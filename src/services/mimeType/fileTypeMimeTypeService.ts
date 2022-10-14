@@ -13,7 +13,6 @@ export class FileTypeMimeTypeService implements IMimeTypeService {
   }
 
   public async getTypeFromFile(path: string): Promise<string> {
-    console.log('here', path);
     const result = await fileTypeFromFile(path);
     if (result) {
       return result.mime;
