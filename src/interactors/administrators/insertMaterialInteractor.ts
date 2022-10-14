@@ -227,7 +227,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           filename: null,
           contentMimeTypeId: null,
           imageMimeTypeId: request.imageFile?.mimeType ?? null,
-          entryPoint: '/content',
+          entryPoint: '/content/',
           externalData: null,
           minutes: lessonMeta.minutes,
           chapters: lessonMeta.chapters,
