@@ -12,6 +12,7 @@ export class LessonsStaticFilesMiddleware extends BaseMiddleware<void, void> {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   protected async executeImpl(): Promise<void> {
+    console.log(`Looking for file at ${LessonsStaticFilesMiddleware.path}`);
     express.static(LessonsStaticFilesMiddleware.path)(this.req, this.res, this.next);
   }
 }
