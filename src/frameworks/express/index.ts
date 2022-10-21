@@ -29,6 +29,7 @@ const app = express();
 
 // app.use(helmet({ frameguard: process.env.NODE_ENV === 'production', crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 // app.use(helmet({ crossOriginEmbedderPolicy: false, crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 app.use(compression());
 app.use(express.json({ limit: 524_288 })); // 512 KB
 app.use(cookieParser());

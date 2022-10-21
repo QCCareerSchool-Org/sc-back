@@ -4,7 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import { saveMaterialInteractor } from '../../interactors/administrators/index.js';
 import type { SaveMaterialResponseDTO } from '../../interactors/administrators/saveMaterialInteractor.js';
-import { SaveMaterialDescriptionEmpty, SaveMaterialDescriptionTooLong, SaveMaterialNotFound, SaveMaterialOrderLessThanZero, SaveMaterialOrderTooLarge, SaveMaterialTitleEmpty, SaveMaterialTitleTooLong, SaveMaterialUnitLetterEmpty, SaveMaterialUnitLetterTooLong } from '../../interactors/administrators/saveMaterialInteractor.js';
+import { SaveMaterialDescriptionEmpty, SaveMaterialDescriptionTooLong, SaveMaterialMissingMetadata, SaveMaterialNotFound, SaveMaterialOrderLessThanZero, SaveMaterialOrderTooLarge, SaveMaterialTitleEmpty, SaveMaterialTitleTooLong } from '../../interactors/administrators/saveMaterialInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -16,11 +16,15 @@ type Request = {
     materialId: string;
   };
   body: {
-    courseId: number;
     title: string;
     description: string;
-    unitLetter: string;
     order: number;
+    lessonMeta?: {
+      minutes: number;
+      chapters: number;
+      videos: number;
+      knowledgeChecks: number;
+    };
   };
   privileges?: Privileges;
 };
@@ -35,12 +39,16 @@ export class SaveMaterialController extends BaseController<Request, Response> {
       materialId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
-      courseId: yup.number().defined(),
       title: yup.string().defined(),
       description: yup.string().defined(),
-      unitLetter: yup.string().defined(),
       order: yup.number().defined(),
-    });
+      lessonMeta: yup.object({ // TODO: yup doesn't think this matches the request
+        minutes: yup.number(),
+        chapters: yup.number(),
+        videos: yup.number(),
+        knowledgeChecks: yup.number(),
+      }),
+    }) as unknown as yup.SchemaOf<Request['body']>;
     try {
       const [ params, body ] = await Promise.all([
         paramsSchema.validate(this.req.params),
@@ -67,12 +75,16 @@ export class SaveMaterialController extends BaseController<Request, Response> {
 
     const result = await saveMaterialInteractor.execute({
       materialId: params.materialId,
-      courseId: body.courseId,
       title: body.title,
       description: body.description,
-      unitLetter: body.unitLetter,
       order: body.order,
       privileges,
+      lessonMeta: body.lessonMeta ? {
+        minutes: body.lessonMeta.minutes,
+        chapters: body.lessonMeta.chapters,
+        videos: body.lessonMeta.videos,
+        knowledgeChecks: body.lessonMeta.knowledgeChecks,
+      } : null,
     });
 
     if (result.success) {
@@ -92,14 +104,12 @@ export class SaveMaterialController extends BaseController<Request, Response> {
         return this.badRequest('description is empty');
       case SaveMaterialDescriptionTooLong:
         return this.badRequest('description exceeds maxmimum length');
-      case SaveMaterialUnitLetterEmpty:
-        return this.badRequest('unitLetter is empty');
-      case SaveMaterialUnitLetterTooLong:
-        return this.badRequest('unitLetter exceeds maxmimum length');
       case SaveMaterialOrderLessThanZero:
         return this.badRequest('order must be greater than or equal to zero');
       case SaveMaterialOrderTooLarge:
         return this.badRequest('order must be greater less than or equal to 127');
+      case SaveMaterialMissingMetadata:
+        return this.badRequest('lesson metadata is missing');
       default:
         return this.internalServerError(result.error.message);
     }

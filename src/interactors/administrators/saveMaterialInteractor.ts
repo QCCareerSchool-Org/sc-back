@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Material, PrismaClient } from '@prisma/client';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
@@ -13,12 +13,16 @@ import type { ResultType } from '../result.js';
 export type SaveMaterialRequestDTO = {
   /** uuid */
   materialId: string;
-  courseId: number;
   title: string;
   description: string;
-  unitLetter: string;
   order: number;
   privileges?: Privileges;
+  lessonMeta: {
+    minutes: number;
+    chapters: number;
+    videos: number;
+    knowledgeChecks: number;
+  } | null;
 };
 
 export type SaveMaterialResponseDTO = MaterialDTO;
@@ -29,10 +33,9 @@ export class SaveMaterialTitleEmpty extends SaveMaterialError { }
 export class SaveMaterialTitleTooLong extends SaveMaterialError { }
 export class SaveMaterialDescriptionEmpty extends SaveMaterialError { }
 export class SaveMaterialDescriptionTooLong extends SaveMaterialError { }
-export class SaveMaterialUnitLetterEmpty extends SaveMaterialError { }
-export class SaveMaterialUnitLetterTooLong extends SaveMaterialError { }
 export class SaveMaterialOrderLessThanZero extends SaveMaterialError { }
 export class SaveMaterialOrderTooLarge extends SaveMaterialError { }
+export class SaveMaterialMissingMetadata extends SaveMaterialError { }
 
 export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDTO, SaveMaterialResponseDTO> {
   public constructor(
@@ -69,13 +72,6 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         return Result.fail(new SaveMaterialDescriptionTooLong());
       }
 
-      if (request.unitLetter.length === 0) {
-        return Result.fail(new SaveMaterialUnitLetterEmpty());
-      }
-      if ([ ...request.unitLetter ].length > 1) {
-        return Result.fail(new SaveMaterialUnitLetterTooLong());
-      }
-
       if (request.order < 0) {
         return Result.fail(new SaveMaterialOrderLessThanZero());
       }
@@ -83,14 +79,34 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         return Result.fail(new SaveMaterialOrderTooLarge());
       }
 
-      const updatedMaterial = await this.prisma.material.update({
-        data: {
-          title: request.title,
-          description: request.description,
-          order: request.order,
-        },
-        where: { materialId: materialIdBin },
-      });
+      let updatedMaterial: Material;
+
+      if (material.type === 'lesson') {
+        if (!request.lessonMeta) {
+          throw new SaveMaterialMissingMetadata();
+        }
+        updatedMaterial = await this.prisma.material.update({
+          data: {
+            title: request.title,
+            description: request.description,
+            order: request.order,
+            minutes: request.lessonMeta.minutes,
+            chapters: request.lessonMeta.chapters,
+            videos: request.lessonMeta.videos,
+            knowledgeChecks: request.lessonMeta.knowledgeChecks,
+          },
+          where: { materialId: materialIdBin },
+        });
+      } else {
+        updatedMaterial = await this.prisma.material.update({
+          data: {
+            title: request.title,
+            description: request.description,
+            order: request.order,
+          },
+          where: { materialId: materialIdBin },
+        });
+      }
 
       return Result.success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),

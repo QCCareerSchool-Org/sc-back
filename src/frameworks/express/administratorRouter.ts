@@ -13,6 +13,7 @@ import { DeleteNewSubmissionTemplatePricesController } from '../../controllers/a
 import { DeleteNewTextBoxTemplateController } from '../../controllers/administrators/deleteNewTextBoxTemplateController.js';
 import { DeleteNewUploadSlotTemplateController } from '../../controllers/administrators/deleteNewUploadSlotTemplateController.js';
 import { DeleteUnitController } from '../../controllers/administrators/deleteUnitController.js';
+import { DownloadMaterialImageController } from '../../controllers/administrators/downloadMaterialImageController.js';
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController.js';
 import { EnableCourseController } from '../../controllers/administrators/enableCourseController.js';
@@ -128,6 +129,7 @@ const routes: Route[] = [
   [ 'post', '/:administratorId/materials', InsertMaterialController, multer({ dest: '/tmp/web/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
   [ 'get', '/:administratorId/materials/:materialId', GetMaterialController ],
   [ 'put', '/:administratorId/materials/:materialId', SaveMaterialController ],
+  [ 'get', '/:administratorId/materials/:materialId/image', DownloadMaterialImageController ],
   [ 'post', '/:administratorId/materials/:materialId/file', ReplaceMaterialFileController, multer({ dest: '/tmp/web/' }).single('file') ],
   [ 'delete', '/:administratorId/materials/:materialId', DeleteMaterialController ],
 ];

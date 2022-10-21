@@ -11,6 +11,7 @@ import { DeleteNewSubmissionTemplatePricesInteractor } from './deleteNewSubmissi
 import { DeleteNewTextBoxTemplateInteractor } from './deleteNewTextBoxTemplateInteractor.js';
 import { DeleteNewUploadSlotTemplateInteractor } from './deleteNewUploadSlotTemplateInteractor.js';
 import { DeleteUnitInteractor } from './deleteUnitInteractor.js';
+import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
 import { EnableCourseInteractor } from './enableCourseInteractor.js';
@@ -120,3 +121,4 @@ export const insertMaterialInteractor = new InsertMaterialInteractor(prisma, uui
 export const saveMaterialInteractor = new SaveMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const replaceMaterialFileInteractor = new ReplaceMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
 export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);

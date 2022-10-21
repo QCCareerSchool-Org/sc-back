@@ -1,7 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
+import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -13,7 +15,11 @@ export type GetMaterialRequestDTO = {
   materialId: string;
 };
 
-export type GetMaterialResponseDTO = MaterialDTO;
+export type GetMaterialResponseDTO = MaterialDTO & {
+  unit: UnitDTO & {
+    course: CourseDTO;
+  };
+};
 
 export class GetMaterialNotFound extends Error { }
 
@@ -31,6 +37,7 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
       // find the material
       const material = await this.prisma.material.findUnique({
         where: { materialId: materialIdBin },
+        include: { unit: { include: { course: true } } },
       });
       if (!material) {
         return Result.fail(new GetMaterialNotFound());
@@ -54,6 +61,31 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
         knowledgeChecks: material.knowledgeChecks,
         created: material.created,
         modified: material.modified,
+        unit: {
+          unitId: this.uuidService.binToUUID(material.unit.unitId),
+          courseId: material.unit.courseId,
+          unitLetter: material.unit.unitLetter,
+          title: material.unit.title,
+          order: material.unit.order,
+          created: material.unit.created,
+          modified: material.unit.modified,
+          course: {
+            courseId: material.unit.course.courseId,
+            schoolId: material.unit.course.schoolId,
+            code: material.unit.course.code,
+            version: material.unit.course.version,
+            studentTypeId: material.unit.course.studentTypeId,
+            name: material.unit.course.name,
+            courseGuide: material.unit.course.courseGuide,
+            quizzesEnabled: material.unit.course.quizzesEnabled,
+            noTutor: material.unit.course.noTutor,
+            submissionType: material.unit.course.submissionType,
+            enabled: material.unit.course.enabled,
+            order: material.unit.course.order,
+            submissionsEnabled: material.unit.course.submissionsEnabled,
+            entityVersion: material.unit.course.entityVersion,
+          },
+        },
       });
 
     } catch (err) {
