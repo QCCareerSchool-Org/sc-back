@@ -4,6 +4,7 @@ import multer from 'multer';
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware.js';
 import { CloseNewSubmissionReturnController } from '../../controllers/administrators/closeNewSubmissionReturnController.js';
 import { DeleteMaterialController } from '../../controllers/administrators/deleteMaterialController.js';
+import { DeleteMaterialImageController } from '../../controllers/administrators/deleteMaterialImageController.js';
 import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController.js';
 import { DeleteNewAssignmentTemplateController } from '../../controllers/administrators/deleteNewAssignmentTemplateController.js';
 import { DeleteNewPartMediumController } from '../../controllers/administrators/deleteNewPartMediumController.js';
@@ -44,7 +45,8 @@ import { InsertNewSubmissionTemplateController } from '../../controllers/adminis
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController.js';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController.js';
 import { InsertUnitController } from '../../controllers/administrators/insertUnitController.js';
-import { ReplaceMaterialFileController } from '../../controllers/administrators/replaceMaterialFileController.js';
+import { ReplaceMaterialContentController } from '../../controllers/administrators/replaceMaterialContentController.js';
+import { ReplaceMaterialImageController } from '../../controllers/administrators/replaceMaterialImageController.js';
 import { ReplaceNewSubmissionTemplatePricesController } from '../../controllers/administrators/replaceNewSubmissionTemplatePricesController.js';
 import { SaveMaterialController } from '../../controllers/administrators/saveMaterialController.js';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController.js';
@@ -129,9 +131,11 @@ const routes: Route[] = [
   [ 'post', '/:administratorId/materials', InsertMaterialController, multer({ dest: '/tmp/web/' }).fields([ { name: 'content', maxCount: 1 }, { name: 'image', maxCount: 1 } ]) ],
   [ 'get', '/:administratorId/materials/:materialId', GetMaterialController ],
   [ 'put', '/:administratorId/materials/:materialId', SaveMaterialController ],
-  [ 'get', '/:administratorId/materials/:materialId/image', DownloadMaterialImageController ],
-  [ 'post', '/:administratorId/materials/:materialId/file', ReplaceMaterialFileController, multer({ dest: '/tmp/web/' }).single('file') ],
   [ 'delete', '/:administratorId/materials/:materialId', DeleteMaterialController ],
+  [ 'get', '/:administratorId/materials/:materialId/image', DownloadMaterialImageController ],
+  [ 'put', '/:administratorId/materials/:materialId/image', ReplaceMaterialImageController, multer({ dest: '/tmp/web/' }).single('image') ],
+  [ 'delete', '/:administratorId/materials/:materialId/image', DeleteMaterialImageController ],
+  [ 'put', '/:administratorId/materials/:materialId/content', ReplaceMaterialContentController, multer({ dest: '/tmp/web/' }).single('content') ],
 ];
 
 applyRoutes(administratorRouter, routes);

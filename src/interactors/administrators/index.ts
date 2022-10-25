@@ -42,7 +42,8 @@ import { InsertNewSubmissionTemplateInteractor } from './insertNewSubmissionTemp
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor.js';
 import { InsertUnitInteractor } from './insertUnitInteractor.js';
-import { ReplaceMaterialFileInteractor } from './replaceMaterialFileInteractor.js';
+import { ReplaceMaterialContentInteractor } from './replaceMaterialContentInteractor.js';
+import { ReplaceMaterialImageInteractor } from './replaceMaterialImageInteractor.js';
 import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
 import { SaveMaterialInteractor } from './saveMaterialInteractor.js';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor.js';
@@ -119,6 +120,7 @@ export const deleteUnitInteractor = new DeleteUnitInteractor(prisma, uuidService
 export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const insertMaterialInteractor = new InsertMaterialInteractor(prisma, uuidService, axiosHttpService, nodeFileService, extractZipUnzipService, fileTypeMimeTypeService, environmentConfigService, winstonLoggerService);
 export const saveMaterialInteractor = new SaveMaterialInteractor(prisma, uuidService, winstonLoggerService);
-export const replaceMaterialFileInteractor = new ReplaceMaterialFileInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
+export const replaceMaterialContentInteractor = new ReplaceMaterialContentInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
+export const replaceMaterialImageInteractor = new ReplaceMaterialImageInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);

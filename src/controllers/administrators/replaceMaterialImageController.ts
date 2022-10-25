@@ -2,9 +2,9 @@ import * as yup from 'yup';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
-import { replaceMaterialFileInteractor } from '../../interactors/administrators/index.js';
-import type { ReplaceMaterialFileResponseDTO } from '../../interactors/administrators/replaceMaterialFileInteractor.js';
-import { ReplaceMaterialFileInvalidMimeType, ReplaceMaterialFileMaterialNotFound, ReplaceMaterialFileSaveError, ReplaceMaterialFileTooLarge } from '../../interactors/administrators/replaceMaterialFileInteractor.js';
+import { replaceMaterialImageInteractor } from '../../interactors/administrators/index.js';
+import type { ReplaceMaterialImageResponseDTO } from '../../interactors/administrators/replaceMaterialImageInteractor.js';
+import { ReplaceMaterialImageInvalidMimeType, ReplaceMaterialImageMaterialNotFound, ReplaceMaterialImageSaveError, ReplaceMaterialImageTooLarge } from '../../interactors/administrators/replaceMaterialImageInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -30,9 +30,9 @@ type Request = {
   privileges?: Privileges;
 };
 
-type Response = ReplaceMaterialFileResponseDTO;
+type Response = ReplaceMaterialImageResponseDTO;
 
-export class ReplaceMaterialFileController extends BaseController<Request, Response> {
+export class ReplaceMaterialImageController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -68,11 +68,11 @@ export class ReplaceMaterialFileController extends BaseController<Request, Respo
   }
 
   protected async executeImpl({ params, file, privileges }: Request): Promise<void> {
-    if (!this.isPostMethod()) {
+    if (!this.isPutMethod()) {
       return this.methodNotAllowed();
     }
 
-    const result = await replaceMaterialFileInteractor.execute({
+    const result = await replaceMaterialImageInteractor.execute({
       materialId: params.materialId,
       fileData: {
         path: file.path,
@@ -90,13 +90,13 @@ export class ReplaceMaterialFileController extends BaseController<Request, Respo
     switch (result.error.constructor) {
       case InsufficientPrivileges:
         return this.forbidden('Insufficient privileges');
-      case ReplaceMaterialFileMaterialNotFound:
+      case ReplaceMaterialImageMaterialNotFound:
         return this.notFound('Not found');
-      case ReplaceMaterialFileTooLarge:
+      case ReplaceMaterialImageTooLarge:
         return this.badRequest('File exceeds maximum size');
-      case ReplaceMaterialFileInvalidMimeType:
+      case ReplaceMaterialImageInvalidMimeType:
         return this.badRequest('Invalid file type');
-      case ReplaceMaterialFileSaveError:
+      case ReplaceMaterialImageSaveError:
         return this.internalServerError('Could not save file');
       default:
         return this.internalServerError(result.error.message);

@@ -6,53 +6,51 @@ import { materialType } from '../../domain/materialDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { IUnzipService } from '../../services/unzip/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor, InteractorFileDiskUpload } from '../index.js';
 import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
-export type ReplaceMaterialFileRequestDTO = {
+export type ReplaceMaterialImageRequestDTO = {
   /** uuid */
   materialId: string;
   fileData: InteractorFileDiskUpload;
   privileges?: Privileges;
 };
 
-export type ReplaceMaterialFileResponseDTO = MaterialDTO;
+export type ReplaceMaterialImageResponseDTO = MaterialDTO;
 
-abstract class ReplaceMaterialFileError extends Error { }
-export class ReplaceMaterialFileMaterialNotFound extends ReplaceMaterialFileError { }
-export class ReplaceMaterialFileTooLarge extends ReplaceMaterialFileError { }
-export class ReplaceMaterialFileInvalidMimeType extends ReplaceMaterialFileError { }
-export class ReplaceMaterialFileSaveError extends ReplaceMaterialFileError { }
+abstract class ReplaceMaterialImageError extends Error { }
+export class ReplaceMaterialImageMaterialNotFound extends ReplaceMaterialImageError { }
+export class ReplaceMaterialImageTooLarge extends ReplaceMaterialImageError { }
+export class ReplaceMaterialImageInvalidMimeType extends ReplaceMaterialImageError { }
+export class ReplaceMaterialImageSaveError extends ReplaceMaterialImageError { }
 
-export class ReplaceMaterialFileInteractor implements IInteractor<ReplaceMaterialFileRequestDTO, ReplaceMaterialFileResponseDTO> {
+export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMaterialImageRequestDTO, ReplaceMaterialImageResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
-    private readonly unzipService: IUnzipService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: ReplaceMaterialFileRequestDTO): Promise<ResultType<ReplaceMaterialFileResponseDTO>> {
+  public async execute({ materialId, fileData, privileges }: ReplaceMaterialImageRequestDTO): Promise<ResultType<ReplaceMaterialImageResponseDTO>> {
     try {
-      if (!request.privileges?.courseDevelopment) {
+      if (!privileges?.courseDevelopment) {
         return Result.fail(new InsufficientPrivileges());
       }
 
-      const materialIdBin = this.uuidService.uuidToBin(request.materialId);
+      const materialIdBin = this.uuidService.uuidToBin(materialId);
 
-      if (request.fileData.size >= this.configService.config.lessonArchiveMaxFileSize) {
-        return Result.fail(new ReplaceMaterialFileTooLarge(request.fileData.size.toString()));
+      if (fileData.size >= this.configService.config.materialImageMaxFileSize) {
+        return Result.fail(new ReplaceMaterialImageTooLarge(fileData.size.toString()));
       }
 
-      if (request.fileData.mimeType !== 'application/zip') {
-        return Result.fail(new ReplaceMaterialFileInvalidMimeType());
+      if (!this.isValidMimeType(fileData.mimeType)) {
+        return Result.fail(new ReplaceMaterialImageInvalidMimeType());
       }
 
       let updatedMaterial: Material;
@@ -64,20 +62,30 @@ export class ReplaceMaterialFileInteractor implements IInteractor<ReplaceMateria
             where: { materialId: materialIdBin },
           });
           if (!material) {
-            throw new ReplaceMaterialFileMaterialNotFound();
+            throw new ReplaceMaterialImageMaterialNotFound();
+          }
+
+          const mimeType = await transaction.mimeType.findUnique({
+            where: { mimeTypeId: fileData.mimeType },
+          });
+          if (!mimeType) {
+            throw new ReplaceMaterialImageInvalidMimeType();
           }
 
           try {
-            await this.extract(material.materialId, request.fileData);
+            await this.replaceImage(materialId, fileData);
           } catch (err) {
-            this.logger.error('Unable to extract material', err);
-            throw new ReplaceMaterialFileSaveError();
+            this.logger.error('Unable to save image file', err);
+            throw new ReplaceMaterialImageSaveError();
           }
 
-          return material;
+          return transaction.material.update({
+            where: { materialId: materialIdBin },
+            data: { imageMimeTypeId: mimeType.mimeTypeId },
+          });
         });
       } catch (err) {
-        if (err instanceof ReplaceMaterialFileError) {
+        if (err instanceof ReplaceMaterialImageError) {
           return Result.fail(err);
         }
         throw err;
@@ -104,23 +112,23 @@ export class ReplaceMaterialFileInteractor implements IInteractor<ReplaceMateria
       });
 
     } catch (err) {
-      this.logger.error('error replacing material file', err instanceof Error ? err.message : err);
+      this.logger.error('error replacing material image', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    } finally {
+      try {
+        await this.fileService.unlink(fileData.path);
+      } catch {
+        this.logger.warn('Couldn\'t delete temporary file.');
+      }
     }
   }
 
-  private async extract(materialId: Buffer, fileData: InteractorFileDiskUpload): Promise<void> {
-    const temporaryPath = `${this.configService.config.paths.materials.content}/${this.uuidService.createUUID()}`;
-    const path = `${this.configService.config.paths.materials.content}/${this.uuidService.binToUUID(materialId)}`;
-    // create temporary path
-    await this.fileService.mkdir(temporaryPath);
-    // extract new archive to temporary path
-    await this.unzipService.extractFiles(fileData.path, temporaryPath);
-    // delete the old path
-    await this.fileService.rmdir(path);
-    // move the temporary path to the old path
-    await this.fileService.rename(temporaryPath, path);
-    // delete the archive
-    await this.fileService.unlink(fileData.path);
+  private isValidMimeType(mimeType: string): boolean {
+    return mimeType.startsWith('image/');
+  }
+
+  private async replaceImage(materialId: string, image: InteractorFileDiskUpload): Promise<void> {
+    const path = `${this.configService.config.paths.materials.images}/${materialId}`;
+    await this.fileService.copy(image.path, path);
   }
 }
