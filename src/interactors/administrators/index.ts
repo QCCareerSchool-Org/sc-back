@@ -1,6 +1,7 @@
 import { prisma } from '../../frameworks/prisma/index.js';
 import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
 import { CloseNewSubmissionReturnInteractor } from './closeNewSubmissionReturnInteractor.js';
+import { DeleteMaterialImageInteractor } from './deleteMaterialImageInteractor.js';
 import { DeleteMaterialInteractor } from './deleteMaterialInteractor.js';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor.js';
 import { DeleteNewAssignmentTemplateInteractor } from './deleteNewAssignmentTemplateInteractor.js';
@@ -122,5 +123,6 @@ export const insertMaterialInteractor = new InsertMaterialInteractor(prisma, uui
 export const saveMaterialInteractor = new SaveMaterialInteractor(prisma, uuidService, winstonLoggerService);
 export const replaceMaterialContentInteractor = new ReplaceMaterialContentInteractor(prisma, uuidService, nodeFileService, extractZipUnzipService, environmentConfigService, winstonLoggerService);
 export const replaceMaterialImageInteractor = new ReplaceMaterialImageInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const deleteMaterialImageInteractor = new DeleteMaterialImageInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);

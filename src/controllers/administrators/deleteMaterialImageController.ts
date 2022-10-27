@@ -2,6 +2,10 @@ import * as yup from 'yup';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
+import type { DeleteMaterialImageResponseDTO } from '../../interactors/administrators/deleteMaterialImageInteractor.js';
+import { DeleteMaterialImageFilesystemError, DeleteMaterialImageInvalidMimeType, DeleteMaterialImageMaterialNotFound, DeleteMaterialImageTooLarge } from '../../interactors/administrators/deleteMaterialImageInteractor.js';
+import { deleteMaterialImageInteractor } from '../../interactors/administrators/index.js';
+import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -14,7 +18,7 @@ type Request = {
   privileges?: Privileges;
 };
 
-type Response = void;
+type Response = DeleteMaterialImageResponseDTO;
 
 export class DeleteMaterialImageController extends BaseController<Request, Response> {
 
@@ -44,36 +48,28 @@ export class DeleteMaterialImageController extends BaseController<Request, Respo
       return this.methodNotAllowed();
     }
 
-    return this.ok();
+    const result = await deleteMaterialImageInteractor.execute({
+      materialId: params.materialId,
+      privileges,
+    });
 
-    // const result = await replaceMaterialContentInteractor.execute({
-    //   materialId: params.materialId,
-    //   fileData: {
-    //     path: file.path,
-    //     filename: file.originalname,
-    //     mimeType: file.mimetype,
-    //     size: file.size,
-    //   },
-    //   privileges,
-    // });
+    if (result.success) {
+      return this.ok(result.value);
+    }
 
-    // if (result.success) {
-    //   return this.ok(result.value);
-    // }
-
-    // switch (result.error.constructor) {
-    //   case InsufficientPrivileges:
-    //     return this.forbidden('Insufficient privileges');
-    //   case ReplaceMaterialContentMaterialNotFound:
-    //     return this.notFound('Not found');
-    //   case ReplaceMaterialContentTooLarge:
-    //     return this.badRequest('File exceeds maximum size');
-    //   case ReplaceMaterialContentInvalidMimeType:
-    //     return this.badRequest('Invalid file type');
-    //   case ReplaceMaterialContentSaveError:
-    //     return this.internalServerError('Could not save file');
-    //   default:
-    //     return this.internalServerError(result.error.message);
-    // }
+    switch (result.error.constructor) {
+      case InsufficientPrivileges:
+        return this.forbidden('Insufficient privileges');
+      case DeleteMaterialImageMaterialNotFound:
+        return this.notFound('Not found');
+      case DeleteMaterialImageTooLarge:
+        return this.badRequest('File exceeds maximum size');
+      case DeleteMaterialImageInvalidMimeType:
+        return this.badRequest('Invalid file type');
+      case DeleteMaterialImageFilesystemError:
+        return this.internalServerError('Could not save file');
+      default:
+        return this.internalServerError(result.error.message);
+    }
   }
 }

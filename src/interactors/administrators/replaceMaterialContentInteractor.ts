@@ -51,7 +51,7 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
         return Result.fail(new ReplaceMaterialContentTooLarge(request.fileData.size.toString()));
       }
 
-      if (request.fileData.mimeType !== 'application/zip') {
+      if (request.fileData.mimeType !== 'application/x-zip-compressed') {
         return Result.fail(new ReplaceMaterialContentInvalidMimeType());
       }
 
