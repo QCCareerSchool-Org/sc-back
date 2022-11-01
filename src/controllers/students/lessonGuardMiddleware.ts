@@ -40,10 +40,10 @@ export class LessonGuardMiddleware extends BaseMiddleware<Request, void> {
 
     const result = await lessonGuardInteractor.execute({ studentId, materialId: params.materialId });
     if (result.success) {
-      // const contentSecurityPolicy = environmentConfigService.config.environment === 'development'
-      //   ? `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; frame-ancestors *`
-      //   : `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; frame-ancestors https://studentcenter.qccareerschool.com`;
-      // this.res.setHeader('Content-Security-Policy', contentSecurityPolicy);
+      const contentSecurityPolicy = environmentConfigService.config.environment === 'development'
+        ? `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; frame-ancestors *`
+        : `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; frame-ancestors https://studentcenter.qccareerschool.com`;
+      this.res.setHeader('Content-Security-Policy', contentSecurityPolicy);
       return this.next();
     }
 
