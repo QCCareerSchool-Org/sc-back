@@ -19,12 +19,12 @@ type Request = {
     title: string;
     description: string;
     order: number;
-    lessonMeta?: {
+    lessonMeta: {
       minutes: number;
       chapters: number;
       videos: number;
       knowledgeChecks: number;
-    };
+    } | null;
   };
   privileges?: Privileges;
 };
@@ -47,7 +47,7 @@ export class SaveMaterialController extends BaseController<Request, Response> {
         chapters: yup.number(),
         videos: yup.number(),
         knowledgeChecks: yup.number(),
-      }),
+      }).nullable(),
     }) as unknown as yup.SchemaOf<Request['body']>;
     try {
       const [ params, body ] = await Promise.all([
