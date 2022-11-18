@@ -180,7 +180,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
 
   private async insertWithExternalData(partIdBin: Buffer, caption: string, order: number, externalData: string): Promise<NewPartMedium> {
     // check the external data
-    let headers: Record<string, string>;
+    let headers: Record<string, string | undefined>;
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {

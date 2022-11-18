@@ -374,7 +374,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
    * @returns the content type
    */
   private async fetchExternalData(externalData: string): Promise<[ contentType: string, filename: string ]> {
-    let headers: Record<string, string>;
+    let headers: Record<string, string | undefined>;
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {

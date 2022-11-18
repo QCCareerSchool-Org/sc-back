@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { jest } from '@jest/globals';
-import type { Course, Currency, NewUnitTemplate, NewUnitTemplatePrice, PrismaClient, School } from '@prisma/client';
+import { describe, it, jest } from '@jest/globals';
+import type { Course, Currency, Material, NewSubmissionTemplate, NewSubmissionTemplatePrice, PrismaClient, School, Unit } from '@prisma/client';
 
 import type { ILoggerService } from '../../../services/logger/index.js';
 import type { IUUIDService } from '../../../services/uuid/index.js';
@@ -8,9 +8,19 @@ import { UUIDService } from '../../../services/uuid/uuidService.js';
 import { isErrorResult, isSuccessResult } from '../../result.js';
 import { GetCourseInteractor, GetCourseNotFound } from '../getCourseInteractor.js';
 
+type PrismaCourseResult = Course & {
+  school: School;
+  newSubmissionTemplates: Array<NewSubmissionTemplate & {
+    prices: Array<NewSubmissionTemplatePrice & { currency: Currency }>;
+  }>;
+  units: Array<Unit & {
+    materials: Material;
+  }>;
+};
+
 type MockPrismaClient = {
   course: {
-    findFirst: jest.Mock;
+    findFirst: jest.Mock<() => Promise<PrismaCourseResult | null>>;
   };
 };
 
@@ -23,19 +33,12 @@ describe('GetCourseInteractor', () => {
   let interactor: GetCourseInteractor;
   let courseId: number;
 
-  let course: Course & {
-    school: School;
-    newUnitTemplates: Array<NewUnitTemplate & {
-      prices: Array<NewUnitTemplatePrice & { currency: Currency }>;
-    }>;
-  };
+  let course: PrismaCourseResult;
 
   beforeEach(() => {
     mockPrisma = {
       course: {
-        findFirst: jest.fn(() => {
-          return null;
-        }),
+        findFirst: jest.fn(async () => Promise.resolve(null)),
       },
     };
 
@@ -60,10 +63,10 @@ describe('GetCourseInteractor', () => {
       courseGuide: faker.datatype.boolean(),
       quizzesEnabled: faker.datatype.boolean(),
       noTutor: faker.datatype.boolean(),
-      unitType: faker.datatype.number(),
+      submissionType: faker.datatype.number(),
       enabled: faker.datatype.boolean(),
       order: faker.datatype.number(),
-      newUnitsEnabled: faker.datatype.boolean(),
+      submissionsEnabled: faker.datatype.boolean(),
       entityVersion: faker.datatype.number(),
       school: {
         schoolId: faker.datatype.number(),
@@ -72,8 +75,8 @@ describe('GetCourseInteractor', () => {
         order: faker.datatype.number(),
         entityVersion: faker.datatype.number(),
       },
-      newUnitTemplates: new Array(faker.datatype.number({ min: 1, max: 4 })).fill(undefined).map(() => ({
-        unitTemplateId: Buffer.from(new Array(16).fill(undefined).map(() => faker.datatype.number({ min: 0, max: 255 }))),
+      newSubmissionTemplates: new Array(faker.datatype.number({ min: 1, max: 4 })).fill(undefined).map(() => ({
+        submissionTemplateId: Buffer.from(new Array(16).fill(undefined).map(() => faker.datatype.number({ min: 0, max: 255 }))),
         courseId: faker.datatype.number(),
         unitLetter: faker.random.alphaNumeric(1),
         title: faker.random.words(3),
@@ -86,6 +89,7 @@ describe('GetCourseInteractor', () => {
         modified: null,
         prices: [],
       })),
+      units: [],
     };
   });
 
@@ -106,10 +110,10 @@ describe('GetCourseInteractor', () => {
         courseGuide: course.courseGuide,
         quizzesEnabled: course.quizzesEnabled,
         noTutor: course.noTutor,
-        unitType: course.unitType,
+        submissionType: course.submissionType,
         enabled: course.enabled,
         order: course.order,
-        newUnitsEnabled: course.newUnitsEnabled,
+        submissionsEnabled: course.submissionsEnabled,
         entityVersion: course.entityVersion,
         school: {
           schoolId: course.school.schoolId,
@@ -118,8 +122,8 @@ describe('GetCourseInteractor', () => {
           order: course.school.order,
           entityVersion: course.school.entityVersion,
         },
-        newUnitTemplates: course.newUnitTemplates.map(u => ({
-          unitTemplateId: uuidService.binToUUID(u.unitTemplateId),
+        newSubmissionTemplates: course.newSubmissionTemplates.map(u => ({
+          submissionTemplateId: uuidService.binToUUID(u.submissionTemplateId),
           courseId: u.courseId,
           unitLetter: u.unitLetter,
           title: u.title,
@@ -130,8 +134,8 @@ describe('GetCourseInteractor', () => {
           created: u.created,
           modified: u.modified,
           prices: u.prices.map(p => ({
-            unitTemplatePriceId: uuidService.binToUUID(p.unitTemplatePriceId),
-            unitTemplateId: uuidService.binToUUID(p.unitTemplateId),
+            unitTemplatePriceId: uuidService.binToUUID(p.submissionTemplatePriceId),
+            unitTemplateId: uuidService.binToUUID(p.submissionTemplateId),
             countryId: p.countryId,
             currencyId: p.currencyId,
             price: p.price.toNumber(),
@@ -145,6 +149,7 @@ describe('GetCourseInteractor', () => {
             },
           })),
         })),
+        units: [],
       });
     });
   });

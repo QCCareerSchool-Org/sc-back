@@ -82,7 +82,7 @@ describe('NodeMailerEmailService', () => {
       const textBody = '*Test*';
 
       const error = new Error('error sending email');
-      const sendMail = jest.fn().mockRejectedValue(error);
+      const sendMail = jest.fn<(mailOptions: Mail.Options) => Promise<any>>().mockRejectedValue(error);
       const close = jest.fn();
       const transport = { sendMail, close } as unknown as Mail;
       const createTransport = jest.spyOn(nodemailerEmailService, 'createTransport').mockReturnValue(transport);

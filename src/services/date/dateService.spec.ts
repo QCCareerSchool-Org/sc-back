@@ -13,7 +13,7 @@ describe('dateService', () => {
 
     it('should return the current date', () => {
       const mockDate = new Date(1466424490000);
-      const dateSpy = jest.spyOn(global, 'Date') as SpyInstance<unknown, []> as SpyInstance<Date, []>;
+      const dateSpy = jest.spyOn(global, 'Date');
       dateSpy.mockImplementation(() => mockDate);
       expect(dateService.getDate().getTime()).toBe(1466424490000);
     });

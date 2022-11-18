@@ -179,7 +179,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
 
   private async insertWithExternalData(assignmentIdBin: Buffer, caption: string, order: number, externalData: string): Promise<NewAssignmentMedium> {
     // check the external data
-    let headers: Record<string, string>;
+    let headers: Record<string, string | undefined>;
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {

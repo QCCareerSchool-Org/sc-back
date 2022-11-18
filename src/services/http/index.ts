@@ -1,5 +1,5 @@
 export interface IHttpService {
-  getHeaders: (url: string) => Promise<Record<string, string>>;
+  getHeaders: (url: string) => Promise<Record<string, string | undefined>>;
 }
 
 export class HttpServiceError extends Error {
