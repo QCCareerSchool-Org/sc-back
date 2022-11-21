@@ -40,7 +40,7 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
     try {
       // look up the enrollment, student, course, and new submissions
       const enrollment = await this.prisma.enrollment.findFirst({
-        where: { studentId, courseId, course: { enabled: true } },
+        where: { studentId, courseId },
         include: { student: true, course: true, newSubmissions: true },
       });
       if (!enrollment) {
