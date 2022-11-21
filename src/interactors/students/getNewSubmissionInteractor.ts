@@ -43,7 +43,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
     try {
       const submission = await this.prisma.newSubmission.findFirst({
         where: {
-          enrollment: { studentId, courseId, course: { enabled: true } },
+          enrollment: { studentId, courseId },
           submissionId: this.uuidService.uuidToBin(submissionId),
         },
         include: {

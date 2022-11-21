@@ -60,7 +60,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
               assignmentId: assignmentIdBin,
               newSubmission: {
                 submissionId: submissionIdBin,
-                enrollment: { studentId, courseId, course: { enabled: true } },
+                enrollment: { studentId, courseId },
               },
             },
           },

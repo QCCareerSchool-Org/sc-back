@@ -43,7 +43,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
       const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
 
       const newTextBox = await this.prisma.newTextBox.findFirst({
-        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
+        where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId } } } } },
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newTextBox) {

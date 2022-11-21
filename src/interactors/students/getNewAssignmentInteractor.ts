@@ -45,7 +45,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         where: {
           assignmentId: this.uuidService.uuidToBin(assignmentId),
           submissionId: this.uuidService.uuidToBin(submissionId),
-          newSubmission: { enrollment: { studentId, courseId, course: { enabled: true } } },
+          newSubmission: { enrollment: { studentId, courseId } },
         },
         include: {
           newSubmission: true,

@@ -35,7 +35,7 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
 
       const submission = await this.prisma.newSubmission.findFirst({
         where: {
-          enrollment: { studentId, courseId, course: { enabled: true } },
+          enrollment: { studentId, courseId },
           submissionId: submissionIdBin,
         },
         include: {

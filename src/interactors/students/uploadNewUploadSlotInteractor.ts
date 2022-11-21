@@ -54,7 +54,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
 
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
-        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId, course: { enabled: true } } } } } },
+        where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId } } } } },
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newUploadSlot) {
