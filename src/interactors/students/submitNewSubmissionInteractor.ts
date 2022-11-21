@@ -114,7 +114,7 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
           // update submission and return the updated submission
           return transaction.newSubmission.update({
             data: {
-              submitted: this.dateService.getDate(),
+              submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
               skipped: false,
               tutorId: tutor.tutorId,
             },

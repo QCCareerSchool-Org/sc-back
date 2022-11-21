@@ -65,7 +65,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       }
 
       // make sure it's not expired
-      if (refreshToken.expiry < this.dateService.getDate()) {
+      if (refreshToken.expiry < new Date(this.dateService.getLocalDate() + 'Z')) { // TODO: Update if Prisma ever gets timezones working properly
         return Result.fail(new RefreshTokenExpired());
       }
 

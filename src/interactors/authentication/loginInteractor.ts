@@ -94,7 +94,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       if (account.expiry) {
         const expiry = account.expiry;
-        if (expiry <= this.dateService.getDate()) {
+        if (expiry <= new Date(this.dateService.getLocalDate() + 'Z')) { // TODO: Update if Prisma ever gets timezones working properly
           return Result.fail(new LoginExpired());
         }
       }
@@ -160,7 +160,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           tutorId: accountType === 'tutor' ? accountId : null,
           administratorId: accountType === 'admin' ? accountId : null,
           token: refreshTokenBytes,
-          expiry: new Date(this.dateService.getDate().getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
+          expiry: new Date(new Date(this.dateService.getLocalDate() + 'Z').getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)), // TODO: Update if Prisma ever gets timezones working properly
           ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
           browser: request.browser,
           browserVersion: request.browserVersion,

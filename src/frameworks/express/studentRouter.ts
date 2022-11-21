@@ -5,6 +5,7 @@ import { DownloadMaterialImageController } from '../../controllers/students/down
 
 import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController.js';
+import { DownloadNewSubmissionFeedbackController } from '../../controllers/students/downloadNewSubmissionFeedbackController.js';
 import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController.js';
 import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController.js';
 import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController.js';
@@ -47,6 +48,7 @@ const routes: Route[] = [
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId', GetNewSubmissionController ],
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/submissions', SubmitNewSubmissionController ],
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/skips', SkipNewSubmissionController ],
+  [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/response', DownloadNewSubmissionFeedbackController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/media/:mediumId/file', DownloadNewAssignmentMediumController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/media/:mediumId/file', DownloadNewPartMediumController ],

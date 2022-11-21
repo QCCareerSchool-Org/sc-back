@@ -142,7 +142,9 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       }
 
       const updatedSubmission = await this.prisma.newSubmission.update({
-        data: { closed: this.dateService.getDate() },
+        data: {
+          closed: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+        },
         where: { submissionId: submissionIdBin },
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });

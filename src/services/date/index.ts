@@ -3,5 +3,6 @@
  */
 export interface IDateService {
   getDate: () => Date;
+  getLocalDate: () => string;
   formatDateTime: (date: Date) => string;
 }

@@ -4,6 +4,7 @@ import { DeleteMaterialCompletionInteractor } from './deleteMaterialCompletionIn
 import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
+import { DownloadNewSubmissionFeedbackInteractor } from './downloadNewSubmissionFeedbackInteractor.js';
 import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor.js';
 import { EraseNewUploadSlotInteractor } from './eraseNewUploadSlotInteractor.js';
 import { GetEnrollmentInteractor } from './getEnrollment.js';
@@ -43,3 +44,4 @@ export const downloadMaterialImageInteractor = new DownloadMaterialImageInteract
 export const insertMaterialCompletionInteractor = new InsertMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
 export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
+export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
