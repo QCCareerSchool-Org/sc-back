@@ -4,6 +4,7 @@ import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartDTO } from '../../domain/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
+import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -21,6 +22,7 @@ export type GetNewAssignmentRequestDTO = {
 };
 
 export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
+  newSubmission: Omit<NewSubmissionDTO, 'complete' | 'points' | 'mark'>;
   newAssignmentMedia: NewAssignmentMediumDTO[];
   newParts: Array<NewPartDTO & {
     newTextBoxes: NewTextBoxDTO[];
@@ -48,7 +50,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           newSubmission: { enrollment: { studentId, courseId } },
         },
         include: {
-          newSubmission: true,
+          newSubmission: { include: { enrollment: { include: { course: true } } } },
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
@@ -81,6 +83,28 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         optional: assignment.optional,
         created: assignment.created,
         modified: assignment.modified,
+        newSubmission: {
+          submissionId: this.uuidService.binToUUID(assignment.newSubmission.submissionId),
+          enrollmentId: assignment.newSubmission.enrollmentId,
+          tutorId: assignment.newSubmission.tutorId,
+          unitLetter: assignment.newSubmission.unitLetter,
+          title: assignment.newSubmission.title,
+          description: assignment.newSubmission.description,
+          markingCriteria: null, // students should never see the marking criteria
+          optional: assignment.newSubmission.optional,
+          order: assignment.newSubmission.order,
+          tutorComment: null, // students should never see the tutor comment
+          adminComment: assignment.newSubmission.adminComment,
+          submitted: assignment.newSubmission.submitted,
+          transferred: assignment.newSubmission.transferred,
+          closed: assignment.newSubmission.closed,
+          skipped: assignment.newSubmission.skipped,
+          responseFilename: assignment.newSubmission.responseFilename === null ? null : `${assignment.newSubmission.enrollment.course.code}${assignment.newSubmission.enrollment.enrollmentId} Submission ${assignment.newSubmission.unitLetter}.mp3`,
+          responseFilesize: assignment.newSubmission.responseFilesize,
+          responseMimeTypeId: assignment.newSubmission.responseMimeTypeId,
+          created: assignment.newSubmission.created,
+          modified: assignment.newSubmission.modified,
+        },
         newAssignmentMedia: assignment.newAssignmentMedia.map(m => ({
           assignmentMediumId: this.uuidService.binToUUID(m.newAssignmentMedium.assignmentMediumId),
           assignmentTemplateId: m.newAssignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(m.newAssignmentMedium.assignmentTemplateId),
