@@ -104,7 +104,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         },
         newAssignments: submission.newAssignments.map(a => {
           let assignmentComplete = true;
-          let assignmentMarked = false;
+          let assignmentMarked = true;
           let assignmentPoints = 0;
           let assignmentMark = 0;
           const assignment = {
