@@ -76,6 +76,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
         return Result.success({
           stream: fileStream,
+          download: true,
           filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
           size: stats.size,
           lastModified: stats.lastModified,
@@ -96,6 +97,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
       return Result.success({
         stream: fileStream,
+        download: true,
         filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
         size: stats.size,
         lastModified: stats.lastModified,

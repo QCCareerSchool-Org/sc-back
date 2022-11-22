@@ -96,6 +96,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
 
         return Result.success({
           stream: fileStream,
+          download: true,
           filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
           size: stats.size,
           lastModified: stats.lastModified,
@@ -116,6 +117,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
 
       return Result.success({
         stream: fileStream,
+        download: true,
         filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
         size: stats.size,
         lastModified: stats.lastModified,
