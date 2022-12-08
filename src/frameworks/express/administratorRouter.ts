@@ -119,8 +119,8 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', ReplaceNewSubmissionTemplatePricesController ],
   [ 'delete', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', DeleteNewSubmissionTemplatePricesController ],
   // new submission returns
-  [ 'get', '/:administratorId/newSubmissionReturns/:unitReturnId', GetNewSubmissionReturnController ],
-  [ 'put', '/:administratorId/newSubmissionReturns/:unitReturnId', CloseNewSubmissionReturnController ],
+  [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
+  [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],
   // units
   [ 'post', '/:administratorId/units', InsertUnitController ],
   [ 'get', '/:administratorId/units/:unitId', GetUnitController ],
