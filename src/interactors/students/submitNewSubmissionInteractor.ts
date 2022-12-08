@@ -117,6 +117,8 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
               submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
               skipped: false,
               tutorId: tutor.tutorId,
+              tutorComment: null,
+              adminComment: null,
             },
             where: { submissionId: submissionIdBin },
             include: { enrollment: { include: { course: true } } },
