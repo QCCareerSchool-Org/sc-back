@@ -111,6 +111,7 @@ export class EnvironmentConfigService implements IConfigService {
         portfolioPath: process.env.PORTFOLIO_PATH ?? basePath + '/pictures',
         portraitsPath: process.env.PORTRAITS_PATH ?? basePath + '/portraits',
         courseBannersPath: process.env.COURSE_BANNERS_PATH ?? basePath + '/course-banners',
+        courseIconsPath: process.env.COURSE_ICONS_PATH ?? basePath + '/course-icons',
         unitResponsesPath: process.env.UNIT_RESPONSES_PATH ?? basePath + '/audio replies',
         tutorIntroductionPath: process.env.TUTOR_INTRODUCTION_PATH ?? basePath + '/tutor introductions',
         unitFeedbackPath: basePath + '/unit-feedback',

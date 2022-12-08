@@ -17,6 +17,7 @@ export type Config = {
     portfolioPath: string;
     portraitsPath: string;
     courseBannersPath: string;
+    courseIconsPath: string;
     unitResponsesPath: string;
     tutorIntroductionPath: string;
     unitFeedbackPath: string;
