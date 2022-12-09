@@ -37,7 +37,11 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         where: { studentId },
         include: {
           caSocialInsuranceNumber: true,
-          enrollments: { include: { course: true }, where: { course: { enabled: true } } },
+          enrollments: {
+            include: { course: true },
+            where: { course: { enabled: true } },
+            orderBy: [ { course: { school: { order: 'asc' } } }, { course: { order: 'asc' } } ],
+          },
           country: true,
           province: true,
         },
