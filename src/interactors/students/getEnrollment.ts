@@ -8,6 +8,7 @@ import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { OldSubmissionDTO } from '../../domain/oldSubmissionDTO.js';
 import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplateDTO.js';
+import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
@@ -28,6 +29,7 @@ export type GetEnrollmentRequestDTO = {
 export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   student: StudentDTO;
   course: CourseDTO & {
+    school: SchoolDTO;
     oldSubmissionTemplates: OldSubmissionTemplateDTO[];
     newSubmissionTemplates: NewSubmissionTemplateDTO[];
     units: Array<UnitDTO & {
@@ -61,6 +63,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           student: { include: { caSocialInsuranceNumber: true } },
           course: {
             include: {
+              school: true,
               newSubmissionTemplates: true,
               oldSubmissionTemplates: true,
               units: {
@@ -160,6 +163,13 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           order: enrollment.course.order,
           submissionsEnabled: enrollment.course.submissionsEnabled,
           entityVersion: enrollment.course.entityVersion,
+          school: {
+            schoolId: enrollment.course.school.schoolId,
+            name: enrollment.course.school.name,
+            slug: enrollment.course.school.slug,
+            order: enrollment.course.school.order,
+            entityVersion: enrollment.course.school.entityVersion,
+          },
           oldSubmissionTemplates: enrollment.course.oldSubmissionTemplates.map(s => ({
             submissionTemplateId: s.submissionTemplateId,
             courseId: s.courseId,
