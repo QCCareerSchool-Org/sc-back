@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
-import { dateService, emailValidatorService, environmentConfigService, nodeFileService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
+import { dateService, emailValidatorService, environmentConfigService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
 import { DeleteMaterialCompletionInteractor } from './deleteMaterialCompletionInteractor.js';
 import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
@@ -33,7 +33,7 @@ export const saveNewTextBoxTextInteractor = new SaveNewTextBoxTextInteractor(pri
 export const uploadNewUploadSlotInteractor = new UploadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, environmentConfigService, winstonLoggerService);
 export const eraseNewUploadSlotInteractor = new EraseNewUploadSlotInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
-export const submitNewSubmissionInteractor = new SubmitNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const submitNewSubmissionInteractor = new SubmitNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 export const skipNewSubmissionInteractor = new SkipNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const initializeNextNewSubmissionInteractor = new InitializeNextNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);

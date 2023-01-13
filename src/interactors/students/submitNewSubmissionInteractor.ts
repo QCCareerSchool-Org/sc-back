@@ -1,7 +1,8 @@
-import type { Course, Enrollment, NewSubmission, PrismaClient } from '@prisma/client';
+import type { Course, Enrollment, NewSubmission, PrismaClient, Tutor } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
+import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -32,6 +33,7 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly emailService: IEmailService,
     private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -40,7 +42,7 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
     try {
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
 
-      let updatedSubmission: NewSubmission & { enrollment: Enrollment & { course: Course } };
+      let updatedSubmission: NewSubmission & { tutor: Tutor | null; enrollment: Enrollment & { course: Course } };
 
       try {
         updatedSubmission = await this.prisma.$transaction(async transaction => {
@@ -51,6 +53,7 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
               submissionId: submissionIdBin,
             },
             include: {
+              tutor: true,
               enrollment: { include: { tutor: true } },
               newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
               prices: true,
@@ -121,7 +124,7 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
               adminComment: null,
             },
             where: { submissionId: submissionIdBin },
-            include: { enrollment: { include: { course: true } } },
+            include: { tutor: true, enrollment: { include: { course: true } } },
           });
         });
       } catch (err) {
@@ -129,6 +132,29 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
           return Result.fail(err);
         }
         throw err;
+      }
+
+      if (updatedSubmission.tutor) { // this should always be set
+        const tutor = updatedSubmission.tutor;
+        if (tutor.emailAddress === null) {
+          this.logger.warn('Tutor has no email address');
+        } else {
+          try {
+            await this.emailTutor(
+              tutor.emailAddress,
+              tutor.firstName,
+              tutor.lastName,
+              submissionId,
+              updatedSubmission.enrollment.course.code,
+              updatedSubmission.enrollment.studentNumber,
+              updatedSubmission.unitLetter
+            );
+          } catch (e) {
+            this.logger.warn('Error emailing tutor', e);
+          }
+        }
+      } else {
+        this.logger.warn('Tutor was not set');
       }
 
       return Result.success({
@@ -158,5 +184,23 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
       this.logger.error('error submitting new submission', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
+  }
+
+  private async emailTutor(emailAddress: string, firstName: string, lastName: string, submissionId: string, courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
+    const url = `https://studentcenter.qccareerschool.com/sc/tutors/students/79656/courses/97/submissions/${encodeURIComponent(submissionId)}`;
+
+    const htmlBody = `<p>Dear ${firstName},</p>
+<p>You have a <a href="${url}">new unit ready for marking</a>.</p>
+<p>Student: ${courseCode}${studentNumber}<br />Unit: ${unitLetter}</p>`;
+
+    const textBody = `Dear ${firstName},
+
+You have a new unit ready for marking (${url}).
+
+Student: ${courseCode}${studentNumber}
+Unit: ${unitLetter}`;
+
+    const name = firstName + ' ' + lastName;
+    await this.emailService.send(name, emailAddress, 'Unit Ready for Marking', htmlBody, textBody);
   }
 }
