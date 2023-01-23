@@ -1,7 +1,10 @@
-import type { PrismaClient } from '@prisma/client';
+import { text } from 'stream/consumers';
+import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
+import type { IEmailService } from '../../services/email/index.js';
+import type { IGradeService } from '../../services/grade/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -30,6 +33,8 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly emailService: IEmailService,
+    private readonly gradeService: IGradeService,
     private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -40,7 +45,10 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       const newSubmission = await this.prisma.newSubmission.findFirst({
         where: { submissionId: submissionIdBin, enrollment: { studentId } },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+        include: {
+          newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+          enrollment: { include: { student: true, course: true } },
+        },
       });
 
       if (!newSubmission) {
@@ -149,6 +157,13 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
       });
 
+      if (this.shouldSendDGKit(newSubmission, submissionPoints, submissionMark)) {
+        await this.sendDGKitShippingEmail(newSubmission);
+      }
+      if (this.shouldSendMZKit(newSubmission, submissionPoints, submissionMark)) {
+        await this.sendMZKitShippingEmail(newSubmission);
+      }
+
       submissionComplete = true;
       submissionMarked = true;
       submissionPoints = 0;
@@ -245,5 +260,33 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       this.logger.error('error closing new submission', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
+  }
+
+  private shouldSendDGKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
+    return submission.enrollment.course.code === 'DG' && submission.unitLetter === 'B' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+  }
+
+  private shouldSendMZKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
+    return submission.enrollment.course.code === 'MZ' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+  }
+
+  private async sendDGKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
+    const name = 'Shipping Department';
+    const to = 'shipping@qccareerschool.com';
+    const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
+    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship clippers and combs if they haven't already been sent (check student notes).`;
+    const htmlBody = `<p>${textBody}</p>`;
+
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async sendMZKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
+    const name = 'Shipping Department';
+    const to = 'shipping@qccareerschool.com';
+    const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
+    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship any applicable makeup kits that haven't already been shipped.`;
+    const htmlBody = `<p>${textBody}</p>`;
+
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 }

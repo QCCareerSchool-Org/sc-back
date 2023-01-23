@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
-import { dateService, environmentConfigService, nodeFileService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
+import { dateService, environmentConfigService, gradeService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
 import { CloseNewSubmissionInteractor } from './closeNewSubmissionInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
@@ -18,7 +18,7 @@ export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma,
 export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const eraseNewSubmissionFeedbackInteractor = new EraseNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
-export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, gradeService, dateService, winstonLoggerService);
 export const returnNewSubmissionInteractor = new ReturnNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, winstonLoggerService);
 export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, winstonLoggerService);
