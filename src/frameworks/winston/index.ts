@@ -2,7 +2,11 @@ import { createLogger, format, transports } from 'winston';
 
 export const winston = createLogger({
   level: 'info',
-  format: format.json(),
+  // format: format.json(),
+  format: format.combine(
+    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    format.json(),
+  ),
   // defaultMeta: { service: 'user-service' },
   transports: [
     //
