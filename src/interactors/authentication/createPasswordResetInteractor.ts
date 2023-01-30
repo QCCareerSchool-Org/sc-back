@@ -79,19 +79,26 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       let htmlBodyFile: string;
       let textBodyFile: string;
       if (accountType === 'admin') {
-        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.html');
-        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.txt');
+        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.html');
+        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.txt');
+        htmlBodyFile = path.resolve('../../../email/password-reset/administrator.html');
+        textBodyFile = path.resolve('../../../email/password-reset/administrator.txt');
       } else if (accountType === 'tutor') {
-        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
-        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
+        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
+        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
+        htmlBodyFile = path.resolve('../../../email/password-reset/tutor.html');
+        textBodyFile = path.resolve('../../../email/password-reset/tutor.txt');
       } else if (accountType === 'student') {
-        htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.html');
-        textBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.txt');
+        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.html');
+        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.txt');
+        htmlBodyFile = path.resolve('../../../email/password-reset/student.html');
+        textBodyFile = path.resolve('../../../email/password-reset/student.txt');
       } else {
         return Result.fail(new CreatePasswordResetInvalidAccountType());
       }
 
-      const headerImageFile = path.resolve(__dirname, '../../../email/header.png');
+      // const headerImageFile = path.resolve(__dirname, '../../../email/header.png');
+      const headerImageFile = path.resolve('../../../email/header.png');
 
       const [ htmlBody, textBody, headerImage ] = await Promise.all([
         this.fileService.readFile(htmlBodyFile),
