@@ -158,7 +158,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       throw Error('password reset request expiry date is null');
     }
     const expiryDate = this.dateService.formatDateTime(passwordResetRequest.expiryDate);
-    const resetLink = `${this.configService.config.host}/sc/password-resets/${encodeURIComponent(passwordResetRequest.id)}?code=${encodeURIComponent(passwordResetRequest.code)}`;
+    const resetLink = `https://${this.configService.config.host}/sc/password-resets/${encodeURIComponent(passwordResetRequest.id)}?code=${encodeURIComponent(passwordResetRequest.code)}`;
 
     return (template: string): string => template
       .replace('${name}', name)
