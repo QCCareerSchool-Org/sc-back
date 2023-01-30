@@ -81,8 +81,8 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       if (accountType === 'admin') {
         // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.html');
         // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.txt');
-        htmlBodyFile = '../../../email/password-reset/administrator.html';
-        textBodyFile = '../../../email/password-reset/administrator.txt';
+        htmlBodyFile = 'email/password-reset/administrator.html';
+        textBodyFile = 'email/password-reset/administrator.txt';
       } else if (accountType === 'tutor') {
         // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
         // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
