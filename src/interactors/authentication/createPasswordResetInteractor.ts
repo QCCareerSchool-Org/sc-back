@@ -86,19 +86,19 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       } else if (accountType === 'tutor') {
         // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
         // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
-        htmlBodyFile = '../../../email/password-reset/tutor.html';
-        textBodyFile = '../../../email/password-reset/tutor.txt';
+        htmlBodyFile = 'email/password-reset/tutor.html';
+        textBodyFile = 'email/password-reset/tutor.txt';
       } else if (accountType === 'student') {
         // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.html');
         // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.txt');
-        htmlBodyFile = '../../../email/password-reset/student.html';
-        textBodyFile = '../../../email/password-reset/student.txt';
+        htmlBodyFile = 'email/password-reset/student.html';
+        textBodyFile = 'email/password-reset/student.txt';
       } else {
         return Result.fail(new CreatePasswordResetInvalidAccountType());
       }
 
       // const headerImageFile = path.resolve(__dirname, '../../../email/header.png');
-      const headerImageFile = '../../../email/header.png';
+      const headerImageFile = 'email/header.png';
 
       const [ htmlBody, textBody, headerImage ] = await Promise.all([
         this.fileService.readFile(htmlBodyFile),
