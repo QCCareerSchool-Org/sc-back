@@ -4,6 +4,7 @@ import type { CountryDTO } from '../../domain/countryDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { ProvinceDTO } from '../../domain/provinceDTO.js';
+import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
@@ -18,7 +19,9 @@ export type GetStudentResponseDTO = StudentDTO & {
   country: CountryDTO;
   province: ProvinceDTO | null;
   enrollments: Array<EnrollmentDTO & {
-    course: CourseDTO;
+    course: CourseDTO & {
+      school: SchoolDTO;
+    };
   }>;
 };
 
@@ -38,7 +41,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         include: {
           caSocialInsuranceNumber: true,
           enrollments: {
-            include: { course: true },
+            include: { course: { include: { school: true } } },
             where: { course: { enabled: true } },
             orderBy: [ { course: { school: { order: 'asc' } } }, { course: { order: 'asc' } } ],
           },
@@ -131,6 +134,13 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
             order: e.course.order,
             submissionsEnabled: e.course.submissionsEnabled,
             entityVersion: e.course.entityVersion,
+            school: {
+              schoolId: e.course.school.schoolId,
+              name: e.course.school.name,
+              slug: e.course.school.slug,
+              order: e.course.school.order,
+              entityVersion: e.course.school.entityVersion,
+            },
           },
         })),
       });
