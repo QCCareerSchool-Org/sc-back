@@ -1460,20 +1460,21 @@ model NewTextBoxTemplate {
 }
 
 model NewTextBox {
-  textBoxId   Bytes     @id @map("text_box_id") @db.Binary(16)
-  partId      Bytes     @map("part_id") @db.Binary(16)
-  description String?   @db.Text
-  lines       Int?      @db.UnsignedTinyInt
-  optional    Boolean   @default(false)
-  order       Int       @default(0) @db.TinyInt
-  text        String    @default("") @db.Text
-  points      Int       @default(0)
-  mark        Int?
-  notes       String?   @db.Text
-  created     DateTime  @default(now()) @db.Timestamp(0)
-  modified    DateTime? @updatedAt @db.Timestamp(0)
-  row_version DateTime  @default(now()) @db.Timestamp(6)
-  newPart     NewPart   @relation(fields: [partId], references: [partId], onDelete: Cascade, map: "new_text_boxes_ibfk_1")
+  textBoxId    Bytes     @id @map("text_box_id") @db.Binary(16)
+  partId       Bytes     @map("part_id") @db.Binary(16)
+  description  String?   @db.Text
+  lines        Int?      @db.UnsignedTinyInt
+  optional     Boolean   @default(false)
+  order        Int       @default(0) @db.TinyInt
+  text         String    @default("") @db.Text
+  points       Int       @default(0)
+  mark         Int?
+  markOverride Int?      @map("mark_override")
+  notes        String?   @db.Text
+  created      DateTime  @default(now()) @db.Timestamp(0)
+  modified     DateTime? @updatedAt @db.Timestamp(0)
+  row_version  DateTime  @default(now()) @db.Timestamp(6)
+  newPart      NewPart   @relation(fields: [partId], references: [partId], onDelete: Cascade, map: "new_text_boxes_ibfk_1")
 
   @@index([partId], map: "part_id")
   @@map("new_text_boxes")
@@ -1507,6 +1508,7 @@ model NewUploadSlot {
   mimeTypeId   String?   @map("mime_type_id") @db.VarChar(255)
   points       Int       @default(0)
   mark         Int?
+  markOverride Int?      @map("mark_override")
   notes        String?   @db.Text
   compressed   Boolean   @default(false)
   created      DateTime  @default(now()) @db.Timestamp(0)

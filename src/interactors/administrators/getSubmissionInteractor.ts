@@ -10,16 +10,14 @@ import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplat
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
 
-export type GetNewSubmissionRequestDTO = {
-  studentId: number;
-  courseId: number;
+export type GetSubmissionRequestDTO = {
   submissionId: string;
 };
 
-export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
+export type GetSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO;
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
@@ -29,9 +27,9 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   }>;
 };
 
-export class GetNewSubmissionNotFound extends Error { }
+export class GetSubmissionNotFound extends Error { }
 
-export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
+export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequestDTO, GetSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -39,21 +37,20 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ studentId, courseId, submissionId }: GetNewSubmissionRequestDTO): Promise<ResultType<GetNewSubmissionResponseDTO>> {
+  public async execute({ submissionId }: GetSubmissionRequestDTO): Promise<ResultType<GetSubmissionResponseDTO>> {
     try {
+      const submissionIdBin = this.uuidService.uuidToBin(submissionId);
+
+      // find the submission
       const submission = await this.prisma.newSubmission.findFirst({
-        where: {
-          enrollment: { studentId, courseId },
-          submissionId: this.uuidService.uuidToBin(submissionId),
-        },
+        where: { submissionId: submissionIdBin },
         include: {
-          enrollment: { include: { course: true } },
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+          enrollment: { include: { course: true } },
         },
       });
-
       if (!submission) {
-        return Result.fail(new GetNewSubmissionNotFound());
+        return Result.fail(new GetSubmissionNotFound());
       }
 
       let submissionComplete = true;
@@ -232,7 +229,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       });
 
     } catch (err) {
-      this.logger.error('error getting new submission', err instanceof Error ? err.message : err);
+      this.logger.error('error getting assignment medium', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

@@ -290,7 +290,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
                 // ignore incomplete, optional inputs
                 if (textBoxComplete || !newTextBox.optional) {
                   partPoints += newTextBox.points;
-                  partMark += newTextBox.mark ?? 0;
+                  partMark += newTextBox.markOverride ?? newTextBox.mark ?? 0;
                 }
               }
               for (const newUploadSlot of newPart.newUploadSlots) {
@@ -304,7 +304,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
                 // ignore incomplete, optional inputs
                 if (uploadSlotComplete || !newUploadSlot.optional) {
                   partPoints += newUploadSlot.points;
-                  partMark += newUploadSlot.mark ?? 0;
+                  partMark += newUploadSlot.markOverride ?? newUploadSlot.mark ?? 0;
                 }
               }
               if (!partComplete) {
