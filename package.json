@@ -10,7 +10,8 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "build": "tsc --project tsconfig.build.json",
-    "start": "node dist/frameworks/express"
+    "start": "node dist/frameworks/express",
+    "check-domain": "find src/interactors/administrators -type f -print0 | xargs -0 grep --color \"domain/students\\|domain/tutors\" && find src/interactors/tutors -type f -print0 | xargs -0 grep --color \"domain/students\\|domain/administrators\" && find src/interactors/students -type f -print0 | xargs -0 grep --color \"domain/tutors\\|domain/administrators\""
   },
   "author": "Dave Welsh",
   "license": "UNLICENSED",
@@ -37,7 +38,7 @@
     "prisma": "^3.14.0",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.8.0",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.5"
   },
   "dependencies": {
     "@prisma/client": "^3.14.0",

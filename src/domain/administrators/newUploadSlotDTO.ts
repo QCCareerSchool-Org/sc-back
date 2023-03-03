@@ -1,4 +1,4 @@
-import type { NewUploadSlotAllowedType } from './newUploadSlotTemplateDTO.js';
+import type { NewUploadSlotAllowedType } from '../newUploadSlotTemplateDTO.js';
 
 export type NewUploadSlotDTO = {
   /** uuid */
@@ -9,6 +9,7 @@ export type NewUploadSlotDTO = {
   allowedTypes: NewUploadSlotAllowedType[];
   points: number;
   mark: number | null;
+  markOverride: number | null;
   notes: string | null;
   optional: boolean;
   order: number;

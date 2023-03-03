@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
+import type { NewAssignmentDTO } from '../../domain/administrators/newAssignmentDTO.js';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -15,7 +15,7 @@ export type GetNewAssignmentMediumRequestDTO = {
 
 export type GetNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO & {
   newAssignmentTemplate: NewAssignmentTemplateDTO | null;
-  newAssignments: Omit<NewAssignmentDTO, 'complete' | 'points' | 'mark'>[];
+  newAssignments: Omit<NewAssignmentDTO, 'complete' | 'points' | 'mark' | 'markOverride'>[];
 };
 
 export class GetNewAssignmentMediumNotFound extends Error { }

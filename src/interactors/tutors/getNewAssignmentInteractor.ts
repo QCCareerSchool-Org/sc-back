@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
-import type { NewPartDTO } from '../../domain/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { NewAssignmentDTO } from '../../domain/tutors/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/tutors/newPartDTO.js';
+import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
+import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -36,6 +36,9 @@ export class GetNewAssignmentSubmissionNotSubmitted extends Error { }
 export class GetNewAssignmentSubmissionSkipped extends Error { }
 export class GetNewAssignmentWrongTutor extends Error { }
 
+/**
+ * Should only consider the tutor's marks, not mark overrides.
+ */
 export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
 
   public constructor(

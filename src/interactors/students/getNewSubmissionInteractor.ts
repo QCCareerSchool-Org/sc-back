@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
-import type { NewPartDTO } from '../../domain/newPartDTO.js';
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { NewAssignmentDTO } from '../../domain/students/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/students/newPartDTO.js';
+import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
+import type { NewTextBoxDTO } from '../../domain/students/newTextBoxDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -31,6 +31,9 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
 
 export class GetNewSubmissionNotFound extends Error { }
 
+/**
+ * Should consider mark overrides.
+ */
 export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
 
   public constructor(

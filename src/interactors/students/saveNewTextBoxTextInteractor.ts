@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
+import type { NewTextBoxDTO } from '../../domain/students/newTextBoxDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -27,6 +27,9 @@ export class SaveNewTextBoxTextNotFound extends Error { }
 export class SaveNewTextBoxTextSubmissionSubmitted extends Error { }
 export class SaveNewTextBoxTextTooLong extends Error { }
 
+/**
+ * Should consider mark overrides.
+ */
 export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
 
   public constructor(
@@ -72,7 +75,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
-        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? updatedTextBox.mark : null, // hide mark unless the submission is marked
+        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? (updatedTextBox.markOverride ?? updatedTextBox.mark) : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,

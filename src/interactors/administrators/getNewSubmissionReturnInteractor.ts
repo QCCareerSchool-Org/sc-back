@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { StudentDTO } from '../../domain/administrators/studentDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
 import type { NewSubmissionReturnDTO } from '../../domain/newSubmissionReturnDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
@@ -70,16 +70,19 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
       let submissionMarked = true;
       let submissionPoints = 0;
       let submissionMark = 0;
+      let submissionMarkOverride: number | null = null;
       for (const newAssignment of submissionReturn.newSubmission.newAssignments) {
         let assignmentComplete = true;
         let assignmentMarked = true;
         let assignmentPoints = 0;
         let assignmentMark = 0;
+        let assignmentMarkOverride: number | null = null;
         for (const newPart of newAssignment.newParts) {
           let partComplete = true;
           let partMarked = true;
           let partPoints = 0;
           let partMark = 0;
+          let partMarkOverride: number | null = null;
           for (const newTextBox of newPart.newTextBoxes) {
             const textBoxComplete = newTextBox.text.length > 0;
             if (!textBoxComplete && !newTextBox.optional) {
@@ -92,6 +95,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
             if (textBoxComplete || !newTextBox.optional) {
               partPoints += newTextBox.points;
               partMark += newTextBox.mark ?? 0;
+              if (newTextBox.markOverride !== null) {
+                partMarkOverride = (partMarkOverride ?? 0) + newTextBox.markOverride;
+              }
             }
           }
           for (const newUploadSlot of newPart.newUploadSlots) {
@@ -106,6 +112,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
             if (uploadSlotComplete || !newUploadSlot.optional) {
               partPoints += newUploadSlot.points;
               partMark += newUploadSlot.mark ?? 0;
+              if (newUploadSlot.markOverride !== null) {
+                partMarkOverride = (partMarkOverride ?? 0) + newUploadSlot.markOverride;
+              }
             }
           }
           if (!partComplete) {
@@ -117,6 +126,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           // parts can't be optional, so we always add these
           assignmentPoints += partPoints;
           assignmentMark += partMark;
+          if (partMarkOverride !== null) {
+            assignmentMarkOverride = (assignmentMarkOverride ?? 0) + partMarkOverride;
+          }
         }
         if (!assignmentComplete && !newAssignment.optional) {
           submissionComplete = false;
@@ -127,6 +139,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
         if (assignmentComplete || !newAssignment.optional) {
           submissionPoints += assignmentPoints;
           submissionMark += assignmentMark;
+          if (assignmentMarkOverride !== null) {
+            submissionMarkOverride = (submissionMarkOverride ?? 0) + assignmentMarkOverride;
+          }
         }
       }
 
@@ -157,6 +172,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           complete: submissionComplete,
           points: submissionPoints,
           mark: submissionMark,
+          markOverride: submissionMarkOverride,
           created: submissionReturn.newSubmission.created,
           modified: submissionReturn.newSubmission.modified,
           tutor: {

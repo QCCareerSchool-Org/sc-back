@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { ICompressionService } from '../../services/compression/index.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
@@ -35,6 +35,9 @@ export class UploadNewUploadSlotEntityNotFound extends Error { }
 export class UploadNewUploadSlotCouldNotCreateDirectory extends Error { }
 export class UploadNewUploadSlotSaveError extends Error { }
 
+/**
+ * Should consider mark overrides.
+ */
 export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploadSlotRequestDTO, UploadNewUploadSlotResponseDTO> {
 
   public constructor(
@@ -148,7 +151,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
         label: updatedUploadSlot.label,
         allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
-        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
+        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.markOverride ?? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,

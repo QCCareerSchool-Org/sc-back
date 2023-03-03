@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { NewAssignmentDTO } from '../../domain/administrators/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
+import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
+import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
-import type { NewPartDTO } from '../../domain/newPartDTO.js';
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -13,11 +13,11 @@ import type { IInteractor } from '../index.js';
 import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
-export type GetSubmissionRequestDTO = {
+export type GetNewSubmissionRequestDTO = {
   submissionId: string;
 };
 
-export type GetSubmissionResponseDTO = NewSubmissionDTO & {
+export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO;
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
@@ -27,9 +27,9 @@ export type GetSubmissionResponseDTO = NewSubmissionDTO & {
   }>;
 };
 
-export class GetSubmissionNotFound extends Error { }
+export class GetNewSubmissionNotFound extends Error { }
 
-export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequestDTO, GetSubmissionResponseDTO> {
+export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -37,7 +37,7 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ submissionId }: GetSubmissionRequestDTO): Promise<ResultType<GetSubmissionResponseDTO>> {
+  public async execute({ submissionId }: GetNewSubmissionRequestDTO): Promise<ResultType<GetNewSubmissionResponseDTO>> {
     try {
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
 
@@ -50,13 +50,15 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
         },
       });
       if (!submission) {
-        return Result.fail(new GetSubmissionNotFound());
+        return Result.fail(new GetNewSubmissionNotFound());
       }
 
       let submissionComplete = true;
       let submissionMarked = true;
       let submissionPoints = 0;
       let submissionMark = 0;
+      let submissionMarkOverride = 0;
+      let submissionOverridden = false;
 
       return Result.success({
         submissionId: this.uuidService.binToUUID(submission.submissionId),
@@ -104,7 +106,9 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
           let assignmentMarked = true;
           let assignmentPoints = 0;
           let assignmentMark = 0;
-          const assignment = {
+          let assignmentMarkOverride = 0;
+          let assignmentOverridden = false;
+          const assignmentDTO = {
             assignmentId: this.uuidService.binToUUID(a.assignmentId),
             submissionId: this.uuidService.binToUUID(a.submissionId),
             assignmentNumber: a.assignmentNumber,
@@ -120,7 +124,9 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
               let partMarked = true;
               let partPoints = 0;
               let partMark = 0;
-              const part = {
+              let partMarkOverride = 0;
+              let partOverridden = false;
+              const partDTO = {
                 partId: this.uuidService.binToUUID(p.partId),
                 assignmentId: this.uuidService.binToUUID(p.assignmentId),
                 partNumber: p.partNumber,
@@ -143,6 +149,10 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
                   if (textBoxComplete || !t.optional) {
                     partPoints += t.points;
                     partMark += t.markOverride ?? t.mark ?? 0;
+                    if (t.markOverride !== null) {
+                      partOverridden = true;
+                      partMarkOverride += t.markOverride;
+                    }
                   }
                   return {
                     textBoxId: this.uuidService.binToUUID(t.textBoxId),
@@ -151,6 +161,7 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
                     lines: t.lines,
                     points: t.points,
                     mark: t.mark,
+                    markOverride: t.markOverride,
                     notes: null, // students should never see the tutor's notes
                     optional: t.optional,
                     order: t.order,
@@ -172,6 +183,10 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
                   if (uploadSlotComplete || !u.optional) {
                     partPoints += u.points;
                     partMark += u.markOverride ?? u.mark ?? 0;
+                    if (u.markOverride !== null) {
+                      partOverridden = true;
+                      partMarkOverride += u.markOverride;
+                    }
                   }
                   return {
                     uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
@@ -180,6 +195,7 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
                     allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                     points: u.points,
                     mark: u.mark,
+                    markOverride: u.markOverride,
                     notes: null, // students should never see the tutor's notes
                     optional: u.optional,
                     order: u.order,
@@ -194,6 +210,7 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
                 complete: partComplete,
                 points: partPoints,
                 mark: submission.closed && partMark,
+                markOverride: partOverridden ? partMarkOverride : null,
               };
               if (!partComplete) {
                 assignmentComplete = false;
@@ -204,11 +221,16 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
               // parts can't be optional, so we always add these
               assignmentPoints += partPoints;
               assignmentMark += partMark;
-              return part;
+              if (partOverridden) {
+                assignmentOverridden = true;
+                assignmentMarkOverride += partMarkOverride;
+              }
+              return partDTO;
             }),
             complete: assignmentComplete,
             points: assignmentPoints,
             mark: submission.closed && assignmentMarked ? assignmentMark : null,
+            markOverride: assignmentOverridden ? assignmentMarkOverride : null,
           };
           if (!a.optional && !assignmentComplete) {
             submissionComplete = false;
@@ -217,15 +239,20 @@ export class GetSubmissionInteractor implements IInteractor<GetSubmissionRequest
           if (assignmentComplete || !a.optional) {
             submissionPoints += assignmentPoints;
             submissionMark += assignmentMark;
+            if (assignmentOverridden) {
+              submissionOverridden = true;
+              submissionMarkOverride += assignmentMarkOverride;
+            }
           }
           if (assignmentComplete && !assignmentMarked) {
             submissionMarked = false;
           }
-          return assignment;
+          return assignmentDTO;
         }),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submission.closed && submissionMarked ? submissionMark : null,
+        markOverride: submission.closed && submissionMarked && submissionOverridden ? submissionMarkOverride : null,
       });
 
     } catch (err) {

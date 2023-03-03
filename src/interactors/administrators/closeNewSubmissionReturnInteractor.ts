@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewSubmissionReturnDTO } from '../../domain/newSubmissionReturnDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -15,7 +15,7 @@ export type CloseNewSubmissionReturnRequestDTO = {
 };
 
 export type CloseNewSubmissionReturnResponseDTO = NewSubmissionReturnDTO & {
-  newSubmission: Omit<NewSubmissionDTO, 'points' | 'mark' | 'complete'>;
+  newSubmission: Omit<NewSubmissionDTO, 'points' | 'mark' | 'markOverride' | 'complete'>;
 };
 
 export class CloseNewSubmissionReturnNotFound extends Error { }

@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewPartDTO } from '../../domain/newPartDTO.js';
+import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -15,7 +15,7 @@ export type GetNewPartMediumRequestDTO = {
 
 export type GetNewPartMediumResponseDTO = NewPartMediumDTO & {
   newPartTemplate: NewPartTemplateDTO | null;
-  newParts: Omit<NewPartDTO, 'complete' | 'points' | 'mark'>[];
+  newParts: Omit<NewPartDTO, 'complete' | 'points' | 'mark' | 'markOverride'>[];
 };
 
 export class GetNewPartMediumNotFound extends Error { }

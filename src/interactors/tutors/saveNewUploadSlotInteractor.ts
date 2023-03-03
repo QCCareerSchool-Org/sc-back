@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewUploadSlotDTO } from '../../domain/newUploadSlotDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';

@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';

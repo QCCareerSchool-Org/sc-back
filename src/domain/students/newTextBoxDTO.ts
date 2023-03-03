@@ -1,3 +1,4 @@
+/** Student version doesn't have markOverride */
 export type NewTextBoxDTO = {
   /** uuid */
   textBoxId: string;

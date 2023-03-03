@@ -1,7 +1,7 @@
 import { text } from 'stream/consumers';
 import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
 import type { IGradeService } from '../../services/grade/index.js';

@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { NewTextBoxDTO } from '../../domain/newTextBoxDTO.js';
+import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';

@@ -27,6 +27,7 @@ import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumIntera
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor.js';
 import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor.js';
 import { GetNewPartTemplateInteractor } from './getNewPartTemplateInteractor.js';
+import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
 import { GetNewSubmissionReturnInteractor } from './getNewSubmissionReturnInteractor.js';
 import { GetNewSubmissionTemplateInteractor } from './getNewSubmissionTemplateInteractor.js';
 import { GetNewSubmissionTemplatePricesInteractor } from './getNewSubmissionTemplatePricesInteractor.js';
@@ -126,3 +127,5 @@ export const replaceMaterialImageInteractor = new ReplaceMaterialImageInteractor
 export const deleteMaterialImageInteractor = new DeleteMaterialImageInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+
+export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);

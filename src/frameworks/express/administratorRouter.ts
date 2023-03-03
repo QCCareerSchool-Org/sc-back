@@ -29,6 +29,7 @@ import { GetNewAssignmentMediumController } from '../../controllers/administrato
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController.js';
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController.js';
 import { GetNewPartTemplateController } from '../../controllers/administrators/getNewPartTemplateController.js';
+import { GetNewSubmissionController } from '../../controllers/administrators/getNewSubmissionController.js';
 import { GetNewTextBoxTemplateController } from '../../controllers/administrators/getNewTextBoxTemplateController.js';
 import { GetNewSubmissionReturnController } from '../../controllers/administrators/getNewUnitReturnController.js';
 import { GetNewSubmissionTemplateController } from '../../controllers/administrators/getNewUnitTemplateController.js';
@@ -118,6 +119,8 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', GetNewSubmissionTemplatePricesController ],
   [ 'put', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', ReplaceNewSubmissionTemplatePricesController ],
   [ 'delete', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', DeleteNewSubmissionTemplatePricesController ],
+  // new submissions
+  [ 'get', '/:administratorId/newSubmissions/:submissionId', GetNewSubmissionController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
   [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],

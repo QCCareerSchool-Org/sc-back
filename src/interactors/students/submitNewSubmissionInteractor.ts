@@ -1,6 +1,6 @@
 import type { Course, Enrollment, NewSubmission, PrismaClient, Tutor } from '@prisma/client';
 
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';

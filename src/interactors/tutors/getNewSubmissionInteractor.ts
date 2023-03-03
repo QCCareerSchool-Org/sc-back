@@ -2,8 +2,8 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-import type { NewAssignmentDTO } from '../../domain/newAssignmentDTO.js';
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewAssignmentDTO } from '../../domain/tutors/newAssignmentDTO.js';
+import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { StudentDTO } from '../../domain/tutors/studentDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';

@@ -1,6 +1,6 @@
 import type { NewAssignment, NewPart, NewSubmission, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
 
-import type { NewSubmissionDTO } from '../../domain/newSubmissionDTO.js';
+import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
