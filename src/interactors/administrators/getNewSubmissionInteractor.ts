@@ -67,10 +67,10 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         unitLetter: submission.unitLetter,
         title: submission.title,
         description: submission.description,
-        markingCriteria: null, // students should never see the marking criteria
+        markingCriteria: submission.markingCriteria,
         optional: submission.optional,
         order: submission.order,
-        tutorComment: null, // students should never see the tutor comment
+        tutorComment: submission.tutorComment,
         adminComment: submission.adminComment,
         submitted: submission.submitted,
         transferred: submission.transferred,
@@ -162,7 +162,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     points: t.points,
                     mark: t.mark,
                     markOverride: t.markOverride,
-                    notes: null, // students should never see the tutor's notes
+                    notes: t.notes,
                     optional: t.optional,
                     order: t.order,
                     text: t.text,
@@ -196,7 +196,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     points: u.points,
                     mark: u.mark,
                     markOverride: u.markOverride,
-                    notes: null, // students should never see the tutor's notes
+                    notes: u.notes,
                     optional: u.optional,
                     order: u.order,
                     filename: u.filename,
@@ -209,8 +209,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                 }),
                 complete: partComplete,
                 points: partPoints,
-                mark: submission.closed && partMark,
-                markOverride: partOverridden ? partMarkOverride : null,
+                mark: submission.closed ? partMark : null,
+                markOverride: submission.closed ? partOverridden ? partMarkOverride : null : null,
               };
               if (!partComplete) {
                 assignmentComplete = false;
@@ -230,7 +230,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             complete: assignmentComplete,
             points: assignmentPoints,
             mark: submission.closed && assignmentMarked ? assignmentMark : null,
-            markOverride: assignmentOverridden ? assignmentMarkOverride : null,
+            markOverride: submission.closed ? assignmentOverridden ? assignmentMarkOverride : null : null,
           };
           if (!a.optional && !assignmentComplete) {
             submissionComplete = false;
@@ -256,7 +256,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       });
 
     } catch (err) {
-      this.logger.error('error getting assignment medium', err instanceof Error ? err.message : err);
+      this.logger.error('error getting submission', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }

@@ -10,7 +10,7 @@ export type NewAssignmentDTO = {
   description: string | null;
   descriptionType: NewDescriptionType;
   /** should always be null for students */
-  markingCriteria: string | null;
+  markingCriteria: null;
   optional: boolean;
   complete: boolean;
   points: number;

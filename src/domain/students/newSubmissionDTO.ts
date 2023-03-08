@@ -7,11 +7,11 @@ export type NewSubmissionDTO = {
   title: string | null;
   description: string | null;
   /** should always be null for students */
-  markingCriteria: string | null;
+  markingCriteria: null;
   optional: boolean;
   order: number;
   /** should always be null for students */
-  tutorComment: string | null;
+  tutorComment: null;
   adminComment: string | null;
   submitted: Date | null;
   transferred: Date | null;

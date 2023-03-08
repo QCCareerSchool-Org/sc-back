@@ -199,7 +199,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                 }),
                 complete: partComplete,
                 points: partPoints,
-                mark: submission.closed && partMark,
+                mark: submission.closed ? partMark : null,
               };
               if (!partComplete) {
                 assignmentComplete = false;

@@ -23,6 +23,7 @@ import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor.js';
 import { GetCountryInteractor } from './getCountryInteractor.js';
 import { GetCourseInteractor } from './getCourseInteractor.js';
 import { GetMaterialInteractor } from './getMaterialInteractor.js';
+import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewAssignmentMediumInteractor } from './getNewAssignmentMediumInteractor.js';
 import { GetNewAssignmentTemplateInteractor } from './getNewAssignmentTemplateInteractor.js';
 import { GetNewPartMediumInteractor } from './getNewPartMediumInteractor.js';
@@ -129,3 +130,4 @@ export const deleteMaterialInteractor = new DeleteMaterialInteractor(prisma, uui
 export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
+export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, winstonLoggerService);

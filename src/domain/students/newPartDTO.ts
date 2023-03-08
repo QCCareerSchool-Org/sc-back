@@ -9,10 +9,8 @@ export type NewPartDTO = {
   title: string | null;
   description: string | null;
   descriptionType: NewDescriptionType;
-  /** should always be null for students */
-  markingCriteria: string | null;
-  /** should always be null for students */
-  markingComments: string | null;
+  markingCriteria: null; // students should never see this
+  markingComments: null; // students should never see this
   complete: boolean;
   points: number;
   mark: number | null;

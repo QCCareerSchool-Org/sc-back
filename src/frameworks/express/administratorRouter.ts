@@ -25,6 +25,7 @@ import { GetAllSchoolsController } from '../../controllers/administrators/getAll
 import { GetCountryController } from '../../controllers/administrators/getCountryController.js';
 import { GetCourseController } from '../../controllers/administrators/getCourseController.js';
 import { GetMaterialController } from '../../controllers/administrators/getMaterialController.js';
+import { GetNewAssignmentController } from '../../controllers/administrators/getNewAssignmentController.js';
 import { GetNewAssignmentMediumController } from '../../controllers/administrators/getNewAssignmentMediumController.js';
 import { GetNewAssignmentTemplateController } from '../../controllers/administrators/getNewAssignmentTemplateController.js';
 import { GetNewPartMediumController } from '../../controllers/administrators/getNewPartMediumController.js';
@@ -121,6 +122,8 @@ const routes: Route[] = [
   [ 'delete', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', DeleteNewSubmissionTemplatePricesController ],
   // new submissions
   [ 'get', '/:administratorId/newSubmissions/:submissionId', GetNewSubmissionController ],
+  // new assignments
+  [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
   [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],
