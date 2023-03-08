@@ -140,7 +140,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             firstName: newSubmission.enrollment.student.firstName,
             lastName: newSubmission.enrollment.student.lastName,
             entityVersion: newSubmission.enrollment.student.entityVersion,
-            timestamp: newSubmission.enrollment.student.timestamp,
+            modified: newSubmission.enrollment.student.modified,
           },
         },
         newAssignments: newSubmission.newAssignments.map(a => {

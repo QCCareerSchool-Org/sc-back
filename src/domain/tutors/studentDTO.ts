@@ -7,5 +7,5 @@ export type StudentDTO = {
   firstName: string;
   lastName: string;
   entityVersion: number;
-  timestamp: Date;
+  modified: Date;
 };

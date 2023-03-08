@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -30,6 +31,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -65,12 +67,15 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         return Result.fail(new EraseNewSubmissionFeedbackWrongTutor());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedSubmission = await this.prisma.$transaction(async transaction => {
         const updated = await transaction.newSubmission.update({
           data: {
             responseFilename: null,
             responseFilesize: null,
             responseMimeTypeId: null,
+            modified: localDate,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },

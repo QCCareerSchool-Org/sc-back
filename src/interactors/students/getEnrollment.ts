@@ -134,7 +134,6 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           lastLogin: enrollment.student.lastLogin,
           expiry: enrollment.student.expiry,
           emailAddress: enrollment.student.emailAddress,
-          creationDate: enrollment.student.creationDate,
           arrears: enrollment.student.arrears,
           forumUsername: enrollment.student.forumUsername,
           forumPasswordNew: enrollment.student.forumPasswordNew,
@@ -145,7 +144,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           ajaxUploads: enrollment.student.ajaxUploads,
           upgradeNotification: enrollment.student.upgradeNotification,
           entityVersion: enrollment.student.entityVersion,
-          timestamp: enrollment.student.timestamp,
+          created: enrollment.student.created,
+          modified: enrollment.student.modified,
           hasCASocialInsuranceNumber: !!enrollment.student.caSocialInsuranceNumber,
         },
         course: {

@@ -149,9 +149,12 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         return Result.fail(new CloseNewSubmissionNotMarked());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedSubmission = await this.prisma.newSubmission.update({
         data: {
-          closed: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+          closed: localDate,
+          modified: localDate,
         },
         where: { submissionId: submissionIdBin },
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },

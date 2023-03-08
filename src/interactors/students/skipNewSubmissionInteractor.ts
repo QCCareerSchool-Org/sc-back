@@ -56,11 +56,14 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
         return Result.fail(new SkipNewSubmissionAlreadySubmitted());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedSubmission = await this.prisma.newSubmission.update({
         data: {
-          submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+          submitted: localDate,
           skipped: true,
           tutorId: submission.enrollment.tutorId,
+          modified: localDate,
         },
         where: { submissionId: submissionIdBin },
         include: { enrollment: { include: { course: true } } },

@@ -67,7 +67,6 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         lastLogin: student.lastLogin,
         expiry: student.expiry,
         emailAddress: student.emailAddress,
-        creationDate: student.creationDate,
         arrears: student.arrears,
         forumUsername: student.forumUsername,
         forumPasswordNew: student.forumPasswordNew,
@@ -78,7 +77,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         ajaxUploads: student.ajaxUploads,
         upgradeNotification: student.upgradeNotification,
         entityVersion: student.entityVersion,
-        timestamp: student.timestamp,
+        created: student.created,
+        modified: student.modified,
         hasCASocialInsuranceNumber: !!student.caSocialInsuranceNumber,
         country: {
           countryId: student.country.countryId,

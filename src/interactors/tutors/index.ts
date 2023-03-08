@@ -15,13 +15,13 @@ import { UploadNewSubmissionFeedbackInteractor } from './uploadNewSubmissionFeed
 
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, winstonLoggerService);
-export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
-export const eraseNewSubmissionFeedbackInteractor = new EraseNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const eraseNewSubmissionFeedbackInteractor = new EraseNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, gradeService, dateService, winstonLoggerService);
 export const returnNewSubmissionInteractor = new ReturnNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
-export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, winstonLoggerService);
-export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, winstonLoggerService);
+export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);

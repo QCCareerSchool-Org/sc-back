@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IEmailValidatorService } from '../../services/emailValidator/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
@@ -22,6 +23,7 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly emailValidator: IEmailValidatorService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -39,10 +41,13 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         return Result.fail(new UpdateEmailAddressInvalidEmailAddress());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updated = await this.prisma.student.update({
         where: { studentId },
         data: {
           emailAddress,
+          modified: localDate,
           emailChanges: {
             create: { emailAddress },
           },
@@ -63,7 +68,6 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         lastLogin: updated.lastLogin,
         expiry: updated.expiry,
         emailAddress: updated.emailAddress,
-        creationDate: updated.creationDate,
         arrears: updated.arrears,
         forumUsername: updated.forumUsername,
         forumPasswordNew: updated.forumPasswordNew,
@@ -74,7 +78,8 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         ajaxUploads: updated.ajaxUploads,
         upgradeNotification: updated.upgradeNotification,
         entityVersion: updated.entityVersion,
-        timestamp: updated.timestamp,
+        created: updated.created,
+        modified: updated.modified,
         hasCASocialInsuranceNumber: !!updated.caSocialInsuranceNumber,
       });
 

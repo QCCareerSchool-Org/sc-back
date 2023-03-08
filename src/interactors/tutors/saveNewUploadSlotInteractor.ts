@@ -104,8 +104,10 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         }
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedUploadSlot = await this.prisma.newUploadSlot.update({
-        data: { mark, notes: notes?.length ? notes : null },
+        data: { mark, notes: notes?.length ? notes : null, modified: localDate },
         where: { uploadSlotId: uploadSlotIdBin },
       });
 

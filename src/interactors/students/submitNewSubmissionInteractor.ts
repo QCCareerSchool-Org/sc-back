@@ -114,14 +114,17 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
             }
           }
 
+          const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
           // update submission and return the updated submission
           return transaction.newSubmission.update({
             data: {
-              submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+              submitted: localDate,
               skipped: false,
               tutorId: tutor.tutorId,
               tutorComment: null,
               adminComment: null,
+              modified: localDate,
             },
             where: { submissionId: submissionIdBin },
             include: { tutor: true, enrollment: { include: { course: true } } },

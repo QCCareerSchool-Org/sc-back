@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -35,6 +36,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -58,12 +60,15 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         throw new EraseNewUploadSlotSubmissionSubmitted();
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
         const updated = await transaction.newUploadSlot.update({
           data: {
             filename: null,
             filesize: null,
             mimeTypeId: null,
+            modified: localDate,
           },
           where: { uploadSlotId: uploadSlotIdBin },
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },

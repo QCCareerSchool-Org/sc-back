@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -34,6 +35,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -81,11 +83,14 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
           throw new UploadNewSubmissionInvalidMimeType(mimeType.mimeTypeId);
         }
 
+        const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
         const updated = await transaction.newSubmission.update({
           data: {
             responseFilename: file.filename,
             responseFilesize: file.size,
             responseMimeTypeId: mimeType.mimeTypeId,
+            modified: localDate,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
