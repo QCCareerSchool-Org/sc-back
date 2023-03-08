@@ -2,6 +2,7 @@ import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -37,6 +38,7 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -96,6 +98,8 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
         return Result.fail(new SaveNewSubmissionTemplateOrderTooLarge());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       // update the submission template
       let updatedSubmissionTemplate: NewSubmissionTemplate;
       try {
@@ -107,6 +111,7 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
+            modified: localDate,
           },
           where: { submissionTemplateId: submissionIdBin },
         });

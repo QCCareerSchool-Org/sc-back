@@ -4,10 +4,12 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { IHttpService } from '../../services/http/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IMimeTypeService } from '../../services/mimeType/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUnzipService } from '../../services/unzip/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
@@ -89,6 +91,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
     private readonly fileService: IFileService,
     private readonly unzipService: IUnzipService,
     private readonly mimeTypeService: IMimeTypeService,
+    private readonly sanitizerService: ISanitizerService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -215,6 +219,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
     }
     const lessonMeta = request.lessonMeta;
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     const material = await this.prisma.$transaction(async transaction => {
       const inserted = await transaction.material.create({
         data: {
@@ -233,6 +239,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           chapters: lessonMeta.chapters,
           videos: lessonMeta.videos,
           knowledgeChecks: lessonMeta.knowledgeChecks,
+          created: localDate,
+          modified: localDate,
         },
       });
       await this.extractArchive(inserted.materialId, contentFile);
@@ -261,6 +269,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
 
     const [ contentMimeTypeId, filename ] = await this.fetchExternalData(request.externalData);
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     return this.prisma.$transaction(async transaction => {
       const inserted = await transaction.material.create({
         data: {
@@ -270,11 +280,13 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           title: request.title,
           description: request.description,
           order: request.order,
-          filename,
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(filename)),
           contentMimeTypeId,
           imageMimeTypeId: request.imageFile?.mimeType ?? null,
           externalData: request.externalData,
           entryPoint: null,
+          created: localDate,
+          modified: localDate,
         },
       });
       if (request.imageFile) {
@@ -302,6 +314,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       throw new InsertMaterialInvalidContentMimeType(contentMimeType);
     }
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     return this.prisma.$transaction(async transaction => {
       const inserted = await transaction.material.create({
         data: {
@@ -311,11 +325,13 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           title: request.title,
           description: request.description,
           order: request.order,
-          filename: contentFile.filename,
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(contentFile.filename)),
           contentMimeTypeId: contentMimeType,
           imageMimeTypeId: request.imageFile?.mimeType ?? null,
           externalData: request.externalData,
           entryPoint: null,
+          created: localDate,
+          modified: localDate,
         },
       });
       await this.saveContent(inserted.materialId, contentFile);
@@ -334,6 +350,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       throw new InsertMaterialContentPresent();
     }
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     return this.prisma.$transaction(async transaction => {
       const inserted = await transaction.material.create({
         data: {
@@ -348,6 +366,8 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           imageMimeTypeId: request.imageFile?.mimeType ?? null,
           externalData: null,
           entryPoint: null,
+          created: localDate,
+          modified: localDate,
         },
       });
       if (request.imageFile) {

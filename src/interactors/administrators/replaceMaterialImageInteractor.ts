@@ -4,6 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -33,6 +34,7 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -52,6 +54,8 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
       if (!this.isValidMimeType(fileData.mimeType)) {
         return Result.fail(new ReplaceMaterialImageInvalidMimeType());
       }
+
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
 
       let updatedMaterial: Material;
       try {
@@ -81,7 +85,7 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
 
           return transaction.material.update({
             where: { materialId: materialIdBin },
-            data: { imageMimeTypeId: mimeType.mimeTypeId },
+            data: { imageMimeTypeId: mimeType.mimeTypeId, modified: localDate },
           });
         });
       } catch (err) {

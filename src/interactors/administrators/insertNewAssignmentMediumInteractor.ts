@@ -2,9 +2,11 @@ import type { NewAssignmentMedium, PrismaClient } from '@prisma/client';
 
 import type { NewAssignmentMediumDTO, NewMediumType } from '../../domain/newAssignmentMediumDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { IHttpService } from '../../services/http/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
 import { Result } from '../result.js';
@@ -52,6 +54,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
     private readonly httpService: IHttpService,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly sanitizerService: ISanitizerService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -130,6 +134,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       throw new InsertNewAssignmentMediumFileTooLarge(fileData.size.toString());
     }
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: fileData.mimeType } });
@@ -157,10 +163,12 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           assignmentTemplateId: assignmentIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: fileData.filename,
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(fileData.filename)),
           filesize: fileData.size,
           caption,
           order,
+          created: localDate,
+          modified: localDate,
         },
       });
 
@@ -199,6 +207,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       throw new InsertNewAssignmentMediumInvalidContentLength();
     }
 
+    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
@@ -219,6 +229,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         throw new InsertNewAssignmentMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
+      const filename = externalData.substring(externalData.lastIndexOf('/') + 1);
+
       // store the data in the database
       return transaction.newAssignmentMedium.create({
         data: {
@@ -226,11 +238,13 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           assignmentTemplateId: assignmentIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: externalData.substring(externalData.lastIndexOf('/') + 1),
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(filename)),
           filesize: contentLength,
           caption,
           order,
           externalData,
+          created: localDate,
+          modified: localDate,
         },
       });
     });

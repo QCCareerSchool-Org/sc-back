@@ -123,7 +123,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 points: t.points,
                 mark: t.mark,
                 markOverride: t.markOverride,
-                notes: null, // students should never see the tutor's notes
+                notes: t.notes,
                 optional: t.optional,
                 order: t.order,
                 text: t.text,
@@ -157,7 +157,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 points: u.points,
                 mark: u.mark,
                 markOverride: u.markOverride,
-                notes: null, // students should never see the tutor's notes
+                notes: u.notes,
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,

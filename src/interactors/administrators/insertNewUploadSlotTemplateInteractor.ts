@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -33,6 +34,7 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -84,6 +86,8 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewUploadSlotTemplateOrderTooLarge());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       // insert the text box template
       const insertedTextBoxTemplate = await this.prisma.newUploadSlotTemplate.create({
         data: {
@@ -94,6 +98,8 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
           points,
           optional,
           order,
+          created: localDate,
+          modified: localDate,
         },
       });
 

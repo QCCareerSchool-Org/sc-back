@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -33,6 +34,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -84,6 +86,8 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         return Result.fail(new SaveNewUploadSlotTemplateOrderTooLarge());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       // update the upload slot template
       const updatedUploadSlotTemplate = await this.prisma.newUploadSlotTemplate.update({
         data: {
@@ -92,6 +96,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
           points,
           optional,
           order,
+          modified: localDate,
         },
         where: { uploadSlotTemplateId: uploadSlotIdBin },
       });

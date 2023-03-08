@@ -15,7 +15,7 @@ import { UploadNewSubmissionFeedbackInteractor } from './uploadNewSubmissionFeed
 
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, winstonLoggerService);
-export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
+export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, dateService, environmentConfigService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const eraseNewSubmissionFeedbackInteractor = new EraseNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, gradeService, dateService, winstonLoggerService);

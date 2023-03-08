@@ -3,6 +3,7 @@ import type { Material, PrismaClient } from '@prisma/client';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
@@ -41,6 +42,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -79,6 +81,8 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         return Result.fail(new SaveMaterialOrderTooLarge());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       let updatedMaterial: Material;
 
       if (material.type === 'lesson') {
@@ -94,6 +98,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
             chapters: request.lessonMeta.chapters,
             videos: request.lessonMeta.videos,
             knowledgeChecks: request.lessonMeta.knowledgeChecks,
+            modified: localDate,
           },
           where: { materialId: materialIdBin },
         });
@@ -103,6 +108,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
             title: request.title,
             description: request.description,
             order: request.order,
+            modified: localDate,
           },
           where: { materialId: materialIdBin },
         });

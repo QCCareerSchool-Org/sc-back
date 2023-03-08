@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -27,6 +28,7 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -65,9 +67,11 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         return Result.fail(new SaveNewAssignmentMediumOrderTooLarge());
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       // update the part medium
       const updatedAssignmentMedium = await this.prisma.newAssignmentMedium.update({
-        data: { caption, order },
+        data: { caption, order, modified: localDate },
         where: { assignmentMediumId: mediumIdBin },
       });
 

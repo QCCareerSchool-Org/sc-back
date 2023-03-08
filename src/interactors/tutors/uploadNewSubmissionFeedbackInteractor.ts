@@ -5,6 +5,7 @@ import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -35,6 +36,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly sanitizerService: ISanitizerService,
     private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
@@ -87,7 +89,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
 
         const updated = await transaction.newSubmission.update({
           data: {
-            responseFilename: file.filename,
+            responseFilename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(file.filename)),
             responseFilesize: file.size,
             responseMimeTypeId: mimeType.mimeTypeId,
             modified: localDate,
