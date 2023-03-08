@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -33,6 +34,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -101,8 +103,10 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         }
       }
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       const updatedTextBox = await this.prisma.newTextBox.update({
-        data: { mark, notes: notes?.length ? notes : null },
+        data: { mark, notes: notes?.length ? notes : null, modified: localDate },
         where: { textBoxId: textBoxIdBin },
       });
 

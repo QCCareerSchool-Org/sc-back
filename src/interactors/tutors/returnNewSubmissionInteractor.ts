@@ -1,6 +1,7 @@
 import type { NewAssignment, NewPart, NewSubmission, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -30,6 +31,7 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -81,12 +83,16 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
             throw new ReturnNewSubmissionCommentEmpty();
           }
 
+          const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
           return transaction.newSubmission.update({
             data: {
               tutorComment: comment,
+              modified: localDate,
               returns: {
                 create: {
                   submissionReturnId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                  returned: localDate,
                 },
               },
             },

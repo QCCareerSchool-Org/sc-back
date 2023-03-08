@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -33,6 +34,7 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -149,6 +151,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
 
       const submissionId = this.uuidService.uuidToBin(this.uuidService.createUUID());
 
+      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+
       // copy the template data into a concrete submission
       const nextSubmission = await this.prisma.newSubmission.create({
         data: {
@@ -161,6 +165,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
           markingCriteria: nextSubmissionTemplate.markingCriteria,
           optional: nextSubmissionTemplate.optional,
           order: nextSubmissionTemplate.order,
+          created: localDate,
+          modified: localDate,
           newAssignments: {
             create: nextSubmissionTemplate.newAssignmentTemplates.map(newAssignmentTemplate => {
               let assignmentComplete = true;
@@ -173,6 +179,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                 descriptionType: newAssignmentTemplate.descriptionType,
                 markingCriteria: newAssignmentTemplate.markingCriteria,
                 optional: newAssignmentTemplate.optional,
+                created: localDate,
+                modified: localDate,
                 newParts: {
                   create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => {
                     let partComplete = true;
@@ -184,6 +192,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                       description: newPartTemplate.description,
                       descriptionType: newPartTemplate.descriptionType,
                       markingCriteria: newPartTemplate.markingCriteria,
+                      created: localDate,
+                      modified: localDate,
                       newTextBoxes: {
                         create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => {
                           if (!newTextBoxTemplate.optional) {
@@ -197,6 +207,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                             optional: newTextBoxTemplate.optional,
                             order: newTextBoxTemplate.order,
                             points: newTextBoxTemplate.points,
+                            created: localDate,
+                            modified: localDate,
                           };
                         }),
                       },
@@ -213,6 +225,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                             optional: newUploadSlotTemplate.optional,
                             order: newUploadSlotTemplate.order,
                             points: newUploadSlotTemplate.points,
+                            created: localDate,
+                            modified: localDate,
                           };
                         }),
                       },
@@ -261,6 +275,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
               countryId: p.countryId,
               price: p.price,
               currencyId: p.currencyId,
+              created: localDate,
+              modified: localDate,
             })),
           },
         },
