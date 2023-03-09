@@ -93,8 +93,8 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       }
 
       if (account.expiry) {
-        const expiry = account.expiry;
-        if (expiry <= new Date(this.dateService.getLocalDate() + 'Z')) { // TODO: Update if Prisma ever gets timezones working properly
+        const expiry = this.dateService.fixPrismaReadDate(account.expiry);
+        if (expiry <= this.dateService.getDate()) {
           return Result.fail(new LoginExpired());
         }
       }
@@ -152,6 +152,8 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       const refreshTokenBytes = await this.cryptoService.randomBytes(64); // 64 * 8 = 512 bits of entropy
       const refreshTokenString = refreshTokenBytes.toString('base64');
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // store a the refresh token in the database
       await this.prisma.refreshToken.create({
         data: {
@@ -160,7 +162,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           tutorId: accountType === 'tutor' ? accountId : null,
           administratorId: accountType === 'admin' ? accountId : null,
           token: refreshTokenBytes,
-          expiry: new Date(new Date(this.dateService.getLocalDate() + 'Z').getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)), // TODO: Update if Prisma ever gets timezones working properly
+          expiry: new Date(prismaNow.getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
           ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
           browser: request.browser,
           browserVersion: request.browserVersion,
@@ -170,8 +172,8 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           country: request.country,
           latitude: request.latitude === null ? null : new Decimal(request.latitude),
           longitude: request.longitude === null ? null : new Decimal(request.longitude),
-          created: new Date(),
-          modified: new Date(),
+          created: prismaNow,
+          modified: prismaNow,
           entityVersion: 0,
         },
       });

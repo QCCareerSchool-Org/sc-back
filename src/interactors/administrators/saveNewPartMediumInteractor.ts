@@ -66,11 +66,11 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
         return Result.fail(new SaveNewPartMediumOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the part medium
       const updatedPartMedium = await this.prisma.newPartMedium.update({
-        data: { caption, order, modified: localDate },
+        data: { caption, order, modified: prismaNow },
         where: { partMediumId: mediumIdBin },
       });
 
@@ -84,8 +84,8 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
         caption: updatedPartMedium.caption,
         externalData: updatedPartMedium.externalData,
         order: updatedPartMedium.order,
-        created: updatedPartMedium.created,
-        modified: updatedPartMedium.modified,
+        created: this.dateService.fixPrismaReadDate(updatedPartMedium.created),
+        modified: this.dateService.fixPrismaReadDate(updatedPartMedium.modified),
       });
 
     } catch (err) {

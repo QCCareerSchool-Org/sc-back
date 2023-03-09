@@ -14,6 +14,7 @@ import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { VideoDTO } from '../../domain/videoDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -51,6 +52,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -118,7 +120,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         courseCost: enrollment.courseCost.toNumber(),
         amountPaid: enrollment.amountPaid.toNumber(),
         monthlyInstallment: enrollment.monthlyInstallment?.toNumber() ?? null,
-        enrollmentDate: enrollment.enrollmentDate,
+        enrollmentDate: this.dateService.fixPrismaReadDate(enrollment.enrollmentDate),
         fastTrack: enrollment.fastTrack,
         paymentsDisabled: enrollment.paymentsDisabled,
         student: {
@@ -131,8 +133,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           firstName: enrollment.student.firstName,
           lastName: enrollment.student.lastName,
           numLogins: enrollment.student.numLogins,
-          lastLogin: enrollment.student.lastLogin,
-          expiry: enrollment.student.expiry,
+          lastLogin: this.dateService.fixPrismaReadDate(enrollment.student.lastLogin),
+          expiry: this.dateService.fixPrismaReadDate(enrollment.student.expiry),
           emailAddress: enrollment.student.emailAddress,
           arrears: enrollment.student.arrears,
           forumUsername: enrollment.student.forumUsername,
@@ -144,8 +146,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           ajaxUploads: enrollment.student.ajaxUploads,
           upgradeNotification: enrollment.student.upgradeNotification,
           entityVersion: enrollment.student.entityVersion,
-          created: enrollment.student.created,
-          modified: enrollment.student.modified,
+          created: this.dateService.fixPrismaReadDate(enrollment.student.created),
+          modified: this.dateService.fixPrismaReadDate(enrollment.student.modified),
           hasCASocialInsuranceNumber: !!enrollment.student.caSocialInsuranceNumber,
         },
         course: {
@@ -187,11 +189,11 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             unitLetter: s.unitLetter,
             title: s.title,
             description: s.description,
-            markingCriteria: null, // students should never see the marking criteria
+            markingCriteria: null,
             optional: s.optional,
             order: s.order,
-            created: s.created,
-            modified: s.modified,
+            created: this.dateService.fixPrismaReadDate(s.created),
+            modified: this.dateService.fixPrismaReadDate(s.modified),
           })),
           units: enrollment.course.units.map(u => ({
             unitId: this.uuidService.binToUUID(u.unitId),
@@ -199,8 +201,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             unitLetter: u.unitLetter,
             title: u.title,
             order: u.order,
-            created: u.created,
-            modified: u.modified,
+            created: this.dateService.fixPrismaReadDate(u.created),
+            modified: this.dateService.fixPrismaReadDate(u.modified),
             materials: u.materials.map(m => ({
               materialId: this.uuidService.binToUUID(m.materialId),
               unitId: this.uuidService.binToUUID(m.unitId),
@@ -217,8 +219,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               chapters: m.chapters,
               videos: m.videos,
               knowledgeChecks: m.knowledgeChecks,
-              created: m.created,
-              modified: m.modified,
+              created: this.dateService.fixPrismaReadDate(m.created),
+              modified: this.dateService.fixPrismaReadDate(m.modified),
             })),
             videos: u.videos.map(v => ({
               videoId: this.uuidService.binToUUID(v.videoId),
@@ -245,11 +247,11 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           responseFilename: submission.responseFilename,
           points: submission.points,
           mark: submission.mark,
-          creationDate: submission.creationDate,
-          finalizedDate: submission.finalizedDate,
-          transferredDate: submission.transferredDate,
+          creationDate: this.dateService.fixPrismaReadDate(submission.creationDate),
+          finalizedDate: this.dateService.fixPrismaReadDate(submission.finalizedDate),
+          transferredDate: this.dateService.fixPrismaReadDate(submission.transferredDate),
           tutorId: submission.tutorId,
-          markedDate: submission.markedDate,
+          markedDate: this.dateService.fixPrismaReadDate(submission.markedDate),
           tutorComment: null, // students should never see the tutor comment
           adminComment: submission.adminComment,
           optional: submission.optional,
@@ -261,7 +263,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           cost: submission.cost?.toNumber() ?? null,
           currencyId: submission.currencyId,
           audioProgress: submission.audioProgress,
-          timestamp: submission.timestamp,
+          timestamp: this.dateService.fixPrismaReadDate(submission.timestamp),
           entityVersion: submission.entityVersion,
         })),
         newSubmissions: enrollment.newSubmissions.map(newSubmission => {
@@ -340,9 +342,9 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             order: newSubmission.order,
             tutorComment: null, // students should never see the tutor comment
             adminComment: newSubmission.adminComment,
-            submitted: newSubmission.submitted,
-            transferred: newSubmission.transferred,
-            closed: newSubmission.closed,
+            submitted: this.dateService.fixPrismaReadDate(newSubmission.submitted),
+            transferred: this.dateService.fixPrismaReadDate(newSubmission.transferred),
+            closed: this.dateService.fixPrismaReadDate(newSubmission.closed),
             skipped: newSubmission.skipped,
             responseFilename: newSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${newSubmission.unitLetter}.mp3`,
             responseFilesize: newSubmission.responseFilesize,
@@ -350,8 +352,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             complete: submissionComplete,
             points: submissionPoints,
             mark: newSubmission.closed && submissionMarked ? submissionMark : null,
-            created: newSubmission.created,
-            modified: newSubmission.modified,
+            created: this.dateService.fixPrismaReadDate(newSubmission.created),
+            modified: this.dateService.fixPrismaReadDate(newSubmission.modified),
           };
         }),
         materialCompletions: enrollment.materialCompletions.map(m => ({

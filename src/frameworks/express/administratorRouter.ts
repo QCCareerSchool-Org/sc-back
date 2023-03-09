@@ -17,6 +17,7 @@ import { DeleteUnitController } from '../../controllers/administrators/deleteUni
 import { DownloadMaterialImageController } from '../../controllers/administrators/downloadMaterialImageController.js';
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController.js';
+import { DownloadNewSubmissionFeedbackController } from '../../controllers/administrators/downloadNewSubmissionFeedbackController.js';
 import { EnableCourseController } from '../../controllers/administrators/enableCourseController.js';
 import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController.js';
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController.js';
@@ -37,6 +38,7 @@ import { GetNewSubmissionTemplateController } from '../../controllers/administra
 import { GetNewSubmissionTemplatePricesController } from '../../controllers/administrators/getNewUnitTemplatePricesController.js';
 import { GetNewUploadSlotTemplateController } from '../../controllers/administrators/getNewUploadSlotTemplateController.js';
 import { GetSchoolController } from '../../controllers/administrators/getSchoolController.js';
+import { GetStudentController } from '../../controllers/administrators/getStudentController.js';
 import { GetUnitController } from '../../controllers/administrators/getUnitController.js';
 import { InsertMaterialController } from '../../controllers/administrators/insertMaterialController.js';
 import { InsertNewAssignmentMediumController } from '../../controllers/administrators/insertNewAssignmentMediumController.js';
@@ -67,6 +69,8 @@ export const administratorRouter = Router();
 const routes: Route[] = [
   // only the administrator in question should be able to access this path
   [ 'use', '/:administratorId', AdministratorGuardMiddleware ],
+  // student
+  [ 'get', '/:administratorId/students/:studentId', GetStudentController ],
   // schools
   [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
   [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
@@ -122,6 +126,7 @@ const routes: Route[] = [
   [ 'delete', '/:administratorId/courses/:courseId/newSubmissionTemplatePrices', DeleteNewSubmissionTemplatePricesController ],
   // new submissions
   [ 'get', '/:administratorId/newSubmissions/:submissionId', GetNewSubmissionController ],
+  [ 'get', '/:administratorId/newSubmissions/:submissionId/feedback', DownloadNewSubmissionFeedbackController ],
   // new assignments
   [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
   // new submission returns

@@ -83,16 +83,16 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
             throw new ReturnNewSubmissionCommentEmpty();
           }
 
-          const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+          const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
           return transaction.newSubmission.update({
             data: {
               tutorComment: comment,
-              modified: localDate,
+              modified: prismaNow,
               returns: {
                 create: {
                   submissionReturnId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
-                  returned: localDate,
+                  returned: prismaNow,
                 },
               },
             },
@@ -185,15 +185,15 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
         order: updatedSubmission.order,
         tutorComment: updatedSubmission.tutorComment,
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,

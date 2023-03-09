@@ -5,6 +5,7 @@ import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -29,6 +30,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -62,8 +64,8 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
         description: partTemplate.description,
         descriptionType: partTemplate.descriptionType,
         markingCriteria: partTemplate.markingCriteria,
-        created: partTemplate.created,
-        modified: partTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(partTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(partTemplate.modified),
         newAssignmentTemplate: {
           assignmentTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.assignmentTemplateId),
           submissionTemplateId: this.uuidService.binToUUID(partTemplate.newAssignmentTemplate.submissionTemplateId),
@@ -73,8 +75,8 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           descriptionType: partTemplate.newAssignmentTemplate.descriptionType,
           markingCriteria: partTemplate.newAssignmentTemplate.markingCriteria,
           optional: partTemplate.newAssignmentTemplate.optional,
-          created: partTemplate.newAssignmentTemplate.created,
-          modified: partTemplate.newAssignmentTemplate.modified,
+          created: this.dateService.fixPrismaReadDate(partTemplate.newAssignmentTemplate.created),
+          modified: this.dateService.fixPrismaReadDate(partTemplate.newAssignmentTemplate.modified),
         },
         newTextBoxTemplates: partTemplate.newTextBoxTemplates.map(t => ({
           textBoxTemplateId: this.uuidService.binToUUID(t.textBoxTemplateId),
@@ -84,8 +86,8 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           points: t.points,
           optional: t.optional,
           order: t.order,
-          created: t.created,
-          modified: t.modified,
+          created: this.dateService.fixPrismaReadDate(t.created),
+          modified: this.dateService.fixPrismaReadDate(t.modified),
         })),
         newUploadSlotTemplates: partTemplate.newUploadSlotTemplates.map(u => ({
           uploadSlotTemplateId: this.uuidService.binToUUID(u.uploadSlotTemplateId),
@@ -95,8 +97,8 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           points: u.points,
           optional: u.optional,
           order: u.order,
-          created: u.created,
-          modified: u.modified,
+          created: this.dateService.fixPrismaReadDate(u.created),
+          modified: this.dateService.fixPrismaReadDate(u.modified),
         })),
         newPartMedia: partTemplate.newPartMedia.map(m => ({
           partMediumId: this.uuidService.binToUUID(m.partMediumId),
@@ -108,8 +110,8 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
           caption: m.caption,
           externalData: m.externalData,
           order: m.order,
-          created: m.created,
-          modified: m.modified,
+          created: this.dateService.fixPrismaReadDate(m.created),
+          modified: this.dateService.fixPrismaReadDate(m.modified),
         })),
       });
 

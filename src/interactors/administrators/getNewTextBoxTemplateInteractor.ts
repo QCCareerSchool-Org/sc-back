@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -23,6 +24,7 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -47,8 +49,8 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
         points: textBoxTemplate.points,
         optional: textBoxTemplate.optional,
         order: textBoxTemplate.order,
-        created: textBoxTemplate.created,
-        modified: textBoxTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(textBoxTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(textBoxTemplate.modified),
         newPartTemplate: {
           partTemplateId: this.uuidService.binToUUID(textBoxTemplate.newPartTemplate.partTemplateId),
           assignmentTemplateId: this.uuidService.binToUUID(textBoxTemplate.newPartTemplate.assignmentTemplateId),
@@ -57,8 +59,8 @@ export class GetNewTextBoxTemplateInteractor implements IInteractor<GetNewTextBo
           description: textBoxTemplate.newPartTemplate.description,
           descriptionType: textBoxTemplate.newPartTemplate.descriptionType,
           markingCriteria: textBoxTemplate.newPartTemplate.markingCriteria,
-          created: textBoxTemplate.newPartTemplate.created,
-          modified: textBoxTemplate.newPartTemplate.modified,
+          created: this.dateService.fixPrismaReadDate(textBoxTemplate.newPartTemplate.created),
+          modified: this.dateService.fixPrismaReadDate(textBoxTemplate.newPartTemplate.modified),
         },
       });
 

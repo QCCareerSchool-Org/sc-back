@@ -98,7 +98,7 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
         return Result.fail(new SaveNewSubmissionTemplateOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the submission template
       let updatedSubmissionTemplate: NewSubmissionTemplate;
@@ -111,7 +111,7 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { submissionTemplateId: submissionIdBin },
         });
@@ -134,8 +134,8 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
         markingCriteria: updatedSubmissionTemplate.markingCriteria,
         optional: updatedSubmissionTemplate.optional,
         order: updatedSubmissionTemplate.order,
-        created: updatedSubmissionTemplate.created,
-        modified: updatedSubmissionTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmissionTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmissionTemplate.modified),
       });
 
     } catch (err) {

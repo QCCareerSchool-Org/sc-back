@@ -120,8 +120,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         caption: insertedPartMedium.caption,
         order: insertedPartMedium.order,
         externalData: insertedPartMedium.externalData,
-        created: insertedPartMedium.created,
-        modified: insertedPartMedium.modified,
+        created: this.dateService.fixPrismaReadDate(insertedPartMedium.created),
+        modified: this.dateService.fixPrismaReadDate(insertedPartMedium.modified),
       });
 
     } catch (err) {
@@ -135,7 +135,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       throw new InsertNewPartMediumFileTooLarge(fileData.size.toString());
     }
 
-    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
@@ -168,8 +168,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           filesize: fileData.size,
           caption,
           order,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
 
@@ -208,7 +208,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       throw new InsertNewPartMediumInvalidContentLength();
     }
 
-    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
@@ -244,8 +244,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           caption,
           order,
           externalData,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
     });

@@ -86,7 +86,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         return Result.fail(new SaveNewUploadSlotTemplateOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the upload slot template
       const updatedUploadSlotTemplate = await this.prisma.newUploadSlotTemplate.update({
@@ -96,7 +96,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
           points,
           optional,
           order,
-          modified: localDate,
+          modified: prismaNow,
         },
         where: { uploadSlotTemplateId: uploadSlotIdBin },
       });
@@ -109,8 +109,8 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         points: updatedUploadSlotTemplate.points,
         optional: updatedUploadSlotTemplate.optional,
         order: updatedUploadSlotTemplate.order,
-        created: updatedUploadSlotTemplate.created,
-        modified: updatedUploadSlotTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlotTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlotTemplate.modified),
       });
 
     } catch (err) {

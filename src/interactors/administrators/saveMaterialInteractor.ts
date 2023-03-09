@@ -81,7 +81,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         return Result.fail(new SaveMaterialOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       let updatedMaterial: Material;
 
@@ -98,7 +98,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
             chapters: request.lessonMeta.chapters,
             videos: request.lessonMeta.videos,
             knowledgeChecks: request.lessonMeta.knowledgeChecks,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { materialId: materialIdBin },
         });
@@ -108,7 +108,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
             title: request.title,
             description: request.description,
             order: request.order,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { materialId: materialIdBin },
         });
@@ -130,8 +130,8 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         chapters: updatedMaterial.chapters,
         videos: updatedMaterial.videos,
         knowledgeChecks: updatedMaterial.knowledgeChecks,
-        created: updatedMaterial.created,
-        modified: updatedMaterial.modified,
+        created: this.dateService.fixPrismaReadDate(updatedMaterial.created),
+        modified: this.dateService.fixPrismaReadDate(updatedMaterial.modified),
       });
 
     } catch (err) {

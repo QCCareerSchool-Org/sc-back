@@ -60,7 +60,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         throw new EraseNewUploadSlotSubmissionSubmitted();
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
         const updated = await transaction.newUploadSlot.update({
@@ -68,7 +68,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
             filename: null,
             filesize: null,
             mimeTypeId: null,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { uploadSlotId: uploadSlotIdBin },
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
@@ -101,8 +101,8 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         filesize: updatedUploadSlot.filesize,
         mimeTypeId: updatedUploadSlot.mimeTypeId,
         complete: updatedUploadSlot.filename !== null,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlot.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlot.modified),
       });
 
     } catch (err) {

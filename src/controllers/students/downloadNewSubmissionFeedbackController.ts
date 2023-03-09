@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { DownloadNewSubmissionFeedbackResponseDTO } from '../../interactors/students/downloadNewSubmissionFeedbackInteractor.js';
-import { DownloadNewSubmissionFeedbackFileNotFound, DownloadNewSubmissionFeedbackFileReadError, DownloadNewSubmissionFeedbackNotFound, DownloadNewSubmissionFeedbackNotSubmitted, DownloadNewSubmissionFeedbackSkipped } from '../../interactors/students/downloadNewSubmissionFeedbackInteractor.js';
+import { DownloadNewSubmissionFeedbackFileNotFound, DownloadNewSubmissionFeedbackFileReadError, DownloadNewSubmissionFeedbackNotClosed, DownloadNewSubmissionFeedbackNotFound, DownloadNewSubmissionFeedbackNotSubmitted, DownloadNewSubmissionFeedbackSkipped } from '../../interactors/students/downloadNewSubmissionFeedbackInteractor.js';
 import { downloadNewSubmissionFeedbackInteractor } from '../../interactors/students/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -58,6 +58,7 @@ export class DownloadNewSubmissionFeedbackController extends BaseController<Requ
       case DownloadNewSubmissionFeedbackNotFound:
       case DownloadNewSubmissionFeedbackNotSubmitted:
       case DownloadNewSubmissionFeedbackSkipped:
+      case DownloadNewSubmissionFeedbackNotClosed:
         return this.notFound('Submission not found');
       case DownloadNewSubmissionFeedbackFileNotFound:
         return this.internalServerError('File not found');

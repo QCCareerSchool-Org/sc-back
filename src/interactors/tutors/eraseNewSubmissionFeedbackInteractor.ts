@@ -67,7 +67,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         return Result.fail(new EraseNewSubmissionFeedbackWrongTutor());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updatedSubmission = await this.prisma.$transaction(async transaction => {
         const updated = await transaction.newSubmission.update({
@@ -75,7 +75,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
             responseFilename: null,
             responseFilesize: null,
             responseMimeTypeId: null,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
@@ -173,15 +173,15 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         order: updatedSubmission.order,
         tutorComment: updatedSubmission.tutorComment,
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,

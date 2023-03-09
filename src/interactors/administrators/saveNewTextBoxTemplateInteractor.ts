@@ -81,7 +81,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
         return Result.fail(new SaveNewTextBoxTemplateOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the text box template
       const updatedTextBoxTemplate = await this.prisma.newTextBoxTemplate.update({
@@ -91,7 +91,7 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
           points,
           optional,
           order,
-          modified: localDate,
+          modified: prismaNow,
         },
         where: { textBoxTemplateId: textBoxIdBin },
       });
@@ -104,8 +104,8 @@ export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewText
         points: updatedTextBoxTemplate.points,
         optional: updatedTextBoxTemplate.optional,
         order: updatedTextBoxTemplate.order,
-        created: updatedTextBoxTemplate.created,
-        modified: updatedTextBoxTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(updatedTextBoxTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(updatedTextBoxTemplate.modified),
       });
 
     } catch (err) {

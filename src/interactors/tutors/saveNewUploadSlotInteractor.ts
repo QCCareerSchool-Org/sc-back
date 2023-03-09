@@ -104,10 +104,10 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         }
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updatedUploadSlot = await this.prisma.newUploadSlot.update({
-        data: { mark, notes: notes?.length ? notes : null, modified: localDate },
+        data: { mark, notes: notes?.length ? notes : null, modified: prismaNow },
         where: { uploadSlotId: uploadSlotIdBin },
       });
 
@@ -125,8 +125,8 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         filesize: updatedUploadSlot.filesize,
         mimeTypeId: updatedUploadSlot.mimeTypeId,
         complete: updatedUploadSlot.filename !== null,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlot.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlot.modified),
       });
 
     } catch (err) {

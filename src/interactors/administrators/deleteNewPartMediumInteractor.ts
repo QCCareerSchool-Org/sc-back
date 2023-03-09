@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -24,6 +25,7 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -48,11 +50,13 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
         return Result.fail(new DeleteNewPartMediumSubmissionsEnabled());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       if (partMedium.newParts.length > 0) {
         // there are linked parts
         // update the medium to remove the relation to the part template
         await this.prisma.newPartMedium.update({
-          data: { partTemplateId: null },
+          data: { partTemplateId: null, modified: prismaNow },
           where: { partMediumId: mediumIdBin },
         });
       } else {

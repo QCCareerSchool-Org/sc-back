@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -24,6 +25,7 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -46,8 +48,8 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
         unitLetter: unit.unitLetter,
         title: unit.title,
         order: unit.order,
-        created: unit.created,
-        modified: unit.modified,
+        created: this.dateService.fixPrismaReadDate(unit.created),
+        modified: this.dateService.fixPrismaReadDate(unit.modified),
         materials: unit.materials.map(m => ({
           materialId: this.uuidService.binToUUID(m.materialId),
           unitId: this.uuidService.binToUUID(m.unitId),
@@ -64,8 +66,8 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
           chapters: m.chapters,
           videos: m.videos,
           knowledgeChecks: m.knowledgeChecks,
-          created: m.created,
-          modified: m.modified,
+          created: this.dateService.fixPrismaReadDate(m.created),
+          modified: this.dateService.fixPrismaReadDate(m.modified),
         })),
       });
 

@@ -67,11 +67,11 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         return Result.fail(new SaveNewAssignmentMediumOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the part medium
       const updatedAssignmentMedium = await this.prisma.newAssignmentMedium.update({
-        data: { caption, order, modified: localDate },
+        data: { caption, order, modified: prismaNow },
         where: { assignmentMediumId: mediumIdBin },
       });
 
@@ -85,8 +85,8 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         caption: updatedAssignmentMedium.caption,
         externalData: updatedAssignmentMedium.externalData,
         order: updatedAssignmentMedium.order,
-        created: updatedAssignmentMedium.created,
-        modified: updatedAssignmentMedium.modified,
+        created: this.dateService.fixPrismaReadDate(updatedAssignmentMedium.created),
+        modified: this.dateService.fixPrismaReadDate(updatedAssignmentMedium.modified),
       });
 
     } catch (err) {

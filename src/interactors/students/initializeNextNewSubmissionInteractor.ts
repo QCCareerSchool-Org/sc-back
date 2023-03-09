@@ -151,7 +151,7 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
 
       const submissionId = this.uuidService.uuidToBin(this.uuidService.createUUID());
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // copy the template data into a concrete submission
       const nextSubmission = await this.prisma.newSubmission.create({
@@ -165,8 +165,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
           markingCriteria: nextSubmissionTemplate.markingCriteria,
           optional: nextSubmissionTemplate.optional,
           order: nextSubmissionTemplate.order,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
           newAssignments: {
             create: nextSubmissionTemplate.newAssignmentTemplates.map(newAssignmentTemplate => {
               let assignmentComplete = true;
@@ -179,8 +179,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                 descriptionType: newAssignmentTemplate.descriptionType,
                 markingCriteria: newAssignmentTemplate.markingCriteria,
                 optional: newAssignmentTemplate.optional,
-                created: localDate,
-                modified: localDate,
+                created: prismaNow,
+                modified: prismaNow,
                 newParts: {
                   create: newAssignmentTemplate.newPartTemplates.map(newPartTemplate => {
                     let partComplete = true;
@@ -192,8 +192,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                       description: newPartTemplate.description,
                       descriptionType: newPartTemplate.descriptionType,
                       markingCriteria: newPartTemplate.markingCriteria,
-                      created: localDate,
-                      modified: localDate,
+                      created: prismaNow,
+                      modified: prismaNow,
                       newTextBoxes: {
                         create: newPartTemplate.newTextBoxTemplates.map(newTextBoxTemplate => {
                           if (!newTextBoxTemplate.optional) {
@@ -207,8 +207,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                             optional: newTextBoxTemplate.optional,
                             order: newTextBoxTemplate.order,
                             points: newTextBoxTemplate.points,
-                            created: localDate,
-                            modified: localDate,
+                            created: prismaNow,
+                            modified: prismaNow,
                           };
                         }),
                       },
@@ -225,8 +225,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
                             optional: newUploadSlotTemplate.optional,
                             order: newUploadSlotTemplate.order,
                             points: newUploadSlotTemplate.points,
-                            created: localDate,
-                            modified: localDate,
+                            created: prismaNow,
+                            modified: prismaNow,
                           };
                         }),
                       },
@@ -275,8 +275,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
               countryId: p.countryId,
               price: p.price,
               currencyId: p.currencyId,
-              created: localDate,
-              modified: localDate,
+              created: prismaNow,
+              modified: prismaNow,
             })),
           },
         },
@@ -295,9 +295,9 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
         order: nextSubmission.order,
         tutorComment: null, // students should never see the tutor comment
         adminComment: nextSubmission.adminComment,
-        submitted: nextSubmission.submitted,
-        transferred: nextSubmission.transferred,
-        closed: nextSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(nextSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(nextSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(nextSubmission.closed),
         skipped: nextSubmission.skipped,
         responseFilename: nextSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${nextSubmission.unitLetter}.mp3`,
         responseFilesize: nextSubmission.responseFilesize,
@@ -305,8 +305,8 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
         complete: submissionComplete,
         points: submissionPoints,
         mark: null,
-        created: nextSubmission.created,
-        modified: nextSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(nextSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(nextSubmission.modified),
       });
 
     } catch (err) {

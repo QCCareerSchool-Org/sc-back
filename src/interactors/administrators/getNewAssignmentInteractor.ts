@@ -8,6 +8,7 @@ import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlot
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -35,6 +36,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -78,8 +80,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         descriptionType: assignment.descriptionType,
         markingCriteria: assignment.markingCriteria,
         optional: assignment.optional,
-        created: assignment.created,
-        modified: assignment.modified,
+        created: this.dateService.fixPrismaReadDate(assignment.created),
+        modified: this.dateService.fixPrismaReadDate(assignment.modified),
         newParts: assignment.newParts.map(p => {
           let partComplete = true;
           let partMarked = true;
@@ -96,8 +98,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             descriptionType: p.descriptionType,
             markingCriteria: p.markingCriteria,
             markingComments: p.markingComments,
-            created: p.created,
-            modified: p.modified,
+            created: this.dateService.fixPrismaReadDate(p.created),
+            modified: this.dateService.fixPrismaReadDate(p.modified),
             newTextBoxes: p.newTextBoxes.map(t => {
               const textBoxComplete = t.text.length > 0;
               if (!t.optional && !textBoxComplete) {
@@ -128,8 +130,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 order: t.order,
                 text: t.text,
                 complete: textBoxComplete,
-                created: t.created,
-                modified: t.modified,
+                created: this.dateService.fixPrismaReadDate(t.created),
+                modified: this.dateService.fixPrismaReadDate(t.modified),
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
@@ -164,8 +166,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
                 complete: uploadSlotComplete,
-                created: u.created,
-                modified: u.modified,
+                created: this.dateService.fixPrismaReadDate(u.created),
+                modified: this.dateService.fixPrismaReadDate(u.modified),
               };
             }),
             newPartMedia: p.newPartMedia.map(m => ({
@@ -178,8 +180,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               caption: m.newPartMedium.caption,
               externalData: m.newPartMedium.externalData,
               order: m.order, // from the join table
-              created: m.newPartMedium.created,
-              modified: m.newPartMedium.modified,
+              created: this.dateService.fixPrismaReadDate(m.newPartMedium.created),
+              modified: this.dateService.fixPrismaReadDate(m.newPartMedium.modified),
             })),
             complete: partComplete,
             points: partPoints,
@@ -215,8 +217,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
           order: m.order, // from the join table
-          created: m.newAssignmentMedium.created,
-          modified: m.newAssignmentMedium.modified,
+          created: this.dateService.fixPrismaReadDate(m.newAssignmentMedium.created),
+          modified: this.dateService.fixPrismaReadDate(m.newAssignmentMedium.modified),
         })),
         newSubmission: {
           submissionId: this.uuidService.binToUUID(assignment.newSubmission.submissionId),
@@ -230,15 +232,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           order: assignment.newSubmission.order,
           tutorComment: assignment.newSubmission.tutorComment,
           adminComment: assignment.newSubmission.adminComment,
-          submitted: assignment.newSubmission.submitted,
-          transferred: assignment.newSubmission.transferred,
-          closed: assignment.newSubmission.closed,
+          submitted: this.dateService.fixPrismaReadDate(assignment.newSubmission.submitted),
+          transferred: this.dateService.fixPrismaReadDate(assignment.newSubmission.transferred),
+          closed: this.dateService.fixPrismaReadDate(assignment.newSubmission.closed),
           skipped: assignment.newSubmission.skipped,
           responseFilename: assignment.newSubmission.responseFilename === null ? null : `${assignment.newSubmission.enrollment.course.code}${assignment.newSubmission.enrollment.enrollmentId} Submission ${assignment.newSubmission.unitLetter}.mp3`,
           responseFilesize: assignment.newSubmission.responseFilesize,
           responseMimeTypeId: assignment.newSubmission.responseMimeTypeId,
-          created: assignment.newSubmission.created,
-          modified: assignment.newSubmission.modified,
+          created: this.dateService.fixPrismaReadDate(assignment.newSubmission.created),
+          modified: this.dateService.fixPrismaReadDate(assignment.newSubmission.modified),
         },
       });
 

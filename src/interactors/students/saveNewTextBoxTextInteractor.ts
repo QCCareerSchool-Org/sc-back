@@ -65,10 +65,10 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         throw new SaveNewTextBoxTextTooLong();
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updatedTextBox = await this.prisma.newTextBox.update({
-        data: { text, modified: localDate },
+        data: { text, modified: prismaNow },
         where: { textBoxId: textBoxIdBin },
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
@@ -80,13 +80,13 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
         mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? (updatedTextBox.markOverride ?? updatedTextBox.mark) : null, // hide mark unless the submission is marked
-        notes: null, // students should never see the tutor's notes
+        notes: null,
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        created: updatedTextBox.created,
-        modified: updatedTextBox.modified,
+        created: this.dateService.fixPrismaReadDate(updatedTextBox.created),
+        modified: this.dateService.fixPrismaReadDate(updatedTextBox.modified),
       });
 
     } catch (err) {

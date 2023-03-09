@@ -4,6 +4,7 @@ import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -27,6 +28,7 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -59,16 +61,16 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
         chapters: material.chapters,
         videos: material.videos,
         knowledgeChecks: material.knowledgeChecks,
-        created: material.created,
-        modified: material.modified,
+        created: this.dateService.fixPrismaReadDate(material.created),
+        modified: this.dateService.fixPrismaReadDate(material.modified),
         unit: {
           unitId: this.uuidService.binToUUID(material.unit.unitId),
           courseId: material.unit.courseId,
           unitLetter: material.unit.unitLetter,
           title: material.unit.title,
           order: material.unit.order,
-          created: material.unit.created,
-          modified: material.unit.modified,
+          created: this.dateService.fixPrismaReadDate(material.unit.created),
+          modified: this.dateService.fixPrismaReadDate(material.unit.modified),
           course: {
             courseId: material.unit.course.courseId,
             schoolId: material.unit.course.schoolId,

@@ -67,7 +67,7 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
             },
           });
 
-          const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+          const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
           // create the new prices
           await transaction.newSubmissionTemplatePrice.createMany({
@@ -77,8 +77,8 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
               countryId,
               price: p.price,
               currencyId: p.currencyId,
-              created: localDate,
-              modified: localDate,
+              created: prismaNow,
+              modified: prismaNow,
             })),
           });
         });

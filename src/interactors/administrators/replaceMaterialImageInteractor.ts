@@ -55,7 +55,7 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
         return Result.fail(new ReplaceMaterialImageInvalidMimeType());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       let updatedMaterial: Material;
       try {
@@ -85,7 +85,7 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
 
           return transaction.material.update({
             where: { materialId: materialIdBin },
-            data: { imageMimeTypeId: mimeType.mimeTypeId, modified: localDate },
+            data: { imageMimeTypeId: mimeType.mimeTypeId, modified: prismaNow },
           });
         });
       } catch (err) {
@@ -111,8 +111,8 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
         chapters: updatedMaterial.chapters,
         videos: updatedMaterial.videos,
         knowledgeChecks: updatedMaterial.knowledgeChecks,
-        created: updatedMaterial.created,
-        modified: updatedMaterial.modified,
+        created: this.dateService.fixPrismaReadDate(updatedMaterial.created),
+        modified: this.dateService.fixPrismaReadDate(updatedMaterial.modified),
       });
 
     } catch (err) {

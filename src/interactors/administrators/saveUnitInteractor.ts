@@ -77,7 +77,7 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
         return Result.fail(new SaveUnitOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       let updatedUnit: Unit;
       try {
@@ -86,7 +86,7 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
             title: request.title,
             unitLetter: request.unitLetter,
             order: request.order,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { unitId: unitIdBin },
         });
@@ -106,8 +106,8 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         order: updatedUnit.order,
-        created: updatedUnit.created,
-        modified: updatedUnit.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUnit.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUnit.modified),
       });
 
     } catch (err) {

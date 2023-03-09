@@ -6,6 +6,7 @@ import type { CurrencyDTO } from '../../domain/currencyDTO.js';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { NewSubmissionTemplatePriceDTO } from '../../domain/newSubmissionTemplatePriceDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -29,6 +30,7 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -60,8 +62,8 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
         markingCriteria: submissionTemplate.markingCriteria,
         optional: submissionTemplate.optional,
         order: submissionTemplate.order,
-        created: submissionTemplate.created,
-        modified: submissionTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(submissionTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(submissionTemplate.modified),
         course: {
           courseId: submissionTemplate.course.courseId,
           schoolId: submissionTemplate.course.schoolId,
@@ -87,8 +89,8 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
           descriptionType: a.descriptionType,
           markingCriteria: a.markingCriteria,
           optional: a.optional,
-          created: a.created,
-          modified: a.modified,
+          created: this.dateService.fixPrismaReadDate(a.created),
+          modified: this.dateService.fixPrismaReadDate(a.modified),
         })),
         prices: submissionTemplate.prices.map(p => ({
           submissionTemplatePriceId: this.uuidService.binToUUID(p.submissionTemplatePriceId),
@@ -96,8 +98,8 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
           countryId: p.countryId,
           price: p.price.toNumber(),
           currencyId: p.currencyId,
-          created: p.created,
-          modified: p.modified,
+          created: this.dateService.fixPrismaReadDate(p.created),
+          modified: this.dateService.fixPrismaReadDate(p.modified),
           country: p.country === null ? null : {
             countryId: p.country.countryId,
             name: p.country.name,

@@ -41,13 +41,13 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         return Result.fail(new UpdateEmailAddressInvalidEmailAddress());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updated = await this.prisma.student.update({
         where: { studentId },
         data: {
           emailAddress,
-          modified: localDate,
+          modified: prismaNow,
           emailChanges: {
             create: { emailAddress },
           },
@@ -65,8 +65,8 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         firstName: updated.firstName,
         lastName: updated.lastName,
         numLogins: updated.numLogins,
-        lastLogin: updated.lastLogin,
-        expiry: updated.expiry,
+        lastLogin: this.dateService.fixPrismaReadDate(updated.lastLogin),
+        expiry: this.dateService.fixPrismaReadDate(updated.expiry),
         emailAddress: updated.emailAddress,
         arrears: updated.arrears,
         forumUsername: updated.forumUsername,
@@ -78,8 +78,8 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         ajaxUploads: updated.ajaxUploads,
         upgradeNotification: updated.upgradeNotification,
         entityVersion: updated.entityVersion,
-        created: updated.created,
-        modified: updated.modified,
+        created: this.dateService.fixPrismaReadDate(updated.created),
+        modified: this.dateService.fixPrismaReadDate(updated.modified),
         hasCASocialInsuranceNumber: !!updated.caSocialInsuranceNumber,
       });
 

@@ -96,7 +96,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         return Result.fail(new SaveNewPartTemplatePartNumberTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the part template
       let updatedPartTemplate: NewPartTemplate;
@@ -108,7 +108,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
             description: description?.length ? description : null,
             descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { partTemplateId: partIdBin },
         });
@@ -130,8 +130,8 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         description: updatedPartTemplate.description,
         descriptionType: updatedPartTemplate.descriptionType,
         markingCriteria: updatedPartTemplate.markingCriteria,
-        created: updatedPartTemplate.created,
-        modified: updatedPartTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(updatedPartTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(updatedPartTemplate.modified),
       });
 
     } catch (err) {

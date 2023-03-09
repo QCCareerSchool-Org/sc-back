@@ -107,9 +107,11 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
 
   private isExpired(passwordReset: PasswordResetRequest): boolean {
     if (passwordReset.expiryDate) {
-      return this.dateService.getDate() >= passwordReset.expiryDate;
+      const properExpiryDate = this.dateService.fixPrismaReadDate(passwordReset.expiryDate);
+      return this.dateService.getDate() >= properExpiryDate;
     }
-    return this.dateService.getDate().getTime() >= passwordReset.requestDate.getTime() + (this.configService.config.passwordResetTimeout * 1000);
+    const properRequestDate = this.dateService.fixPrismaReadDate(passwordReset.requestDate);
+    return this.dateService.getDate().getTime() >= properRequestDate.getTime() + (this.configService.config.passwordResetTimeout * 1000);
   }
 
   private getAccountId(passwordRest: PasswordResetRequest): [number, AccountType] {

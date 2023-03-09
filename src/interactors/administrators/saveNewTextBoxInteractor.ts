@@ -61,12 +61,12 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         }
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       const updatedTextBox = await this.prisma.newTextBox.update({
         data: {
           markOverride: request.markOverride,
-          modified: localDate,
+          modified: prismaNow,
         },
         where: { textBoxId: textBoxIdBin },
       });
@@ -84,8 +84,8 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        created: updatedTextBox.created,
-        modified: updatedTextBox.modified,
+        created: this.dateService.fixPrismaReadDate(updatedTextBox.created),
+        modified: this.dateService.fixPrismaReadDate(updatedTextBox.modified),
       });
 
     } catch (err) {

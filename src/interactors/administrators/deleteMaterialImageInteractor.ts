@@ -4,6 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -32,6 +33,7 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -43,6 +45,8 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
       }
 
       const materialIdBin = this.uuidService.uuidToBin(materialId);
+
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       let updatedMaterial: Material;
       try {
@@ -65,7 +69,7 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
 
           return transaction.material.update({
             where: { materialId: materialIdBin },
-            data: { imageMimeTypeId: null },
+            data: { imageMimeTypeId: null, modified: prismaNow },
           });
         });
       } catch (err) {

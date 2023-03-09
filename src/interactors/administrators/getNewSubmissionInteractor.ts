@@ -5,8 +5,10 @@ import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
+import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -18,7 +20,9 @@ export type GetNewSubmissionRequestDTO = {
 };
 
 export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
-  enrollment: EnrollmentDTO;
+  enrollment: EnrollmentDTO & {
+    course: CourseDTO;
+  };
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
       newTextBoxes: NewTextBoxDTO[];
@@ -34,6 +38,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -72,15 +77,15 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         order: submission.order,
         tutorComment: submission.tutorComment,
         adminComment: submission.adminComment,
-        submitted: submission.submitted,
-        transferred: submission.transferred,
-        closed: submission.closed,
+        submitted: this.dateService.fixPrismaReadDate(submission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(submission.transferred),
+        closed: this.dateService.fixPrismaReadDate(submission.closed),
         skipped: submission.skipped,
         responseFilename: submission.responseFilename === null ? null : `${submission.enrollment.course.code}${submission.enrollment.enrollmentId} Submission ${submission.unitLetter}.mp3`,
         responseFilesize: submission.responseFilesize,
         responseMimeTypeId: submission.responseMimeTypeId,
-        created: submission.created,
-        modified: submission.modified,
+        created: this.dateService.fixPrismaReadDate(submission.created),
+        modified: this.dateService.fixPrismaReadDate(submission.modified),
         enrollment: {
           enrollmentId: submission.enrollment.enrollmentId,
           courseId: submission.enrollment.courseId,
@@ -97,9 +102,25 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           courseCost: submission.enrollment.courseCost.toNumber(),
           amountPaid: submission.enrollment.amountPaid.toNumber(),
           monthlyInstallment: submission.enrollment.monthlyInstallment === null ? null : submission.enrollment.monthlyInstallment.toNumber(),
-          enrollmentDate: submission.enrollment.enrollmentDate,
+          enrollmentDate: this.dateService.fixPrismaReadDate(submission.enrollment.enrollmentDate),
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
+          course: {
+            courseId: submission.enrollment.course.courseId,
+            schoolId: submission.enrollment.course.schoolId,
+            code: submission.enrollment.course.code,
+            version: submission.enrollment.course.version,
+            studentTypeId: submission.enrollment.course.studentTypeId,
+            name: submission.enrollment.course.name,
+            courseGuide: submission.enrollment.course.courseGuide,
+            quizzesEnabled: submission.enrollment.course.quizzesEnabled,
+            noTutor: submission.enrollment.course.noTutor,
+            submissionType: submission.enrollment.course.submissionType,
+            order: submission.enrollment.course.order,
+            enabled: submission.enrollment.course.enabled,
+            submissionsEnabled: submission.enrollment.course.submissionsEnabled,
+            entityVersion: submission.enrollment.course.entityVersion,
+          },
         },
         newAssignments: submission.newAssignments.map(a => {
           let assignmentComplete = true;
@@ -117,8 +138,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             descriptionType: a.descriptionType,
             markingCriteria: null, // students should never see the marking criteria
             optional: a.optional,
-            created: a.created,
-            modified: a.modified,
+            created: this.dateService.fixPrismaReadDate(a.created),
+            modified: this.dateService.fixPrismaReadDate(a.modified),
             newParts: a.newParts.map(p => {
               let partComplete = true;
               let partMarked = true;
@@ -135,8 +156,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                 descriptionType: p.descriptionType,
                 markingCriteria: null, // students should never see the marking criteria
                 markingComments: null, // students should never see the marking comments
-                created: p.created,
-                modified: p.modified,
+                created: this.dateService.fixPrismaReadDate(p.created),
+                modified: this.dateService.fixPrismaReadDate(p.modified),
                 newTextBoxes: p.newTextBoxes.map(t => {
                   const textBoxComplete = t.text.length > 0;
                   if (!t.optional && !textBoxComplete) {
@@ -167,8 +188,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     order: t.order,
                     text: t.text,
                     complete: textBoxComplete,
-                    created: t.created,
-                    modified: t.modified,
+                    created: this.dateService.fixPrismaReadDate(t.created),
+                    modified: this.dateService.fixPrismaReadDate(t.modified),
                   };
                 }),
                 newUploadSlots: p.newUploadSlots.map(u => {
@@ -203,8 +224,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     filesize: u.filesize,
                     mimeTypeId: u.mimeTypeId,
                     complete: uploadSlotComplete,
-                    created: u.created,
-                    modified: u.modified,
+                    created: this.dateService.fixPrismaReadDate(u.created),
+                    modified: this.dateService.fixPrismaReadDate(u.modified),
                   };
                 }),
                 complete: partComplete,

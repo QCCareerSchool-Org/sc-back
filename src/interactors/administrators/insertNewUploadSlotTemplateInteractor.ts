@@ -86,7 +86,7 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewUploadSlotTemplateOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // insert the text box template
       const insertedTextBoxTemplate = await this.prisma.newUploadSlotTemplate.create({
@@ -98,8 +98,8 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
           points,
           optional,
           order,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
 
@@ -111,8 +111,8 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         points: insertedTextBoxTemplate.points,
         optional: insertedTextBoxTemplate.optional,
         order: insertedTextBoxTemplate.order,
-        created: insertedTextBoxTemplate.created,
-        modified: insertedTextBoxTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedTextBoxTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedTextBoxTemplate.modified),
       });
 
     } catch (err) {

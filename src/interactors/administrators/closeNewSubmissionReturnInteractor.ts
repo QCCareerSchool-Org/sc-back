@@ -51,10 +51,12 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
         return Result.fail(new CloseNewSubmissionReturnAdminCommentEmpty());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedSubmissionReturn = await this.prisma.newSubmissionReturn.update({
         data: {
-          completed: this.dateService.getDate(),
-          newSubmission: { update: { adminComment, submitted: null } },
+          completed: prismaNow,
+          newSubmission: { update: { adminComment, submitted: null, modified: prismaNow } },
         },
         where: { submissionReturnId: submissionReturnIdBin },
         include: { newSubmission: true },

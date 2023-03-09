@@ -96,7 +96,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         return Result.fail(new InsertNewPartTemplatePartNumberTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // insert the part template
       let insertedPartTemplate: NewPartTemplate;
@@ -110,8 +110,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
             description: description?.length ? description : null,
             descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
-            created: localDate,
-            modified: localDate,
+            created: prismaNow,
+            modified: prismaNow,
           },
         });
       } catch (err) {
@@ -132,8 +132,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         description: insertedPartTemplate.description,
         descriptionType: insertedPartTemplate.descriptionType,
         markingCriteria: insertedPartTemplate.markingCriteria,
-        created: insertedPartTemplate.created,
-        modified: insertedPartTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedPartTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedPartTemplate.modified),
       });
 
     } catch (err) {

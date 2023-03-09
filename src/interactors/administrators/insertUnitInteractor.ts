@@ -81,7 +81,7 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
         return Result.fail(new InsertUnitOrderTooLarge());
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       let insertedUnit: Unit;
       try {
@@ -92,8 +92,8 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
             unitLetter: request.unitLetter,
             title: request.title,
             order: request.order,
-            created: localDate,
-            modified: localDate,
+            created: prismaNow,
+            modified: prismaNow,
           },
         });
       } catch (err) {
@@ -109,8 +109,8 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
         unitLetter: insertedUnit.unitLetter,
         title: insertedUnit.title,
         order: insertedUnit.order,
-        created: insertedUnit.created,
-        modified: insertedUnit.modified,
+        created: this.dateService.fixPrismaReadDate(insertedUnit.created),
+        modified: this.dateService.fixPrismaReadDate(insertedUnit.modified),
       });
 
     } catch (err) {

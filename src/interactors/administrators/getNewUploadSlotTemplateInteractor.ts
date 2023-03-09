@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -23,6 +24,7 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -47,8 +49,8 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
         points: uploadSlotTemplate.points,
         optional: uploadSlotTemplate.optional,
         order: uploadSlotTemplate.order,
-        created: uploadSlotTemplate.created,
-        modified: uploadSlotTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(uploadSlotTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(uploadSlotTemplate.modified),
         newPartTemplate: {
           partTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.newPartTemplate.partTemplateId),
           assignmentTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.newPartTemplate.assignmentTemplateId),
@@ -57,8 +59,8 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
           description: uploadSlotTemplate.newPartTemplate.description,
           descriptionType: uploadSlotTemplate.newPartTemplate.descriptionType,
           markingCriteria: uploadSlotTemplate.newPartTemplate.markingCriteria,
-          created: uploadSlotTemplate.newPartTemplate.created,
-          modified: uploadSlotTemplate.newPartTemplate.modified,
+          created: this.dateService.fixPrismaReadDate(uploadSlotTemplate.newPartTemplate.created),
+          modified: this.dateService.fixPrismaReadDate(uploadSlotTemplate.newPartTemplate.modified),
         },
       });
 

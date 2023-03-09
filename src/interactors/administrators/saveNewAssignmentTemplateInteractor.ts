@@ -95,7 +95,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         }
       }
 
-      const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
       // update the assignment template
       let updatedAssignmentTemplate: NewAssignmentTemplate;
@@ -108,7 +108,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
             descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
-            modified: localDate,
+            modified: prismaNow,
           },
           where: { assignmentTemplateId: assignmentIdBin },
         });
@@ -131,8 +131,8 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         descriptionType: updatedAssignmentTemplate.descriptionType,
         markingCriteria: updatedAssignmentTemplate.markingCriteria,
         optional: updatedAssignmentTemplate.optional,
-        created: updatedAssignmentTemplate.created,
-        modified: updatedAssignmentTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(updatedAssignmentTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(updatedAssignmentTemplate.modified),
       });
 
     } catch (err) {

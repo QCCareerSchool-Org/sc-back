@@ -119,8 +119,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         caption: insertedAssignmentMedium.caption,
         order: insertedAssignmentMedium.order,
         externalData: insertedAssignmentMedium.externalData,
-        created: insertedAssignmentMedium.created,
-        modified: insertedAssignmentMedium.modified,
+        created: this.dateService.fixPrismaReadDate(insertedAssignmentMedium.created),
+        modified: this.dateService.fixPrismaReadDate(insertedAssignmentMedium.modified),
       });
 
     } catch (err) {
@@ -134,7 +134,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       throw new InsertNewAssignmentMediumFileTooLarge(fileData.size.toString());
     }
 
-    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
@@ -167,8 +167,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           filesize: fileData.size,
           caption,
           order,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
 
@@ -207,7 +207,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       throw new InsertNewAssignmentMediumInvalidContentLength();
     }
 
-    const localDate = this.dateService.getLocalDate() + 'Z'; // TODO: Update if Prisma ever gets timezones working properly
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
@@ -243,8 +243,8 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
           caption,
           order,
           externalData,
-          created: localDate,
-          modified: localDate,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
     });
