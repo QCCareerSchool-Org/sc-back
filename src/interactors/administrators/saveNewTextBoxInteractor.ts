@@ -19,6 +19,7 @@ export type SaveNewTextBoxResponseDTO = NewTextBoxDTO;
 abstract class SaveNewTextBoxError extends Error { }
 export class SaveNewTextBoxNotFound extends SaveNewTextBoxError { }
 export class SaveNewTextBoxSubmissionNotSubmitted extends SaveNewTextBoxError { }
+export class SaveNewTextBoxSubmissionSkipped extends SaveNewTextBoxError { }
 export class SaveNewTextBoxSubmissionNotClosed extends SaveNewTextBoxError { }
 export class SaveNewTextBoxMarkOverrideOutOfRange extends SaveNewTextBoxError { }
 

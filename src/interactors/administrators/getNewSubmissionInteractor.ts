@@ -172,8 +172,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     partMark += t.markOverride ?? t.mark ?? 0;
                     if (t.markOverride !== null) {
                       partOverridden = true;
-                      partMarkOverride += t.markOverride;
                     }
+                    partMarkOverride += t.markOverride ?? t.mark ?? 0;
                   }
                   return {
                     textBoxId: this.uuidService.binToUUID(t.textBoxId),
@@ -206,8 +206,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     partMark += u.markOverride ?? u.mark ?? 0;
                     if (u.markOverride !== null) {
                       partOverridden = true;
-                      partMarkOverride += u.markOverride;
                     }
+                    partMarkOverride += u.markOverride ?? u.mark ?? 0;
                   }
                   return {
                     uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
@@ -244,8 +244,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
               assignmentMark += partMark;
               if (partOverridden) {
                 assignmentOverridden = true;
-                assignmentMarkOverride += partMarkOverride;
               }
+              assignmentMarkOverride += partMarkOverride;
               return partDTO;
             }),
             complete: assignmentComplete,
@@ -262,8 +262,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             submissionMark += assignmentMark;
             if (assignmentOverridden) {
               submissionOverridden = true;
-              submissionMarkOverride += assignmentMarkOverride;
             }
+            submissionMarkOverride += assignmentMarkOverride;
           }
           if (assignmentComplete && !assignmentMarked) {
             submissionMarked = false;

@@ -58,6 +58,7 @@ import { SaveNewAssignmentTemplateController } from '../../controllers/administr
 import { SaveNewPartMediumController } from '../../controllers/administrators/saveNewPartMediumController.js';
 import { SaveNewPartTemplateController } from '../../controllers/administrators/saveNewPartTemplateController.js';
 import { SaveNewSubmissionTemplateController } from '../../controllers/administrators/saveNewSubmissionTemplateController.js';
+import { SaveNewTextBoxController } from '../../controllers/administrators/saveNewTextBoxController.js';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController.js';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController.js';
 import { SaveUnitController } from '../../controllers/administrators/saveUnitController.js';
@@ -129,6 +130,8 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/newSubmissions/:submissionId/feedback', DownloadNewSubmissionFeedbackController ],
   // new assignments
   [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
+  // new text boxes
+  [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
   [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],

@@ -111,11 +111,11 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               // ignore incomplete, optional inputs
               if (textBoxComplete || !t.optional) {
                 partPoints += t.points;
-                partMark += t.markOverride ?? t.mark ?? 0;
+                partMark += t.mark ?? 0;
                 if (t.markOverride !== null) {
                   partOverridden = true;
-                  partMarkOverride += t.markOverride;
                 }
+                partMarkOverride += t.markOverride ?? t.mark ?? 0;
               }
               return {
                 textBoxId: this.uuidService.binToUUID(t.textBoxId),
@@ -145,11 +145,11 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               // ignore incomplete, optional inputs
               if (uploadSlotComplete || !u.optional) {
                 partPoints += u.points;
-                partMark += u.markOverride ?? u.mark ?? 0;
+                partMark += u.mark ?? 0;
                 if (u.markOverride !== null) {
                   partOverridden = true;
-                  partMarkOverride += u.markOverride;
                 }
+                partMarkOverride += u.markOverride ?? u.mark ?? 0;
               }
               return {
                 uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
@@ -199,8 +199,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           assignmentMark += partMark;
           if (partOverridden) {
             assignmentOverridden = true;
-            assignmentMarkOverride += partMarkOverride;
           }
+          assignmentMarkOverride += partMarkOverride;
           return partDTO;
         }),
         complete: assignmentComplete,
