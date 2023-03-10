@@ -4,7 +4,6 @@ import type { PrismaClient } from '@prisma/client';
 import type { IConfigService } from '../../services/config/index.js';
 import type { FileStats, IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
 import type { ResultType } from '../result.js';

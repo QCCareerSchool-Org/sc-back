@@ -2,9 +2,8 @@ import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
 import type { IConfigService } from '../../services/config/index.js';
-import type { FileStats, IFileService } from '../../services/file/index.js';
+import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
 import { Result } from '../result.js';
@@ -61,7 +60,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         return Result.fail(new DownloadNewSubmissionFeedbackSubmissionNotClosed());
       }
 
-      const filePath = this.getFilePath(submission.enrollment.studentNumber, submissionId);
+      const filePath = this.getFilePath(submission.enrollment.studentId, submissionId);
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find submission feedback file ${filePath}`);
@@ -86,7 +85,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         return Result.success({
           stream: fileStream,
           download: true,
-          filename: filename,
+          filename,
           size: stats.size,
           lastModified: stats.lastModified,
           mimeType: submission.responseMimeTypeId ?? 'application/octet-stream',
@@ -107,7 +106,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       return Result.success({
         stream: fileStream,
         download: true,
-        filename: filename,
+        filename,
         size: stats.size,
         lastModified: stats.lastModified,
         mimeType: submission.responseMimeTypeId ?? 'application/octet-stream',
@@ -115,7 +114,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       });
 
     } catch (err) {
-      this.logger.error('error downloading assignment medium file', err instanceof Error ? err.message : err);
+      this.logger.error('error downloading submission feedback file', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }
