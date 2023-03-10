@@ -169,7 +169,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                   // ignore incomplete, optional inputs
                   if (textBoxComplete || !t.optional) {
                     partPoints += t.points;
-                    partMark += t.markOverride ?? t.mark ?? 0;
+                    partMark += t.mark ?? 0;
                     if (t.markOverride !== null) {
                       partOverridden = true;
                     }
@@ -203,7 +203,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                   // ignore incomplete, optional inputs
                   if (uploadSlotComplete || !u.optional) {
                     partPoints += u.points;
-                    partMark += u.markOverride ?? u.mark ?? 0;
+                    partMark += u.mark ?? 0;
                     if (u.markOverride !== null) {
                       partOverridden = true;
                     }
