@@ -79,7 +79,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
-        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? (updatedTextBox.markOverride ?? updatedTextBox.mark) : null, // hide mark unless the submission is marked
+        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? updatedTextBox.markOverride ?? updatedTextBox.mark : null, // hide mark unless the submission is marked
         notes: null,
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,

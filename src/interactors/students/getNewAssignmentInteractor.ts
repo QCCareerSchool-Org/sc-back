@@ -158,7 +158,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 description: t.description,
                 lines: t.lines,
                 points: t.points,
-                mark: assignment.newSubmission.closed ? t.mark : null, // hide the mark unless the submission is marked
+                mark: assignment.newSubmission.closed ? t.markOverride ?? t.mark : null, // hide the mark unless the submission is marked
                 notes: null, // students should never see the tutor's notes
                 optional: t.optional,
                 order: t.order,
@@ -187,8 +187,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 label: u.label,
                 allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                 points: u.points,
-                mark: assignment.newSubmission.closed ? u.mark : null, // hide the mark unless the submission is marked
-                notes: null, // students should never see the tutor's notes
+                mark: assignment.newSubmission.closed ? u.markOverride ?? u.mark : null,
+                notes: null,
                 optional: u.optional,
                 order: u.order,
                 filename: u.filename,

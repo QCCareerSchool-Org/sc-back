@@ -158,7 +158,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     description: t.description,
                     lines: t.lines,
                     points: t.points,
-                    mark: t.mark,
+                    mark: submission.closed ? t.markOverride ?? t.mark : null,
                     notes: null, // students should never see the tutor's notes
                     optional: t.optional,
                     order: t.order,
@@ -187,7 +187,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                     label: u.label,
                     allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
                     points: u.points,
-                    mark: u.mark,
+                    mark: submission.closed ? u.markOverride ?? u.mark : null,
                     notes: null, // students should never see the tutor's notes
                     optional: u.optional,
                     order: u.order,
@@ -201,7 +201,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                 }),
                 complete: partComplete,
                 points: partPoints,
-                mark: submission.closed ? partMark : null,
+                mark: submission.closed && partMarked ? partMark : null,
               };
               if (!partComplete) {
                 assignmentComplete = false;
