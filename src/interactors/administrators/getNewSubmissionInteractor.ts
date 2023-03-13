@@ -7,7 +7,9 @@ import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js
 import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewTransferDTO } from '../../domain/newTransfer.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -28,6 +30,10 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
       newTextBoxes: NewTextBoxDTO[];
       newUploadSlots: NewUploadSlotDTO[];
     }>;
+  }>;
+  newTransfers: Array<NewTransferDTO & {
+    preTutor: TutorDTO;
+    postTutor: TutorDTO;
   }>;
 };
 
@@ -51,6 +57,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         where: { submissionId: submissionIdBin },
         include: {
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+          newTransfers: { include: { preTutor: true, postTutor: true } },
           enrollment: { include: { course: true } },
         },
       });
@@ -274,6 +281,26 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         points: submissionPoints,
         mark: submission.closed && submissionMarked ? submissionMark : null,
         markOverride: submission.closed && submissionMarked && submissionOverridden ? submissionMarkOverride : null,
+        newTransfers: submission.newTransfers.map(t => ({
+          transferId: this.uuidService.binToUUID(t.transferId),
+          submissionId: this.uuidService.binToUUID(t.submissionId),
+          administratorId: t.administratorId,
+          preTutorId: t.preTutorId,
+          postTutorId: t.postTutorId,
+          created: this.dateService.fixPrismaReadDate(t.created),
+          preTutor: {
+            tutorId: t.preTutor.tutorId,
+            firstName: t.preTutor.firstName,
+            lastName: t.preTutor.lastName,
+            introduction: false,
+          },
+          postTutor: {
+            tutorId: t.postTutor.tutorId,
+            firstName: t.postTutor.firstName,
+            lastName: t.postTutor.lastName,
+            introduction: false,
+          },
+        })),
       });
 
     } catch (err) {

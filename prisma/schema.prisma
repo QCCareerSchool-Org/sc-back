@@ -53,6 +53,7 @@ model Administrator {
   newRefreshTokens      RefreshToken[]
   refreshTokens         AdministratorRefreshToken[]
   transfers             Transfer[]
+  newTransfers          NewTransfer[]
 
   @@unique([administratorId, entityVersion], map: "id_entity_version")
   @@index([countryId], map: "country_id")
@@ -93,6 +94,8 @@ model Tutor {
   enrollments           Enrollment[]
   transfersFrom         Transfer[]              @relation("transfers_pre_tutor_idTotutors")
   transfersTo           Transfer[]              @relation("transfers_post_tutor_idTotutors")
+  newTransfersFrom      NewTransfer[]           @relation("new_transfers_preTutorIdTotutors")
+  newTransfersTo        NewTransfer[]           @relation("new_transfers_postTutorIdTotutors")
   pushSubscriptions     TutorPushSubscription[]
   oldSubmissions        OldSubmission[]
   uploads               Upload[]
@@ -1288,6 +1291,7 @@ model NewSubmission {
   newAssignments     NewAssignment[]
   prices             NewSubmissionPrice[]
   returns            NewSubmissionReturn[]
+  newTransfers       NewTransfer[]
 
   @@unique([submissionId, entityVersion], map: "unit_id_entity_version")
   @@index([enrollmentId], map: "student_id")
@@ -1783,6 +1787,25 @@ model Transfer {
   @@index([preTutorId], map: "pre_tutor_id")
   @@index([submissionId], map: "unit_id")
   @@map("transfers")
+}
+
+model NewTransfer {
+  transferId      Bytes         @id @db.Binary(16)
+  submissionId    Bytes         @db.Binary(16)
+  administratorId Int
+  preTutorId      Int
+  postTutorId     Int
+  created         DateTime      @db.Timestamp(0)
+  newSubmission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_transfers_new_units")
+  administrator   Administrator @relation(fields: [administratorId], references: [administratorId], map: "FK_new_transfers_administrators")
+  postTutor       Tutor         @relation("new_transfers_preTutorIdTotutors", fields: [postTutorId], references: [tutorId], map: "FK_new_transfers_tutors_pre")
+  preTutor        Tutor         @relation("new_transfers_postTutorIdTotutors", fields: [preTutorId], references: [tutorId], map: "FK_new_transfers_tutors_post")
+
+  @@index([submissionId], map: "submissionId")
+  @@index([administratorId], map: "administratorId")
+  @@index([postTutorId], map: "postTutorId")
+  @@index([preTutorId], map: "preTutorId")
+  @@map("new_transfers")
 }
 
 enum UnitResponseType {
