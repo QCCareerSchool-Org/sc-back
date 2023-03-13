@@ -1312,7 +1312,7 @@ model NewAssignmentTemplate {
   optional              Boolean               @default(false)
   created               DateTime              @default(now()) @db.Timestamp(0)
   modified              DateTime?             @updatedAt @db.Timestamp(0)
-  newSubmissionTemplate NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "new_assignment_templates_ibfk_1")
+  newSubmissionTemplate NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "FK_new_assignment_templates_new_submission_templates")
   newAssignmentMedia    NewAssignmentMedium[]
   newPartTemplates      NewPartTemplate[]
 
@@ -1332,7 +1332,7 @@ model NewAssignment {
   created            DateTime                             @default(now()) @db.Timestamp(0)
   modified           DateTime?                            @updatedAt @db.Timestamp(0)
   row_version        DateTime                             @default(now()) @db.Timestamp(6)
-  newSubmission      NewSubmission                        @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "new_assignments_ibfk_1")
+  newSubmission      NewSubmission                        @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_assignments_new_submissions")
   newAssignmentMedia NewAssignmentsOnNewAssignmentMedia[]
   newParts           NewPart[]
 
@@ -1555,7 +1555,7 @@ model NewSubmissionPrice {
   modified          DateTime?     @updatedAt @db.Timestamp(0)
   country           Country?      @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "FK_new_submission_prices_countries")
   currency          Currency      @relation(fields: [currencyId], references: [currencyId], map: "FK_new_submission_prices_currencies")
-  newSubmission     NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_prices_new_submission")
+  newSubmission     NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_prices_new_submissions")
 
   @@unique([submissionId, countryId], map: "submission_id_country_id")
   @@index([countryId], map: "country_id")
@@ -2118,8 +2118,8 @@ model Video {
 model VideosOnUnits {
   videoId Bytes @db.Binary(16)
   unitId  Bytes @db.Binary(16)
-  video   Video @relation(fields: [videoId], references: [videoId], map: "FK_videos_units_videos")
-  unit    Unit  @relation(fields: [unitId], references: [unitId], map: "FK_videos_units_new_units")
+  video   Video @relation(fields: [videoId], references: [videoId], onDelete: Cascade, map: "FK_videos_units_videos")
+  unit    Unit  @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "FK_videos_units_new_units")
 
   @@map("videos_units")
   @@id([videoId, unitId])
