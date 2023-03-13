@@ -863,25 +863,25 @@ model Province {
 /////////////////////////////////////////////////////////////////////////
 
 model Unit {
-  unitId     Bytes           @id @map("material_unit_id") @db.Binary(16)
+  unitId     Bytes           @id @map("unit_id") @db.Binary(16)
   courseId   Int             @map("course_id") @db.UnsignedInt
   unitLetter String          @map("unit_letter") @db.Char(1)
   title      String?         @db.VarChar(255)
   order      Int             @default(0) @db.UnsignedInt
   created    DateTime        @default(now()) @db.Timestamp(0)
   modified   DateTime?       @updatedAt @db.Timestamp(0)
-  course     Course          @relation(fields: [courseId], references: [courseId], map: "FK_new_material_units_courses")
+  course     Course          @relation(fields: [courseId], references: [courseId], map: "FK_new_units_courses")
   materials  Material[]
   videos     VideosOnUnits[]
 
   @@unique([courseId, unitLetter], map: "course_id_unit_letter")
   @@index([courseId, order, unitLetter], map: "course_id_order_unit_letter")
-  @@map("new_material_units")
+  @@map("new_units")
 }
 
 model Material {
   materialId               Bytes                @id @map("material_id") @db.Binary(16)
-  unitId                   Bytes                @map("material_unit_id") @db.Binary(16)
+  unitId                   Bytes                @map("unit_id") @db.Binary(16)
   type                     NewMaterialType
   title                    String               @db.VarChar(255)
   description              String               @db.Text
@@ -900,10 +900,10 @@ model Material {
   modified                 DateTime?            @updatedAt @db.Timestamp(0)
   contentMimeType          MimeType?            @relation("mime_typesTonew_materials_content_mime_type", fields: [contentMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_content_mime_types")
   imageMimeType            MimeType?            @relation("mime_typesTonew_materials_image_mime_type", fields: [imageMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_image_mime_types")
-  unit                     Unit                 @relation(fields: [unitId], references: [unitId], onDelete: Restrict, map: "FK_new_materials_new_material_units")
+  unit                     Unit                 @relation(fields: [unitId], references: [unitId], onDelete: Restrict, map: "FK_new_materials_new_units")
   materialCompletions      MaterialCompletion[] @relation("new_material_completionsTonew_materials")
 
-  @@index([unitId, order], map: "material_unit_id_order")
+  @@index([unitId, order], map: "unit_id_order")
   @@index([contentMimeTypeId], map: "content_mime_type_id")
   @@index([imageMimeTypeId], map: "image_mime_type_id")
   @@map("new_materials")
@@ -911,12 +911,12 @@ model Material {
 
 model MaterialCompletion {
   materialId   Bytes      @map("material_id") @db.Binary(16)
-  enrollmentId Int        @map("student_id") @db.UnsignedInt
+  enrollmentId Int        @map("enrollment_id") @db.UnsignedInt
   material     Material   @relation("new_material_completionsTonew_materials", fields: [materialId], references: [materialId], onDelete: Cascade, map: "FK_new_material_completions_new_materials")
   enrollment   Enrollment @relation("new_material_completionsTostudents", fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "FK_new_material_completions_students")
 
   @@id([materialId, enrollmentId])
-  @@index([enrollmentId], map: "FK_new_material_completions_students")
+  @@index([enrollmentId], map: "enrollment_id")
   @@map("new_material_completions")
 }
 
@@ -1242,7 +1242,7 @@ model Message {
 /////////////////////////////////////////////////////////////////////////
 
 model NewSubmissionTemplate {
-  submissionTemplateId   Bytes                        @id @map("unit_template_id") @db.Binary(16)
+  submissionTemplateId   Bytes                        @id @map("submission_template_id") @db.Binary(16)
   courseId               Int                          @map("course_id") @db.UnsignedInt
   unitLetter             String                       @map("unit_letter") @db.Char(1)
   title                  String?
@@ -1253,18 +1253,18 @@ model NewSubmissionTemplate {
   enabled                Boolean                      @default(false)
   created                DateTime                     @default(now()) @db.Timestamp(0)
   modified               DateTime?                    @updatedAt @db.Timestamp(0)
-  course                 Course                       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, map: "new_unit_templates_ibfk_1")
+  course                 Course                       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, map: "new_submission_templates_ibfk_1")
   newAssignmentTemplates NewAssignmentTemplate[]
   prices                 NewSubmissionTemplatePrice[]
 
-  @@unique([courseId, unitLetter], map: "course_id_submission_letter")
+  @@unique([courseId, unitLetter], map: "course_id_unit_letter")
   @@index([order, unitLetter], map: "order_unit_letter")
-  @@map("new_unit_templates")
+  @@map("new_submission_templates")
 }
 
 model NewSubmission {
-  submissionId       Bytes                 @id @map("unit_id") @db.Binary(16)
-  enrollmentId       Int                   @map("student_id") @db.UnsignedInt
+  submissionId       Bytes                 @id @map("submission_id") @db.Binary(16)
+  enrollmentId       Int                   @map("enrollment_id") @db.UnsignedInt
   tutorId            Int?                  @map("tutor_id")
   unitLetter         String                @map("unit_letter") @db.Char(1)
   title              String?
@@ -1285,25 +1285,25 @@ model NewSubmission {
   created            DateTime              @default(now()) @db.Timestamp(0)
   modified           DateTime?             @updatedAt @db.Timestamp(0)
   row_version        DateTime              @default(now()) @db.Timestamp(6)
-  responseMimeType   MimeType?             @relation(fields: [responseMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "new_units_ibfk_3")
-  enrollment         Enrollment            @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "new_units_ibfk_1")
-  tutor              Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "new_units_ibfk_2")
+  responseMimeType   MimeType?             @relation(fields: [responseMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "new_submissions_ibfk_3")
+  enrollment         Enrollment            @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "new_submissions_ibfk_1")
+  tutor              Tutor?                @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "new_submissions_ibfk_2")
   newAssignments     NewAssignment[]
   prices             NewSubmissionPrice[]
   returns            NewSubmissionReturn[]
   newTransfers       NewTransfer[]
 
-  @@unique([submissionId, entityVersion], map: "unit_id_entity_version")
-  @@index([enrollmentId], map: "student_id")
+  @@unique([submissionId, entityVersion], map: "submission_id_entity_version")
+  @@index([enrollmentId], map: "enrollment_id")
   @@index([order, unitLetter], map: "order_unit_letter")
   @@index([responseMimeTypeId], map: "response_mime_type_id")
   @@index([tutorId], map: "tutor_id")
-  @@map("new_units")
+  @@map("new_submissions")
 }
 
 model NewAssignmentTemplate {
   assignmentTemplateId  Bytes                 @id @map("assignment_template_id") @db.Binary(16)
-  submissionTemplateId  Bytes                 @map("unit_template_id") @db.Binary(16)
+  submissionTemplateId  Bytes                 @map("submission_template_id") @db.Binary(16)
   assignmentNumber      Int                   @map("assignment_number") @db.UnsignedInt
   title                 String?
   description           String?               @db.Text
@@ -1316,13 +1316,13 @@ model NewAssignmentTemplate {
   newAssignmentMedia    NewAssignmentMedium[]
   newPartTemplates      NewPartTemplate[]
 
-  @@unique([submissionTemplateId, assignmentNumber], map: "unit_template_id_assignment_number")
+  @@unique([submissionTemplateId, assignmentNumber], map: "submission_template_id_assignment_number")
   @@map("new_assignment_templates")
 }
 
 model NewAssignment {
   assignmentId       Bytes                                @id @map("assignment_id") @db.Binary(16)
-  submissionId       Bytes                                @map("unit_id") @db.Binary(16)
+  submissionId       Bytes                                @map("submission_id") @db.Binary(16)
   assignmentNumber   Int                                  @map("assignment_number") @db.UnsignedInt
   title              String?
   description        String?                              @db.Text
@@ -1336,7 +1336,7 @@ model NewAssignment {
   newAssignmentMedia NewAssignmentsOnNewAssignmentMedia[]
   newParts           NewPart[]
 
-  @@unique([submissionId, assignmentNumber], map: "unit_id_assignment_number")
+  @@unique([submissionId, assignmentNumber], map: "submission_id_assignment_number")
   @@map("new_assignments")
 }
 
@@ -1527,51 +1527,51 @@ model NewUploadSlot {
 }
 
 model NewSubmissionTemplatePrice {
-  submissionTemplatePriceId Bytes                 @id @map("unit_template_price_id") @db.Binary(16)
-  submissionTemplateId      Bytes                 @map("unit_template_id") @db.Binary(16)
+  submissionTemplatePriceId Bytes                 @id @map("submission_template_price_id") @db.Binary(16)
+  submissionTemplateId      Bytes                 @map("submission_template_id") @db.Binary(16)
   countryId                 Int?                  @map("country_id") @db.UnsignedInt
   currencyId                Int                   @map("currency_id") @db.UnsignedInt
   price                     Decimal               @db.Decimal(4, 2)
   created                   DateTime              @default(now()) @db.Timestamp(0)
   modified                  DateTime?             @updatedAt @db.Timestamp(0)
-  country                   Country?              @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "FK_new_unit_template_prices_countries")
-  currency                  Currency              @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_template_prices_currencies")
-  newSubmissionTemplate     NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "FK_new_unit_template_prices_new_unit_templates")
+  country                   Country?              @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "FK_new_submission_template_prices_countries")
+  currency                  Currency              @relation(fields: [currencyId], references: [currencyId], map: "FK_new_submission_template_prices_currencies")
+  newSubmissionTemplate     NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "FK_new_submission_template_prices_new_submission_templates")
 
-  @@unique([submissionTemplateId, countryId], map: "unit_template_id_country_id")
+  @@unique([submissionTemplateId, countryId], map: "submission_template_id_country_id")
   @@index([countryId], map: "country_id")
   @@index([currencyId], map: "currency_id")
-  @@map("new_unit_template_prices")
+  @@map("new_submission_template_prices")
 }
 
 model NewSubmissionPrice {
-  submissionPriceId Bytes         @id @map("unit_price_id") @db.Binary(16)
-  submissionId      Bytes         @map("unit_id") @db.Binary(16)
+  submissionPriceId Bytes         @id @map("submission_price_id") @db.Binary(16)
+  submissionId      Bytes         @map("submission_id") @db.Binary(16)
   countryId         Int?          @map("country_id") @db.UnsignedInt
   currencyId        Int           @map("currency_id") @db.UnsignedInt
   price             Decimal       @db.Decimal(4, 2)
   selected          Boolean       @default(false)
   created           DateTime      @default(now()) @db.Timestamp(0)
   modified          DateTime?     @updatedAt @db.Timestamp(0)
-  country           Country?      @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "FK_new_unit_prices_countries")
-  currency          Currency      @relation(fields: [currencyId], references: [currencyId], map: "FK_new_unit_prices_currencies")
-  newSubmission     NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_unit_prices_new_units")
+  country           Country?      @relation(fields: [countryId], references: [countryId], onDelete: Restrict, map: "FK_new_submission_prices_countries")
+  currency          Currency      @relation(fields: [currencyId], references: [currencyId], map: "FK_new_submission_prices_currencies")
+  newSubmission     NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_prices_new_submission")
 
-  @@unique([submissionId, countryId], map: "unit_id_country_id")
+  @@unique([submissionId, countryId], map: "submission_id_country_id")
   @@index([countryId], map: "country_id")
   @@index([currencyId], map: "currency_id")
-  @@map("new_unit_prices")
+  @@map("new_submission_prices")
 }
 
 model NewSubmissionReturn {
-  submissionReturnId Bytes         @id @map("unit_return_id") @db.Binary(16)
-  submissionId       Bytes         @map("unit_id") @db.Binary(16)
+  submissionReturnId Bytes         @id @map("submission_return_id") @db.Binary(16)
+  submissionId       Bytes         @map("submission_id") @db.Binary(16)
   returned           DateTime      @default(now()) @db.Timestamp(0)
   completed          DateTime?     @db.Timestamp(0)
-  newSubmission      NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_unit_returns_new_units")
+  newSubmission      NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_returns_new_submissions")
 
-  @@index([submissionId], map: "unit_id")
-  @@map("new_unit_returns")
+  @@index([submissionId], map: "submission_id")
+  @@map("new_submission_returns")
 }
 
 enum NewDescriptionType {
@@ -1796,7 +1796,7 @@ model NewTransfer {
   preTutorId      Int
   postTutorId     Int
   created         DateTime      @db.Timestamp(0)
-  newSubmission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_transfers_new_units")
+  newSubmission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_transfers_new_submissions")
   administrator   Administrator @relation(fields: [administratorId], references: [administratorId], map: "FK_new_transfers_administrators")
   postTutor       Tutor         @relation("new_transfers_preTutorIdTotutors", fields: [postTutorId], references: [tutorId], map: "FK_new_transfers_tutors_pre")
   preTutor        Tutor         @relation("new_transfers_postTutorIdTotutors", fields: [preTutorId], references: [tutorId], map: "FK_new_transfers_tutors_post")
@@ -2119,7 +2119,7 @@ model VideosOnUnits {
   videoId Bytes @db.Binary(16)
   unitId  Bytes @db.Binary(16)
   video   Video @relation(fields: [videoId], references: [videoId], map: "FK_videos_units_videos")
-  unit    Unit  @relation(fields: [unitId], references: [unitId], map: "FK_videos_units_new_material_units")
+  unit    Unit  @relation(fields: [unitId], references: [unitId], map: "FK_videos_units_new_units")
 
   @@map("videos_units")
   @@id([videoId, unitId])

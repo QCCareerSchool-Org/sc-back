@@ -149,15 +149,30 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         return Result.fail(new CloseNewSubmissionNotMarked());
       }
 
+      const finalUnitLetter = await this.getFinalUnitLetter(newSubmission.enrollment.courseId);
+
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
-      const updatedSubmission = await this.prisma.newSubmission.update({
-        data: {
-          closed: prismaNow,
-          modified: prismaNow,
-        },
-        where: { submissionId: submissionIdBin },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+      const updatedSubmission = await this.prisma.$transaction(async t => {
+        const s = await t.newSubmission.update({
+          data: {
+            closed: prismaNow,
+            modified: prismaNow,
+          },
+          where: { submissionId: submissionIdBin },
+          include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+        });
+
+        if (newSubmission.unitLetter === finalUnitLetter) { // this is the final submission
+          await t.finalSubmission.create({
+            data: {
+              enrollmentId: s.enrollmentId,
+              created: prismaNow,
+            },
+          });
+        }
+
+        return s;
       });
 
       if (this.shouldSendDGKit(newSubmission, submissionPoints, submissionMark)) {
@@ -291,5 +306,10 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const htmlBody = `<p>${textBody}</p>`;
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async getFinalUnitLetter(courseId: number): Promise<string | null> {
+    const template = await this.prisma.newSubmissionTemplate.findFirst({ where: { courseId }, orderBy: [ { order: 'desc' }, { unitLetter: 'desc' } ] });
+    return template?.unitLetter ?? null;
   }
 }
