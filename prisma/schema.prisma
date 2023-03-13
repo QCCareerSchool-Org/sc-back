@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -82,7 +81,7 @@ model Tutor {
   hst                   Decimal?                @db.Decimal(6, 4)
   lastLogin             DateTime?               @map("last_login") @db.Timestamp(0)
   entityVersion         Int                     @default(0) @map("entity_version")
-  timestamp             DateTime                @default(now()) @map("timestamp") @db.Timestamp(6)
+  modified              DateTime                @default(now()) @map("timestamp") @db.Timestamp(6)
   country               Country                 @relation(fields: [countryId], references: [countryId], map: "tutors_ibfk_2")
   schools               School                  @relation(fields: [schoolId], references: [schoolId], map: "tutors_ibfk_3")
   studentType           StudentType             @relation(fields: [studentTypeId], references: [studentTypeId], map: "tutors_ibfk_1")
@@ -900,7 +899,7 @@ model Material {
   modified                 DateTime?            @updatedAt @db.Timestamp(0)
   contentMimeType          MimeType?            @relation("mime_typesTonew_materials_content_mime_type", fields: [contentMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_content_mime_types")
   imageMimeType            MimeType?            @relation("mime_typesTonew_materials_image_mime_type", fields: [imageMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_image_mime_types")
-  unit                     Unit                 @relation(fields: [unitId], references: [unitId], onDelete: Restrict, map: "FK_new_materials_new_units")
+  unit                     Unit                 @relation(fields: [unitId], references: [unitId], map: "FK_new_materials_new_units")
   materialCompletions      MaterialCompletion[] @relation("new_material_completionsTonew_materials")
 
   @@index([unitId, order], map: "unit_id_order")
@@ -1795,11 +1794,11 @@ model NewTransfer {
   administratorId Int
   preTutorId      Int
   postTutorId     Int
-  created         DateTime      @db.Timestamp(0)
+  created         DateTime      @default(now()) @db.Timestamp(0)
   newSubmission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_transfers_new_submissions")
   administrator   Administrator @relation(fields: [administratorId], references: [administratorId], map: "FK_new_transfers_administrators")
-  postTutor       Tutor         @relation("new_transfers_preTutorIdTotutors", fields: [postTutorId], references: [tutorId], map: "FK_new_transfers_tutors_pre")
-  preTutor        Tutor         @relation("new_transfers_postTutorIdTotutors", fields: [preTutorId], references: [tutorId], map: "FK_new_transfers_tutors_post")
+  preTutor        Tutor         @relation("new_transfers_postTutorIdTotutors", fields: [preTutorId], references: [tutorId], map: "FK_new_transfers_tutors_pre")
+  postTutor       Tutor         @relation("new_transfers_preTutorIdTotutors", fields: [postTutorId], references: [tutorId], map: "FK_new_transfers_tutors_post")
 
   @@index([submissionId], map: "submissionId")
   @@index([administratorId], map: "administratorId")
@@ -2121,6 +2120,7 @@ model VideosOnUnits {
   video   Video @relation(fields: [videoId], references: [videoId], onDelete: Cascade, map: "FK_videos_units_videos")
   unit    Unit  @relation(fields: [unitId], references: [unitId], onDelete: Cascade, map: "FK_videos_units_new_units")
 
-  @@map("videos_units")
   @@id([videoId, unitId])
+  @@index([unitId], map: "FK_videos_units_new_units")
+  @@map("videos_units")
 }
