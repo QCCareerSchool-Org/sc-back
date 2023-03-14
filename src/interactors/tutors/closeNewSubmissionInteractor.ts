@@ -1,4 +1,3 @@
-import { text } from 'stream/consumers';
 import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
@@ -149,6 +148,8 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         return Result.fail(new CloseNewSubmissionNotMarked());
       }
 
+      const failed = submissionPoints > 0 && submissionMark / submissionPoints < 0.5;
+
       const finalUnitLetter = await this.getFinalUnitLetter(newSubmission.enrollment.courseId);
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -163,14 +164,31 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
         });
 
-        if (newSubmission.unitLetter === finalUnitLetter) { // this is the final submission
-          await t.finalSubmission.create({
-            data: {
-              enrollmentId: s.enrollmentId,
-              created: prismaNow,
-            },
+        if (failed) {
+          await this.prisma.enrollment.update({
+            data: { onHold: true, holdReason: 'failed unit' },
+            where: { enrollmentId: s.enrollmentId },
           });
         }
+
+        if (newSubmission.unitLetter !== finalUnitLetter) { // this is not the final submission
+          return s;
+        }
+
+        // check if there is already a final submission recorded
+        const finalSubmission = await t.finalSubmission.findFirst({ where: { enrollmentId: s.enrollmentId } });
+
+        if (finalSubmission) { // we already have a final submission recorded for this enrollment
+          return s;
+        }
+
+        // create the final submission record
+        await t.finalSubmission.create({
+          data: {
+            enrollmentId: s.enrollmentId,
+            created: prismaNow,
+          },
+        });
 
         return s;
       });
