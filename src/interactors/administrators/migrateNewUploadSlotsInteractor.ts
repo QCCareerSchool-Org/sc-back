@@ -45,8 +45,6 @@ export class MigrateNewUploadSlotsInteractor implements IInteractor<MigrateNewUp
           const enrollment = updated.newPart.newAssignment.newSubmission.enrollment;
           await this.moveFile(enrollment.studentId, enrollment.enrollmentId, this.uuidService.binToUUID(updated.uploadSlotId));
         });
-
-        return Result.success(undefined); // return early for testing
       }
 
       return Result.success(undefined);
