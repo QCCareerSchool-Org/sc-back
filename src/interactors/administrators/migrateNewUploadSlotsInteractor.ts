@@ -29,21 +29,21 @@ export class MigrateNewUploadSlotsInteractor implements IInteractor<MigrateNewUp
       // find all upload slots that are not set to the new location
       const uploadSlots = await this.prisma.newUploadSlot.findMany({
         where: { newLocation: false },
-        include: { newPart: { include: { newAssignment: { include: { newSubmission: { include: { enrollment: true } } } } } } },
       });
 
       for (const uploadSlot of uploadSlots) {
         // start a transaction
         await this.prisma.$transaction(async transaction => {
           // update the record
-          await transaction.newUploadSlot.update({
+          const updated = await transaction.newUploadSlot.update({
             where: { uploadSlotId: uploadSlot.uploadSlotId },
             data: { newLocation: true },
+            include: { newPart: { include: { newAssignment: { include: { newSubmission: { include: { enrollment: true } } } } } } },
           });
 
           // move the file
-          const enrollment = uploadSlot.newPart.newAssignment.newSubmission.enrollment;
-          await this.moveFile(enrollment.studentId, enrollment.enrollmentId, this.uuidService.binToUUID(uploadSlot.uploadSlotId));
+          const enrollment = updated.newPart.newAssignment.newSubmission.enrollment;
+          await this.moveFile(enrollment.studentId, enrollment.enrollmentId, this.uuidService.binToUUID(updated.uploadSlotId));
         });
 
         return Result.success(undefined); // return early for testing
