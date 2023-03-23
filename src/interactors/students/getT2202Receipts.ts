@@ -3,6 +3,7 @@ import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 
 import type { T2202ReceiptDTO } from '../../domain/t2202ReceiptDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -22,6 +23,7 @@ export class GetT2202ReceiptsInteractor implements IInteractor<GetT2202ReceiptsR
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -64,7 +66,7 @@ export class GetT2202ReceiptsInteractor implements IInteractor<GetT2202ReceiptsR
           courseCost: t.enrollment.courseCost.toNumber(),
           amountPaid: t.enrollment.amountPaid.toNumber(),
           monthlyInstallment: t.enrollment.monthlyInstallment?.toNumber() ?? null,
-          enrollmentDate: t.enrollment.enrollmentDate,
+          enrollmentDate: this.dateService.fixPrismaReadDate(t.enrollment.enrollmentDate),
           fastTrack: t.enrollment.fastTrack,
           paymentsDisabled: t.enrollment.paymentsDisabled,
           course: {

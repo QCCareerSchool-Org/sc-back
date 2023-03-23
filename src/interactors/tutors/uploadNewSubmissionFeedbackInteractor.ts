@@ -2,8 +2,10 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -34,6 +36,8 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly sanitizerService: ISanitizerService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -81,11 +85,14 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
           throw new UploadNewSubmissionInvalidMimeType(mimeType.mimeTypeId);
         }
 
+        const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
         const updated = await transaction.newSubmission.update({
           data: {
-            responseFilename: file.filename,
+            responseFilename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(file.filename)),
             responseFilesize: file.size,
             responseMimeTypeId: mimeType.mimeTypeId,
+            modified: prismaNow,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
@@ -213,15 +220,15 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
         order: updatedSubmission.order,
         tutorComment: updatedSubmission.tutorComment,
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,

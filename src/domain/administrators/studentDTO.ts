@@ -14,7 +14,6 @@ export type StudentDTO = {
   lastLogin: Date | null;
   expiry: Date | null;
   emailAddress: string | null;
-  creationDate: Date;
   arrears: boolean;
   forumUsername: string | null;
   // forumPassword: string | null;
@@ -29,5 +28,6 @@ export type StudentDTO = {
   ajaxUploads: boolean;
   upgradeNotification: boolean;
   entityVersion: number;
-  timestamp: Date;
+  created: Date;
+  modified: Date;
 };

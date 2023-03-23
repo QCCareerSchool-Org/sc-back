@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -25,6 +26,7 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -54,8 +56,8 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
         caption: partMedium.caption,
         order: partMedium.order,
         externalData: partMedium.externalData,
-        created: partMedium.created,
-        modified: partMedium.modified,
+        created: this.dateService.fixPrismaReadDate(partMedium.created),
+        modified: this.dateService.fixPrismaReadDate(partMedium.modified),
         newPartTemplate: partMedium.newPartTemplate === null ? null : {
           partTemplateId: this.uuidService.binToUUID(partMedium.newPartTemplate.partTemplateId),
           assignmentTemplateId: this.uuidService.binToUUID(partMedium.newPartTemplate.assignmentTemplateId),
@@ -64,8 +66,8 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
           description: partMedium.newPartTemplate.description,
           descriptionType: partMedium.newPartTemplate.descriptionType,
           markingCriteria: partMedium.newPartTemplate.markingCriteria,
-          created: partMedium.newPartTemplate.created,
-          modified: partMedium.newPartTemplate.modified,
+          created: this.dateService.fixPrismaReadDate(partMedium.newPartTemplate.created),
+          modified: this.dateService.fixPrismaReadDate(partMedium.newPartTemplate.modified),
         },
         newParts: partMedium.newParts.map(p => ({
           partId: this.uuidService.binToUUID(p.newPart.assignmentId),
@@ -76,8 +78,8 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
           descriptionType: p.newPart.descriptionType,
           markingCriteria: p.newPart.markingCriteria,
           markingComments: p.newPart.markingComments,
-          created: p.newPart.created,
-          modified: p.newPart.modified,
+          created: this.dateService.fixPrismaReadDate(p.newPart.created),
+          modified: this.dateService.fixPrismaReadDate(p.newPart.modified),
         })),
       });
 

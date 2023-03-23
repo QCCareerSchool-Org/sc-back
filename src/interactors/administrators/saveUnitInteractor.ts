@@ -3,6 +3,7 @@ import type { PrismaClient, Unit } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
@@ -35,6 +36,7 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -75,6 +77,8 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
         return Result.fail(new SaveUnitOrderTooLarge());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       let updatedUnit: Unit;
       try {
         updatedUnit = await this.prisma.unit.update({
@@ -82,6 +86,7 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
             title: request.title,
             unitLetter: request.unitLetter,
             order: request.order,
+            modified: prismaNow,
           },
           where: { unitId: unitIdBin },
         });
@@ -101,8 +106,8 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
         unitLetter: updatedUnit.unitLetter,
         title: updatedUnit.title,
         order: updatedUnit.order,
-        created: updatedUnit.created,
-        modified: updatedUnit.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUnit.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUnit.modified),
       });
 
     } catch (err) {

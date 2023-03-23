@@ -3,9 +3,11 @@ import type { NewPartMedium, PrismaClient } from '@prisma/client';
 import type { NewMediumType } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { IHttpService } from '../../services/http/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
 import { Result } from '../result.js';
@@ -53,6 +55,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     private readonly httpService: IHttpService,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly sanitizerService: ISanitizerService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -116,8 +120,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         caption: insertedPartMedium.caption,
         order: insertedPartMedium.order,
         externalData: insertedPartMedium.externalData,
-        created: insertedPartMedium.created,
-        modified: insertedPartMedium.modified,
+        created: this.dateService.fixPrismaReadDate(insertedPartMedium.created),
+        modified: this.dateService.fixPrismaReadDate(insertedPartMedium.modified),
       });
 
     } catch (err) {
@@ -130,6 +134,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
     if (fileData.size >= InsertNewPartMediumInteractor.maxFilesize) {
       throw new InsertNewPartMediumFileTooLarge(fileData.size.toString());
     }
+
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
@@ -158,10 +164,12 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           partTemplateId: partIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: fileData.filename,
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(fileData.filename)),
           filesize: fileData.size,
           caption,
           order,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
 
@@ -200,6 +208,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       throw new InsertNewPartMediumInvalidContentLength();
     }
 
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
     return this.prisma.$transaction(async transaction => {
       // look up the mime type
       const mimeType = await transaction.mimeType.findUnique({ where: { mimeTypeId: contentType } });
@@ -220,6 +230,8 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         throw new InsertNewPartMediumUnacceptableMimeType(mimeType.mimeTypeId);
       }
 
+      const filename = externalData.substring(externalData.lastIndexOf('/') + 1);
+
       // store the data in the database
       return transaction.newPartMedium.create({
         data: {
@@ -227,11 +239,13 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
           partTemplateId: partIdBin,
           mimeTypeId: mimeType.mimeTypeId,
           type,
-          filename: externalData.substring(externalData.lastIndexOf('/') + 1),
+          filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(filename)),
           filesize: contentLength,
           caption,
           order,
           externalData,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
     });

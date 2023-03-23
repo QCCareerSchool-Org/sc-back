@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -35,6 +36,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -58,12 +60,15 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         throw new EraseNewUploadSlotSubmissionSubmitted();
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
         const updated = await transaction.newUploadSlot.update({
           data: {
             filename: null,
             filesize: null,
             mimeTypeId: null,
+            modified: prismaNow,
           },
           where: { uploadSlotId: uploadSlotIdBin },
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
@@ -85,7 +90,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         label: updatedUploadSlot.label,
         allowedTypes: updatedUploadSlot.allowedTypes.split(',') as NewUploadSlotAllowedType[],
         points: updatedUploadSlot.points,
-        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
+        mark: updatedUploadSlot.newPart.newAssignment.newSubmission.closed ? updatedUploadSlot.markOverride ?? updatedUploadSlot.mark : null, // hide mark unless the submission is marked
         notes: null, // students should never see the tutor's notes
         optional: updatedUploadSlot.optional,
         order: updatedUploadSlot.order,
@@ -93,8 +98,8 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         filesize: updatedUploadSlot.filesize,
         mimeTypeId: updatedUploadSlot.mimeTypeId,
         complete: updatedUploadSlot.filename !== null,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlot.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlot.modified),
       });
 
     } catch (err) {

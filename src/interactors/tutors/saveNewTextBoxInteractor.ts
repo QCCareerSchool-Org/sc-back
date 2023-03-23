@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -33,6 +34,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -101,8 +103,10 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         }
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedTextBox = await this.prisma.newTextBox.update({
-        data: { mark, notes: notes?.length ? notes : null },
+        data: { mark, notes: notes?.length ? notes : null, modified: prismaNow },
         where: { textBoxId: textBoxIdBin },
       });
 
@@ -118,8 +122,8 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        created: updatedTextBox.created,
-        modified: updatedTextBox.modified,
+        created: this.dateService.fixPrismaReadDate(updatedTextBox.created),
+        modified: this.dateService.fixPrismaReadDate(updatedTextBox.modified),
       });
 
     } catch (err) {

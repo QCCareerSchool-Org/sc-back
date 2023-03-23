@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
+import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -27,6 +28,7 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: DateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -65,9 +67,11 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         return Result.fail(new SaveNewAssignmentMediumOrderTooLarge());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // update the part medium
       const updatedAssignmentMedium = await this.prisma.newAssignmentMedium.update({
-        data: { caption, order },
+        data: { caption, order, modified: prismaNow },
         where: { assignmentMediumId: mediumIdBin },
       });
 
@@ -81,8 +85,8 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         caption: updatedAssignmentMedium.caption,
         externalData: updatedAssignmentMedium.externalData,
         order: updatedAssignmentMedium.order,
-        created: updatedAssignmentMedium.created,
-        modified: updatedAssignmentMedium.modified,
+        created: this.dateService.fixPrismaReadDate(updatedAssignmentMedium.created),
+        modified: this.dateService.fixPrismaReadDate(updatedAssignmentMedium.modified),
       });
 
     } catch (err) {

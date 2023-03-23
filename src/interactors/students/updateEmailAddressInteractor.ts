@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IEmailValidatorService } from '../../services/emailValidator/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
@@ -22,6 +23,7 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly emailValidator: IEmailValidatorService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -39,10 +41,13 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         return Result.fail(new UpdateEmailAddressInvalidEmailAddress());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updated = await this.prisma.student.update({
         where: { studentId },
         data: {
           emailAddress,
+          modified: prismaNow,
           emailChanges: {
             create: { emailAddress },
           },
@@ -60,10 +65,9 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         firstName: updated.firstName,
         lastName: updated.lastName,
         numLogins: updated.numLogins,
-        lastLogin: updated.lastLogin,
-        expiry: updated.expiry,
+        lastLogin: this.dateService.fixPrismaReadDate(updated.lastLogin),
+        expiry: this.dateService.fixPrismaReadDate(updated.expiry),
         emailAddress: updated.emailAddress,
-        creationDate: updated.creationDate,
         arrears: updated.arrears,
         forumUsername: updated.forumUsername,
         forumPasswordNew: updated.forumPasswordNew,
@@ -74,7 +78,8 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         ajaxUploads: updated.ajaxUploads,
         upgradeNotification: updated.upgradeNotification,
         entityVersion: updated.entityVersion,
-        timestamp: updated.timestamp,
+        created: this.dateService.fixPrismaReadDate(updated.created),
+        modified: this.dateService.fixPrismaReadDate(updated.modified),
         hasCASocialInsuranceNumber: !!updated.caSocialInsuranceNumber,
       });
 

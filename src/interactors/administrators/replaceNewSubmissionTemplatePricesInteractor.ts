@@ -1,6 +1,7 @@
 import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
@@ -31,6 +32,7 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -65,6 +67,8 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
             },
           });
 
+          const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
           // create the new prices
           await transaction.newSubmissionTemplatePrice.createMany({
             data: priceData.map(p => ({
@@ -73,6 +77,8 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
               countryId,
               price: p.price,
               currencyId: p.currencyId,
+              created: prismaNow,
+              modified: prismaNow,
             })),
           });
         });

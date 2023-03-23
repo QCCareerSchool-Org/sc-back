@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionTemplatePriceDTO } from '../../domain/newSubmissionTemplatePriceDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -21,6 +22,7 @@ export class GetNewSubmissionTemplatePricesInteractor implements IInteractor<Get
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -45,8 +47,8 @@ export class GetNewSubmissionTemplatePricesInteractor implements IInteractor<Get
           countryId: p.countryId,
           price: p.price.toNumber(),
           currencyId: p.currencyId,
-          created: p.created,
-          modified: p.modified,
+          created: this.dateService.fixPrismaReadDate(p.created),
+          modified: this.dateService.fixPrismaReadDate(p.modified),
         }));
       }));
 

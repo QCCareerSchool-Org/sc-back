@@ -1,6 +1,7 @@
 import type { NewAssignment, NewPart, NewSubmission, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -30,6 +31,7 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -81,12 +83,16 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
             throw new ReturnNewSubmissionCommentEmpty();
           }
 
+          const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
           return transaction.newSubmission.update({
             data: {
               tutorComment: comment,
+              modified: prismaNow,
               returns: {
                 create: {
                   submissionReturnId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+                  returned: prismaNow,
                 },
               },
             },
@@ -179,15 +185,15 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
         order: updatedSubmission.order,
         tutorComment: updatedSubmission.tutorComment,
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,

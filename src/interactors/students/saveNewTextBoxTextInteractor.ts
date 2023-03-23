@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewTextBoxDTO } from '../../domain/students/newTextBoxDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -35,6 +36,7 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -63,8 +65,10 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         throw new SaveNewTextBoxTextTooLong();
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedTextBox = await this.prisma.newTextBox.update({
-        data: { text },
+        data: { text, modified: prismaNow },
         where: { textBoxId: textBoxIdBin },
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
@@ -75,14 +79,14 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
         description: updatedTextBox.description,
         lines: updatedTextBox.lines,
         points: updatedTextBox.points,
-        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? (updatedTextBox.markOverride ?? updatedTextBox.mark) : null, // hide mark unless the submission is marked
-        notes: null, // students should never see the tutor's notes
+        mark: updatedTextBox.newPart.newAssignment.newSubmission.closed ? updatedTextBox.markOverride ?? updatedTextBox.mark : null, // hide mark unless the submission is marked
+        notes: null,
         optional: updatedTextBox.optional,
         order: updatedTextBox.order,
         text: updatedTextBox.text,
         complete: updatedTextBox.text.length > 0,
-        created: updatedTextBox.created,
-        modified: updatedTextBox.modified,
+        created: this.dateService.fixPrismaReadDate(updatedTextBox.created),
+        modified: this.dateService.fixPrismaReadDate(updatedTextBox.modified),
       });
 
     } catch (err) {

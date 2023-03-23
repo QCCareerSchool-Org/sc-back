@@ -2,6 +2,7 @@ import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -37,6 +38,7 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -92,6 +94,8 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
         return Result.fail(new InsertNewSubmissionTemplateOrderTooLarge());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // insert the submission template
       let insertedSubmissionTemplate: NewSubmissionTemplate;
       try {
@@ -105,6 +109,8 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             order,
             optional,
+            created: prismaNow,
+            modified: prismaNow,
           },
         });
       } catch (err) {
@@ -126,8 +132,8 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
         markingCriteria: insertedSubmissionTemplate.markingCriteria,
         optional: insertedSubmissionTemplate.optional,
         order: insertedSubmissionTemplate.order,
-        created: insertedSubmissionTemplate.created,
-        modified: insertedSubmissionTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedSubmissionTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedSubmissionTemplate.modified),
       });
 
     } catch (err) {

@@ -8,6 +8,7 @@ import type { NewPartDTO } from '../../domain/tutors/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -44,6 +45,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -101,8 +103,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         descriptionType: newAssignment.descriptionType,
         markingCriteria: newAssignment.markingCriteria,
         optional: newAssignment.optional,
-        created: newAssignment.created,
-        modified: newAssignment.modified,
+        created: this.dateService.fixPrismaReadDate(newAssignment.created),
+        modified: this.dateService.fixPrismaReadDate(newAssignment.modified),
         newSubmission: {
           submissionId: this.uuidService.binToUUID(newAssignment.newSubmission.submissionId),
           enrollmentId: newAssignment.newSubmission.enrollmentId,
@@ -115,15 +117,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           order: newAssignment.newSubmission.order,
           tutorComment: newAssignment.newSubmission.tutorComment,
           adminComment: newAssignment.newSubmission.adminComment,
-          submitted: newAssignment.newSubmission.submitted,
-          transferred: newAssignment.newSubmission.transferred,
-          closed: newAssignment.newSubmission.closed,
+          submitted: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.submitted),
+          transferred: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.transferred),
+          closed: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.closed),
           skipped: newAssignment.newSubmission.skipped,
           responseFilename: newAssignment.newSubmission.responseFilename,
           responseFilesize: newAssignment.newSubmission.responseFilesize,
           responseMimeTypeId: newAssignment.newSubmission.responseMimeTypeId,
-          created: newAssignment.newSubmission.created,
-          modified: newAssignment.newSubmission.modified,
+          created: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.created),
+          modified: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.modified),
           enrollment: {
             enrollmentId: newAssignment.newSubmission.enrollment.enrollmentId,
             courseId: newAssignment.newSubmission.enrollment.courseId,
@@ -139,7 +141,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             courseCost: newAssignment.newSubmission.enrollment.courseCost.toNumber(),
             amountPaid: newAssignment.newSubmission.enrollment.amountPaid.toNumber(),
             monthlyInstallment: newAssignment.newSubmission.enrollment.monthlyInstallment === null ? null : newAssignment.newSubmission.enrollment.monthlyInstallment.toNumber(),
-            enrollmentDate: newAssignment.newSubmission.enrollment.enrollmentDate,
+            enrollmentDate: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.enrollment.enrollmentDate),
             fastTrack: newAssignment.newSubmission.enrollment.fastTrack,
             paymentsDisabled: newAssignment.newSubmission.enrollment.paymentsDisabled,
           },
@@ -154,8 +156,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           caption: m.newAssignmentMedium.caption,
           externalData: m.newAssignmentMedium.externalData,
           order: m.order, // from the join table
-          created: m.newAssignmentMedium.created,
-          modified: m.newAssignmentMedium.modified,
+          created: this.dateService.fixPrismaReadDate(m.newAssignmentMedium.created),
+          modified: this.dateService.fixPrismaReadDate(m.newAssignmentMedium.modified),
         })),
         newParts: newAssignment.newParts.map(p => {
           let partComplete = true;
@@ -171,8 +173,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
             descriptionType: p.descriptionType,
             markingCriteria: p.markingCriteria,
             markingComments: p.markingComments,
-            created: p.created,
-            modified: p.modified,
+            created: this.dateService.fixPrismaReadDate(p.created),
+            modified: this.dateService.fixPrismaReadDate(p.modified),
             newTextBoxes: p.newTextBoxes.map(t => {
               const textBoxComplete = t.text.length > 0;
               if (!textBoxComplete && !t.optional) {
@@ -198,8 +200,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 order: t.order,
                 text: t.text,
                 complete: t.text.length > 0,
-                created: t.created,
-                modified: t.modified,
+                created: this.dateService.fixPrismaReadDate(t.created),
+                modified: this.dateService.fixPrismaReadDate(t.modified),
               };
             }),
             newUploadSlots: p.newUploadSlots.map(u => {
@@ -229,8 +231,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
                 filesize: u.filesize,
                 mimeTypeId: u.mimeTypeId,
                 complete: u.filename !== null,
-                created: u.created,
-                modified: u.modified,
+                created: this.dateService.fixPrismaReadDate(u.created),
+                modified: this.dateService.fixPrismaReadDate(u.modified),
               };
             }),
             newPartMedia: p.newPartMedia.map(m => ({
@@ -243,8 +245,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
               caption: m.newPartMedium.caption,
               externalData: m.newPartMedium.externalData,
               order: m.order, // from the join table
-              created: m.newPartMedium.created,
-              modified: m.newPartMedium.modified,
+              created: this.dateService.fixPrismaReadDate(m.newPartMedium.created),
+              modified: this.dateService.fixPrismaReadDate(m.newPartMedium.modified),
             })),
             complete: partComplete,
             points: partPoints,

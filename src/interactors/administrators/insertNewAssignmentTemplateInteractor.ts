@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -37,6 +38,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -91,6 +93,8 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         }
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // insert the assignment template
       let insertedAssignmentTemplate: NewAssignmentTemplate;
       try {
@@ -104,6 +108,8 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
             descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
             optional,
+            created: prismaNow,
+            modified: prismaNow,
           },
         });
       } catch (err) {
@@ -125,8 +131,8 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         descriptionType: insertedAssignmentTemplate.descriptionType,
         markingCriteria: insertedAssignmentTemplate.markingCriteria,
         optional: insertedAssignmentTemplate.optional,
-        created: insertedAssignmentTemplate.created,
-        modified: insertedAssignmentTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedAssignmentTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedAssignmentTemplate.modified),
       });
 
     } catch (err) {

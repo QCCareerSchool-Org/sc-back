@@ -2,6 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -34,6 +35,7 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -102,8 +104,10 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         }
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedUploadSlot = await this.prisma.newUploadSlot.update({
-        data: { mark, notes: notes?.length ? notes : null },
+        data: { mark, notes: notes?.length ? notes : null, modified: prismaNow },
         where: { uploadSlotId: uploadSlotIdBin },
       });
 
@@ -121,8 +125,8 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         filesize: updatedUploadSlot.filesize,
         mimeTypeId: updatedUploadSlot.mimeTypeId,
         complete: updatedUploadSlot.filename !== null,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlot.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlot.modified),
       });
 
     } catch (err) {

@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -37,6 +38,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -94,6 +96,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         return Result.fail(new InsertNewPartTemplatePartNumberTooLarge());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // insert the part template
       let insertedPartTemplate: NewPartTemplate;
       try {
@@ -106,6 +110,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
             description: description?.length ? description : null,
             descriptionType,
             markingCriteria: markingCriteria?.length ? markingCriteria : null,
+            created: prismaNow,
+            modified: prismaNow,
           },
         });
       } catch (err) {
@@ -126,8 +132,8 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         description: insertedPartTemplate.description,
         descriptionType: insertedPartTemplate.descriptionType,
         markingCriteria: insertedPartTemplate.markingCriteria,
-        created: insertedPartTemplate.created,
-        modified: insertedPartTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedPartTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedPartTemplate.modified),
       });
 
     } catch (err) {

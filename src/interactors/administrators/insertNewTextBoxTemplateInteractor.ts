@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -32,6 +33,7 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -79,6 +81,8 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
         return Result.fail(new InsertNewTextBoxTemplateOrderTooLarge());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       // insert the text box template
       const insertedTextBoxTemplate = await this.prisma.newTextBoxTemplate.create({
         data: {
@@ -89,6 +93,8 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
           points,
           optional,
           order,
+          created: prismaNow,
+          modified: prismaNow,
         },
       });
 
@@ -100,8 +106,8 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
         points: insertedTextBoxTemplate.points,
         optional: insertedTextBoxTemplate.optional,
         order: insertedTextBoxTemplate.order,
-        created: insertedTextBoxTemplate.created,
-        modified: insertedTextBoxTemplate.modified,
+        created: this.dateService.fixPrismaReadDate(insertedTextBoxTemplate.created),
+        modified: this.dateService.fixPrismaReadDate(insertedTextBoxTemplate.modified),
       });
 
     } catch (err) {

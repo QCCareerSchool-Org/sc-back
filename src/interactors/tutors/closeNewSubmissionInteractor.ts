@@ -1,4 +1,3 @@
-import { text } from 'stream/consumers';
 import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
@@ -149,12 +148,49 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         return Result.fail(new CloseNewSubmissionNotMarked());
       }
 
-      const updatedSubmission = await this.prisma.newSubmission.update({
-        data: {
-          closed: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
-        },
-        where: { submissionId: submissionIdBin },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+      const failed = submissionPoints > 0 && submissionMark / submissionPoints < 0.5;
+
+      const finalUnitLetter = await this.getFinalUnitLetter(newSubmission.enrollment.courseId);
+
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
+      const updatedSubmission = await this.prisma.$transaction(async t => {
+        const s = await t.newSubmission.update({
+          data: {
+            closed: prismaNow,
+            modified: prismaNow,
+          },
+          where: { submissionId: submissionIdBin },
+          include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+        });
+
+        if (failed) {
+          await this.prisma.enrollment.update({
+            data: { onHold: true, holdReason: 'failed unit' },
+            where: { enrollmentId: s.enrollmentId },
+          });
+        }
+
+        if (newSubmission.unitLetter !== finalUnitLetter) { // this is not the final submission
+          return s;
+        }
+
+        // check if there is already a final submission recorded
+        const finalSubmission = await t.finalSubmission.findFirst({ where: { enrollmentId: s.enrollmentId } });
+
+        if (finalSubmission) { // we already have a final submission recorded for this enrollment
+          return s;
+        }
+
+        // create the final submission record
+        await t.finalSubmission.create({
+          data: {
+            enrollmentId: s.enrollmentId,
+            created: prismaNow,
+          },
+        });
+
+        return s;
       });
 
       if (this.shouldSendDGKit(newSubmission, submissionPoints, submissionMark)) {
@@ -242,15 +278,15 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         order: updatedSubmission.order,
         tutorComment: updatedSubmission.tutorComment,
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,
@@ -288,5 +324,10 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const htmlBody = `<p>${textBody}</p>`;
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async getFinalUnitLetter(courseId: number): Promise<string | null> {
+    const template = await this.prisma.newSubmissionTemplate.findFirst({ where: { courseId }, orderBy: [ { order: 'desc' }, { unitLetter: 'desc' } ] });
+    return template?.unitLetter ?? null;
   }
 }

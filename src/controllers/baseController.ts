@@ -163,7 +163,7 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
       this.res.setHeader('Content-Encoding', contentEncoding);
     }
     if (download) {
-      this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      this.res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
     }
     this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
     this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
@@ -180,7 +180,7 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
   }
 
   protected sendFile(data: Readonly<Buffer>, filename: string, mimeType: string, size: number): void {
-    this.res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    this.res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
     this.res.setHeader('Content-Type', mimeType);
     this.res.setHeader('Content-Length', size);
     this.res.end(data, 'binary');

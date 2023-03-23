@@ -1,4 +1,3 @@
-import path from 'path';
 import type { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
 import type { AccountType } from '../../domain/accountType.js';
@@ -62,6 +61,8 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       const randomBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
       const code = randomBytes.toString('hex');
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const passwordResetRequest = await this.prisma.passwordResetRequest.create({
         data: {
           administratorId: accountType === 'admin' ? accountId : null,
@@ -70,8 +71,8 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
           username,
           code,
           used: false,
-          requestDate: this.dateService.getDate(),
-          expiryDate: new Date(this.dateService.getDate().getTime() + (this.configService.config.passwordResetTimeout * 1000)),
+          requestDate: prismaNow,
+          expiryDate: new Date(prismaNow.getTime() + (this.configService.config.passwordResetTimeout * 1000)),
           entityVersion: 0,
         },
       });
@@ -136,7 +137,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
 
       return Result.success({
         maskedEmailAddress: this.emailService.mask(account.emailAddress),
-        expiryDate: passwordResetRequest.expiryDate,
+        expiryDate: this.dateService.fixPrismaReadDate(passwordResetRequest.expiryDate),
       });
 
     } catch (err) {

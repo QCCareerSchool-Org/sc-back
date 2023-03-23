@@ -114,14 +114,17 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
             }
           }
 
+          const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
           // update submission and return the updated submission
           return transaction.newSubmission.update({
             data: {
-              submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+              submitted: prismaNow,
               skipped: false,
               tutorId: tutor.tutorId,
               tutorComment: null,
               adminComment: null,
+              modified: prismaNow,
             },
             where: { submissionId: submissionIdBin },
             include: { tutor: true, enrollment: { include: { course: true } } },
@@ -169,15 +172,15 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
         order: updatedSubmission.order,
         tutorComment: null, // students should never see the tutor comment
         adminComment: updatedSubmission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename === null ? null : `${updatedSubmission.enrollment.course.code}${updatedSubmission.enrollment.enrollmentId} Submission ${updatedSubmission.unitLetter}.mp3`,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
       });
 
     } catch (err) {

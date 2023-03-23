@@ -4,8 +4,10 @@ import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplat
 import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { ICompressionService } from '../../services/compression/index.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -45,6 +47,8 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
     private readonly compressionService: ICompressionService,
+    private readonly sanitizerService: ISanitizerService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -86,12 +90,15 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
           throw new UploadNewUploadSlotEntityNotFound();
         }
 
+        const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
         const updated = await transaction.newUploadSlot.update({
           data: {
-            filename: file.filename,
+            filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(file.filename)),
             filesize: file.size,
             mimeTypeId: mimeType.mimeTypeId,
             compressed: mimeType.compress,
+            modified: prismaNow,
             newLocation: true,
           },
           where: { uploadSlotId: uploadSlotIdBin },
@@ -140,8 +147,8 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
         filesize: updatedUploadSlot.filesize,
         mimeTypeId: updatedUploadSlot.mimeTypeId,
         complete: updatedUploadSlot.filename !== null,
-        created: updatedUploadSlot.created,
-        modified: updatedUploadSlot.modified,
+        created: this.dateService.fixPrismaReadDate(updatedUploadSlot.created),
+        modified: this.dateService.fixPrismaReadDate(updatedUploadSlot.modified),
       });
 
     } catch (err) {

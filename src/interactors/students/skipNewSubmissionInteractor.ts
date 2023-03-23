@@ -56,11 +56,14 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
         return Result.fail(new SkipNewSubmissionAlreadySubmitted());
       }
 
+      const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
       const updatedSubmission = await this.prisma.newSubmission.update({
         data: {
-          submitted: this.dateService.getLocalDate() + 'Z', // TODO: Update if Prisma ever gets timezones working properly
+          submitted: prismaNow,
           skipped: true,
           tutorId: submission.enrollment.tutorId,
+          modified: prismaNow,
         },
         where: { submissionId: submissionIdBin },
         include: { enrollment: { include: { course: true } } },
@@ -73,20 +76,20 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
         unitLetter: updatedSubmission.unitLetter,
         title: updatedSubmission.title,
         description: updatedSubmission.description,
-        markingCriteria: null, // students should never see the marking criteria
+        markingCriteria: null,
         optional: updatedSubmission.optional,
         order: updatedSubmission.order,
-        tutorComment: null, // students should never see the tutor comment
+        tutorComment: null,
         adminComment: submission.adminComment,
-        submitted: updatedSubmission.submitted,
-        transferred: updatedSubmission.transferred,
-        closed: updatedSubmission.closed,
+        submitted: this.dateService.fixPrismaReadDate(updatedSubmission.submitted),
+        transferred: this.dateService.fixPrismaReadDate(updatedSubmission.transferred),
+        closed: this.dateService.fixPrismaReadDate(updatedSubmission.closed),
         skipped: updatedSubmission.skipped,
         responseFilename: updatedSubmission.responseFilename === null ? null : `${updatedSubmission.enrollment.course.code}${updatedSubmission.enrollment.enrollmentId} Submission ${updatedSubmission.unitLetter}.mp3`,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
-        created: updatedSubmission.created,
-        modified: updatedSubmission.modified,
+        created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
+        modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
       });
 
     } catch (err) {

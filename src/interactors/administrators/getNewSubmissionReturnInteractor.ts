@@ -7,6 +7,7 @@ import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewSubmissionReturnDTO } from '../../domain/newSubmissionReturnDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -37,6 +38,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -148,8 +150,8 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
       return Result.success({
         submissionReturnId: this.uuidService.binToUUID(submissionReturn.submissionReturnId),
         submissionId: this.uuidService.binToUUID(submissionReturn.submissionId),
-        returned: submissionReturn.returned,
-        completed: submissionReturn.completed,
+        returned: this.dateService.fixPrismaReadDate(submissionReturn.returned),
+        completed: this.dateService.fixPrismaReadDate(submissionReturn.completed),
         newSubmission: {
           submissionId: this.uuidService.binToUUID(submissionReturn.newSubmission.submissionId),
           enrollmentId: submissionReturn.newSubmission.enrollmentId,
@@ -162,9 +164,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           order: submissionReturn.newSubmission.order,
           tutorComment: submissionReturn.newSubmission.tutorComment,
           adminComment: submissionReturn.newSubmission.adminComment,
-          submitted: submissionReturn.newSubmission.submitted,
-          transferred: submissionReturn.newSubmission.transferred,
-          closed: submissionReturn.newSubmission.closed,
+          submitted: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.submitted),
+          transferred: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.transferred),
+          closed: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.closed),
           skipped: submissionReturn.newSubmission.skipped,
           responseFilename: submissionReturn.newSubmission.responseFilename,
           responseFilesize: submissionReturn.newSubmission.responseFilesize,
@@ -173,8 +175,8 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           points: submissionPoints,
           mark: submissionMark,
           markOverride: submissionMarkOverride,
-          created: submissionReturn.newSubmission.created,
-          modified: submissionReturn.newSubmission.modified,
+          created: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.created),
+          modified: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.modified),
           tutor: {
             tutorId: submissionReturn.newSubmission.tutor.tutorId,
             firstName: submissionReturn.newSubmission.tutor.firstName,
@@ -197,7 +199,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
             courseCost: submissionReturn.newSubmission.enrollment.courseCost.toNumber(),
             amountPaid: submissionReturn.newSubmission.enrollment.amountPaid.toNumber(),
             monthlyInstallment: submissionReturn.newSubmission.enrollment.monthlyInstallment === null ? null : submissionReturn.newSubmission.enrollment.monthlyInstallment.toNumber(),
-            enrollmentDate: submissionReturn.newSubmission.enrollment.enrollmentDate,
+            enrollmentDate: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.enrollmentDate),
             fastTrack: submissionReturn.newSubmission.enrollment.fastTrack,
             paymentsDisabled: submissionReturn.newSubmission.enrollment.paymentsDisabled,
             course: {
@@ -226,10 +228,9 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
               firstName: submissionReturn.newSubmission.enrollment.student.firstName,
               lastName: submissionReturn.newSubmission.enrollment.student.lastName,
               numLogins: submissionReturn.newSubmission.enrollment.student.numLogins,
-              lastLogin: submissionReturn.newSubmission.enrollment.student.lastLogin,
-              expiry: submissionReturn.newSubmission.enrollment.student.expiry,
+              lastLogin: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.lastLogin),
+              expiry: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.expiry),
               emailAddress: submissionReturn.newSubmission.enrollment.student.emailAddress,
-              creationDate: submissionReturn.newSubmission.enrollment.student.creationDate,
               arrears: submissionReturn.newSubmission.enrollment.student.arrears,
               forumUsername: submissionReturn.newSubmission.enrollment.student.forumUsername,
               apiUsername: submissionReturn.newSubmission.enrollment.student.apiUsername,
@@ -238,7 +239,8 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
               ajaxUploads: submissionReturn.newSubmission.enrollment.student.ajaxUploads,
               upgradeNotification: submissionReturn.newSubmission.enrollment.student.upgradeNotification,
               entityVersion: submissionReturn.newSubmission.enrollment.student.entityVersion,
-              timestamp: submissionReturn.newSubmission.enrollment.student.timestamp,
+              created: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.created),
+              modified: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.modified),
             },
           },
         },

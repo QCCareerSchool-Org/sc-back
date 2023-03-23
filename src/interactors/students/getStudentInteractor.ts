@@ -6,6 +6,7 @@ import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { ProvinceDTO } from '../../domain/provinceDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -31,6 +32,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -64,10 +66,9 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         firstName: student.firstName,
         lastName: student.lastName,
         numLogins: student.numLogins,
-        lastLogin: student.lastLogin,
-        expiry: student.expiry,
+        lastLogin: this.dateService.fixPrismaReadDate(student.lastLogin),
+        expiry: this.dateService.fixPrismaReadDate(student.expiry),
         emailAddress: student.emailAddress,
-        creationDate: student.creationDate,
         arrears: student.arrears,
         forumUsername: student.forumUsername,
         forumPasswordNew: student.forumPasswordNew,
@@ -78,7 +79,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         ajaxUploads: student.ajaxUploads,
         upgradeNotification: student.upgradeNotification,
         entityVersion: student.entityVersion,
-        timestamp: student.timestamp,
+        created: student.created,
+        modified: student.modified,
         hasCASocialInsuranceNumber: !!student.caSocialInsuranceNumber,
         country: {
           countryId: student.country.countryId,
@@ -113,12 +115,11 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           courseCost: e.courseCost.toNumber(),
           amountPaid: e.amountPaid.toNumber(),
           monthlyInstallment: e.monthlyInstallment === null ? null : e.monthlyInstallment.toNumber(),
-          enrollmentDate: e.enrollmentDate,
+          enrollmentDate: this.dateService.fixPrismaReadDate(e.enrollmentDate),
           fastTrack: e.fastTrack,
           paymentsDisabled: e.paymentsDisabled,
           updated: e.updated,
           entityVersion: e.entityVersion,
-          timestamp: e.timestamp,
           course: {
             courseId: e.course.courseId,
             schoolId: e.course.schoolId,

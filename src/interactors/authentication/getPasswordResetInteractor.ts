@@ -4,6 +4,7 @@ import type { PasswordResetRequestDTO } from '../../domain/passwordResetRequestD
 import type { IInteractor } from '../../interactors/index.js';
 import type { ResultType } from '../../interactors/result.js';
 import { Result } from '../../interactors/result.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 
 type GetPasswordResetRequestDTO = {
@@ -20,6 +21,7 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -46,7 +48,7 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
         username: passwordResetRequest.username,
         used: passwordResetRequest.used,
         requestDate: passwordResetRequest.requestDate,
-        expiryDate: passwordResetRequest.expiryDate,
+        expiryDate: this.dateService.fixPrismaReadDate(passwordResetRequest.expiryDate),
       });
 
     } catch (err) {

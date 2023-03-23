@@ -14,5 +14,5 @@ export const loginInteractor = new LoginInteractor(prisma, environmentConfigServ
 export const logoutInteractor = new LogoutInteractor(prisma, winstonLoggerService);
 export const refreshInteractor = new RefreshInteractor(prisma, environmentConfigService, dateService, jwtService, nodeCryptoService, winstonLoggerService);
 export const createPasswordResetInteractor = new CreatePasswordResetInteractor(prisma, telephoneNumberService, nodeMailerEmailService, nodeFileService, nodeCryptoService, dateService, environmentConfigService, studentService, winstonLoggerService);
-export const getPasswordResetInteractor = new GetPasswordResetInteractor(prisma, winstonLoggerService);
+export const getPasswordResetInteractor = new GetPasswordResetInteractor(prisma, dateService, winstonLoggerService);
 export const usePasswordResetInteractor = new UsePasswordResetInteractor(prisma, nodeCryptoService, dateService, passwordService, environmentConfigService, winstonLoggerService);
