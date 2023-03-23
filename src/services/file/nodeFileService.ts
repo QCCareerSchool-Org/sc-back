@@ -40,12 +40,7 @@ export class NodeFileService implements IFileService {
   }
 
   public async mkdir(filePath: string): Promise<void> {
-    if (await this.stat(filePath)) {
-      return;
-    }
-    const basePath = path.dirname(filePath);
-    await this.mkdir(basePath);
-    return fs.promises.mkdir(filePath);
+    await fs.promises.mkdir(filePath, { recursive: true });
   }
 
   public async rmdir(filePath: string): Promise<void> {

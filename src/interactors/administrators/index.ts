@@ -1,6 +1,8 @@
 import { prisma } from '../../frameworks/prisma/index.js';
 import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
 import { CloseNewSubmissionReturnInteractor } from './closeNewSubmissionReturnInteractor.js';
+import { DeleteAllNewSubmissionsInteractor } from './deleteAllNewSubmissionsInteractor.js';
+import { DeleteEnrollmentInteractor } from './deleteEnrollmentInteractor.js';
 import { DeleteMaterialImageInteractor } from './deleteMaterialImageInteractor.js';
 import { DeleteMaterialInteractor } from './deleteMaterialInteractor.js';
 import { DeleteNewAssignmentMediumInteractor } from './deleteNewAssignmentMediumInteractor.js';
@@ -45,6 +47,7 @@ import { InsertNewSubmissionTemplateInteractor } from './insertNewSubmissionTemp
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor.js';
 import { InsertUnitInteractor } from './insertUnitInteractor.js';
+import { MigrateNewUploadSlotsInteractor } from './migrateNewUploadSlotsInteractor.js';
 import { ReplaceMaterialContentInteractor } from './replaceMaterialContentInteractor.js';
 import { ReplaceMaterialImageInteractor } from './replaceMaterialImageInteractor.js';
 import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
@@ -131,3 +134,8 @@ export const downloadMaterialImageInteractor = new DownloadMaterialImageInteract
 
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, winstonLoggerService);
+
+export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma, winstonLoggerService);
+export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);
+
+export const migrateNewUploadSlotsInteractor = new MigrateNewUploadSlotsInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);

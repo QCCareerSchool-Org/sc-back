@@ -61,19 +61,19 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newUploadSlot) {
-        throw new UploadNewUploadSlotNotFound();
+        return Result.fail(new UploadNewUploadSlotNotFound());
       }
 
       if (newUploadSlot.newPart.newAssignment.newSubmission.submitted) {
-        throw new UploadNewUploadSlotSubmissionSubmitted();
+        return Result.fail(new UploadNewUploadSlotSubmissionSubmitted());
       }
 
       if (file.size > this.configService.config.uploadSlotMaxFilesize) {
-        throw new UploadNewUploadSlotFileTooLarge();
+        return Result.fail(new UploadNewUploadSlotFileTooLarge());
       }
 
       if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {
-        throw new UploadNewUploadSlotInvalidFileType();
+        return Result.fail(new UploadNewUploadSlotInvalidFileType());
       }
 
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
@@ -92,45 +92,26 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
             filesize: file.size,
             mimeTypeId: mimeType.mimeTypeId,
             compressed: mimeType.compress,
+            newLocation: true,
           },
           where: { uploadSlotId: uploadSlotIdBin },
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
         });
 
-        const paddedStudentId = studentId.toString().padStart(8, '0');
-
-        const partialPath1 = this.configService.config.paths.assignmentsPath;
+        // determine the path and create it if it doesn't exist
+        const paddedEnrollmentId = newUploadSlot.newPart.newAssignment.newSubmission.enrollmentId.toString().padStart(8, '0');
+        const path = `${this.configService.config.paths.assignmentsPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}`;
         try {
-          if (!await this.fileService.stat(partialPath1)) {
-            await this.fileService.mkdir(partialPath1);
+          if (!await this.fileService.stat(path)) {
+            await this.fileService.mkdir(path);
           }
         } catch (err) {
           this.logger.error('Could not create directory', err);
-          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath1);
-        }
-
-        const partialPath2 = `${partialPath1}/${paddedStudentId.substring(0, 4)}`;
-        try {
-          if (!await this.fileService.stat(partialPath2)) {
-            await this.fileService.mkdir(partialPath2);
-          }
-        } catch (err) {
-          this.logger.error('Could not create directory', err);
-          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath2);
-        }
-
-        const partialPath3 = `${partialPath2}/${paddedStudentId.substring(4, 8)}`;
-        try {
-          if (!await this.fileService.stat(partialPath3)) {
-            await this.fileService.mkdir(partialPath3);
-          }
-        } catch (err) {
-          this.logger.error('Could not create directory', err);
-          throw new UploadNewUploadSlotCouldNotCreateDirectory(partialPath3);
+          throw new UploadNewUploadSlotCouldNotCreateDirectory(path);
         }
 
         // save the file
-        const filePath = `${partialPath3}/${uploadSlotId}`;
+        const filePath = `${path}/${uploadSlotId}`;
         try {
           if (mimeType.compress) {
             await this.fileService.writeFile(filePath, await this.compressionService.gzip(file.data));

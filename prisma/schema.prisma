@@ -1513,7 +1513,8 @@ model NewUploadSlot {
   compressed   Boolean   @default(false)
   created      DateTime  @default(now()) @db.Timestamp(0)
   modified     DateTime? @updatedAt @db.Timestamp(0)
-  row_version  DateTime  @default(now()) @db.Timestamp(6)
+  rowVersion   DateTime  @map("row_version") @default(now()) @db.Timestamp(6)
+  newLocation  Boolean   @default(false)
   mimeType     MimeType? @relation(fields: [mimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "new_upload_slots_ibfk_2")
   newPart      NewPart   @relation(fields: [partId], references: [partId], onDelete: Cascade, map: "new_upload_slots_ibfk_1")
 
@@ -1647,7 +1648,7 @@ model OldSubmission {
   audioProgress    Int?              @map("audio_progress") @db.TinyInt
   entityVersion    Int               @default(0) @map("entity_version")
   timestamp        DateTime          @default(now()) @db.Timestamp(6)
-  currency         Currency?         @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "units_submitted_ibfk_3")
+  currency         Currency?         @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, map: "units_submitted_ibfk_3")
   enrollment       Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "units_submitted_ibfk_2")
   tutor            Tutor?            @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "units_submitted_ibfk_1")
   oldAssignment    OldAssignment[]

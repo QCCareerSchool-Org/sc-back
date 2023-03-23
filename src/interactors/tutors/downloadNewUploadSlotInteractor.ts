@@ -60,7 +60,10 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
       }
 
       const paddedStudentId = newUploadSlot.newPart.newAssignment.newSubmission.enrollment.studentId.toString().padStart(8, '0');
-      const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(newUploadSlot.uploadSlotId)}`;
+      const paddedEnrollmentId = newUploadSlot.newPart.newAssignment.newSubmission.enrollmentId.toString().padStart(8, '0');
+      const filePath = newUploadSlot.newLocation
+        ? `${this.configService.config.paths.assignmentsPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${this.uuidService.binToUUID(newUploadSlot.uploadSlotId)}`
+        : `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${this.uuidService.binToUUID(newUploadSlot.uploadSlotId)}`;
 
       // check if the file exists
       const stats = await this.fileService.stat(filePath);

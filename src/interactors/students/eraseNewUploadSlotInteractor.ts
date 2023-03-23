@@ -70,13 +70,10 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
         });
 
         // delete the file
-        const paddedStudentId = studentId.toString().padStart(8, '0');
-        const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${uploadSlotId}`;
-        try {
-          await this.fileService.unlink(filePath);
-        } catch (err) {
-          this.logger.error('Could not delete file', err);
-          throw new EraseNewUploadSlotUnlinkError(filePath);
+        if (updated.newLocation) {
+          await this.deleteFile(updated.newPart.newAssignment.newSubmission.enrollmentId, uploadSlotId);
+        } else {
+          await this.deleteFile(studentId, uploadSlotId);
         }
 
         return updated;
@@ -103,6 +100,17 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
     } catch (err) {
       this.logger.error('error deleting upload slot file', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+
+  private async deleteFile(enrollmentId: number, uploadSlotId: string): Promise<void> {
+    const paddedEnrollmentId = enrollmentId.toString().padStart(8, '0');
+    const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${uploadSlotId}`;
+    try {
+      await this.fileService.unlink(filePath);
+    } catch (err) {
+      this.logger.error('Could not delete file', err);
+      throw new EraseNewUploadSlotUnlinkError(filePath);
     }
   }
 }
