@@ -99,7 +99,6 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
             mimeTypeId: mimeType.mimeTypeId,
             compressed: mimeType.compress,
             modified: prismaNow,
-            newLocation: true,
           },
           where: { uploadSlotId: uploadSlotIdBin },
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },

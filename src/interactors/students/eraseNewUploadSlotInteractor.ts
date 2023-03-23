@@ -74,12 +74,7 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
           include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
         });
 
-        // delete the file
-        if (updated.newLocation) {
-          await this.deleteFile(updated.newPart.newAssignment.newSubmission.enrollmentId, uploadSlotId);
-        } else {
-          await this.deleteFile(studentId, uploadSlotId);
-        }
+        await this.deleteFile(updated.newPart.newAssignment.newSubmission.enrollmentId, uploadSlotId);
 
         return updated;
       });

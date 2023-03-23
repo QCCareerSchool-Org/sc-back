@@ -1517,7 +1517,6 @@ model NewUploadSlot {
   created      DateTime  @default(now()) @db.Timestamp(0)
   modified     DateTime? @updatedAt @db.Timestamp(0)
   rowVersion   DateTime  @map("row_version") @default(now()) @db.Timestamp(6)
-  newLocation  Boolean   @map("new_location") @default(false)
   mimeType     MimeType? @relation(fields: [mimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "new_upload_slots_ibfk_2")
   newPart      NewPart   @relation(fields: [partId], references: [partId], onDelete: Cascade, map: "new_upload_slots_ibfk_1")
 

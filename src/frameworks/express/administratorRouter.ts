@@ -49,7 +49,6 @@ import { InsertNewSubmissionTemplateController } from '../../controllers/adminis
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController.js';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController.js';
 import { InsertUnitController } from '../../controllers/administrators/insertUnitController.js';
-import { MigrateNewUploadSlotsController } from '../../controllers/administrators/migrateNewUploadSlotsController.js';
 import { ReplaceMaterialContentController } from '../../controllers/administrators/replaceMaterialContentController.js';
 import { ReplaceMaterialImageController } from '../../controllers/administrators/replaceMaterialImageController.js';
 import { ReplaceNewSubmissionTemplatePricesController } from '../../controllers/administrators/replaceNewSubmissionTemplatePricesController.js';
@@ -151,9 +150,6 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/materials/:materialId/image', ReplaceMaterialImageController, multer({ dest: '/tmp/web/' }).single('image') ],
   [ 'delete', '/:administratorId/materials/:materialId/image', DeleteMaterialImageController ],
   [ 'put', '/:administratorId/materials/:materialId/content', ReplaceMaterialContentController, multer({ dest: '/tmp/web/' }).single('content') ],
-
-  // temporary
-  [ 'post', '/:administratorId/migrateNewUploadSlots', MigrateNewUploadSlotsController ],
 ];
 
 applyRoutes(administratorRouter, routes);

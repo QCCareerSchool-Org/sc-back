@@ -49,7 +49,6 @@ import { InsertNewSubmissionTemplateInteractor } from './insertNewSubmissionTemp
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor.js';
 import { InsertUnitInteractor } from './insertUnitInteractor.js';
-import { MigrateNewUploadSlotsInteractor } from './migrateNewUploadSlotsInteractor.js';
 import { ReplaceMaterialContentInteractor } from './replaceMaterialContentInteractor.js';
 import { ReplaceMaterialImageInteractor } from './replaceMaterialImageInteractor.js';
 import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
@@ -144,5 +143,3 @@ export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmission
 
 export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma, winstonLoggerService);
 export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);
-
-export const migrateNewUploadSlotsInteractor = new MigrateNewUploadSlotsInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
