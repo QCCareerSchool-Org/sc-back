@@ -41,8 +41,6 @@ export class MigrateFeedbackInteractor implements IInteractor<MigrateFeedbackReq
           // move the file
           await this.moveFile(updated.enrollment.studentId, updated.enrollment.enrollmentId, this.uuidService.binToUUID(updated.submissionId));
         });
-
-        return Result.success(undefined); // return early for testing
       }
 
       return Result.success(undefined);
