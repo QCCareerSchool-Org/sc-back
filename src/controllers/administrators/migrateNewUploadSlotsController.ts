@@ -18,7 +18,6 @@ export class MigrateNewUploadSlotsController extends BaseController<Request, Res
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       administratorId: yup.string().matches(/^\d+$/u).defined(),
-      unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
