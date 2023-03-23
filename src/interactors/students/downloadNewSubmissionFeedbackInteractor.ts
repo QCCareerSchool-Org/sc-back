@@ -69,7 +69,9 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       }
 
       // determine which file to use
-      const file = await this.getFilePathAndStats(studentId, request.submissionId);
+      const file = submission.newLocation
+        ? await this.getFilePathAndStats(submission.enrollmentId, request.submissionId)
+        : await this.getFilePathAndStats(studentId, request.submissionId);
       if (!file) {
         return Result.fail(new DownloadNewSubmissionFeedbackFileNotFound());
       }

@@ -60,7 +60,9 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         return Result.fail(new DownloadNewSubmissionFeedbackSubmissionNotClosed());
       }
 
-      const filePath = this.getFilePath(submission.enrollment.studentId, submissionId);
+      const filePath = submission.newLocation
+        ? this.getFilePath(submission.enrollmentId, submissionId)
+        : this.getFilePath(submission.enrollment.studentId, submissionId);
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find submission feedback file ${filePath}`);

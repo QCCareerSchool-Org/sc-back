@@ -81,10 +81,13 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
         });
 
+        const paddedEnrollmentId = newSubmission.enrollmentId.toString().padStart(8, '0');
         const paddedStudentId = studentId.toString().padStart(8, '0');
 
         // delete the file
-        const filePath = `${this.configService.config.paths.unitFeedbackPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${submissionId}`;
+        const filePath = newSubmission.newLocation
+          ? `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${submissionId}`
+          : `${this.configService.config.paths.unitFeedbackPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${submissionId}`;
         try {
           await this.fileService.unlink(filePath);
         } catch (err) {

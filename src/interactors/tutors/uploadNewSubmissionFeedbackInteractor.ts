@@ -93,45 +93,26 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
             responseFilesize: file.size,
             responseMimeTypeId: mimeType.mimeTypeId,
             modified: prismaNow,
+            newLocation: true,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
         });
 
-        const paddedStudentId = studentId.toString().padStart(8, '0');
+        const paddedEnrollmentId = updated.enrollmentId.toString().padStart(8, '0');
 
-        const partialPath1 = this.configService.config.paths.unitFeedbackPath;
+        const path = `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}`;
         try {
-          if (!await this.fileService.stat(partialPath1)) {
-            await this.fileService.mkdir(partialPath1);
+          if (!await this.fileService.stat(path)) {
+            await this.fileService.mkdir(path);
           }
         } catch (err) {
           this.logger.error('Could not create directory', err);
-          throw new UploadNewSubmissionFeedbackCouldNotCreateDirectory(partialPath1);
-        }
-
-        const partialPath2 = `${partialPath1}/${paddedStudentId.substring(0, 4)}`;
-        try {
-          if (!await this.fileService.stat(partialPath2)) {
-            await this.fileService.mkdir(partialPath2);
-          }
-        } catch (err) {
-          this.logger.error('Could not create directory', err);
-          throw new UploadNewSubmissionFeedbackCouldNotCreateDirectory(partialPath2);
-        }
-
-        const partialPath3 = `${partialPath2}/${paddedStudentId.substring(4, 8)}`;
-        try {
-          if (!await this.fileService.stat(partialPath3)) {
-            await this.fileService.mkdir(partialPath3);
-          }
-        } catch (err) {
-          this.logger.error('Could not create directory', err);
-          throw new UploadNewSubmissionFeedbackCouldNotCreateDirectory(partialPath3);
+          throw new UploadNewSubmissionFeedbackCouldNotCreateDirectory(path);
         }
 
         // save the file
-        const filePath = `${partialPath3}/${submissionId}`;
+        const filePath = `${path}/${submissionId}`;
         try {
           await this.fileService.writeFile(filePath, file.data);
         } catch (err) {
