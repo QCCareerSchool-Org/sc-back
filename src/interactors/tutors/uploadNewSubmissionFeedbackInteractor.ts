@@ -93,7 +93,6 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
             responseFilesize: file.size,
             responseMimeTypeId: mimeType.mimeTypeId,
             modified: prismaNow,
-            newLocation: true,
           },
           where: { submissionId: submissionIdBin },
           include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },

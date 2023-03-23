@@ -67,10 +67,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       }
 
       const paddedEnrollmentId = newSubmission.enrollmentId.toString().padStart(8, '0');
-      const paddedStudentId = studentId.toString().padStart(8, '0');
-      const filePath = newSubmission.newLocation
-        ? `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${submissionId}`
-        : `${this.configService.config.paths.unitFeedbackPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${submissionId}`;
+      const filePath = `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${submissionId}`;
 
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
