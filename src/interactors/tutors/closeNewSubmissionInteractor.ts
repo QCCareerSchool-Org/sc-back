@@ -5,6 +5,7 @@ import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
 import type { IGradeService } from '../../services/grade/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
@@ -34,6 +35,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     private readonly uuidService: IUUIDService,
     private readonly emailService: IEmailService,
     private readonly gradeService: IGradeService,
+    private readonly sanitizerService: ISanitizerService,
     private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -194,10 +196,27 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       });
 
       if (this.shouldSendDGKit(newSubmission, submissionPoints, submissionMark)) {
-        await this.sendDGKitShippingEmail(newSubmission);
+        try {
+          await this.sendDGKitShippingEmail(newSubmission);
+        } catch (err) {
+          this.logger.error('Error sending DG kit email', err);
+        }
       }
       if (this.shouldSendMZKit(newSubmission, submissionPoints, submissionMark)) {
-        await this.sendMZKitShippingEmail(newSubmission);
+        try {
+          await this.sendMZKitShippingEmail(newSubmission);
+        } catch (err) {
+          this.logger.error('Error sending MZ kit email', err);
+        }
+      }
+
+      if (newSubmission.enrollment.student.emailAddress) {
+        const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
+        try {
+          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter);
+        } catch (err) {
+          this.logger.error('Error student email', err);
+        }
       }
 
       submissionComplete = true;
@@ -322,6 +341,14 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
     const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship any applicable makeup kits that haven't already been shipped.`;
     const htmlBody = `<p>${textBody}</p>`;
+
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async sendStudentEmail(name: string, to: string, courseName: string, unitLetter: string): Promise<void> {
+    const subject = 'Unit Has Been Marked';
+    const textBody = `${name},\n\nYour ${courseName} submission ${unitLetter} has been marked. You may now review your marks and your tutor's audio feedback at the Online Student Center (https://studentcenter.qccareerschool.com).`;
+    const htmlBody = `<p>${name},</p><p>Your ${courseName} submission ${this.sanitizerService.sanitizeHtml(unitLetter)} has been marked. You may now review your marks and your tutor's audio feedback at the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p>`;
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
