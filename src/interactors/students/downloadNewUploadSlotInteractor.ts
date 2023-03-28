@@ -75,7 +75,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
       // we can now trust all values for submissionId, assignmentId, partId, and textBoxId
 
       const paddedEnrollmentId = uploadSlot.newPart.newAssignment.newSubmission.enrollmentId.toString().padStart(8, '0');
-      const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${this.uuidService.binToUUID(uploadSlot.uploadSlotId)}`;
+      const filePath = `${this.configService.config.paths.assignmentsPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${request.uploadSlotId}`;
 
       // check if the file exists
       const stats = await this.fileService.stat(filePath);

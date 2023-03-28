@@ -20,7 +20,7 @@ type Request = {
 
 type Response = DownloadNewUploadSlotResponseDTO;
 
-export class DownloadNewPartMediumController extends BaseController<Request, Response> {
+export class DownloadNewUploadSlotController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
