@@ -126,6 +126,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         accessTokenPayload.studentCenter.privileges = {
           submissionPriceChange: adminAccount.submissionPricePriv,
           courseDevelopment: adminAccount.courseDevelopmentPriv,
+          delete: adminAccount.deletePriv,
         };
         if (adminAccount.apiUsername !== null) {
           accessTokenPayload.crm = {

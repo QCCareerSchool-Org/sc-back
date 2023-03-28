@@ -45,6 +45,7 @@ model Administrator {
   apiUsername           Int?                        @map("api_username") @db.UnsignedInt
   submissionPricePriv   Boolean                     @default(false) @map("unit_price_priv")
   courseDevelopmentPriv Boolean                     @default(false) @map("course_development_priv")
+  deletePriv            Boolean                     @default(false) @map("delete_priv")
   entityVersion         Int                         @default(0) @map("entity_version")
   country               Country                     @relation(fields: [countryId], references: [countryId], map: "ibfk_administrators_1")
   messages              Message[]

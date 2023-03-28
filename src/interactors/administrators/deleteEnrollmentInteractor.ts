@@ -1,12 +1,15 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
+import { InsufficientPrivileges } from '../index.js';
 import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
 export type DeleteEnrollmentRequestDTO = {
   enrollmentId: number;
+  privileges?: Privileges;
 };
 
 export type DeleteEnrollmentResponseDTO = void;
@@ -21,8 +24,12 @@ export class DeleteEnrollmentInteractor implements IInteractor<DeleteEnrollmentR
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ enrollmentId }: DeleteEnrollmentRequestDTO): Promise<ResultType<DeleteEnrollmentResponseDTO>> {
+  public async execute({ enrollmentId, privileges }: DeleteEnrollmentRequestDTO): Promise<ResultType<DeleteEnrollmentResponseDTO>> {
     try {
+      if (!privileges?.delete) {
+        return Result.fail(new InsufficientPrivileges());
+      }
+
       // find the enrollment
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { enrollmentId },

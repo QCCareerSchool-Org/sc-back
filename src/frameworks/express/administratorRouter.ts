@@ -3,6 +3,8 @@ import multer from 'multer';
 
 import { AdministratorGuardMiddleware } from '../../controllers/administrators/administratorGuardMiddleware.js';
 import { CloseNewSubmissionReturnController } from '../../controllers/administrators/closeNewSubmissionReturnController.js';
+import { DeleteAllNewSubmissionsController } from '../../controllers/administrators/deleteAllNewSubmissionsController.js';
+import { DeleteEnrollmentController } from '../../controllers/administrators/deleteEnrollmentController.js';
 import { DeleteMaterialController } from '../../controllers/administrators/deleteMaterialController.js';
 import { DeleteMaterialImageController } from '../../controllers/administrators/deleteMaterialImageController.js';
 import { DeleteNewAssignmentMediumController } from '../../controllers/administrators/deleteNewAssignmentMediumController.js';
@@ -72,6 +74,9 @@ const routes: Route[] = [
   [ 'use', '/:administratorId', AdministratorGuardMiddleware ],
   // student
   [ 'get', '/:administratorId/students/:studentId', GetStudentController ],
+  // enrollment
+  [ 'delete', '/:administratorId/enrollments/:enrollmentId', DeleteEnrollmentController ],
+  [ 'delete', '/:administratorId/enrollments/:enrollmentId/submissions', DeleteAllNewSubmissionsController ],
   // schools
   [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
   [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
@@ -132,6 +137,9 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
   // new text boxes
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
+  // upload slots
+  [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewSubmissionFeedbackController ],
+  // [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
   [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],

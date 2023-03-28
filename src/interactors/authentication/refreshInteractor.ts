@@ -109,6 +109,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         accessTokenPayload.studentCenter.privileges = {
           submissionPriceChange: refreshToken.administrator.submissionPricePriv,
           courseDevelopment: refreshToken.administrator.courseDevelopmentPriv,
+          delete: refreshToken.administrator.deletePriv,
         };
         if (refreshToken.administrator.apiUsername !== null) {
           accessTokenPayload.crm = {

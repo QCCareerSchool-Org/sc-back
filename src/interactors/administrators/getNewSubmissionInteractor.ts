@@ -25,6 +25,7 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO & {
     course: CourseDTO;
   };
+  tutor: TutorDTO | null;
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
       newTextBoxes: NewTextBoxDTO[];
@@ -56,9 +57,10 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       const submission = await this.prisma.newSubmission.findFirst({
         where: { submissionId: submissionIdBin },
         include: {
+          enrollment: { include: { course: true } },
+          tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
-          enrollment: { include: { course: true } },
         },
       });
       if (!submission) {
@@ -129,6 +131,12 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             entityVersion: submission.enrollment.course.entityVersion,
           },
         },
+        tutor: submission.tutor === null ? null : {
+          tutorId: submission.tutor.tutorId,
+          firstName: submission.tutor.firstName,
+          lastName: submission.tutor.lastName,
+          introduction: false,
+        },
         newAssignments: submission.newAssignments.map(a => {
           let assignmentComplete = true;
           let assignmentMarked = true;
@@ -143,7 +151,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             title: a.title,
             description: a.description,
             descriptionType: a.descriptionType,
-            markingCriteria: null, // students should never see the marking criteria
+            markingCriteria: a.markingCriteria,
             optional: a.optional,
             created: this.dateService.fixPrismaReadDate(a.created),
             modified: this.dateService.fixPrismaReadDate(a.modified),
@@ -161,8 +169,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
                 title: p.title,
                 description: p.description,
                 descriptionType: p.descriptionType,
-                markingCriteria: null, // students should never see the marking criteria
-                markingComments: null, // students should never see the marking comments
+                markingCriteria: p.markingCriteria,
+                markingComments: p.markingComments,
                 created: this.dateService.fixPrismaReadDate(p.created),
                 modified: this.dateService.fixPrismaReadDate(p.modified),
                 newTextBoxes: p.newTextBoxes.map(t => {

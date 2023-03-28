@@ -4,6 +4,7 @@ import type { StudentTypeType } from './studentType.js';
 export type Privileges = {
   submissionPriceChange?: boolean;
   courseDevelopment?: boolean;
+  delete?: boolean;
 };
 
 export type AccessTokenPayload = {

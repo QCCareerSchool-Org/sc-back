@@ -18,6 +18,7 @@ import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteract
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
 import { DownloadNewSubmissionFeedbackInteractor } from './downloadNewSubmissionFeedbackInteractor.js';
+import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor.js';
 import { EnableCourseInteractor } from './enableCourseInteractor.js';
 import { GetAllCountriesInteractor } from './getAllCountriesInteractor.js';
 import { GetAllCoursesInteractor } from './getAllCoursesInteractor.js';
@@ -140,6 +141,7 @@ export const downloadMaterialImageInteractor = new DownloadMaterialImageInteract
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 
 export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma, winstonLoggerService);
 export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);
