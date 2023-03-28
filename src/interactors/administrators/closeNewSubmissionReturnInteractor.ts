@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewSubmissionReturnDTO } from '../../domain/newSubmissionReturnDTO.js';
 import type { IDateService } from '../../services/date/index.js';
+import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
@@ -27,6 +28,7 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    private readonly emailService: IEmailService,
     private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -59,8 +61,17 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
           newSubmission: { update: { adminComment, submitted: null, modified: prismaNow } },
         },
         where: { submissionReturnId: submissionReturnIdBin },
-        include: { newSubmission: true },
+        include: { newSubmission: { include: { enrollment: { include: { student: true } } } } },
       });
+
+      if (updatedSubmissionReturn.newSubmission.enrollment.student.emailAddress) {
+        try {
+          const studentName = `${updatedSubmissionReturn.newSubmission.enrollment.student.firstName} ${updatedSubmissionReturn.newSubmission.enrollment.student.lastName}`;
+          await this.sendStudentEmail(studentName, updatedSubmissionReturn.newSubmission.enrollment.student.emailAddress);
+        } catch (err) {
+          this.logger.error('Error sending student email', err);
+        }
+      }
 
       return Result.success({
         submissionReturnId: this.uuidService.binToUUID(updatedSubmissionReturn.submissionReturnId),
@@ -95,5 +106,13 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
       this.logger.error('error updating submission return', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
+  }
+
+  private async sendStudentEmail(name: string, to: string): Promise<void> {
+    const subject = 'Returned Unit';
+    const textBody = `${name},\n\nYour tutor has notified us that one of your submissions is incomplete. You'll need to revise your work and resubmit. Please visit the the Online Student Center<https://studentcenter.qccareerschool.com> for further details.`;
+    const htmlBody = `<p>${name},</p><p>Your tutor has notified us that one of your submissions is incomplete. You'll need to revise your work and resubmit. Please visit the the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a> for further details.</p>`;
+
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 }

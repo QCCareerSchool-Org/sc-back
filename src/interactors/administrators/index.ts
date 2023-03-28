@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
-import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
+import { axiosHttpService, dateService, environmentConfigService, extractZipUnzipService, fileTypeMimeTypeService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
 import { CloseNewSubmissionReturnInteractor } from './closeNewSubmissionReturnInteractor.js';
 import { DeleteAllNewSubmissionsInteractor } from './deleteAllNewSubmissionsInteractor.js';
 import { DeleteEnrollmentInteractor } from './deleteEnrollmentInteractor.js';
@@ -121,7 +121,7 @@ export const replaceNewSubmissionTemplatePricesInteractor = new ReplaceNewSubmis
 export const deleteNewSubmissionTemplatePricesInteractor = new DeleteNewSubmissionTemplatePricesInteractor(prisma, winstonLoggerService);
 
 export const getNewSubmissionReturnInteractor = new GetNewSubmissionReturnInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
-export const closeNewSubmissionReturnInteractor = new CloseNewSubmissionReturnInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const closeNewSubmissionReturnInteractor = new CloseNewSubmissionReturnInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
 export const getUnitInteractor = new GetUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
