@@ -47,12 +47,12 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
               newSubmission: {
                 NOT: { submitted: null },
                 skipped: false,
-                enrollment: { tutorId },
+                tutorId,
               },
             },
           },
         },
-        include: { newPart: { include: { newAssignment: { include: { newSubmission: { include: { enrollment: true } } } } } } },
+        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
 
       if (!newUploadSlot) {
@@ -78,7 +78,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         try {
           fileStream = this.fileService.createReadStream(filePath, { start, end });
         } catch (err) {
-          this.logger.error(`Could not read part media file ${filePath}`, err);
+          this.logger.error(`Could not read upload slot file ${filePath}`, err);
           throw new DownloadNewUploadSlotFileReadError(filePath);
         }
 
@@ -98,7 +98,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
       try {
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
-        this.logger.error(`Could not read part media file ${filePath}`, err);
+        this.logger.error(`Could not read upload slot file ${filePath}`, err);
         throw new DownloadNewUploadSlotFileReadError();
       }
 
