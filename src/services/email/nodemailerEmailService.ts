@@ -18,7 +18,7 @@ export class NodemailerEmailService implements IEmailService {
     const transport = this.createTransport();
     try {
       await transport.sendMail({
-        to: `${name}<${emailAddress}>`,
+        to: emailAddress, // `${name}${emailAddress}>`,
         from: 'QC Career School<no-reply@qccareerschool.com>',
         subject,
         html: htmlBody,
