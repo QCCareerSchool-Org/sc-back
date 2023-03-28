@@ -20,6 +20,7 @@ import { DownloadMaterialImageController } from '../../controllers/administrator
 import { DownloadNewAssignmentMediumController } from '../../controllers/administrators/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/administrators/downloadNewPartMediumController.js';
 import { DownloadNewSubmissionFeedbackController } from '../../controllers/administrators/downloadNewSubmissionFeedbackController.js';
+import { DownloadNewUploadSlotController } from '../../controllers/administrators/downloadNewUploadSlotController.js';
 import { EnableCourseController } from '../../controllers/administrators/enableCourseController.js';
 import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController.js';
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController.js';
@@ -138,7 +139,7 @@ const routes: Route[] = [
   // new text boxes
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   // upload slots
-  [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewSubmissionFeedbackController ],
+  [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   // [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
