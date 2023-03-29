@@ -1,5 +1,5 @@
 import type { PrismaClient, Unit } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
+import { Prisma } from '@prisma/client';
 
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
@@ -97,7 +97,7 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
           },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta?.target === 'course_id_unit_letter') {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta?.target === 'course_id_unit_letter') {
           return Result.fail(new InsertUnitUnitLetterAlreadyExists());
         }
         throw err;

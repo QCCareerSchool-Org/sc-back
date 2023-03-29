@@ -1,5 +1,5 @@
 import type { MaterialCompletion, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
+import { Prisma } from '@prisma/client';
 
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -46,7 +46,7 @@ export class InsertMaterialCompletionInteractor implements IInteractor<InsertMat
           data: { enrollmentId, materialId: materialIdBin },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
           return Result.fail(new InsertMaterialCompletionAlreadyExists());
         }
         throw err;

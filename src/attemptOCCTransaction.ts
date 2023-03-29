@@ -1,4 +1,4 @@
-// import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+// import { Prisma } from '@prisma/client';
 
 // export class OCCConflict extends Error { }
 
@@ -13,7 +13,7 @@
 //         return result;
 //       }
 //     } catch (err) {
-//       if (err instanceof PrismaClientKnownRequestError && err.code === 'P2028') {
+//       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2028') {
 //         // swallow error and retry
 //       } else {
 //         console.log('Transaction error', err);

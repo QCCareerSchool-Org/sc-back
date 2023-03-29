@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
+import { Prisma } from '@prisma/client';
 
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -45,7 +45,7 @@ export class DeleteMaterialCompletionInteractor implements IInteractor<DeleteMat
           where: { materialId_enrollmentId: { enrollmentId, materialId: materialIdBin } },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
           return Result.fail(new DeleteMaterialCompletionNotFound());
         }
         throw err;

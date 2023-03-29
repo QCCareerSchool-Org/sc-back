@@ -26,6 +26,7 @@ import { GetAllCountriesController } from '../../controllers/administrators/getA
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController.js';
 import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController.js';
 import { GetAllSchoolsController } from '../../controllers/administrators/getAllSchoolsController.js';
+import { GetAllTutorsBySchoolController } from '../../controllers/administrators/getAllTutorsBySchoolController.js';
 import { GetCountryController } from '../../controllers/administrators/getCountryController.js';
 import { GetCourseController } from '../../controllers/administrators/getCourseController.js';
 import { GetMaterialController } from '../../controllers/administrators/getMaterialController.js';
@@ -81,6 +82,7 @@ const routes: Route[] = [
   // schools
   [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
   [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
+  [ 'get', '/:administratorId/schools/:schoolId/tutors', GetAllTutorsBySchoolController ],
   // courses
   [ 'get', '/:administratorId/courses', GetAllCoursesController ],
   [ 'get', '/:administratorId/courses/:courseId', GetCourseController ],

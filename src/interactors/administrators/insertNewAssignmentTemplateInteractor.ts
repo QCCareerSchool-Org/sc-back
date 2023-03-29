@@ -1,5 +1,5 @@
+import { Prisma } from '@prisma/client';
 import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
@@ -113,7 +113,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
           },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'submission_template_id_assignment_number') {
             return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse());

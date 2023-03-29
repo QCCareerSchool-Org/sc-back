@@ -24,6 +24,7 @@ import { GetAllCountriesInteractor } from './getAllCountriesInteractor.js';
 import { GetAllCoursesInteractor } from './getAllCoursesInteractor.js';
 import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor.js';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor.js';
+import { GetAllTutorsBySchoolInteractor } from './getAllTutorsBySchoolInteractor.js';
 import { GetCountryInteractor } from './getCountryInteractor.js';
 import { GetCourseInteractor } from './getCourseInteractor.js';
 import { GetMaterialInteractor } from './getMaterialInteractor.js';
@@ -145,3 +146,5 @@ export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteract
 
 export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma, winstonLoggerService);
 export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);
+
+export const getAllTutorsBySchoolInteractor = new GetAllTutorsBySchoolInteractor(prisma, dateService, winstonLoggerService);

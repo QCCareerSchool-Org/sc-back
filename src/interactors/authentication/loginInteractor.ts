@@ -1,6 +1,6 @@
 import path from 'path';
 import type { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/index.js';
+import { Prisma } from '@prisma/client';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import type { AccountType } from '../../domain/accountType.js';
@@ -171,8 +171,8 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           os: request.os,
           city: request.city,
           country: request.country,
-          latitude: request.latitude === null ? null : new Decimal(request.latitude),
-          longitude: request.longitude === null ? null : new Decimal(request.longitude),
+          latitude: request.latitude === null ? null : new Prisma.Decimal(request.latitude),
+          longitude: request.longitude === null ? null : new Prisma.Decimal(request.longitude),
           created: prismaNow,
           modified: prismaNow,
           entityVersion: 0,

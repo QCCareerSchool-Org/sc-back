@@ -1,5 +1,5 @@
 import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
+import { Prisma } from '@prisma/client';
 
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -114,7 +114,7 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
           },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'course_id_submission_letter') {
             return Result.fail(new InsertNewSubmissionTemplateSubmissionLetterAlreadyInUse());

@@ -1,6 +1,6 @@
 import type { PrismaClient, Unit } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/index.js';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
@@ -91,7 +91,7 @@ export class SaveUnitInteractor implements IInteractor<SaveUnitRequestDTO, SaveU
           where: { unitId: unitIdBin },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'course_id_unit_letter') {
             return Result.fail(new SaveUnitUnitLetterAlreadyInUse());
