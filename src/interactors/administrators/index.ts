@@ -49,6 +49,7 @@ import { InsertNewPartMediumInteractor } from './insertNewPartMediumInteractor.j
 import { InsertNewPartTemplateInteractor } from './insertNewPartTemplateInteractor.js';
 import { InsertNewSubmissionTemplateInteractor } from './insertNewSubmissionTemplateInteractor.js';
 import { InsertNewTextBoxTemplateInteractor } from './insertNewTextBoxTemplateInteractor.js';
+import { InsertNewTransferInteractor } from './insertNewTransferInteractor.js';
 import { InsertNewUploadSlotTemplateInteractor } from './insertNewUploadSlotTemplateInteractor.js';
 import { InsertUnitInteractor } from './insertUnitInteractor.js';
 import { ReplaceMaterialContentInteractor } from './replaceMaterialContentInteractor.js';
@@ -143,6 +144,7 @@ export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma,
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const insertNewTransferInteractor = new InsertNewTransferInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 
 export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma, winstonLoggerService);
 export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);

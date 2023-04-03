@@ -51,6 +51,7 @@ import { InsertNewPartMediumController } from '../../controllers/administrators/
 import { InsertNewPartTemplateController } from '../../controllers/administrators/insertNewPartTemplateController.js';
 import { InsertNewSubmissionTemplateController } from '../../controllers/administrators/insertNewSubmissionTemplateController.js';
 import { InsertNewTextBoxTemplateController } from '../../controllers/administrators/insertNewTextBoxTemplateController.js';
+import { InsertNewTransferController } from '../../controllers/administrators/insertNewTransferController.js';
 import { InsertNewUploadSlotTemplateController } from '../../controllers/administrators/insertNewUploadSlotTemplateController.js';
 import { InsertUnitController } from '../../controllers/administrators/insertUnitController.js';
 import { ReplaceMaterialContentController } from '../../controllers/administrators/replaceMaterialContentController.js';
@@ -142,6 +143,8 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   // upload slots
   [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
+  // new transfers
+  [ 'post', '/:administratorId/newSubmissions/:submissionId/newTransfers', InsertNewTransferController ],
   // [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
