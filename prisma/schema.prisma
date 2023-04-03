@@ -84,7 +84,7 @@ model Tutor {
   entityVersion         Int                     @default(0) @map("entity_version")
   modified              DateTime                @default(now()) @map("timestamp") @db.Timestamp(6)
   country               Country                 @relation(fields: [countryId], references: [countryId], map: "tutors_ibfk_2")
-  schools               School                  @relation(fields: [schoolId], references: [schoolId], map: "tutors_ibfk_3")
+  school                School                  @relation(fields: [schoolId], references: [schoolId], map: "tutors_ibfk_3")
   studentType           StudentType             @relation(fields: [studentTypeId], references: [studentTypeId], map: "tutors_ibfk_1")
   messages              Message[]
   newSubmissions        NewSubmission[]
