@@ -147,6 +147,8 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
               tutor.emailAddress,
               tutor.firstName,
               tutor.lastName,
+              updatedSubmission.enrollment.studentId,
+              updatedSubmission.enrollment.courseId,
               submissionId,
               updatedSubmission.enrollment.course.code,
               updatedSubmission.enrollment.studentNumber,
@@ -189,8 +191,8 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
     }
   }
 
-  private async emailTutor(emailAddress: string, firstName: string, lastName: string, submissionId: string, courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
-    const url = `https://studentcenter.qccareerschool.com/sc/tutors/students/79656/courses/97/submissions/${encodeURIComponent(submissionId)}`;
+  private async emailTutor(emailAddress: string, firstName: string, lastName: string, studentId: number, courseId: number, submissionId: string, courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
+    const url = `https://studentcenter.qccareerschool.com/sc/tutors/students/${studentId}/courses/${courseId}/submissions/${encodeURIComponent(submissionId)}`;
 
     const htmlBody = `<p>Dear ${firstName},</p>
 <p>You have a <a href="${url}">new unit ready for marking</a>.</p>
