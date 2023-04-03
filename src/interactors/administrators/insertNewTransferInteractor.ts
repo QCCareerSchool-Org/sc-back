@@ -70,7 +70,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
         }
 
         await t.newSubmission.update({
-          data: { tutorId, modified: prismaNow },
+          data: { tutorId, transferred: prismaNow, modified: prismaNow },
           where: { submissionId: submissionIdBin },
         });
 
@@ -81,6 +81,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
             administratorId,
             preTutorId: submission.tutorId,
             postTutorId: tutorId,
+            created: prismaNow,
           },
           include: {
             newSubmission: { include: { enrollment: { include: { course: true } } } },
