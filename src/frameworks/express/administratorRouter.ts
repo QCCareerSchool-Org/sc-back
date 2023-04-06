@@ -73,6 +73,10 @@ import { applyRoutes } from './applyRoutes.js';
 export const administratorRouter = Router();
 
 const routes: Route[] = [
+  // no authentication because of iOS
+  [ 'get', '/:administratorId/newAssignmentMedia/:mediumId/file', DownloadNewAssignmentMediumController ],
+  [ 'get', '/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
+
   // only the administrator in question should be able to access this path
   [ 'use', '/:administratorId', AdministratorGuardMiddleware ],
   // student
