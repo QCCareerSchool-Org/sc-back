@@ -13,8 +13,8 @@ const routes: Route[] = [
   [ 'get', '/courseHeaderImages/:courseId', DownloadCourseHeaderImageController ],
   [ 'get', '/courseIconImages/:courseId', downloadCourseIconImageController ],
 
-  [ 'get', '/:administratorId/newAssignmentMedia/:mediumId/file', DownloadNewAssignmentMediumController ],
-  [ 'get', '/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
+  [ 'get', '/administrators/:administratorId/newAssignmentMedia/:mediumId/file', DownloadNewAssignmentMediumController ],
+  [ 'get', '/administrators/:administratorId/newPartMedia/:mediumId/file', DownloadNewPartMediumController ],
 ];
 
 applyRoutes(router, routes);
