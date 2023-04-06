@@ -192,7 +192,8 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
       return false;
     }
     const start = parseInt(matches[1], 10);
-    const end = matches[2] ? parseInt(matches[1], 10) : undefined;
+    const end = matches[2] ? parseInt(matches[2], 10) : undefined;
+    console.log('byte range requested', start, end);
     if (typeof end !== 'undefined' && end < start) {
       return false;
     }
