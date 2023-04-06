@@ -100,7 +100,7 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
 
   // Helper functions
   protected isGetMethod(): boolean {
-    return this.req.method === 'GET';
+    return this.req.method === 'GET' || this.req.method === 'HEAD';
   }
 
   protected isPostMethod(): boolean {
