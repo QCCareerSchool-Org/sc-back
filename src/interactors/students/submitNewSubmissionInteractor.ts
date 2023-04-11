@@ -137,29 +137,31 @@ export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmi
         throw err;
       }
 
-      if (updatedSubmission.tutor) { // this should always be set
-        const tutor = updatedSubmission.tutor;
-        if (tutor.emailAddress === null) {
-          this.logger.warn('Tutor has no email address');
-        } else {
-          try {
-            await this.emailTutor(
-              tutor.emailAddress,
-              tutor.firstName,
-              tutor.lastName,
-              updatedSubmission.enrollment.studentId,
-              updatedSubmission.enrollment.courseId,
-              submissionId,
-              updatedSubmission.enrollment.course.code,
-              updatedSubmission.enrollment.studentNumber,
-              updatedSubmission.unitLetter
-            );
-          } catch (e) {
-            this.logger.warn('Error emailing tutor', e);
+      if (!updatedSubmission.skipped) {
+        if (updatedSubmission.tutor) { // this should always be set
+          const tutor = updatedSubmission.tutor;
+          if (tutor.emailAddress === null) {
+            this.logger.warn('Tutor has no email address');
+          } else {
+            try {
+              await this.emailTutor(
+                tutor.emailAddress,
+                tutor.firstName,
+                tutor.lastName,
+                updatedSubmission.enrollment.studentId,
+                updatedSubmission.enrollment.courseId,
+                submissionId,
+                updatedSubmission.enrollment.course.code,
+                updatedSubmission.enrollment.studentNumber,
+                updatedSubmission.unitLetter
+              );
+            } catch (e) {
+              this.logger.warn('Error emailing tutor', e);
+            }
           }
+        } else {
+          this.logger.warn('Tutor was not set');
         }
-      } else {
-        this.logger.warn('Tutor was not set');
       }
 
       return Result.success({
