@@ -65,11 +65,11 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         return Result.fail(new DownloadNewSubmissionFeedbackSkipped());
       }
 
-      const markedThisSubmission = newSubmission.tutorId === tutorId;
+      const isThisSubmissionsTutor = newSubmission.tutorId === tutorId;
       const isThisEnrollmentsTutor = newSubmission.enrollment.tutorId === tutorId;
-      const markedAnotherSubmission = newSubmission.enrollment.newSubmissions.some(s => s.tutorId === tutorId) || newSubmission.enrollment.oldSubmissions.some(s => s.tutorId === tutorId);
+      const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId) || newSubmission.enrollment.oldSubmissions.some(s => s.finalizedDate !== null && !s.skipped && s.markedDate === null && s.tutorId === tutorId);
 
-      if (!markedThisSubmission && !isThisEnrollmentsTutor && !markedAnotherSubmission) {
+      if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
         return Result.fail(new DownloadNewSubmissionFeedbackWrongTutor());
       }
 

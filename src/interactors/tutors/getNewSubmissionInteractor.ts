@@ -48,7 +48,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           enrollment: { studentId },
         },
         include: {
-          enrollment: { include: { course: true, student: true } },
+          enrollment: { include: { course: true, student: true, newSubmissions: true, oldSubmissions: true } },
           newAssignments: {
             include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } },
             orderBy: { assignmentNumber: 'asc' },
@@ -68,7 +68,11 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         return Result.fail(new GetNewSubmissionSkipped());
       }
 
-      if (newSubmission.tutorId !== tutorId && newSubmission.enrollment.tutorId !== tutorId) {
+      const isThisSubmissionsTutor = newSubmission.tutorId === tutorId;
+      const isThisEnrollmentsTutor = newSubmission.enrollment.tutorId === tutorId;
+      const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId) || newSubmission.enrollment.oldSubmissions.some(s => s.finalizedDate !== null && !s.skipped && s.markedDate === null && s.tutorId === tutorId);
+
+      if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
         return Result.fail(new GetNewSubmissionWrongTutor());
       }
 

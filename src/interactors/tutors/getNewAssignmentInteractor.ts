@@ -60,7 +60,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           },
         },
         include: {
-          newSubmission: { include: { enrollment: true } },
+          newSubmission: { include: { enrollment: { include: { newSubmissions: true, oldSubmissions: true } } } },
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
@@ -85,7 +85,11 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         return Result.fail(new GetNewAssignmentSubmissionSkipped());
       }
 
-      if (newAssignment.newSubmission.tutorId !== tutorId && newAssignment.newSubmission.enrollment.tutorId !== tutorId) {
+      const isThisSubmissionsTutor = newAssignment.newSubmission.tutorId === tutorId;
+      const isThisEnrollmentsTutor = newAssignment.newSubmission.enrollment.tutorId === tutorId;
+      const hasAnotherSubmissionToMark = newAssignment.newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId) || newAssignment.newSubmission.enrollment.oldSubmissions.some(s => s.finalizedDate !== null && !s.skipped && s.markedDate === null && s.tutorId === tutorId);
+
+      if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
         return Result.fail(new GetNewAssignmentWrongTutor());
       }
 
