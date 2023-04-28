@@ -49,7 +49,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
           enrollment: { studentId },
         },
         include: {
-          enrollment: { include: { tutor: true, newSubmissions: true, oldSubmissions: true } },
+          enrollment: { include: { tutor: true, newSubmissions: true } },
         },
       });
 
@@ -67,7 +67,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
 
       const isThisSubmissionsTutor = newSubmission.tutorId === tutorId;
       const isThisEnrollmentsTutor = newSubmission.enrollment.tutorId === tutorId;
-      const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId) || newSubmission.enrollment.oldSubmissions.some(s => s.finalizedDate !== null && !s.skipped && s.markedDate === null && s.tutorId === tutorId);
+      const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId);
 
       if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
         return Result.fail(new DownloadNewSubmissionFeedbackWrongTutor());

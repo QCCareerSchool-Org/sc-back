@@ -20,6 +20,7 @@ export type DownloadNewUploadSlotRequestDTO = {
 export type DownloadNewUploadSlotResponseDTO = InteractorFileStreamDownload;
 
 export class DownloadNewUploadSlotNotFound extends Error { }
+export class DownloadNewUploadSlotWrongTutor extends Error { }
 export class DownloadNewUploadSlotFileNotFound extends Error { }
 export class DownloadNewUploadSlotFileReadError extends Error { }
 
@@ -47,16 +48,35 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
               newSubmission: {
                 NOT: { submitted: null },
                 skipped: false,
-                tutorId,
               },
             },
           },
         },
-        include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
+        include: {
+          newPart: {
+            include: {
+              newAssignment: {
+                include: {
+                  newSubmission: {
+                    include: { enrollment: { include: { newSubmissions: true } } },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!newUploadSlot) {
         return Result.fail(new DownloadNewUploadSlotNotFound());
+      }
+
+      const isThisSubmissionsTutor = newUploadSlot.newPart.newAssignment.newSubmission.tutorId === tutorId;
+      const isThisEnrollmentsTutor = newUploadSlot.newPart.newAssignment.newSubmission.enrollment.tutorId === tutorId;
+      const hasAnotherSubmissionToMark = newUploadSlot.newPart.newAssignment.newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId);
+
+      if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
+        return Result.fail(new DownloadNewUploadSlotWrongTutor());
       }
 
       const paddedEnrollmentId = newUploadSlot.newPart.newAssignment.newSubmission.enrollmentId.toString().padStart(8, '0');
