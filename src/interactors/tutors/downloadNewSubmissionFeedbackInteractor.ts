@@ -48,6 +48,9 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
           submissionId: submissionIdBin,
           enrollment: { studentId },
         },
+        include: {
+          enrollment: { include: { tutor: true, newSubmissions: true, oldSubmissions: true } },
+        },
       });
 
       if (!newSubmission) {
@@ -62,7 +65,11 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         return Result.fail(new DownloadNewSubmissionFeedbackSkipped());
       }
 
-      if (newSubmission.tutorId !== tutorId) {
+      const markedThisSubmission = newSubmission.tutorId === tutorId;
+      const isThisEnrollmentsTutor = newSubmission.enrollment.tutorId === tutorId;
+      const markedAnotherSubmission = newSubmission.enrollment.newSubmissions.some(s => s.tutorId === tutorId) || newSubmission.enrollment.oldSubmissions.some(s => s.tutorId === tutorId);
+
+      if (!markedThisSubmission && !isThisEnrollmentsTutor && !markedAnotherSubmission) {
         return Result.fail(new DownloadNewSubmissionFeedbackWrongTutor());
       }
 

@@ -82,7 +82,6 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         });
 
         const paddedEnrollmentId = newSubmission.enrollmentId.toString().padStart(8, '0');
-        const paddedStudentId = studentId.toString().padStart(8, '0');
 
         // delete the file
         const filePath = `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${submissionId}`;
