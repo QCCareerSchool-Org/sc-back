@@ -77,6 +77,7 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
       }
 
       if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {
+        this.logger.info('Invalid mime type', file.mimeType);
         return Result.fail(new UploadNewUploadSlotInvalidFileType());
       }
 
