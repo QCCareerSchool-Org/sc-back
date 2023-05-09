@@ -151,6 +151,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       }
 
       const failed = submissionPoints > 0 && submissionMark / submissionPoints < 0.5;
+      this.logger.info('Submission closed', { newSubmission, submissionPoints, submissionMark, failed });
 
       const finalUnitLetter = await this.getFinalUnitLetter(newSubmission.enrollment.courseId);
 
@@ -167,7 +168,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         });
 
         if (failed) {
-          await this.prisma.enrollment.update({
+          await t.enrollment.update({
             data: { onHold: true, holdReason: 'failed unit' },
             where: { enrollmentId: s.enrollmentId },
           });
@@ -202,6 +203,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
           this.logger.error('Error sending DG kit email', err);
         }
       }
+
       if (this.shouldSendMZKit(newSubmission, submissionPoints, submissionMark)) {
         try {
           await this.sendMZKitShippingEmail(newSubmission);
