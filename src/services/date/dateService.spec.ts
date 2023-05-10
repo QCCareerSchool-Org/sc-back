@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import type { SpyInstance } from 'jest-mock';
 import { DateService } from './dateService.js';
 
 describe('dateService', () => {
@@ -23,68 +22,64 @@ describe('dateService', () => {
 
     it('formats a date', () => {
       const date = new Date('2022-05-25T10:37:00');
-      expect(dateService.formatDateTime(date)).toBe('Wednesday, May 25, 2022 at 10:37:00 AM Eastern Daylight Time');
+      expect(dateService.formatDateTime(date)).toBe('Wednesday, May 25, 2022 at 10:37:00\u202fAM Eastern Daylight Time');
     });
   });
 
   describe('fixPrismaReadDate', () => {
 
     it('shoud offset the date 5 hours', () => {
-      const date = new Date(2023, 1, 3, 14, 2, 4, 392); // 2023-06-03T14:02:04.392
+      const date = new Date(2023, 1, 3, 14, 2, 4); // 2023-06-03T14:02:04
       const fixedDate = dateService.fixPrismaReadDate(date);
       expect(fixedDate.getFullYear()).toBe(2023);
       expect(fixedDate.getMonth()).toBe(1);
-      expect(fixedDate.getDate()).toBe(15);
-      expect(fixedDate.getHours()).toBe(18);
+      expect(fixedDate.getDate()).toBe(3);
+      expect(fixedDate.getHours()).toBe(19);
       expect(fixedDate.getMinutes()).toBe(2);
       expect(fixedDate.getSeconds()).toBe(4);
-      expect(fixedDate.getMilliseconds()).toBe(392);
     });
 
     it('shoud offset the date 4 hours during DST', () => {
-      const date = new Date(2023, 5, 3, 14, 2, 4, 392); // 2023-06-03T14:02:04.392
+      const date = new Date(2023, 5, 3, 14, 2, 4); // 2023-06-03T14:02:04
       const fixedDate = dateService.fixPrismaReadDate(date);
       expect(fixedDate.getFullYear()).toBe(2023);
       expect(fixedDate.getMonth()).toBe(5);
-      expect(fixedDate.getDate()).toBe(14);
+      expect(fixedDate.getDate()).toBe(3);
       expect(fixedDate.getHours()).toBe(18);
       expect(fixedDate.getMinutes()).toBe(2);
       expect(fixedDate.getSeconds()).toBe(4);
-      expect(fixedDate.getMilliseconds()).toBe(392);
     });
   });
 
   describe('fixPrismaWriteDate', () => {
 
     it('shoud offset the date -5 hours', () => {
-      const date = new Date(2023, 1, 1, 2, 2, 4, 392); // 2023-01-01T02:02:04.392
+      const date = new Date(2023, 1, 1, 2, 2, 4); // 2023-01-01T02:02:04
       const fixedDate = dateService.fixPrismaWriteDate(date);
-      expect(fixedDate.getFullYear()).toBe(2022);
-      expect(fixedDate.getMonth()).toBe(12);
-      expect(fixedDate.getDate()).toBe(20);
-      expect(fixedDate.getHours()).toBe(9);
+      expect(fixedDate.getFullYear()).toBe(2023);
+      expect(fixedDate.getMonth()).toBe(0);
+      expect(fixedDate.getDate()).toBe(31);
+      expect(fixedDate.getHours()).toBe(21);
       expect(fixedDate.getMinutes()).toBe(2);
       expect(fixedDate.getSeconds()).toBe(4);
-      expect(fixedDate.getMilliseconds()).toBe(392);
     });
 
     it('shoud offset the date -4 hours during DST', () => {
-      const date = new Date(2023, 5, 3, 14, 2, 4, 392); // 2023-06-03T14:02:04.392
+      const date = new Date(2023, 5, 3, 14, 2, 4); // 2023-06-03T14:02:04
       const fixedDate = dateService.fixPrismaWriteDate(date);
       expect(fixedDate.getFullYear()).toBe(2023);
       expect(fixedDate.getMonth()).toBe(5);
-      expect(fixedDate.getDate()).toBe(14);
+      expect(fixedDate.getDate()).toBe(3);
       expect(fixedDate.getHours()).toBe(10);
       expect(fixedDate.getMinutes()).toBe(2);
       expect(fixedDate.getSeconds()).toBe(4);
-      expect(fixedDate.getMilliseconds()).toBe(392);
     });
   });
 
   describe('fixPrismaWriteDate and fixPrismaReadDate', () => {
 
     it('should give back the original date', () => {
-      const date = new Date(2023, 1, 14, 18, 32, 1, 2); // 2023-02-14T18:32:01.002
+      const date = new Date(2023, 1, 14, 18, 32, 1); // 2023-02-14T18:32:01
       const fixedDate = dateService.fixPrismaReadDate(dateService.fixPrismaWriteDate(date));
       expect(fixedDate.getTime()).toBe(date.getTime());
     });

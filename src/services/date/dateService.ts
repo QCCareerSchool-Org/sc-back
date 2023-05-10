@@ -1,7 +1,5 @@
 import type { IDateService } from './index.js';
 
-type DateOrNull<T extends Date | null> = T extends Date ? Date : null;
-
 export class DateService implements IDateService {
   private static readonly months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
 

@@ -50,4 +50,21 @@ describe('SanitizerService', () => {
       expect(sanitizerService.shortenSanitizedFilename(longName)).toBe(expected);
     });
   });
+
+  describe('sanitizeHtml', () => {
+    it('should turn remove <img> tags', () => {
+      const input = '<p>Hello <img src="test.jpg" />World!</p>';
+      expect(sanitizerService.sanitizeHtml(input)).toBe('<p>Hello World!</p>');
+    });
+
+    it('should turn remove <script> tags', () => {
+      const input = '<p>Hello <script src="foo.js"></script><script>alert(\'!!!\');</script>World!</p>';
+      expect(sanitizerService.sanitizeHtml(input)).toBe('<p>Hello World!</p>');
+    });
+
+    it('should close unclosed tags', () => {
+      const input = '<p>Hello World!<p>How are you?';
+      expect(sanitizerService.sanitizeHtml(input)).toBe('<p>Hello World!</p><p>How are you?</p>');
+    });
+  });
 });
