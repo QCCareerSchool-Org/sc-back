@@ -172,6 +172,12 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
             data: { onHold: true, holdReason: 'failed unit' },
             where: { enrollmentId: s.enrollmentId },
           });
+
+          try {
+            await this.sendFailedEmail(newSubmission.enrollment.course.code, newSubmission.enrollment.studentNumber, newSubmission.unitLetter);
+          } catch (err) {
+            this.logger.warn('Could not send failed submission email', err);
+          }
         }
 
         if (newSubmission.unitLetter !== finalUnitLetter) { // this is not the final submission
@@ -352,6 +358,15 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const textBody = `${name},\n\nYour ${courseName} submission ${unitLetter} has been marked. You may now review your marks and your tutor's audio feedback at the Online Student Center (https://studentcenter.qccareerschool.com).`;
     const htmlBody = `<p>${name},</p><p>Your ${courseName} submission ${this.sanitizerService.sanitizeHtml(unitLetter)} has been marked. You may now review your marks and your tutor's audio feedback at the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p>`;
 
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async sendFailedEmail(courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
+    const name = 'TA';
+    const to = 'teachingassistant@qccareerschool.com';
+    const subject = 'Failed Submission';
+    const htmlBody = `<p>${this.sanitizerService.sanitizeHtml(courseCode)}${studentNumber} has failed submission ${this.sanitizerService.sanitizeHtml(unitLetter)}</p>`;
+    const textBody = `${courseCode}${studentNumber} has failed submission ${unitLetter}\n\n`;
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 
