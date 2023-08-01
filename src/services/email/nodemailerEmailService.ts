@@ -24,7 +24,7 @@ export class NodemailerEmailService implements IEmailService {
         html: htmlBody,
         text: textBody,
         attachments,
-        bcc: { name: 'Dave Welsh', address: 'dave@qccareerschool.com' },
+        // bcc: [ { name: 'Dave Welsh', address: 'dave@qccareerschool.com' } ],
       });
     } finally {
       transport.close();
