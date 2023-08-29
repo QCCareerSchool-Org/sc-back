@@ -65,6 +65,7 @@ import { SaveNewPartTemplateController } from '../../controllers/administrators/
 import { SaveNewSubmissionTemplateController } from '../../controllers/administrators/saveNewSubmissionTemplateController.js';
 import { SaveNewTextBoxController } from '../../controllers/administrators/saveNewTextBoxController.js';
 import { SaveNewTextBoxTemplateController } from '../../controllers/administrators/saveNewTextBoxTemplateController.js';
+import { SaveNewUploadSlotController } from '../../controllers/administrators/saveNewUploadSlotController.js';
 import { SaveNewUploadSlotTemplateController } from '../../controllers/administrators/saveNewUploadSlotTemplateController.js';
 import { SaveUnitController } from '../../controllers/administrators/saveUnitController.js';
 import type { Route } from './applyRoutes.js';
@@ -142,10 +143,10 @@ const routes: Route[] = [
   // new text boxes
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   // upload slots
+  [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   // new transfers
   [ 'post', '/:administratorId/newSubmissions/:submissionId/newTransfers', InsertNewTransferController ],
-  // [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   // new submission returns
   [ 'get', '/:administratorId/newSubmissionReturns/:submissionReturnId', GetNewSubmissionReturnController ],
   [ 'put', '/:administratorId/newSubmissionReturns/:submissionReturnId', CloseNewSubmissionReturnController ],

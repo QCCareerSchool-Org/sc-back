@@ -63,6 +63,7 @@ import { SaveNewPartTemplateInteractor } from './saveNewPartTemplateInteractor.j
 import { SaveNewSubmissionTemplateInteractor } from './saveNewSubmissionTemplateInteractor.js';
 import { SaveNewTextBoxInteractor } from './saveNewTextBoxInteractor.js';
 import { SaveNewTextBoxTemplateInteractor } from './saveNewTextBoxTemplateInteractor.js';
+import { SaveNewUploadSlotInteractor } from './saveNewUploadSlotInteractor.js';
 import { SaveNewUploadSlotTemplateInteractor } from './saveNewUploadSlotTemplateInteractor.js';
 import { SaveUnitInteractor } from './saveUnitInteractor.js';
 
@@ -125,6 +126,7 @@ export const deleteNewSubmissionTemplatePricesInteractor = new DeleteNewSubmissi
 export const getNewSubmissionReturnInteractor = new GetNewSubmissionReturnInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const closeNewSubmissionReturnInteractor = new CloseNewSubmissionReturnInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
 export const getUnitInteractor = new GetUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const insertUnitInteractor = new InsertUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
