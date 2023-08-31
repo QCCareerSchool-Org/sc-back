@@ -6,7 +6,7 @@ import { materialType } from '../../domain/materialDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
-import type { IHttpService } from '../../services/http/index.js';
+import type { HeaderValue, IHttpService } from '../../services/http/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
@@ -394,7 +394,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
    * @returns the content type
    */
   private async fetchExternalData(externalData: string): Promise<[ contentType: string, filename: string ]> {
-    let headers: Record<string, string | undefined>;
+    let headers: Record<string, HeaderValue | undefined>;
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {
@@ -402,13 +402,13 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       throw new InsertMaterialCouldNotFetchExternalData();
     }
 
-    if (typeof headers['content-type'] === 'undefined') {
+    if (typeof headers['content-type'] !== 'string') {
       throw new InsertMaterialContentTypeMissing();
     }
     const contentType = headers['content-type'].split(';')[0];
 
     let filename = 'unknown';
-    if (typeof headers['content-disposition'] !== 'undefined') {
+    if (typeof headers['content-disposition'] === 'string') {
       // get the filename from a header such as 'Content-Type: attachment; filename="foo.txt"'
       const regExp = /filename="(.*)"/iu;
       const matches = headers['content-disposition'].match(regExp);

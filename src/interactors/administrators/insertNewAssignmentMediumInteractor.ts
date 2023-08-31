@@ -4,7 +4,7 @@ import type { NewAssignmentMediumDTO, NewMediumType } from '../../domain/newAssi
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
-import type { IHttpService } from '../../services/http/index.js';
+import type { HeaderValue, IHttpService } from '../../services/http/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -187,19 +187,19 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
 
   private async insertWithExternalData(assignmentIdBin: Buffer, caption: string, order: number, externalData: string): Promise<NewAssignmentMedium> {
     // check the external data
-    let headers: Record<string, string | undefined>;
+    let headers: Record<string, HeaderValue | undefined>;
     try {
       headers = await this.httpService.getHeaders(externalData);
     } catch (err) {
       throw new InsertNewAssignmentMediumUnableToFetchExternalData();
     }
 
-    if (typeof headers['content-type'] === 'undefined') {
+    if (typeof headers['content-type'] !== 'string') {
       throw new InsertNewAssignmentMediumMissingContentType();
     }
     const contentType = headers['content-type'];
 
-    if (typeof headers['content-length'] === 'undefined') {
+    if (typeof headers['content-length'] !== 'string') {
       throw new InsertNewAssignmentMediumMissingContentLength();
     }
     const contentLength = parseInt(headers['content-length'], 10);
