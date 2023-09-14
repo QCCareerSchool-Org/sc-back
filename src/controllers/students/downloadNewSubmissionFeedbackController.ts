@@ -78,6 +78,8 @@ export class DownloadNewSubmissionFeedbackController extends BaseController<Requ
       return this.sendInteractorFileStream(result.value);
     }
 
+    console.log(result.error.constructor);
+
     switch (result.error.constructor) {
       case DownloadNewSubmissionFeedbackNotFound:
       case DownloadNewSubmissionFeedbackNotSubmitted:
