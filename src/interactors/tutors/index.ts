@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
-import { dateService, environmentConfigService, gradeService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
+import { dateService, environmentConfigService, fileTypeMimeTypeService, gradeService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService } from '../../services/index.js';
 import { CloseNewSubmissionInteractor } from './closeNewSubmissionInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
@@ -15,7 +15,7 @@ import { UploadNewSubmissionFeedbackInteractor } from './uploadNewSubmissionFeed
 
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
-export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, dateService, environmentConfigService, winstonLoggerService);
+export const uploadNewSubmissionFeedbackInteractor = new UploadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, fileTypeMimeTypeService, sanitizerService, dateService, environmentConfigService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const eraseNewSubmissionFeedbackInteractor = new EraseNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, gradeService, sanitizerService, dateService, winstonLoggerService);

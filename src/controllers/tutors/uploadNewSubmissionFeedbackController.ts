@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { uploadNewSubmissionFeedbackInteractor } from '../../interactors/tutors/index.js';
 import type { UploadNewSubmissionFeedbackResponseDTO } from '../../interactors/tutors/uploadNewSubmissionFeedbackInteractor.js';
-import { UploadNewSubmissionFeedbackCouldNotCreateDirectory, UploadNewSubmissionFeedbackFileWriteError, UploadNewSubmissionFeedbackNotFound, UploadNewSubmissionFeedbackSubmissionAlreadyClosed, UploadNewSubmissionFeedbackSubmissionNotSubmitted, UploadNewSubmissionFeedbackSubmissionSkipped, UploadNewSubmissionFeedbackWrongTutor, UploadNewSubmissionInvalidMimeType, UploadNewSubmissionUnknownMimeType } from '../../interactors/tutors/uploadNewSubmissionFeedbackInteractor.js';
+import { UploadNewSubmissionFeedbackCouldNotCreateDirectory, UploadNewSubmissionFeedbackFileWriteError, UploadNewSubmissionFeedbackMimeTypeDoesntMatch, UploadNewSubmissionFeedbackNotFound, UploadNewSubmissionFeedbackSubmissionAlreadyClosed, UploadNewSubmissionFeedbackSubmissionNotSubmitted, UploadNewSubmissionFeedbackSubmissionSkipped, UploadNewSubmissionFeedbackWrongTutor, UploadNewSubmissionInvalidMimeType, UploadNewSubmissionUnknownMimeType } from '../../interactors/tutors/uploadNewSubmissionFeedbackInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -92,6 +92,8 @@ export class UploadNewSubmissionFeedbackController extends BaseController<Reques
         return this.forbidden('Submission is already closed');
       case UploadNewSubmissionFeedbackWrongTutor:
         return this.forbidden('No access to this submission');
+      case UploadNewSubmissionFeedbackMimeTypeDoesntMatch:
+        return this.badRequest('Detected mime type doesn\'t match submitted mime type. Did you change the file extension?');
       case UploadNewSubmissionUnknownMimeType:
         return this.badRequest('Unknown file type');
       case UploadNewSubmissionInvalidMimeType:

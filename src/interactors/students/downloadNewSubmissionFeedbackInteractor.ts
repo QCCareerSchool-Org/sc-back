@@ -125,9 +125,9 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
     }
   }
 
-  private async getFilePathAndStats(studentId: number, submissionId: string): Promise<[filePath: string, stats: FileStats] | false> {
-    const paddedStudentId = studentId.toString().padStart(8, '0');
-    const filePath = `${this.configService.config.paths.unitFeedbackPath}/${paddedStudentId.substring(0, 4)}/${paddedStudentId.substring(4, 8)}/${submissionId}`;
+  private async getFilePathAndStats(enrollmentId: number, submissionId: string): Promise<[filePath: string, stats: FileStats] | false> {
+    const paddedEnrollmentId = enrollmentId.toString().padStart(8, '0');
+    const filePath = `${this.configService.config.paths.unitFeedbackPath}/${paddedEnrollmentId.substring(0, 4)}/${paddedEnrollmentId.substring(4, 8)}/${submissionId}`;
 
     // check if the file exists
     const stats = await this.fileService.stat(filePath);

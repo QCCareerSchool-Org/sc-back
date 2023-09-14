@@ -5,6 +5,7 @@ import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
@@ -25,6 +26,7 @@ export class UploadNewSubmissionFeedbackSubmissionNotSubmitted extends Error { }
 export class UploadNewSubmissionFeedbackSubmissionSkipped extends Error { }
 export class UploadNewSubmissionFeedbackSubmissionAlreadyClosed extends Error { }
 export class UploadNewSubmissionFeedbackWrongTutor extends Error { }
+export class UploadNewSubmissionFeedbackMimeTypeDoesntMatch extends Error { }
 export class UploadNewSubmissionUnknownMimeType extends Error { }
 export class UploadNewSubmissionInvalidMimeType extends Error { }
 export class UploadNewSubmissionFeedbackCouldNotCreateDirectory extends Error { }
@@ -36,6 +38,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
+    private readonly mimeTypeService: IMimeTypeService,
     private readonly sanitizerService: ISanitizerService,
     private readonly dateService: IDateService,
     private readonly configService: IConfigService,
@@ -71,6 +74,11 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
 
       if (newSubmission.tutorId !== tutorId) {
         return Result.fail(new UploadNewSubmissionFeedbackWrongTutor());
+      }
+
+      const detectedMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
+      if (detectedMimeType !== file.mimeType) {
+        return Result.fail(new UploadNewSubmissionFeedbackMimeTypeDoesntMatch());
       }
 
       const updatedSubmission = await this.prisma.$transaction(async transaction => {
