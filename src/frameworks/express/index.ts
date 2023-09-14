@@ -22,7 +22,7 @@ const { port } = environmentConfigService.config;
 const corsOptions: CorsOptions = {
   origin: process.env.NODE_ENV === 'production' ? 'https://studentcenter.qccareerschool.com' : 'http://localhost:3000',
   credentials: true,
-  exposedHeaders: [ 'Content-Disposition' ],
+  exposedHeaders: [ 'Content-Disposition', 'Accept-Ranges' ],
 };
 
 const app = express();
