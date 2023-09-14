@@ -75,7 +75,26 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       }
       const [ filePath, stats ] = file;
 
-      const filename = `${submission.enrollment.course.code}${submission.enrollment.studentNumber}_Unit_${submission.unitLetter}.mp3`;
+      let filename = `${submission.enrollment.course.code}${submission.enrollment.studentNumber}_Unit_${submission.unitLetter}`;
+
+      let extensionFound = false;
+      if (submission.responseFilename) {
+        const filenameParts = submission.responseFilename.split('.');
+        const extension = filenameParts[filenameParts.length - 1];
+        if (extension.length === 3) {
+          extensionFound = true;
+          filename += '.' + extension;
+        }
+      }
+
+      if (!extensionFound) {
+        if (submission.responseMimeTypeId === 'audio/mpeg') {
+          filename += '.mp3';
+        }
+        if (submission.responseMimeTypeId === 'audio/x-m4a') {
+          filename += '.m4a';
+        }
+      }
 
       if (typeof startByte !== 'undefined') {
         const start = startByte;

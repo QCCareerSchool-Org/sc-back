@@ -164,6 +164,8 @@ export abstract class BaseController<RequestDTO = unknown, ResponseDTO = unknown
     }
     if (download) {
       this.res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+    } else {
+      this.res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(filename)}"`);
     }
     this.res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
     this.res.setHeader('Last-Modified', this.formatHeaderDate(lastModified));
