@@ -35,6 +35,13 @@ app.use(express.json({ limit: 524_288 })); // 512 KB
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
+app.use('/', (req, res, next) => {
+  if (req.originalUrl.startsWith('/v1/students/')) {
+    console.log(req.originalUrl, (req.cookies as Record<string, string>).accessToken);
+  }
+  next();
+});
+
 app.use('/v1', router);
 
 app.use('/v1/auth', authenticationRouter);
