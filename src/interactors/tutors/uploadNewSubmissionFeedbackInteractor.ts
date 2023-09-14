@@ -26,9 +26,13 @@ export class UploadNewSubmissionFeedbackSubmissionNotSubmitted extends Error { }
 export class UploadNewSubmissionFeedbackSubmissionSkipped extends Error { }
 export class UploadNewSubmissionFeedbackSubmissionAlreadyClosed extends Error { }
 export class UploadNewSubmissionFeedbackWrongTutor extends Error { }
-export class UploadNewSubmissionFeedbackMimeTypeDoesntMatch extends Error { }
-export class UploadNewSubmissionUnknownMimeType extends Error { }
-export class UploadNewSubmissionInvalidMimeType extends Error { }
+export class UploadNewSubmissionFeedbackMimeTypeDoesntMatch extends Error {
+  public constructor(public readonly detected: string, public readonly expected: string, message?: string) {
+    super(message);
+  }
+}
+export class UploadNewSubmissionFeedbackUnknownMimeType extends Error { }
+export class UploadNewSubmissionFeedbackInvalidMimeType extends Error { }
 export class UploadNewSubmissionFeedbackCouldNotCreateDirectory extends Error { }
 export class UploadNewSubmissionFeedbackFileWriteError extends Error { }
 
@@ -78,7 +82,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
 
       const detectedMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
       if (detectedMimeType !== file.mimeType) {
-        return Result.fail(new UploadNewSubmissionFeedbackMimeTypeDoesntMatch());
+        return Result.fail(new UploadNewSubmissionFeedbackMimeTypeDoesntMatch(detectedMimeType, file.mimeType));
       }
 
       const updatedSubmission = await this.prisma.$transaction(async transaction => {
@@ -86,11 +90,11 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
           where: { mimeTypeId: file.mimeType },
         });
         if (!mimeType) {
-          throw new UploadNewSubmissionUnknownMimeType(file.mimeType);
+          throw new UploadNewSubmissionFeedbackUnknownMimeType(file.mimeType);
         }
 
         if (!mimeType.mimeTypeId.startsWith('audio/')) {
-          throw new UploadNewSubmissionInvalidMimeType(mimeType.mimeTypeId);
+          throw new UploadNewSubmissionFeedbackInvalidMimeType(mimeType.mimeTypeId);
         }
 
         const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
