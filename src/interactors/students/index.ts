@@ -20,6 +20,7 @@ import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor.js'
 import { SkipNewSubmissionInteractor } from './skipNewSubmissionInteractor.js';
 import { SubmitNewSubmissionInteractor } from './submitNewSubmissionInteractor.js';
 import { UpdateEmailAddressInteractor } from './updateEmailAddressInteractor.js';
+import { UpdateNewSubmissionResponseProgressInteractor } from './updateNewSubmissionResponseProgressInteractor.js';
 import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor.js';
 
 // use-case interactor singletons
@@ -45,3 +46,4 @@ export const insertMaterialCompletionInteractor = new InsertMaterialCompletionIn
 export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const updateNewSubmissionResponseProgressInteractor = new UpdateNewSubmissionResponseProgressInteractor(prisma, uuidService, dateService, winstonLoggerService);

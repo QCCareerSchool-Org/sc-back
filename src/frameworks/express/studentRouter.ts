@@ -23,6 +23,7 @@ import { SkipNewSubmissionController } from '../../controllers/students/skipNewS
 import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware.js';
 import { SubmitNewSubmissionController } from '../../controllers/students/submitNewSubmissionController.js';
 import { UpdateEmailAddressController } from '../../controllers/students/updateEmailAddressController.js';
+import { UpdateNewSubmissionResponseProgressController } from '../../controllers/students/updateNewSubmissionResponseProgressController.js';
 import { UploadNewUploadSlotController } from '../../controllers/students/uploadNewUploadSlotController.js';
 import type { Route } from './applyRoutes.js';
 import { applyRoutes } from './applyRoutes.js';
@@ -49,6 +50,7 @@ const routes: Route[] = [
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/submissions', SubmitNewSubmissionController ],
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/:submissionId/skips', SkipNewSubmissionController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/response', DownloadNewSubmissionFeedbackController ],
+  [ 'put', '/:studentId/courses/:courseId/newSubmissions/:submissionId/responseProgress', UpdateNewSubmissionResponseProgressController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/media/:mediumId/file', DownloadNewAssignmentMediumController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/media/:mediumId/file', DownloadNewPartMediumController ],
