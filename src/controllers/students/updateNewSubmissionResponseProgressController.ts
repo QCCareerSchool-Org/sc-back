@@ -13,6 +13,8 @@ type Request = {
     courseId: string;
     /** uuid */
     submissionId: string;
+  };
+  body: {
     progress: number;
   };
 };
@@ -26,11 +28,16 @@ export class UpdateNewSubmissionResponseProgressController extends BaseControlle
       studentId: yup.string().matches(/^\d+$/u).defined(),
       courseId: yup.string().matches(/^\d+$/u).defined(),
       submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+    });
+    const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       progress: yup.number().defined(),
     });
     try {
-      const params = await paramsSchema.validate(this.req.params);
-      return { params };
+      const [ params, body ] = await Promise.all([
+        paramsSchema.validate(this.req.params),
+        bodySchema.validate(this.req.body),
+      ]);
+      return { params, body };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -41,7 +48,7 @@ export class UpdateNewSubmissionResponseProgressController extends BaseControlle
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl({ params, body }: Request): Promise<void> {
     if (!this.isPutMethod()) {
       return this.methodNotAllowed();
     }
@@ -50,7 +57,7 @@ export class UpdateNewSubmissionResponseProgressController extends BaseControlle
     const courseId = parseInt(params.courseId, 10);
     const { submissionId } = params;
 
-    const result = await updateNewSubmissionResponseProgressInteractor.execute({ studentId, courseId, submissionId, progress: params.progress });
+    const result = await updateNewSubmissionResponseProgressInteractor.execute({ studentId, courseId, submissionId, progress: body.progress });
 
     if (result.success) {
       return this.ok(result.value);
