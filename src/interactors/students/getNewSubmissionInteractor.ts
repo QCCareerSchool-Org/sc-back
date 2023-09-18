@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewAssignmentDTO } from '../../domain/students/newAssignmentDTO.js';
@@ -21,7 +22,9 @@ export type GetNewSubmissionRequestDTO = {
 };
 
 export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
-  enrollment: EnrollmentDTO;
+  enrollment: EnrollmentDTO & {
+    course: CourseDTO;
+  };
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
       newTextBoxes: NewTextBoxDTO[];
@@ -107,6 +110,22 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           enrollmentDate: this.dateService.fixPrismaReadDate(submission.enrollment.enrollmentDate),
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
+          course: {
+            courseId: submission.enrollment.course.courseId,
+            schoolId: submission.enrollment.course.schoolId,
+            code: submission.enrollment.course.code,
+            version: submission.enrollment.course.version,
+            studentTypeId: submission.enrollment.course.studentTypeId,
+            name: submission.enrollment.course.name,
+            courseGuide: submission.enrollment.course.courseGuide,
+            quizzesEnabled: submission.enrollment.course.quizzesEnabled,
+            noTutor: submission.enrollment.course.noTutor,
+            submissionType: submission.enrollment.course.submissionType,
+            order: submission.enrollment.course.order,
+            enabled: submission.enrollment.course.enabled,
+            submissionsEnabled: submission.enrollment.course.submissionsEnabled,
+            entityVersion: submission.enrollment.course.entityVersion,
+          },
         },
         newAssignments: submission.newAssignments.map(a => {
           let assignmentComplete = true;
