@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Course, Enrollment, NewSubmission, PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -22,6 +22,8 @@ export class UpdateNewSubmissionResponseProgressNotFound extends UpdateNewSubmis
 export class UpdateNewSubmissionResponseProgressLessThanZero extends UpdateNewSubmissionResponseProgressError { }
 export class UpdateNewSubmissionResponseProgressGreaterThan100 extends UpdateNewSubmissionResponseProgressError { }
 
+type SubmissionWithEnrollmentAndCourse = NewSubmission & { enrollment: Enrollment & { course: Course } };
+
 export class UpdateNewSubmissionResponseProgressInteractor implements IInteractor<UpdateNewSubmissionResponseProgressRequestDTO, UpdateNewSubmissionResponseProgressResponseDTO> {
 
   public constructor(
@@ -43,16 +45,16 @@ export class UpdateNewSubmissionResponseProgressInteractor implements IInteracto
 
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
 
-      const submission = await this.prisma.newSubmission.findFirst({ where: { enrollment: { studentId, courseId }, submissionId: submissionIdBin } });
-      if (!submission) {
-        return Result.fail(new UpdateNewSubmissionResponseProgressNotFound());
-      }
+      let updatedSubmission: SubmissionWithEnrollmentAndCourse;
 
-      const updatedSubmission = await this.prisma.newSubmission.update({
-        where: { submissionId: submissionIdBin },
-        data: { responseProgress: progress },
-        include: { enrollment: { include: { course: true } } },
-      });
+      try {
+        updatedSubmission = await this.updateSubmission(studentId, courseId, submissionIdBin, progress);
+      } catch (err) {
+        if (err instanceof UpdateNewSubmissionResponseProgressError) {
+          return Result.fail(err);
+        }
+        throw err;
+      }
 
       return Result.success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
@@ -82,5 +84,27 @@ export class UpdateNewSubmissionResponseProgressInteractor implements IInteracto
       this.logger.error('error submitting new submission', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
+  }
+
+  private async updateSubmission(studentId: number, courseId: number, submissionIdBin: Buffer, progress: number): Promise<SubmissionWithEnrollmentAndCourse> {
+    return this.prisma.$transaction(async transaction => {
+      const submission = await transaction.newSubmission.findFirst({
+        where: { enrollment: { studentId, courseId }, submissionId: submissionIdBin },
+        include: { enrollment: { include: { course: true } } },
+      });
+      if (!submission) {
+        throw new UpdateNewSubmissionResponseProgressNotFound();
+      }
+
+      if (submission.responseProgress !== null && submission.responseProgress >= progress) {
+        return submission;
+      }
+
+      return this.prisma.newSubmission.update({
+        where: { submissionId: submissionIdBin },
+        data: { responseProgress: progress },
+        include: { enrollment: { include: { course: true } } },
+      });
+    });
   }
 }
