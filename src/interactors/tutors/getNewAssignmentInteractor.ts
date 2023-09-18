@@ -128,6 +128,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           responseFilename: newAssignment.newSubmission.responseFilename,
           responseFilesize: newAssignment.newSubmission.responseFilesize,
           responseMimeTypeId: newAssignment.newSubmission.responseMimeTypeId,
+          responseProgress: newAssignment.newSubmission.responseProgress,
           created: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.modified),
           enrollment: {

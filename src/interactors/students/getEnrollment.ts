@@ -349,6 +349,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             responseFilename: newSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${newSubmission.unitLetter}.mp3`,
             responseFilesize: newSubmission.responseFilesize,
             responseMimeTypeId: newSubmission.responseMimeTypeId,
+            responseProgress: newSubmission.responseProgress,
             complete: submissionComplete,
             points: submissionPoints,
             mark: newSubmission.closed && submissionMarked ? submissionMark : null,

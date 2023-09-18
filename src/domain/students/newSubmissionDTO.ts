@@ -20,6 +20,7 @@ export type NewSubmissionDTO = {
   responseFilename: string | null;
   responseFilesize: number | null;
   responseMimeTypeId: string | null;
+  responseProgress: number | null;
   complete: boolean;
   points: number;
   mark: number | null;

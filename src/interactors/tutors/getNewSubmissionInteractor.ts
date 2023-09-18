@@ -100,6 +100,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         responseFilename: newSubmission.responseFilename,
         responseFilesize: newSubmission.responseFilesize,
         responseMimeTypeId: newSubmission.responseMimeTypeId,
+        responseProgress: newSubmission.responseProgress,
         created: this.dateService.fixPrismaReadDate(newSubmission.created),
         modified: this.dateService.fixPrismaReadDate(newSubmission.modified),
         enrollment: {

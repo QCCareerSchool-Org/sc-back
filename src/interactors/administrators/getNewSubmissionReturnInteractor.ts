@@ -171,6 +171,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           responseFilename: submissionReturn.newSubmission.responseFilename,
           responseFilesize: submissionReturn.newSubmission.responseFilesize,
           responseMimeTypeId: submissionReturn.newSubmission.responseMimeTypeId,
+          responseProgress: submissionReturn.newSubmission.responseProgress,
           complete: submissionComplete,
           points: submissionPoints,
           mark: submissionMark,

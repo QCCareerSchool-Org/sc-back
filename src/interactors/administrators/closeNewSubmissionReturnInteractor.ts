@@ -97,6 +97,7 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
           responseFilename: updatedSubmissionReturn.newSubmission.responseFilename,
           responseFilesize: updatedSubmissionReturn.newSubmission.responseFilesize,
           responseMimeTypeId: updatedSubmissionReturn.newSubmission.responseMimeTypeId,
+          responseProgress: updatedSubmissionReturn.newSubmission.responseProgress,
           created: updatedSubmissionReturn.newSubmission.created,
           modified: updatedSubmissionReturn.newSubmission.modified,
         },

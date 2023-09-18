@@ -147,6 +147,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
           responseFilename: transfer.newSubmission.responseFilename,
           responseFilesize: transfer.newSubmission.responseFilesize,
           responseMimeTypeId: transfer.newSubmission.responseMimeTypeId,
+          responseProgress: transfer.newSubmission.responseProgress,
           created: this.dateService.fixPrismaReadDate(transfer.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(transfer.newSubmission.modified),
         },

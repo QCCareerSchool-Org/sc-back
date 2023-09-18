@@ -302,6 +302,7 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
         responseFilename: nextSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${nextSubmission.unitLetter}.mp3`,
         responseFilesize: nextSubmission.responseFilesize,
         responseMimeTypeId: nextSubmission.responseMimeTypeId,
+        responseProgress: nextSubmission.responseProgress,
         complete: submissionComplete,
         points: submissionPoints,
         mark: null,

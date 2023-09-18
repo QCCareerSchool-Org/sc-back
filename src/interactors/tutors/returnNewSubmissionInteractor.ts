@@ -192,6 +192,7 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
         responseFilename: updatedSubmission.responseFilename,
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
+        responseProgress: updatedSubmission.responseProgress,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,

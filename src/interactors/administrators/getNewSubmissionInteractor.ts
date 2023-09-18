@@ -93,6 +93,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         responseFilename: submission.responseFilename === null ? null : `${submission.enrollment.course.code}${submission.enrollment.enrollmentId} Submission ${submission.unitLetter}.mp3`,
         responseFilesize: submission.responseFilesize,
         responseMimeTypeId: submission.responseMimeTypeId,
+        responseProgress: submission.responseProgress,
         created: this.dateService.fixPrismaReadDate(submission.created),
         modified: this.dateService.fixPrismaReadDate(submission.modified),
         enrollment: {

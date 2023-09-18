@@ -107,6 +107,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           responseFilename: assignment.newSubmission.responseFilename === null ? null : `${assignment.newSubmission.enrollment.course.code}${assignment.newSubmission.enrollment.enrollmentId} Submission ${assignment.newSubmission.unitLetter}.mp3`,
           responseFilesize: assignment.newSubmission.responseFilesize,
           responseMimeTypeId: assignment.newSubmission.responseMimeTypeId,
+          responseProgress: assignment.newSubmission.responseProgress,
           created: this.dateService.fixPrismaReadDate(assignment.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(assignment.newSubmission.modified),
         },
