@@ -1281,7 +1281,7 @@ model NewSubmission {
   responseFilename   String?               @map("response_filename") @db.VarChar(255)
   responseFilesize   Int?                  @map("response_filesize") @db.UnsignedInt
   responseMimeTypeId String?               @map("response_mime_type_id") @db.VarChar(255)
-  responseProgress   Int?                  @map("reponse_progress") @db.UnsignedTinyInt()
+  responseProgress   Int?                  @map("response_progress") @db.UnsignedTinyInt()
   entityVersion      Int                   @default(0) @map("entity_version")
   created            DateTime              @default(now()) @db.Timestamp(0)
   modified           DateTime?             @updatedAt @db.Timestamp(0)
