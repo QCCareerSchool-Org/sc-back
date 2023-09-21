@@ -87,6 +87,8 @@ export class UpdateNewSubmissionResponseProgressInteractor implements IInteracto
   }
 
   private async updateSubmission(studentId: number, courseId: number, submissionIdBin: Buffer, progress: number): Promise<SubmissionWithEnrollmentAndCourse> {
+    const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
+
     return this.prisma.$transaction(async transaction => {
       const submission = await transaction.newSubmission.findFirst({
         where: { enrollment: { studentId, courseId }, submissionId: submissionIdBin },
@@ -102,7 +104,7 @@ export class UpdateNewSubmissionResponseProgressInteractor implements IInteracto
 
       return this.prisma.newSubmission.update({
         where: { submissionId: submissionIdBin },
-        data: { responseProgress: progress },
+        data: { responseProgress: progress, modified: prismaNow },
         include: { enrollment: { include: { course: true } } },
       });
     });
