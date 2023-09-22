@@ -83,7 +83,7 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
             });
           } else if (accountType === 'student') {
             await transaction.student.update({
-              data: { passwordHash },
+              data: { passwordHash, passwordChanged: true },
               where: { studentId: accountId },
             });
           } else {
