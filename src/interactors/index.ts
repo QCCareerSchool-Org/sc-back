@@ -1,8 +1,10 @@
 import type { Stream } from 'stream';
-import { environmentConfigService, nodeFileService, winstonLoggerService } from '../services/index.js';
+
+import { prisma } from '../frameworks/prisma/index.js';
+import { environmentConfigService, nodeFileService, uuidService, winstonLoggerService } from '../services/index.js';
 import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
 import { DownloadCourseIconImageInteractor } from './downloadCourseIconImageInteractor.js';
-
+import { GetVideoInteractor } from './getVideoInteractor.js';
 import type { ResultType } from './result.js';
 
 export class InsufficientPrivileges extends Error { }
@@ -46,3 +48,4 @@ export type InteractorFileStreamDownload = {
 
 export const downloadCourseHeaderImageInteractor = new DownloadCourseHeaderImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadCourseIconImageInteractor = new DownloadCourseIconImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
+export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
