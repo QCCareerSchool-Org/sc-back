@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { initializeNextNewSubmissionInteractor } from '../../interactors/students/index.js';
 import type { InitializeNextNewSubmissionResponseDTO } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
-import { InitializeNextCourseDisabled, InitializeNextNewSubmissionCantDetermineSubmission, InitializeNextNewSubmissionDefaultPriceNotFound, InitializeNextNewSubmissionEnrollmentNotFound, InitializeNextNewSubmissionEnrollmentOnHold, InitializeNextNewSubmissionMultipleDefaultPricesFound, InitializeNextNewSubmissionNoAssignmentsFound, InitializeNextNewSubmissionNoInputsFound, InitializeNextNewSubmissionNoMoreSubmissions, InitializeNextNewSubmissionNoPartsFound, InitializeNextNewSubmissionNotReady, InitializeNextNewSubmissionStudentArrears, InitializeNextNewSubmissionTemplateNotFound } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
+import { InitializeNextCourseDisabled, InitializeNextNewSubmissionAssignmentsDisabled, InitializeNextNewSubmissionCantDetermineSubmission, InitializeNextNewSubmissionDefaultPriceNotFound, InitializeNextNewSubmissionEnrollmentNotFound, InitializeNextNewSubmissionEnrollmentOnHold, InitializeNextNewSubmissionMultipleDefaultPricesFound, InitializeNextNewSubmissionNoAssignmentsFound, InitializeNextNewSubmissionNoInputsFound, InitializeNextNewSubmissionNoMoreSubmissions, InitializeNextNewSubmissionNoPartsFound, InitializeNextNewSubmissionNotReady, InitializeNextNewSubmissionStudentArrears, InitializeNextNewSubmissionTemplateNotFound } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -57,6 +57,8 @@ export class InitializeNextNewSubmissionController extends BaseController<Reques
         return this.badRequest('Account is in arrears');
       case InitializeNextNewSubmissionEnrollmentOnHold:
         return this.badRequest('Course is on hold');
+      case InitializeNextNewSubmissionAssignmentsDisabled:
+        return this.badRequest('Assignments are disabled for this course');
       case InitializeNextCourseDisabled:
         return this.badRequest('This course is currently undergoing maintenance');
       case InitializeNextNewSubmissionNotReady:

@@ -18,6 +18,7 @@ export type InitializeNextNewSubmissionResponseDTO = NewSubmissionDTO;
 export class InitializeNextNewSubmissionEnrollmentNotFound extends Error { }
 export class InitializeNextNewSubmissionStudentArrears extends Error { }
 export class InitializeNextNewSubmissionEnrollmentOnHold extends Error { }
+export class InitializeNextNewSubmissionAssignmentsDisabled extends Error { }
 export class InitializeNextCourseDisabled extends Error { }
 export class InitializeNextNewSubmissionNotReady extends Error { }
 export class InitializeNextNewSubmissionNoMoreSubmissions extends Error { }
@@ -55,6 +56,10 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
 
       if (enrollment.onHold) {
         return Result.fail(new InitializeNextNewSubmissionEnrollmentOnHold());
+      }
+
+      if (enrollment.assignmentsDisabled) {
+        return Result.fail(new InitializeNextNewSubmissionAssignmentsDisabled());
       }
 
       // make sure there are no open (unskipped or unmarked) submissions
