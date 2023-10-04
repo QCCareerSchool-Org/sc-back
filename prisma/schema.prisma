@@ -470,6 +470,7 @@ model Enrollment {
   uploads             Upload[]
   writingAssignments  WritingAssignment[]
   writingProfiles     WritingProfile[]
+  surveyCompletions   SurveyCompletion[]
 
   @@unique([studentId, courseId], map: "account_id_course_id")
   @@unique([courseId, studentNumber], map: "course_id_student_number")
@@ -2126,4 +2127,24 @@ model VideosOnUnits {
   @@id([videoId, unitId])
   @@index([unitId], map: "FK_videos_units_new_units")
   @@map("videos_units")
+}
+
+model Survey {
+  surveyId    Bytes  @id @db.Binary(16)
+  name        String @db.VarChar(1024)
+  completions SurveyCompletion[]
+
+  @@map("surveys")
+}
+
+model SurveyCompletion {
+  surveyCompletionId Bytes      @id @db.Binary(16)
+  surveyId           Bytes      @db.Binary(16)
+  enrollmentId       Int        @db.UnsignedInt
+  created            DateTime   @default(now()) @db.Timestamp(0)
+  modified           DateTime?  @updatedAt @db.Timestamp(0)
+  survey             Survey     @relation(fields: [surveyId], references: [surveyId], onDelete: Cascade, map: "FK_survey_completions_surveys")
+  enrollment         Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "FK_survey_completions_enrollments")
+  
+  @@map("survey_completions")
 }
