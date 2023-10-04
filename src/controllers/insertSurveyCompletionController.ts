@@ -109,10 +109,8 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
         landed_at: yup.date().defined(), // eslint-disable-line camelcase
         submitted_at: yup.date().defined(), // eslint-disable-line camelcase
         hidden: yup.object({
-          student_id: yup.string().defined(), // eslint-disable-line camelcase
-          enrollment_id: yup.string().defined(), // eslint-disable-line camelcase
-          // student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
-          // enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
+          student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
+          enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
         }),
       }).defined(),
     });
