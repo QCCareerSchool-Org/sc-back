@@ -71,8 +71,8 @@ type Request = {
       landed_at: Date;
       submitted_at: Date;
       hidden: {
-        studentId: string;
-        enrollmentId: string;
+        student_id: string;
+        enrollment_id: string;
       };
       // definition: Definition;
       // answers: Answer[];
@@ -102,8 +102,8 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
         landed_at: yup.date().defined(), // eslint-disable-line camelcase
         submitted_at: yup.date().defined(), // eslint-disable-line camelcase
         hidden: yup.object({
-          studentId: yup.string().matches(/\d+/u).defined(),
-          enrollmentId: yup.string().matches(/\d+/u).defined(),
+          student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
+          enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
         }),
       }).defined(),
     });
@@ -128,8 +128,8 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
       return this.methodNotAllowed();
     }
 
-    const studentId = parseInt(body.form_response.hidden.studentId, 10);
-    const enrollmentId = parseInt(body.form_response.hidden.enrollmentId, 10);
+    const studentId = parseInt(body.form_response.hidden.student_id, 10);
+    const enrollmentId = parseInt(body.form_response.hidden.enrollment_id, 10);
 
     const result = await insertSurveyCompletionInteractor.execute({ surveyId: params.surveyId, studentId, enrollmentId });
 
