@@ -31,4 +31,8 @@ export class NodeCryptoService implements ICryptoService {
   public async decodeSIN(buffer: Buffer): Promise<string> {
     return '';
   }
+
+  public sha256Hmac(data: Buffer | string, secret: string): string {
+    return crypto.createHmac('sha256', secret).update(data).digest('base64');
+  }
 }

@@ -25,13 +25,28 @@ const corsOptions: CorsOptions = {
   exposedHeaders: [ 'Content-Disposition' ],
 };
 
+declare module 'express' {
+  export interface Request {
+    rawBody?: string;
+    rawBuffer?: Buffer;
+  }
+}
+
 const app = express();
 
 // app.use(helmet({ frameguard: process.env.NODE_ENV === 'production', crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 // app.use(helmet({ crossOriginEmbedderPolicy: false, crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 app.use(helmet({ crossOriginResourcePolicy: { policy: process.env.NODE_ENV === 'production' ? 'same-origin' : 'same-site' } }));
 app.use(compression());
-app.use(express.json({ limit: 524_288 })); // 512 KB
+app.use(express.json({
+  limit: 524_288, // 512 KB
+  verify: (req, res, buf, encoding: BufferEncoding) => {
+    if (buf?.length) {
+      (req as unknown as { rawBody: string }).rawBody = buf.toString(encoding || 'utf8');
+      (req as unknown as { rawBuffer: Buffer }).rawBuffer = buf;
+    }
+  },
+}));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 

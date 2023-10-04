@@ -53,6 +53,7 @@ export type Config = {
   /** the number of seconds a password reset request is valid for */
   passwordResetTimeout: number;
   uploadSlotMaxFilesize: number;
+  hmacSecret: string;
 };
 
 export interface IConfigService {

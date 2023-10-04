@@ -26,4 +26,6 @@ export interface ICryptoService {
   createHash: (password: string, rounds?: number) => Promise<string>;
 
   decodeSIN: (buffer: Buffer) => Promise<string>;
+
+  sha256Hmac: (data: Buffer | string, secret: string) => string;
 }

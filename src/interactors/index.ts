@@ -1,12 +1,13 @@
 import type { Stream } from 'stream';
 
 import { prisma } from '../frameworks/prisma/index.js';
-import { dateService, environmentConfigService, nodeFileService, uuidService, winstonLoggerService } from '../services/index.js';
+import { dateService, environmentConfigService, nodeCryptoService, nodeFileService, uuidService, winstonLoggerService } from '../services/index.js';
 import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
 import { DownloadCourseIconImageInteractor } from './downloadCourseIconImageInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InsertSurveyCompletionInteractor } from './insertSurveyCompletionInteractor.js';
 import type { ResultType } from './result.js';
+import { ValidateHMACInteractor } from './validateHMACInteractor.js';
 
 export class InsufficientPrivileges extends Error { }
 
@@ -51,3 +52,4 @@ export const downloadCourseHeaderImageInteractor = new DownloadCourseHeaderImage
 export const downloadCourseIconImageInteractor = new DownloadCourseIconImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
 export const insertSurveyCompletionInteractor = new InsertSurveyCompletionInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const validateHMACInteractor = new ValidateHMACInteractor(environmentConfigService, nodeCryptoService, winstonLoggerService);

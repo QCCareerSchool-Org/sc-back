@@ -1,8 +1,9 @@
 import * as yup from 'yup';
 
-import { insertSurveyCompletionInteractor } from '../interactors/index.js';
+import { insertSurveyCompletionInteractor, validateHMACInteractor } from '../interactors/index.js';
 import type { InsertSurveyCompletionResponseDTO } from '../interactors/insertSurveyCompletionInteractor.js';
 import { InsertSurveyCompletionEnrollmentNotFound, InsertSurveyCompletionSurveyNotFound } from '../interactors/insertSurveyCompletionInteractor.js';
+import { ValidateHMACFailed } from '../interactors/validateHMACInteractor.js';
 import { BaseController } from './baseController.js';
 
 // type Answer = {
@@ -58,6 +59,9 @@ import { BaseController } from './baseController.js';
 // };
 
 type Request = {
+  headers: {
+    'typeform-signature': string;
+  };
   params: {
     /** uuid */
     surveyId: string;
@@ -90,6 +94,9 @@ type Response = InsertSurveyCompletionResponseDTO;
 export class InsertSurveyCompletionController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
+    const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
+      'typeform-signature': yup.string().matches(/^sha256=/u).defined(),
+    });
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       surveyId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
     });
@@ -102,17 +109,20 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
         landed_at: yup.date().defined(), // eslint-disable-line camelcase
         submitted_at: yup.date().defined(), // eslint-disable-line camelcase
         hidden: yup.object({
-          student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
-          enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
+          student_id: yup.string().defined(), // eslint-disable-line camelcase
+          enrollment_id: yup.string().defined(), // eslint-disable-line camelcase
+          // student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
+          // enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
         }),
       }).defined(),
     });
     try {
-      const [ params, body ] = await Promise.all([
+      const [ headers, params, body ] = await Promise.all([
+        headersSchema.validate(this.req.headers),
         paramsSchema.validate(this.req.params),
         bodySchema.validate(this.req.body),
       ]);
-      return { params, body };
+      return { headers, params, body };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -123,9 +133,25 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
     }
   }
 
-  protected async executeImpl({ params, body }: Request): Promise<void> {
+  protected async executeImpl({ headers, params, body }: Request): Promise<void> {
     if (!this.isPostMethod()) {
       return this.methodNotAllowed();
+    }
+
+    if (typeof this.req.rawBody === 'undefined') {
+      return this.internalServerError('Raw body not found');
+    }
+
+    const hmac = headers['typeform-signature'].substring(7);
+
+    const validateResult = await validateHMACInteractor.execute({ data: this.req.rawBody, hmac });
+    if (!validateResult.success) {
+      switch (validateResult.error.constructor) {
+        case ValidateHMACFailed:
+          return this.badRequest('Signature doesn\'t match');
+        default:
+          return this.internalServerError(validateResult.error.message);
+      }
     }
 
     const studentId = parseInt(body.form_response.hidden.student_id, 10);

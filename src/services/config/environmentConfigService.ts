@@ -94,6 +94,11 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable DOWNLOAD_MAX_FILESIZE is invalid');
     }
 
+    const hmacSecret = process.env.HMAC_SECRET;
+    if (typeof hmacSecret === 'undefined') {
+      throw Error('Environment variable HMAC_SECRET is undefined');
+    }
+
     this.#config = {
       environment,
       port,
@@ -141,6 +146,7 @@ export class EnvironmentConfigService implements IConfigService {
       },
       passwordResetTimeout: passwordResetTimeoutNumber,
       uploadSlotMaxFilesize: process.env.UPLOAD_SLOT_MAX_FILESIZE ? parseInt(process.env.UPLOAD_SLOT_MAX_FILESIZE, 10) : 33_554_432, // 32 MB
+      hmacSecret,
     };
   }
 
