@@ -87,8 +87,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         ajaxUploads: student.ajaxUploads,
         upgradeNotification: student.upgradeNotification,
         entityVersion: student.entityVersion,
-        created: student.created,
-        modified: student.modified,
+        created: this.dateService.fixPrismaReadDate(student.created),
+        modified: this.dateService.fixPrismaReadDate(student.modified),
         hasCASocialInsuranceNumber: !!student.caSocialInsuranceNumber,
         country: {
           countryId: student.country.countryId,
