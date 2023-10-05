@@ -26,7 +26,7 @@ import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor.j
 // use-case interactor singletons
 export const lessonGuardInteractor = new LessonGuardInteractor(prisma, uuidService, winstonLoggerService);
 
-export const getStudentInteractor = new GetStudentInteractor(prisma, dateService, winstonLoggerService);
+export const getStudentInteractor = new GetStudentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getEnrollmentInteractor = new GetEnrollmentInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
