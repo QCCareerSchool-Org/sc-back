@@ -160,6 +160,7 @@ model Student {
   serviceAreas            ServiceArea[]
   enrollments             Enrollment[]
   testimonials            Testimonial[]
+  surveyCompletions       SurveyCompletion[]
 
   @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
@@ -470,7 +471,6 @@ model Enrollment {
   uploads             Upload[]
   writingAssignments  WritingAssignment[]
   writingProfiles     WritingProfile[]
-  surveyCompletions   SurveyCompletion[]
 
   @@unique([studentId, courseId], map: "account_id_course_id")
   @@unique([courseId, studentNumber], map: "course_id_student_number")
@@ -2138,13 +2138,13 @@ model Survey {
 }
 
 model SurveyCompletion {
-  surveyCompletionId Bytes      @id @db.Binary(16)
-  surveyId           Bytes      @db.Binary(16)
-  enrollmentId       Int        @db.UnsignedInt
-  created            DateTime   @default(now()) @db.Timestamp(0)
-  modified           DateTime?  @updatedAt @db.Timestamp(0)
-  survey             Survey     @relation(fields: [surveyId], references: [surveyId], onDelete: Cascade, map: "FK_survey_completions_surveys")
-  enrollment         Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "FK_survey_completions_enrollments")
+  surveyCompletionId Bytes     @id @db.Binary(16)
+  surveyId           Bytes     @db.Binary(16)
+  studentId          Int
+  created            DateTime  @default(now()) @db.Timestamp(0)
+  modified           DateTime? @updatedAt @db.Timestamp(0)
+  survey             Survey    @relation(fields: [surveyId], references: [surveyId], onDelete: Cascade, map: "FK_survey_completions_surveys")
+  student            Student   @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_survey_completions_students")
   
   @@map("survey_completions")
 }

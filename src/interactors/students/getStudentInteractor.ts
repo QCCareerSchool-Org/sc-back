@@ -6,8 +6,11 @@ import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { ProvinceDTO } from '../../domain/provinceDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
+import type { SurveyCompletionDTO } from '../../domain/surveyCompletionDTO.js';
+import type { SurveyDTO } from '../../domain/surveyDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
@@ -24,6 +27,9 @@ export type GetStudentResponseDTO = StudentDTO & {
       school: SchoolDTO;
     };
   }>;
+  surveyCompletions: Array<SurveyCompletionDTO & {
+    survey: SurveyDTO;
+  }>;
 };
 
 export class GetStudentNotFound extends Error { }
@@ -32,6 +38,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
     private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -49,6 +56,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           },
           country: true,
           province: true,
+          surveyCompletions: { include: { survey: true } },
         },
       });
 
@@ -142,6 +150,17 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
               order: e.course.school.order,
               entityVersion: e.course.school.entityVersion,
             },
+          },
+        })),
+        surveyCompletions: student.surveyCompletions.map(s => ({
+          surveyCompletionId: this.uuidService.binToUUID(s.surveyCompletionId),
+          surveyId: this.uuidService.binToUUID(s.surveyId),
+          studentId: s.studentId,
+          created: this.dateService.fixPrismaReadDate(s.created),
+          modified: this.dateService.fixPrismaReadDate(s.modified),
+          survey: {
+            surveyId: this.uuidService.binToUUID(s.survey.surveyId),
+            name: s.survey.name,
           },
         })),
       });

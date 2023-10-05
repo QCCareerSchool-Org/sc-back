@@ -11,13 +11,12 @@ export type InsertSurveyCompletionRequestDTO = {
   /** uuid */
   surveyId: string;
   studentId: number;
-  enrollmentId: number;
 };
 
 export type InsertSurveyCompletionResponseDTO = SurveyCompletionDTO;
 
 export class InsertSurveyCompletionSurveyNotFound extends Error { }
-export class InsertSurveyCompletionEnrollmentNotFound extends Error { }
+export class InsertSurveyCompletionStudentNotFound extends Error { }
 
 export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurveyCompletionRequestDTO, InsertSurveyCompletionResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds
@@ -29,7 +28,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ surveyId, studentId, enrollmentId }: InsertSurveyCompletionRequestDTO): Promise<ResultType<InsertSurveyCompletionResponseDTO>> {
+  public async execute({ surveyId, studentId }: InsertSurveyCompletionRequestDTO): Promise<ResultType<InsertSurveyCompletionResponseDTO>> {
     try {
       const surveyIdBin = this.uuidService.uuidToBin(surveyId);
 
@@ -38,17 +37,17 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
         return Result.fail(new InsertSurveyCompletionSurveyNotFound());
       }
 
-      const enrollment = await this.prisma.enrollment.findFirst({
-        where: { enrollmentId, studentId },
+      const student = await this.prisma.student.findFirst({
+        where: { studentId },
         include: { surveyCompletions: true },
       });
 
-      if (!enrollment) {
-        return Result.fail(new InsertSurveyCompletionEnrollmentNotFound());
+      if (!student) {
+        return Result.fail(new InsertSurveyCompletionStudentNotFound());
       }
 
       // look for an existing survey completion with this surveyId
-      let surveyCompletion = enrollment.surveyCompletions.find(s => s.surveyId === surveyIdBin);
+      let surveyCompletion = student.surveyCompletions.find(s => s.surveyId === surveyIdBin);
 
       if (!surveyCompletion) {
         // create a new one
@@ -58,7 +57,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
           data: {
             surveyCompletionId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
             surveyId: survey.surveyId,
-            enrollmentId,
+            studentId,
             created: prismaNow,
             modified: prismaNow,
           },
@@ -68,7 +67,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
       return Result.success({
         surveyCompletionId: this.uuidService.binToUUID(surveyCompletion.surveyCompletionId),
         surveyId: this.uuidService.binToUUID(surveyCompletion.surveyId),
-        enrollmentId: surveyCompletion.enrollmentId,
+        studentId: surveyCompletion.studentId,
         created: this.dateService.fixPrismaReadDate(surveyCompletion.created),
         modified: this.dateService.fixPrismaReadDate(surveyCompletion.modified),
       });

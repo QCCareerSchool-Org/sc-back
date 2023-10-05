@@ -3,7 +3,7 @@ export type SurveyCompletionDTO = {
   surveyCompletionId: string;
   /** uuid */
   surveyId: string;
-  enrollmentId: number;
+  studentId: number;
   created: Date;
   modified: Date | null;
 };

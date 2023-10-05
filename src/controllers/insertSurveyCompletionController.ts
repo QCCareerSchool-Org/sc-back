@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { insertSurveyCompletionInteractor, validateHMACInteractor } from '../interactors/index.js';
 import type { InsertSurveyCompletionResponseDTO } from '../interactors/insertSurveyCompletionInteractor.js';
-import { InsertSurveyCompletionEnrollmentNotFound, InsertSurveyCompletionSurveyNotFound } from '../interactors/insertSurveyCompletionInteractor.js';
+import { InsertSurveyCompletionStudentNotFound, InsertSurveyCompletionSurveyNotFound } from '../interactors/insertSurveyCompletionInteractor.js';
 import { ValidateHMACFailed } from '../interactors/validateHMACInteractor.js';
 import { BaseController } from './baseController.js';
 
@@ -76,7 +76,6 @@ type Request = {
       submitted_at: Date;
       hidden: {
         student_id: string;
-        enrollment_id: string;
       };
       // definition: Definition;
       // answers: Answer[];
@@ -110,7 +109,6 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
         submitted_at: yup.date().defined(), // eslint-disable-line camelcase
         hidden: yup.object({
           student_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
-          enrollment_id: yup.string().matches(/\d+/u).defined(), // eslint-disable-line camelcase
         }),
       }).defined(),
     });
@@ -153,9 +151,8 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
     }
 
     const studentId = parseInt(body.form_response.hidden.student_id, 10);
-    const enrollmentId = parseInt(body.form_response.hidden.enrollment_id, 10);
 
-    const result = await insertSurveyCompletionInteractor.execute({ surveyId: params.surveyId, studentId, enrollmentId });
+    const result = await insertSurveyCompletionInteractor.execute({ surveyId: params.surveyId, studentId });
 
     if (result.success) {
       return this.ok(result.value);
@@ -164,8 +161,8 @@ export class InsertSurveyCompletionController extends BaseController<Request, Re
     switch (result.error.constructor) {
       case InsertSurveyCompletionSurveyNotFound:
         return this.notFound('Survey not found');
-      case InsertSurveyCompletionEnrollmentNotFound:
-        return this.notFound('Enrollment not found');
+      case InsertSurveyCompletionStudentNotFound:
+        return this.notFound('Student not found');
       default:
         return this.internalServerError(result.error.message);
     }

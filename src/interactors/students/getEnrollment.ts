@@ -10,8 +10,6 @@ import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplat
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
-import type { SurveyCompletionDTO } from '../../domain/surveyCompletionDTO.js';
-import type { SurveyDTO } from '../../domain/surveyDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { VideoDTO } from '../../domain/videoDTO.js';
@@ -44,9 +42,6 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   oldSubmissions: OldSubmissionDTO[];
   newSubmissions: NewSubmissionDTO[];
   materialCompletions: MaterialCompletionDTO[];
-  surveyCompletions: Array<SurveyCompletionDTO & {
-    survey: SurveyDTO;
-  }>;
 };
 
 export class GetEnrollmentNotFound extends Error { }
@@ -102,7 +97,6 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
           materialCompletions: true,
-          surveyCompletions: { include: { survey: true } },
         },
       });
 
@@ -366,17 +360,6 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         materialCompletions: enrollment.materialCompletions.map(m => ({
           materialId: this.uuidService.binToUUID(m.materialId),
           enrollmentId: m.enrollmentId,
-        })),
-        surveyCompletions: enrollment.surveyCompletions.map(s => ({
-          surveyCompletionId: this.uuidService.binToUUID(s.surveyCompletionId),
-          surveyId: this.uuidService.binToUUID(s.surveyId),
-          enrollmentId: s.enrollmentId,
-          created: this.dateService.fixPrismaReadDate(s.created),
-          modified: this.dateService.fixPrismaReadDate(s.modified),
-          survey: {
-            surveyId: this.uuidService.binToUUID(s.survey.surveyId),
-            name: s.survey.name,
-          },
         })),
       });
 
