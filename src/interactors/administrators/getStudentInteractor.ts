@@ -81,7 +81,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
       });
 
     } catch (err) {
-      this.logger.error('error getting school', err instanceof Error ? err.message : err);
+      this.logger.error('error getting student', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }
