@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
@@ -40,7 +41,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   };
   tutor: TutorDTO | null;
   oldSubmissions: OldSubmissionDTO[];
-  newSubmissions: NewSubmissionDTO[];
+  newSubmissions: Array<NewSubmissionDTO & { badges: BadgeDTO[] }>;
   materialCompletions: MaterialCompletionDTO[];
 };
 
@@ -93,6 +94,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
                 },
                 orderBy: [ { assignmentNumber: 'asc' } ],
               },
+              badges: { include: { badge: true } },
             },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
@@ -355,6 +357,12 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             mark: newSubmission.closed && submissionMarked ? submissionMark : null,
             created: this.dateService.fixPrismaReadDate(newSubmission.created),
             modified: this.dateService.fixPrismaReadDate(newSubmission.modified),
+            badges: newSubmission.badges.map(b => ({
+              badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+              name: b.badge.name,
+              description: b.badge.name,
+              created: b.created,
+            })),
           };
         }),
         materialCompletions: enrollment.materialCompletions.map(m => ({

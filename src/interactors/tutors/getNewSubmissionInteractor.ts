@@ -1,5 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewAssignmentDTO } from '../../domain/tutors/newAssignmentDTO.js';
@@ -24,6 +25,7 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
     student: StudentDTO;
   };
   newAssignments: NewAssignmentDTO[];
+  badges: BadgeDTO[];
 };
 
 export class GetNewSubmissionNotFound extends Error { }
@@ -53,6 +55,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } },
             orderBy: { assignmentNumber: 'asc' },
           },
+          badges: { include: { badge: true } },
         },
       });
 
@@ -228,6 +231,12 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         complete: submissionComplete,
         points: submissionPoints,
         mark: submissionMarked ? submissionMark : null,
+        badges: newSubmission.badges.map(b => ({
+          badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+          name: b.badge.name,
+          description: b.badge.name,
+          created: b.created,
+        })),
       });
 
     } catch (err) {

@@ -5,6 +5,7 @@ import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
+import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewTransferDTO } from '../../domain/newTransfer.js';
@@ -36,6 +37,7 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
     preTutor: TutorDTO;
     postTutor: TutorDTO;
   }>;
+  badges: BadgeDTO[];
 };
 
 export class GetNewSubmissionNotFound extends Error { }
@@ -61,6 +63,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
+          badges: { include: { badge: true } },
         },
       });
       if (!submission) {
@@ -309,6 +312,12 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             lastName: t.postTutor.lastName,
             introduction: false,
           },
+        })),
+        badges: submission.badges.map(b => ({
+          badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+          name: b.badge.name,
+          description: b.badge.name,
+          created: b.created,
         })),
       });
 
