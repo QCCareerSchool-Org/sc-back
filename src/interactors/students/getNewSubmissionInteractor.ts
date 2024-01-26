@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
+import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { NewAssignmentDTO } from '../../domain/students/newAssignmentDTO.js';
 import type { NewPartDTO } from '../../domain/students/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
@@ -23,7 +24,9 @@ export type GetNewSubmissionRequestDTO = {
 
 export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO & {
-    course: CourseDTO;
+    course: CourseDTO & {
+      school: SchoolDTO;
+    };
   };
   newAssignments: Array<NewAssignmentDTO & {
     newParts: Array<NewPartDTO & {
@@ -55,7 +58,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           submissionId: this.uuidService.uuidToBin(submissionId),
         },
         include: {
-          enrollment: { include: { course: true } },
+          enrollment: { include: { course: { include: { school: true } } } },
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
         },
       });
@@ -125,6 +128,13 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             enabled: submission.enrollment.course.enabled,
             submissionsEnabled: submission.enrollment.course.submissionsEnabled,
             entityVersion: submission.enrollment.course.entityVersion,
+            school: {
+              schoolId: submission.enrollment.course.school.schoolId,
+              name: submission.enrollment.course.school.name,
+              slug: submission.enrollment.course.school.slug,
+              order: submission.enrollment.course.school.order,
+              entityVersion: submission.enrollment.course.school.entityVersion,
+            },
           },
         },
         newAssignments: submission.newAssignments.map(a => {
