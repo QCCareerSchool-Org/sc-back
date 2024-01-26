@@ -37,7 +37,7 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
     preTutor: TutorDTO;
     postTutor: TutorDTO;
   }>;
-  badges: BadgeDTO[];
+  // badges: BadgeDTO[];
 };
 
 export class GetNewSubmissionNotFound extends Error { }
@@ -63,7 +63,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
-          badges: { include: { badge: true } },
+          // badges: { include: { badge: true } },
         },
       });
       if (!submission) {
@@ -313,12 +313,12 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             introduction: false,
           },
         })),
-        badges: submission.badges.map(b => ({
-          badgeId: this.uuidService.binToUUID(b.badge.badgeId),
-          name: b.badge.name,
-          description: b.badge.name,
-          created: b.created,
-        })),
+        // badges: submission.badges.map(b => ({
+        //   badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+        //   name: b.badge.name,
+        //   description: b.badge.name,
+        //   created: b.created,
+        // })),
       });
 
     } catch (err) {

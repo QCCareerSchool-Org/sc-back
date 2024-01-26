@@ -41,7 +41,8 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   };
   tutor: TutorDTO | null;
   oldSubmissions: OldSubmissionDTO[];
-  newSubmissions: Array<NewSubmissionDTO & { badges: BadgeDTO[] }>;
+  // newSubmissions: Array<NewSubmissionDTO & { badges: BadgeDTO[] }>;
+  newSubmissions: NewSubmissionDTO[];
   materialCompletions: MaterialCompletionDTO[];
 };
 
@@ -94,7 +95,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
                 },
                 orderBy: [ { assignmentNumber: 'asc' } ],
               },
-              badges: { include: { badge: true } },
+              // badges: { include: { badge: true } },
             },
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
@@ -357,12 +358,12 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             mark: newSubmission.closed && submissionMarked ? submissionMark : null,
             created: this.dateService.fixPrismaReadDate(newSubmission.created),
             modified: this.dateService.fixPrismaReadDate(newSubmission.modified),
-            badges: newSubmission.badges.map(b => ({
-              badgeId: this.uuidService.binToUUID(b.badge.badgeId),
-              name: b.badge.name,
-              description: b.badge.name,
-              created: b.created,
-            })),
+            // badges: newSubmission.badges.map(b => ({
+            //   badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+            //   name: b.badge.name,
+            //   description: b.badge.name,
+            //   created: b.created,
+            // })),
           };
         }),
         materialCompletions: enrollment.materialCompletions.map(m => ({

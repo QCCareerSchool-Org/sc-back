@@ -398,7 +398,7 @@ model School {
   entityVersion Int      @default(0) @map("entity_version")
   courses       Course[]
   tutors        Tutor[]
-  badges        Badge[]
+  // badges        Badge[]
 
   @@unique([schoolId, entityVersion], map: "id_entity_version")
   @@map("schools")
@@ -1295,7 +1295,7 @@ model NewSubmission {
   prices             NewSubmissionPrice[]
   returns            NewSubmissionReturn[]
   newTransfers       NewTransfer[]
-  badges             NewSubmissionsOnBadges[]
+  // badges             NewSubmissionsOnBadges[]
 
   @@unique([submissionId, entityVersion], map: "submission_id_entity_version")
   @@index([enrollmentId], map: "enrollment_id")
@@ -1578,31 +1578,31 @@ model NewSubmissionReturn {
   @@map("new_submission_returns")
 }
 
-model Badge {
-  badgeId        Bytes                    @id @db.Binary(16)
-  name           String                   @db.VarChar(191)
-  description    String                   @db.Text
-  schoolId       Int                      @db.UnsignedInt
-  school         School                   @relation(fields: [schoolId], references: [schoolId], map: "FK_badges_schools")
-  newSubmissions NewSubmissionsOnBadges[]
+// model Badge {
+//   badgeId        Bytes                    @id @db.Binary(16)
+//   name           String                   @db.VarChar(191)
+//   description    String                   @db.Text
+//   schoolId       Int                      @db.UnsignedInt
+//   school         School                   @relation(fields: [schoolId], references: [schoolId], map: "FK_badges_schools")
+//   newSubmissions NewSubmissionsOnBadges[]
 
-  @@map("badges")
-  @@index([schoolId], map: "schoolId")
-}
+//   @@map("badges")
+//   @@index([schoolId], map: "schoolId")
+// }
 
-model NewSubmissionsOnBadges {
-  submissionId Bytes         @db.Binary(16) @map("submission_id")
-  badgeId      Bytes         @db.Binary(16) @map("badge_id")
-  badgeTierId  Bytes         @db.Binary(16) @map("tier_id")
-  created      DateTime      @default(now()) @db.Timestamp(0)
-  submission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_badges_new_submissions")
-  badge        Badge         @relation(fields: [badgeId], references: [badgeId], onDelete: Cascade, map: "FK_new_submission_badges_badges")
+// model NewSubmissionsOnBadges {
+//   submissionId Bytes         @db.Binary(16) @map("submission_id")
+//   badgeId      Bytes         @db.Binary(16) @map("badge_id")
+//   badgeTierId  Bytes         @db.Binary(16) @map("tier_id")
+//   created      DateTime      @default(now()) @db.Timestamp(0)
+//   submission   NewSubmission @relation(fields: [submissionId], references: [submissionId], onDelete: Cascade, map: "FK_new_submission_badges_new_submissions")
+//   badge        Badge         @relation(fields: [badgeId], references: [badgeId], onDelete: Cascade, map: "FK_new_submission_badges_badges")
 
-  @@map("new_submission_badges")
-  @@id([submissionId, badgeId])
-  @@index([badgeId], map: "badge_id")
-  @@index([badgeTierId], map: "tier_id")
-}
+//   @@map("new_submission_badges")
+//   @@id([submissionId, badgeId])
+//   @@index([badgeId], map: "badge_id")
+//   @@index([badgeTierId], map: "tier_id")
+// }
 
 enum NewDescriptionType {
   text
