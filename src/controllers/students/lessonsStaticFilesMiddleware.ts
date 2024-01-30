@@ -13,6 +13,7 @@ export class LessonsStaticFilesMiddleware extends BaseMiddleware<void, void> {
   // eslint-disable-next-line @typescript-eslint/require-await
   protected async executeImpl(): Promise<void> {
     this.res.removeHeader('Cross-Origin-Embedder-Policy');
+    this.res.removeHeader('Cross-Origin-Opener-Policy');
     express.static(LessonsStaticFilesMiddleware.path)(this.req, this.res, this.next);
   }
 }
