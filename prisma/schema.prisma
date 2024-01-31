@@ -472,6 +472,7 @@ model Enrollment {
   uploads             Upload[]
   writingAssignments  WritingAssignment[]
   writingProfiles     WritingProfile[]
+  materialData        MaterialData[]
 
   @@unique([studentId, courseId], map: "account_id_course_id")
   @@unique([courseId, studentNumber], map: "course_id_student_number")
@@ -904,6 +905,7 @@ model Material {
   imageMimeType       MimeType?            @relation("mime_typesTonew_materials_image_mime_type", fields: [imageMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_image_mime_types")
   unit                Unit                 @relation(fields: [unitId], references: [unitId], map: "FK_new_materials_new_units")
   materialCompletions MaterialCompletion[] @relation("new_material_completionsTonew_materials")
+  materialData        MaterialData[]       @relation()
 
   @@index([unitId, order], map: "unit_id_order")
   @@index([contentMimeTypeId], map: "content_mime_type_id")
@@ -920,6 +922,18 @@ model MaterialCompletion {
   @@id([materialId, enrollmentId])
   @@index([enrollmentId], map: "enrollment_id")
   @@map("new_material_completions")
+}
+
+model MaterialData {
+  materialId   Bytes      @db.Binary(16)
+  enrollmentId Int        @db.UnsignedInt
+  key          String     @db.VarChar(512)
+  value        String     @db.Text
+  material     Material   @relation(fields: [materialId], references: [materialId], onDelete: Cascade, map: "FK_new_material_data_new_materials")
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "FK_new_material_data_students")
+
+  @@id([materialId, enrollmentId, key])
+  @@map("new_material_data")
 }
 
 enum NewMaterialType {

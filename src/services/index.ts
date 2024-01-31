@@ -9,6 +9,7 @@ import { EmailValidatorService } from './emailValidator/emailValidatorService.js
 import { NodeFileService } from './file/nodeFileService.js';
 import { GradeService } from './grade/gradeService.js';
 import { AxiosHttpService } from './http/axiosHttpService.js';
+import { IntervalService } from './interval/intervalService.js';
 import { IpaddrJSIPAddressService } from './ipaddress/ipaddrIPAddressService.js';
 import { JWTService } from './jwt/jwtService.js';
 import { WinstonLoggerService } from './logger/winstonLoggerService.js';
@@ -43,3 +44,4 @@ export const axiosHttpService = new AxiosHttpService();
 export const extractZipUnzipService = new ExtractZipUnzipService();
 export const fileTypeMimeTypeService = new FileTypeMimeTypeService();
 export const emailValidatorService = new EmailValidatorService();
+export const intervalService = new IntervalService();

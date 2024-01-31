@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import multer from 'multer';
+
 import { DeleteMaterialCompletionController } from '../../controllers/students/deleteMaterialCompletionController.js';
 import { DownloadMaterialImageController } from '../../controllers/students/downloadMaterialImageController.js';
-
 import { DownloadNewAssignmentMediumController } from '../../controllers/students/downloadNewAssignmentMediumController.js';
 import { DownloadNewPartMediumController } from '../../controllers/students/downloadNewPartMediumController.js';
 import { DownloadNewSubmissionFeedbackController } from '../../controllers/students/downloadNewSubmissionFeedbackController.js';
 import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController.js';
 import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController.js';
 import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController.js';
+import { GetMaterialController } from '../../controllers/students/getMaterialController.js';
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
 import { GetNewSubmissionController } from '../../controllers/students/getNewSubmissionController.js';
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
@@ -18,6 +19,7 @@ import { InitializeNextNewSubmissionController } from '../../controllers/student
 import { InsertMaterialCompletionController } from '../../controllers/students/insertMaterialCompletionController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
 import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
+import { SaveMaterialDataController } from '../../controllers/students/saveMaterialDataController.js';
 import { SaveNewTextBoxTextController } from '../../controllers/students/saveNewTextBoxTextController.js';
 import { SkipNewSubmissionController } from '../../controllers/students/skipNewSubmissionController.js';
 import { StudentGuardMiddleware } from '../../controllers/students/studentGuardMiddleware.js';
@@ -59,6 +61,8 @@ const routes: Route[] = [
   [ 'put', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', UploadNewUploadSlotController, multer().single('file') ],
   [ 'delete', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', EraseNewUploadSlotController ],
   // materials
+  [ 'get', '/:studentId/materials/:materialId', GetMaterialController ],
+  [ 'post', '/:studentId/materials/:materialId/data', SaveMaterialDataController ],
   [ 'get', '/:studentId/materials/:materialId/image', DownloadMaterialImageController ],
   [ 'post', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', InsertMaterialCompletionController ],
   [ 'delete', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', DeleteMaterialCompletionController ],

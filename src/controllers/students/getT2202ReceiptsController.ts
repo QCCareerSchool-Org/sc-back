@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import type { GetT2202ReceiptsResponseDTO } from '../../interactors/students/getT2202Receipts.js';
+import type { GetT2202ReceiptsResponseDTO } from '../../interactors/students/getT2202ReceiptsInteractor.js';
 import { getT2202ReceiptsInteractor } from '../../interactors/students/index.js';
 import { BaseController } from '../baseController.js';
 

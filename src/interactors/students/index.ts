@@ -1,5 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
-import { dateService, emailValidatorService, environmentConfigService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
+import { dateService, emailValidatorService, environmentConfigService, intervalService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
 import { DeleteMaterialCompletionInteractor } from './deleteMaterialCompletionInteractor.js';
 import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
 import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMediumInteractor.js';
@@ -7,15 +7,17 @@ import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteract
 import { DownloadNewSubmissionFeedbackInteractor } from './downloadNewSubmissionFeedbackInteractor.js';
 import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor.js';
 import { EraseNewUploadSlotInteractor } from './eraseNewUploadSlotInteractor.js';
-import { GetEnrollmentInteractor } from './getEnrollment.js';
+import { GetEnrollmentInteractor } from './getEnrollmentInteractor.js';
+import { GetMaterialInteractor } from './getMaterialInteractor.js';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
 import { GetStudentInteractor } from './getStudentInteractor.js';
-import { GetT2202ReceiptsInteractor } from './getT2202Receipts.js';
+import { GetT2202ReceiptsInteractor } from './getT2202ReceiptsInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InitializeNextNewSubmissionInteractor } from './initializeNextNewSubmissionInteractor.js';
 import { InsertMaterialCompletionInteractor } from './insertMaterialCompletionInteractor.js';
 import { LessonGuardInteractor } from './lessonGuardInteractor.js';
+import { SaveMaterialDataInteractor } from './saveMaterialDataInteractor.js';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor.js';
 import { SkipNewSubmissionInteractor } from './skipNewSubmissionInteractor.js';
 import { SubmitNewSubmissionInteractor } from './submitNewSubmissionInteractor.js';
@@ -47,3 +49,5 @@ export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionIn
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const updateNewSubmissionResponseProgressInteractor = new UpdateNewSubmissionResponseProgressInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const saveMaterialDataInteractor = new SaveMaterialDataInteractor(prisma, uuidService, intervalService, winstonLoggerService);
