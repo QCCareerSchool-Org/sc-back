@@ -941,9 +941,8 @@ enum NewMaterialType {
   video
   download
   assignment
+  scorm2004 @map("SCORM 2004 package")
 }
-
-
 
 
 /////////////////////////////////////////////////////////////////////////

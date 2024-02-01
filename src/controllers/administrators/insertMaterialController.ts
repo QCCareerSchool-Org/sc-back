@@ -4,7 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import { insertMaterialInteractor } from '../../interactors/administrators/index.js';
 import type { InsertMaterialResponseDTO } from '../../interactors/administrators/insertMaterialInteractor.js';
-import { InsertMaterialContentMissing, InsertMaterialContentPresent, InsertMaterialContentTooLarge, InsertMaterialContentTypeMissing, InsertMaterialCouldNotFetchExternalData, InsertMaterialDescriptionEmpty, InsertMaterialDescriptionTooLong, InsertMaterialExternalDataMissing, InsertMaterialExternalDataPresent, InsertMaterialFileSaveError, InsertMaterialImageTooLarge, InsertMaterialIncorrectSubmissionType, InsertMaterialInvalidContentMimeType, InsertMaterialInvalidImageMimeType, InsertMaterialInvalidType, InsertMaterialOrderLessThanZero, InsertMaterialOrderTooLarge, InsertMaterialSubmissionLetterEmpty, InsertMaterialSubmissionLetterTooLong, InsertMaterialSubmissionNotFound, InsertMaterialTitleEmpty, InsertMaterialTitleTooLong } from '../../interactors/administrators/insertMaterialInteractor.js';
+import { InsertMaterialContentMissing, InsertMaterialContentPresent, InsertMaterialContentTooLarge, InsertMaterialContentTypeMissing, InsertMaterialCouldNotFetchExternalData, InsertMaterialDescriptionEmpty, InsertMaterialDescriptionTooLong, InsertMaterialExternalDataMissing, InsertMaterialExternalDataPresent, InsertMaterialFileSaveError, InsertMaterialImageTooLarge, InsertMaterialInvalidContentMimeType, InsertMaterialInvalidImageMimeType, InsertMaterialInvalidType, InsertMaterialOrderLessThanZero, InsertMaterialOrderTooLarge, InsertMaterialTitleEmpty, InsertMaterialTitleTooLong, InsertMaterialUnitNotFound } from '../../interactors/administrators/insertMaterialInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -30,7 +30,7 @@ type Request = {
     /** uuid */
     unitId: string;
     title: string;
-    type: 'lesson' | 'video' | 'download' | 'assignment';
+    type: 'lesson' | 'video' | 'download' | 'assignment' | 'scorm2004';
     description: string;
     order: number;
     externalData?: string | null; // because we're accepting multi-part/form-data, we have to accept undefined
@@ -58,7 +58,7 @@ export class InsertMaterialController extends BaseController<Request, Response> 
     });
     const bodySchema: yup.SchemaOf<Request['body']> = yup.object({
       unitId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
-      type: yup.string().oneOf([ 'lesson', 'video', 'download', 'assignment' ]).defined() as yup.StringSchema<'lesson' | 'video' | 'download' | 'assignment'>,
+      type: yup.string().oneOf([ 'lesson', 'video', 'download', 'assignment', 'scorm2004' ]).defined() as yup.StringSchema<'lesson' | 'video' | 'download' | 'assignment' | 'scorm2004'>,
       title: yup.string().defined(),
       description: yup.string().defined(),
       order: yup.number().defined(),
@@ -146,10 +146,8 @@ export class InsertMaterialController extends BaseController<Request, Response> 
     switch (result.error.constructor) {
       case InsufficientPrivileges:
         return this.forbidden('Insufficient privileges');
-      case InsertMaterialSubmissionNotFound:
-        return this.notFound('Submission not found');
-      case InsertMaterialIncorrectSubmissionType:
-        return this.badRequest('Incorrect submission type');
+      case InsertMaterialUnitNotFound:
+        return this.notFound('Unit not found');
       case InsertMaterialTitleEmpty:
         return this.badRequest('title is empty');
       case InsertMaterialTitleTooLong:
@@ -158,10 +156,6 @@ export class InsertMaterialController extends BaseController<Request, Response> 
         return this.badRequest('description is empty');
       case InsertMaterialDescriptionTooLong:
         return this.badRequest('description exceeds maxmimum length');
-      case InsertMaterialSubmissionLetterEmpty:
-        return this.badRequest('submissionLetter is empty');
-      case InsertMaterialSubmissionLetterTooLong:
-        return this.badRequest('submissionLetter exceeds maxmimum length');
       case InsertMaterialOrderLessThanZero:
         return this.badRequest('order must be greater than or equal to zero');
       case InsertMaterialOrderTooLarge:

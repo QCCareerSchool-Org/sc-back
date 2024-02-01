@@ -20,7 +20,7 @@ import type { ResultType } from '../result.js';
 export type InsertMaterialRequestDTO = {
   unitId: string;
   title: string;
-  type: 'lesson' | 'video' | 'download' | 'assignment';
+  type: 'lesson' | 'video' | 'download' | 'assignment' | 'scorm2004';
   description: string;
   order: number;
   externalData: string | null;
@@ -39,14 +39,11 @@ export type InsertMaterialResponseDTO = MaterialDTO;
 
 abstract class InsertMaterialError extends Error { }
 
-export class InsertMaterialSubmissionNotFound extends InsertMaterialError { }
-export class InsertMaterialIncorrectSubmissionType extends InsertMaterialError { }
+export class InsertMaterialUnitNotFound extends InsertMaterialError { }
 export class InsertMaterialTitleEmpty extends InsertMaterialError { }
 export class InsertMaterialTitleTooLong extends InsertMaterialError { }
 export class InsertMaterialDescriptionEmpty extends InsertMaterialError { }
 export class InsertMaterialDescriptionTooLong extends InsertMaterialError { }
-export class InsertMaterialSubmissionLetterEmpty extends InsertMaterialError { }
-export class InsertMaterialSubmissionLetterTooLong extends InsertMaterialError { }
 export class InsertMaterialOrderLessThanZero extends InsertMaterialError { }
 export class InsertMaterialOrderTooLarge extends InsertMaterialError { }
 export class InsertMaterialInvalidType extends InsertMaterialError { }
@@ -105,10 +102,10 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
 
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
 
-      // find the material submission
+      // find the material unit
       const unit = await this.prisma.unit.findUnique({ where: { unitId: unitIdBin } });
       if (!unit) {
-        return Result.fail(new InsertMaterialSubmissionNotFound());
+        return Result.fail(new InsertMaterialUnitNotFound());
       }
 
       // validate the data common to all material types
@@ -144,7 +141,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
 
       let material: Material;
       try {
-        if (request.type === 'lesson') {
+        if (request.type === 'lesson' || request.type === 'scorm2004') {
           material = await this.insertLesson(request, unit);
         } else if (request.type === 'video') {
           material = await this.insertVideo(request, unit);
@@ -233,7 +230,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
           filename: null,
           contentMimeTypeId: null,
           imageMimeTypeId: request.imageFile?.mimeType ?? null,
-          entryPoint: '/content/',
+          entryPoint: request.type === 'lesson' ? '/content/' : request.type === 'scorm2004' ? '/scormdriver/indexAPI.html' : null,
           externalData: null,
           minutes: lessonMeta.minutes,
           chapters: lessonMeta.chapters,

@@ -1,4 +1,4 @@
-export type MaterialType = 'lesson' | 'video' | 'download' | 'assignment';
+export type MaterialType = 'lesson' | 'video' | 'download' | 'assignment' | 'scorm2004';
 
 export type MaterialDTO = {
   /** uuid string */
@@ -32,6 +32,8 @@ export const materialType = (raw: string): MaterialType => {
       return 'download';
     case 'assignment':
       return 'assignment';
+    case 'scorm2004':
+      return 'scorm2004';
     default:
       throw Error('invalid material type');
   }
