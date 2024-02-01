@@ -35,7 +35,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
     oldSubmissionTemplates: OldSubmissionTemplateDTO[];
     newSubmissionTemplates: NewSubmissionTemplateDTO[];
     units: Array<UnitDTO & {
-      materials: MaterialDTO[];
+      materials: Array<MaterialDTO & { materialData: Record<string, string> }>;
       videos: VideoDTO[];
     }>;
   };
@@ -72,7 +72,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
               oldSubmissionTemplates: true,
               units: {
                 include: {
-                  materials: { orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
+                  materials: { include: { materialData: true }, orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
                   videos: { include: { video: true } },
                 },
                 orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
@@ -206,25 +206,32 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
             order: u.order,
             created: this.dateService.fixPrismaReadDate(u.created),
             modified: this.dateService.fixPrismaReadDate(u.modified),
-            materials: u.materials.map(m => ({
-              materialId: this.uuidService.binToUUID(m.materialId),
-              unitId: this.uuidService.binToUUID(m.unitId),
-              type: m.type,
-              title: m.title,
-              description: m.description,
-              order: m.order,
-              filename: m.filename,
-              contentMimeTypeId: m.contentMimeTypeId,
-              imageMimeTypeId: m.imageMimeTypeId,
-              externalData: m.externalData,
-              entryPoint: m.entryPoint,
-              minutes: m.minutes,
-              chapters: m.chapters,
-              videos: m.videos,
-              knowledgeChecks: m.knowledgeChecks,
-              created: this.dateService.fixPrismaReadDate(m.created),
-              modified: this.dateService.fixPrismaReadDate(m.modified),
-            })),
+            materials: u.materials.map(m => {
+              const materialData = m.materialData.reduce<Record<string, string>>((prev, cur) => {
+                prev[cur.key] = cur.value;
+                return prev;
+              }, {});
+              return {
+                materialId: this.uuidService.binToUUID(m.materialId),
+                unitId: this.uuidService.binToUUID(m.unitId),
+                type: m.type,
+                title: m.title,
+                description: m.description,
+                order: m.order,
+                filename: m.filename,
+                contentMimeTypeId: m.contentMimeTypeId,
+                imageMimeTypeId: m.imageMimeTypeId,
+                externalData: m.externalData,
+                entryPoint: m.entryPoint,
+                minutes: m.minutes,
+                chapters: m.chapters,
+                videos: m.videos,
+                knowledgeChecks: m.knowledgeChecks,
+                created: this.dateService.fixPrismaReadDate(m.created),
+                modified: this.dateService.fixPrismaReadDate(m.modified),
+                materialData,
+              };
+            }),
             videos: u.videos.map(v => ({
               videoId: this.uuidService.binToUUID(v.videoId),
               src: v.video.src,
