@@ -27,7 +27,7 @@ export const isAccessTokenPayload = (value: unknown): value is AccessTokenPayloa
     const v = value as Record<string, unknown>;
     if (typeof v.exp === 'number' && typeof v.xsrf === 'string' && typeof v.studentCenter === 'object' && v.studentCenter !== null) {
       const s = v.studentCenter as Record<string, unknown>;
-      return (typeof s.id === 'number' && typeof s.type === 'string' && [ 'admin', 'tutor', 'student' ].includes(s.type));
+      return (typeof s.id === 'number' && typeof s.type === 'string' && [ 'admin', 'tutor', 'student', 'auditor' ].includes(s.type));
     }
   }
   return false;
