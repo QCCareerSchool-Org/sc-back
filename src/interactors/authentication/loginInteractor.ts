@@ -1,5 +1,5 @@
 import path from 'path';
-import type { Administrator, PrismaClient, Student, Tutor } from '@prisma/client';
+import type { Administrator, Auditor, PrismaClient, Student, Tutor } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
@@ -58,7 +58,7 @@ export class LoginWrongPassword extends Error { }
 export class LoginExpired extends Error { }
 export class LoginArears extends Error { }
 
-type Account = Administrator | Tutor | Student;
+type Account = Administrator | Tutor | Student | Auditor;
 
 export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginResponseDTO> {
 
@@ -162,6 +162,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
           studentId: accountType === 'student' ? accountId : null,
           tutorId: accountType === 'tutor' ? accountId : null,
           administratorId: accountType === 'admin' ? accountId : null,
+          auditorId: accountType === 'auditor' ? accountId : null,
           token: refreshTokenBytes,
           expiry: new Date(prismaNow.getTime() + (this.configService.config.auth.refreshTokenLifetime * 1000)),
           ipAddress: request.ipAddress === null ? null : this.ipAddressService.parse(request.ipAddress),
@@ -216,7 +217,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
     }
   }
 
-  private async getAccount(username: string): Promise<[number, Account, AccountType] | null> {
+  private async getAccount(username: string): Promise<[id: number, account: Account, type: AccountType] | null> {
     const administrator = await this.prisma.administrator.findUnique({ where: { username } });
     if (administrator) {
       return [ administrator.administratorId, administrator, 'admin' ];
@@ -225,6 +226,11 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
     const tutor = await this.prisma.tutor.findUnique({ where: { username } });
     if (tutor) {
       return [ tutor.tutorId, tutor, 'tutor' ];
+    }
+
+    const auditor = await this.prisma.auditor.findUnique({ where: { emailAddress: username } });
+    if (auditor) {
+      return [ auditor.auditorId, auditor, 'auditor' ];
     }
 
     const [ courseCode, studentNumber ] = this.studentService.splitUsername(username);
@@ -244,7 +250,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
       }
     }
 
-    // no admin, tutor, or student
+    // no admin, tutor, auditor, or student
     return null;
   }
 }

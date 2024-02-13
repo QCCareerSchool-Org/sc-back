@@ -68,6 +68,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
           administratorId: accountType === 'admin' ? accountId : null,
           tutorId: accountType === 'tutor' ? accountId : null,
           studentId: accountType === 'student' ? accountId : null,
+          auditorId: accountType === 'auditor' ? accountId : null,
           username,
           code,
           used: false,
@@ -80,18 +81,12 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       let htmlBodyFile: string;
       let textBodyFile: string;
       if (accountType === 'admin') {
-        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.html');
-        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/administrator.txt');
         htmlBodyFile = 'email/password-reset/administrator.html';
         textBodyFile = 'email/password-reset/administrator.txt';
       } else if (accountType === 'tutor') {
-        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.html');
-        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/tutor.txt');
         htmlBodyFile = 'email/password-reset/tutor.html';
         textBodyFile = 'email/password-reset/tutor.txt';
-      } else if (accountType === 'student') {
-        // htmlBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.html');
-        // textBodyFile = path.resolve(__dirname, '../../../email/password-reset/student.txt');
+      } else if (accountType === 'student' || accountType === 'auditor') {
         htmlBodyFile = 'email/password-reset/student.html';
         textBodyFile = 'email/password-reset/student.txt';
       } else {

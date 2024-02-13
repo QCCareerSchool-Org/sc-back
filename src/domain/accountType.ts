@@ -1,1 +1,1 @@
-export type AccountType = 'admin' | 'tutor' | 'student';
+export type AccountType = 'admin' | 'tutor' | 'student' | 'auditor';

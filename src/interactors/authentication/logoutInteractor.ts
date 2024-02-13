@@ -1,4 +1,4 @@
-import type { AdministratorRefreshToken, PrismaClient, StudentRefreshToken, TutorRefreshToken } from '@prisma/client';
+import type { PrismaClient, RefreshToken } from '@prisma/client';
 
 import type { AccountType } from '../../domain/accountType.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -7,7 +7,7 @@ import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
 
 type LogoutRequestDTO = {
-  id?: bigint;
+  id?: number;
   type?: AccountType;
   token?: Buffer;
 };
@@ -17,8 +17,6 @@ type LogoutResponseDTO = void;
 export class LogoutTokenNotFound extends Error { }
 export class LogoutTokenInvalidType extends Error { }
 export class LogoutTokenInvalid extends Error { }
-
-type RefreshToken = AdministratorRefreshToken | TutorRefreshToken | StudentRefreshToken;
 
 export class LogoutInteractor implements IInteractor<LogoutRequestDTO, LogoutResponseDTO> {
 
@@ -41,7 +39,7 @@ export class LogoutInteractor implements IInteractor<LogoutRequestDTO, LogoutRes
           return Result.fail(new LogoutTokenInvalid());
         }
 
-        await this.deleteRefreshToken(refreshToken, type);
+        await this.prisma.refreshToken.delete({ where: { refreshTokenId: token } });
       }
 
       return Result.success(undefined);
@@ -59,54 +57,25 @@ export class LogoutInteractor implements IInteractor<LogoutRequestDTO, LogoutRes
    * @param type the account type
    * @returns the refresh token
    */
-  private async getRefreshToken(id: bigint, type: AccountType): Promise<RefreshToken> {
+  private async getRefreshToken(id: number, type: AccountType): Promise<RefreshToken> {
+    let where;
+
     if (type === 'admin') {
-      const administratorRefreshToken = await this.prisma.administratorRefreshToken.findUnique({ where: { id } });
-      if (administratorRefreshToken === null) {
-        throw new LogoutTokenNotFound();
-      }
-      return administratorRefreshToken;
+      where = { administratorId: id };
+    } else if (type === 'tutor') {
+      where = { administratorId: id };
+    } else if (type === 'auditor') {
+      where = { auditorId: id };
+    } else if (type === 'student') {
+      where = { studentId: id };
+    } else {
+      throw new LogoutTokenInvalidType();
     }
 
-    if (type === 'tutor') {
-      const tutorRefreshToken = await this.prisma.tutorRefreshToken.findUnique({ where: { id } });
-      if (tutorRefreshToken === null) {
-        throw new LogoutTokenNotFound();
-      }
-      return tutorRefreshToken;
+    const refreshToken = await this.prisma.refreshToken.findFirst({ where });
+    if (refreshToken === null) {
+      throw new LogoutTokenNotFound();
     }
-
-    if (type === 'student') {
-      const studentRefreshToken = await this.prisma.studentRefreshToken.findUnique({ where: { id } });
-      if (studentRefreshToken === null) {
-        throw new LogoutTokenNotFound();
-      }
-      return studentRefreshToken;
-    }
-
-    throw new LogoutTokenInvalidType();
-  }
-
-  /**
-   * Deletes a refresh token
-   *
-   * @param refreshToken the refresh token
-   * @param type the account type
-   * @returns void, or false if not found
-   */
-  private async deleteRefreshToken(refreshToken: RefreshToken, type: AccountType): Promise<RefreshToken> {
-    if (type === 'admin') {
-      return this.prisma.administratorRefreshToken.delete({ where: { id: refreshToken.id } });
-    }
-
-    if (type === 'tutor') {
-      return this.prisma.tutorRefreshToken.delete({ where: { id: refreshToken.id } });
-    }
-
-    if (type === 'student') {
-      return this.prisma.studentRefreshToken.delete({ where: { id: refreshToken.id } });
-    }
-
-    throw new LogoutTokenInvalidType();
+    return refreshToken;
   }
 }

@@ -81,6 +81,11 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
               data: { passwordHash },
               where: { tutorId: accountId },
             });
+          } else if (accountType === 'auditor') {
+            await transaction.auditor.update({
+              data: { passwordHash },
+              where: { auditorId: accountId },
+            });
           } else if (accountType === 'student') {
             await transaction.student.update({
               data: { passwordHash, passwordChanged: true },
@@ -114,12 +119,15 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
     return this.dateService.getDate().getTime() >= properRequestDate.getTime() + (this.configService.config.passwordResetTimeout * 1000);
   }
 
-  private getAccountId(passwordRest: PasswordResetRequest): [number, AccountType] {
+  private getAccountId(passwordRest: PasswordResetRequest): [id: number, type: AccountType] {
     if (passwordRest.administratorId !== null) {
       return [ passwordRest.administratorId, 'admin' ];
     }
     if (passwordRest.tutorId !== null) {
       return [ passwordRest.tutorId, 'tutor' ];
+    }
+    if (passwordRest.auditorId !== null) {
+      return [ passwordRest.auditorId, 'auditor' ];
     }
     if (passwordRest.studentId !== null) {
       return [ passwordRest.studentId, 'student' ];

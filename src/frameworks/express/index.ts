@@ -10,6 +10,7 @@ import { NotFoundController } from '../../controllers/notFoundController.js';
 import { environmentConfigService, winstonLoggerService } from '../../services/index.js';
 import { administratorRouter } from './administratorRouter.js';
 import { asyncWrapper } from './asyncWrapper.js';
+import { auditorRouter } from './auditorRouter.js';
 import { authenticationRouter } from './authenticationRouter.js';
 import { globalErrorHandler } from './globalErrorHandler.js';
 import { multerErrorHandler } from './multerErrorHandler.js';
@@ -63,6 +64,7 @@ app.use(asyncWrapper(async (req, res, next) => {
 app.use('/v1/administrators', administratorRouter);
 app.use('/v1/tutors', tutorRouter);
 app.use('/v1/students', studentRouter);
+app.use('/v1/auditors', auditorRouter);
 
 // all other routes return 404
 app.use(asyncWrapper(async (req, res) => {

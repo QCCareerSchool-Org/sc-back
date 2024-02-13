@@ -161,6 +161,8 @@ model Student {
   enrollments             Enrollment[]
   testimonials            Testimonial[]
   surveyCompletions       SurveyCompletion[]
+  auditors                AuditorsOnStudents[]
+  groups                  StudentsOnGroups[]
 
   @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
@@ -168,6 +170,51 @@ model Student {
   @@index([provinceId], map: "province_id")
   @@index([studentTypeId], map: "student_type")
   @@map("accounts")
+}
+
+model Auditor {
+  auditorId             Int                    @id @default(autoincrement())
+  emailAddress          String
+  passwordHash          String                 @db.VarChar(255)
+  expiry                DateTime?              @db.Timestamp(0)
+  created               DateTime               @default(now()) @db.Timestamp(0)
+  modified              DateTime               @updatedAt @default(now()) @db.Timestamp(6)
+  students              AuditorsOnStudents[]
+  passwordResetRequests PasswordResetRequest[]
+  newRefreshTokens      RefreshToken[]
+  
+  @@map("auditors")
+  @@unique([emailAddress])
+}
+
+model AuditorsOnStudents {
+  auditorId    Int 
+  studentId    Int
+  auditor      Auditor @relation(fields: [auditorId], references: [auditorId], onDelete: Cascade, map: "FK_auditors_students_auditors")
+  student      Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_auditors_students_students")
+  
+  @@map("auditors_students")
+  @@id([auditorId, studentId])
+}
+
+model Group {
+  groupId Bytes               @id @db.Binary(16)
+  name    String
+  students StudentsOnGroups[]
+
+  @@map("groups")
+  @@index([name], map: "name")
+}
+
+model StudentsOnGroups {
+  groupId   Bytes @db.Binary(16)
+  studentId Int
+
+  group     Group @relation(fields: [groupId], references: [groupId], onDelete: Cascade, map: "FK_students_groups_groups")
+  student   Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_students_groups_students")
+
+  @@map("students_groups")
+  @@id([groupId, studentId])
 }
 
 model Flag {
@@ -217,6 +264,7 @@ model PasswordResetRequest {
   studentId       Int?           @map("account_id")
   tutorId         Int?           @map("tutor_id")
   administratorId Int?           @map("administrator_id")
+  auditorId       Int?           @map("auditor_id")
   username        String         @db.VarChar(50)
   code            String         @db.VarChar(32)
   requestDate     DateTime       @default(now()) @map("request_date") @db.Timestamp(0)
@@ -224,13 +272,15 @@ model PasswordResetRequest {
   used            Boolean        @default(false)
   entityVersion   Int            @default(0) @map("entity_version")
   student         Student?       @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "password_reset_requests_ibfk_1")
-  administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Cascade, map: "password_reset_requests_ibfk_3")
   tutor           Tutor?         @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, map: "password_reset_requests_ibfk_2")
+  administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Cascade, map: "password_reset_requests_ibfk_3")
+  auditor         Auditor?       @relation(fields: [auditorId], references: [auditorId], onDelete: Cascade, map: "password_reset_requests_ibfk_4")
 
   @@unique([id, entityVersion], map: "id_entity_version")
   @@index([studentId], map: "account_id")
-  @@index([administratorId], map: "administrator_id")
   @@index([tutorId], map: "tutor_id")
+  @@index([administratorId], map: "administrator_id")
+  @@index([auditorId], map: "auditorId")
   @@map("password_reset_requests")
 }
 
@@ -239,6 +289,7 @@ model RefreshToken {
   studentId       Int?           @map("account_id")
   tutorId         Int?           @map("tutor_id")
   administratorId Int?           @map("administrator_id")
+  auditorId       Int?           @map("auditor_id")
   token           Bytes          @unique(map: "token") @db.Binary(64)
   expiry          DateTime       @default(now()) @db.Timestamp(0)
   ipAddress       Bytes?         @map("ip_address") @db.VarBinary(16)
@@ -256,11 +307,13 @@ model RefreshToken {
   student         Student?       @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "refresh_tokens_ibfk_1")
   administrator   Administrator? @relation(fields: [administratorId], references: [administratorId], onDelete: Cascade, map: "refresh_tokens_ibfk_3")
   tutor           Tutor?         @relation(fields: [tutorId], references: [tutorId], onDelete: Cascade, map: "refresh_tokens_ibfk_2")
+  auditor         Auditor?       @relation(fields: [auditorId], references: [auditorId], onDelete: Cascade, map: "refresh_tokens_ibfk_4")
 
   @@unique([refreshTokenId, entityVersion], map: "refresh_token_id_entity_version")
   @@index([studentId], map: "account_id")
   @@index([tutorId], map: "tutor_id")
   @@index([administratorId], map: "administrator_id")
+  @@index([auditorId], map: "auditor_id")
   @@map("refresh_tokens")
 }
 

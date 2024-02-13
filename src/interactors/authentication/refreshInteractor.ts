@@ -82,6 +82,9 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       } else if (refreshToken.studentId !== null) {
         accountId = refreshToken.studentId;
         accountType = 'student';
+      } else if (refreshToken.auditorId !== null) {
+        accountId = refreshToken.auditorId;
+        accountType = 'auditor';
       } else {
         return Result.fail(new RefreshStudentInvalidType());
       }

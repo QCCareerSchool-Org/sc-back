@@ -42,9 +42,10 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
       return Result.success({
         id: passwordResetRequest.id,
         code: passwordResetRequest.code,
-        administratorId: passwordResetRequest.administratorId,
-        tutorId: passwordResetRequest.tutorId,
         studentId: passwordResetRequest.studentId,
+        tutorId: passwordResetRequest.tutorId,
+        administratorId: passwordResetRequest.administratorId,
+        auditorId: passwordResetRequest.auditorId,
         username: passwordResetRequest.username,
         used: passwordResetRequest.used,
         requestDate: passwordResetRequest.requestDate,

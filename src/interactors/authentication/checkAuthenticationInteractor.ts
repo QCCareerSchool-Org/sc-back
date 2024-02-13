@@ -41,7 +41,7 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
       const schema = yup.object({ // const schema: yup.SchemaOf<AccessTokenPayload> = yup.object({
         studentCenter: yup.object({
           id: yup.number().defined(),
-          type: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]).defined(),
+          type: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student', 'auditor' ]).defined(),
           studentType: yup.mixed().oneOf<StudentTypeType>([ 'general', 'event', 'design', 'writing' ]),
           privileges: yup.object({
             unitPrice: yup.boolean(),
