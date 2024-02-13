@@ -58,15 +58,40 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
 
-      const updatedSubmission = await this.prisma.newSubmission.update({
-        data: {
-          submitted: prismaNow,
-          skipped: true,
-          tutorId: submission.enrollment.tutorId,
-          modified: prismaNow,
-        },
-        where: { submissionId: submissionIdBin },
-        include: { enrollment: { include: { course: true } } },
+      const finalUnitLetter = await this.getFinalUnitLetter(submission.enrollment.courseId);
+
+      const updatedSubmission = await this.prisma.$transaction(async transaction => {
+        const s = await transaction.newSubmission.update({
+          data: {
+            submitted: prismaNow,
+            skipped: true,
+            tutorId: submission.enrollment.tutorId,
+            modified: prismaNow,
+          },
+          where: { submissionId: submissionIdBin },
+          include: { enrollment: { include: { course: true } } },
+        });
+
+        if (s.unitLetter !== finalUnitLetter) { // this is not the final submission
+          return s;
+        }
+
+        // check if there is already a final submission recorded
+        const finalSubmission = await transaction.finalSubmission.findFirst({ where: { enrollmentId: s.enrollmentId } });
+
+        if (finalSubmission) { // we already have a final submission recorded for this enrollment
+          return s;
+        }
+
+        // create the final submission record
+        await transaction.finalSubmission.create({
+          data: {
+            enrollmentId: s.enrollmentId,
+            created: prismaNow,
+          },
+        });
+
+        return s;
       });
 
       return Result.success({
@@ -97,5 +122,10 @@ export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissio
       this.logger.error('error skipping new submission', err instanceof Error ? err.message : err);
       return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
+  }
+
+  private async getFinalUnitLetter(courseId: number): Promise<string | null> {
+    const template = await this.prisma.newSubmissionTemplate.findFirst({ where: { courseId }, orderBy: [ { order: 'desc' }, { unitLetter: 'desc' } ] });
+    return template?.unitLetter ?? null;
   }
 }
