@@ -65,8 +65,6 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
 
   public async execute({ auditorId, studentId }: GetStudentRequestDTO): Promise<ResultType<GetStudentResponseDTO>> {
     try {
-      performance.mark('start');
-
       const student = await this.prisma.student.findFirst({
         where: { studentId, auditors: { some: { auditorId } } },
         include: {
@@ -113,12 +111,6 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           groups: { include: { group: true } },
         },
       });
-
-      performance.mark('fetched');
-
-      const measure = performance.measure('fetch-duration', 'start', 'fetched');
-
-      console.log(measure.duration);
 
       if (!student) {
         return Result.fail(new StudentNotFound());
