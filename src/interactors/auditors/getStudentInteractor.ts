@@ -31,7 +31,7 @@ export type GetStudentRequestDTO = {
 
 export type GetStudentResponseDTO = StudentDTO & {
   country: CountryDTO;
-  provinvce: ProvinceDTO | null;
+  province: ProvinceDTO | null;
   enrollments: Array<EnrollmentDTO & {
     course: CourseDTO & {
       school: SchoolDTO;
@@ -145,7 +145,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           name: student.country.name,
           entityVersion: student.country.entityVersion,
         },
-        provinvce: student.province === null ? null : {
+        province: student.province === null ? null : {
           provinceId: student.province.provinceId,
           countryId: student.province.countryId,
           regionId: student.province.regionId,
