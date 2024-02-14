@@ -176,6 +176,9 @@ model Auditor {
   auditorId             Int                    @id @default(autoincrement())
   emailAddress          String
   passwordHash          String                 @db.VarChar(255)
+  firstName             String
+  lastName              String
+  passwordChanged       Boolean
   expiry                DateTime?              @db.Timestamp(0)
   created               DateTime               @default(now()) @db.Timestamp(0)
   modified              DateTime               @updatedAt @default(now()) @db.Timestamp(6)

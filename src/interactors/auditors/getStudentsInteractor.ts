@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 
 import type { StudentDTO } from '../../domain/auditors/studentDTO.js';
 import type { CountryDTO } from '../../domain/countryDTO.js';
@@ -11,8 +11,15 @@ import type { IInteractor } from '../index.js';
 import { Result } from '../result.js';
 import type { ResultType } from '../result.js';
 
+export type FilterConditions = {
+  name?: string;
+  group?: string;
+  location?: string;
+};
+
 export type GetStudentsRequestDTO = {
   auditorId: number;
+  filter?: FilterConditions;
 };
 
 export type GetStudentsResponseDTO = Array<StudentDTO & {
@@ -32,12 +39,45 @@ export class GetStudentsInteractor implements IInteractor<GetStudentsRequestDTO,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute({ auditorId }: GetStudentsRequestDTO): Promise<ResultType<GetStudentsResponseDTO>> {
+  public async execute({ auditorId, filter }: GetStudentsRequestDTO): Promise<ResultType<GetStudentsResponseDTO>> {
     try {
-      const auditor = await this.prisma.auditor.findUnique({
+      const studentsWhere: Prisma.AuditorsOnStudentsWhereInput = {};
+      if (filter) {
+        studentsWhere.AND = [];
+        if (filter.name) {
+          studentsWhere.AND.push({
+            student: {
+              OR: [
+                { firstName: { contains: filter.name } },
+                { lastName: { contains: filter.name } },
+              ],
+            },
+          });
+        }
+        if (filter.location) {
+          studentsWhere.AND.push({
+            student: {
+              OR: [
+                { province: { name: { contains: filter.location } } },
+                { country: { name: { contains: filter.location } } },
+              ],
+            },
+          });
+        }
+        if (filter.group) {
+          studentsWhere.AND.push({
+            student: {
+              groups: { some: { group: { name: { contains: filter.group } } } },
+            },
+          });
+        }
+      }
+
+      const auditor = await this.prisma.auditor.findFirst({
         where: { auditorId },
         include: {
           students: {
+            where: studentsWhere,
             include: {
               student: {
                 include: {

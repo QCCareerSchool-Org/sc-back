@@ -9,6 +9,13 @@ type Request = {
     /** numeric string */
     auditorId: string;
   };
+  query: {
+    filter?: {
+      name?: string;
+      location?: string;
+      group?: string;
+    };
+  };
 };
 
 type Response = GetStudentsResponseDTO;
@@ -19,9 +26,19 @@ export class GetStudentsController extends BaseController<Request, Response> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
       auditorId: yup.string().matches(/^\d+$/u).defined(),
     });
+    const querySchema: yup.SchemaOf<Request['query']> = yup.object({
+      filter: yup.object({
+        name: yup.string(),
+        location: yup.string(),
+        group: yup.string(),
+      }),
+    });
     try {
-      const params = await paramsSchema.validate(this.req.params);
-      return { params };
+      const [ params, query ] = await Promise.all([
+        paramsSchema.validate(this.req.params),
+        querySchema.validate(this.req.query),
+      ]);
+      return { params, query };
     } catch (error) {
       if (error instanceof Error) {
         this.badRequest(error.message);
@@ -32,14 +49,14 @@ export class GetStudentsController extends BaseController<Request, Response> {
     }
   }
 
-  protected async executeImpl({ params }: Request): Promise<void> {
+  protected async executeImpl({ params, query }: Request): Promise<void> {
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
 
     const auditorId = parseInt(params.auditorId, 10);
 
-    const result = await getStudentsInteractor.execute({ auditorId });
+    const result = await getStudentsInteractor.execute({ auditorId, filter: query.filter });
 
     if (result.success) {
       return this.ok(result.value);

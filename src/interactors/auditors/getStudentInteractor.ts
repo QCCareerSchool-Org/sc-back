@@ -14,7 +14,6 @@ import type { ProvinceDTO } from '../../domain/provinceDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
-import type { VideoDTO } from '../../domain/videoDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
