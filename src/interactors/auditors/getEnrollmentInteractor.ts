@@ -1,0 +1,411 @@
+import type { PrismaClient } from '@prisma/client';
+
+import type { NewAssignmentDTO } from '../../domain/auditors/newAssignmentDTO.js';
+import type { NewSubmissionDTO } from '../../domain/auditors/newSubmissionDTO.js';
+import type { StudentDTO } from '../../domain/auditors/studentDTO.js';
+import type { CourseDTO } from '../../domain/courseDTO.js';
+import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
+import type { MaterialDTO } from '../../domain/materialDTO.js';
+import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
+import type { OldSubmissionDTO } from '../../domain/oldSubmissionDTO.js';
+import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplateDTO.js';
+import type { SchoolDTO } from '../../domain/schoolDTO.js';
+import type { TutorDTO } from '../../domain/tutorDTO.js';
+import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
+import type { IFileService } from '../../services/file/index.js';
+import type { ILoggerService } from '../../services/logger/index.js';
+import type { IUUIDService } from '../../services/uuid/index.js';
+import type { IInteractor } from '../index.js';
+import { Result } from '../result.js';
+import type { ResultType } from '../result.js';
+
+export type GetEnrollmentRequestDTO = {
+  auditorId: number;
+  studentId: number;
+  courseId: number;
+};
+
+export type GetEnrollmentResponseDTO = EnrollmentDTO & {
+  student: StudentDTO;
+  course: CourseDTO & {
+    school: SchoolDTO;
+    oldSubmissionTemplates: OldSubmissionTemplateDTO[];
+    newSubmissionTemplates: NewSubmissionTemplateDTO[];
+    units: Array<UnitDTO & {
+      materials: Array<MaterialDTO & { materialData: Record<string, string> }>;
+    }>;
+  };
+  tutor: TutorDTO | null;
+  oldSubmissions: OldSubmissionDTO[];
+  // newSubmissions: Array<NewSubmissionDTO & { badges: BadgeDTO[] }>;
+  newSubmissions: Array<NewSubmissionDTO & {
+    newAssignments: NewAssignmentDTO[];
+    tutor: TutorDTO | null;
+  }>;
+  materialCompletions: MaterialCompletionDTO[];
+};
+
+export class EnrollmentNotFound extends Error { }
+
+export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
+
+  public constructor(
+    private readonly prisma: PrismaClient,
+    private readonly uuidService: IUUIDService,
+    private readonly fileService: IFileService,
+    private readonly dateService: IDateService,
+    private readonly configService: IConfigService,
+    private readonly logger: ILoggerService,
+  ) { /* empty */ }
+
+  public async execute({ auditorId, studentId, courseId }: GetEnrollmentRequestDTO): Promise<ResultType<GetEnrollmentResponseDTO>> {
+    try {
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { courseId, student: { studentId, auditors: { some: { auditorId } } } },
+        include: {
+          student: true,
+          course: {
+            include: {
+              school: true,
+              newSubmissionTemplates: true,
+              oldSubmissionTemplates: true,
+              units: {
+                include: {
+                  materials: { include: { materialData: true } },
+                },
+                orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
+              },
+            },
+          },
+          tutor: true,
+          oldSubmissions: true,
+          newSubmissions: {
+            include: {
+              newAssignments: {
+                include: {
+                  newParts: {
+                    include: {
+                      newTextBoxes: { orderBy: [ { order: 'asc' } ] },
+                      newUploadSlots: { orderBy: [ { order: 'asc' } ] },
+                    },
+                    orderBy: [ { partNumber: 'asc' } ],
+                  },
+                },
+                orderBy: [ { assignmentNumber: 'asc' } ],
+              },
+              tutor: true,
+              // badges: { include: { badge: true } },
+            },
+            orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
+          },
+          materialCompletions: true,
+        },
+      });
+
+      if (!enrollment) {
+        return Result.fail(new EnrollmentNotFound());
+      }
+
+      return Result.success({
+        enrollmentId: enrollment.enrollmentId,
+        courseId: enrollment.courseId,
+        studentId: enrollment.studentId,
+        studentNumber: enrollment.studentNumber,
+        tutorId: enrollment.tutorId,
+        maxAssignments: enrollment.maxAssignments,
+        graduated: enrollment.graduated,
+        assignmentsDisabled: enrollment.assignmentsDisabled,
+        quizzesDisabled: enrollment.quizzesDisabled,
+        onHold: enrollment.onHold,
+        holdReason: enrollment.holdReason,
+        currencyCode: enrollment.currencyCode,
+        courseCost: enrollment.courseCost.toNumber(),
+        amountPaid: enrollment.amountPaid.toNumber(),
+        monthlyInstallment: enrollment.monthlyInstallment === null ? null : enrollment.monthlyInstallment.toNumber(),
+        enrollmentDate: enrollment.enrollmentDate,
+        fastTrack: enrollment.fastTrack,
+        paymentsDisabled: enrollment.paymentsDisabled,
+        student: {
+          studentId: enrollment.student.studentId,
+          countryId: enrollment.student.countryId,
+          provinceId: enrollment.student.provinceId,
+          studentTypeId: enrollment.student.studentTypeId,
+          passwordChanged: enrollment.student.passwordChanged,
+          sex: enrollment.student.sex,
+          firstName: enrollment.student.firstName,
+          lastName: enrollment.student.lastName,
+          numLogins: enrollment.student.numLogins,
+          lastLogin: this.dateService.fixPrismaReadDate(enrollment.student.lastLogin),
+          expiry: this.dateService.fixPrismaReadDate(enrollment.student.expiry),
+          emailAddress: undefined,
+          arrears: enrollment.student.arrears,
+          forumUsername: enrollment.student.forumUsername,
+          apiUsername: enrollment.student.apiUsername,
+          questionnaire: enrollment.student.questionnaire,
+          videoViewed: enrollment.student.videoViewed,
+          ajaxUploads: enrollment.student.ajaxUploads,
+          upgradeNotification: enrollment.student.upgradeNotification,
+          entityVersion: enrollment.student.entityVersion,
+          created: this.dateService.fixPrismaReadDate(enrollment.student.created),
+          modified: this.dateService.fixPrismaReadDate(enrollment.student.modified),
+        },
+        course: {
+          courseId: enrollment.course.courseId,
+          schoolId: enrollment.course.schoolId,
+          code: enrollment.course.code,
+          version: enrollment.course.version,
+          studentTypeId: enrollment.course.studentTypeId,
+          name: enrollment.course.name,
+          courseGuide: enrollment.course.courseGuide,
+          quizzesEnabled: enrollment.course.quizzesEnabled,
+          noTutor: enrollment.course.noTutor,
+          submissionType: enrollment.course.submissionType,
+          order: enrollment.course.order,
+          enabled: enrollment.course.enabled,
+          submissionsEnabled: enrollment.course.submissionsEnabled,
+          entityVersion: enrollment.course.entityVersion,
+          school: {
+            schoolId: enrollment.course.school.schoolId,
+            name: enrollment.course.school.name,
+            slug: enrollment.course.school.slug,
+            order: enrollment.course.school.order,
+            entityVersion: enrollment.course.school.entityVersion,
+          },
+          oldSubmissionTemplates: enrollment.course.oldSubmissionTemplates.map(s => ({
+            submissionTemplateId: s.submissionTemplateId,
+            courseId: s.courseId,
+            unitLetter: s.unitLetter,
+            title: s.title,
+            responseType: s.responseType,
+            optional: s.optional,
+            noMarks: s.noMarks,
+            noAssignments: s.noAssignments,
+            optionalUpload: s.optionalUpload,
+          })),
+          newSubmissionTemplates: enrollment.course.newSubmissionTemplates.map(s => ({
+            submissionTemplateId: this.uuidService.binToUUID(s.submissionTemplateId),
+            courseId: s.courseId,
+            unitLetter: s.unitLetter,
+            title: s.title,
+            description: s.description,
+            markingCriteria: null,
+            optional: s.optional,
+            order: s.order,
+            created: this.dateService.fixPrismaReadDate(s.created),
+            modified: this.dateService.fixPrismaReadDate(s.modified),
+          })),
+          units: enrollment.course.units.map(u => ({
+            unitId: this.uuidService.binToUUID(u.unitId),
+            courseId: u.courseId,
+            unitLetter: u.unitLetter,
+            title: u.title,
+            order: u.order,
+            created: this.dateService.fixPrismaReadDate(u.created),
+            modified: this.dateService.fixPrismaReadDate(u.modified),
+            materials: u.materials.map(m => {
+              const materialData = m.materialData.reduce<Record<string, string>>((prev, cur) => {
+                prev[cur.key] = cur.value;
+                return prev;
+              }, {});
+              return {
+                materialId: this.uuidService.binToUUID(m.materialId),
+                unitId: this.uuidService.binToUUID(m.unitId),
+                type: m.type,
+                title: m.title,
+                description: m.description,
+                order: m.order,
+                filename: m.filename,
+                contentMimeTypeId: m.contentMimeTypeId,
+                imageMimeTypeId: m.imageMimeTypeId,
+                externalData: m.externalData,
+                entryPoint: m.entryPoint,
+                minutes: m.minutes,
+                chapters: m.chapters,
+                videos: m.videos,
+                knowledgeChecks: m.knowledgeChecks,
+                created: this.dateService.fixPrismaReadDate(m.created),
+                modified: this.dateService.fixPrismaReadDate(m.modified),
+                materialData,
+              };
+            }),
+          })),
+        },
+        tutor: enrollment.tutor === null ? null : {
+          tutorId: enrollment.tutor.tutorId,
+          firstName: enrollment.tutor.firstName,
+          lastName: enrollment.tutor.lastName,
+          introduction: await this.isTutorIntroductionPresent(enrollment.tutorId, enrollment.course.code),
+        },
+        oldSubmissions: enrollment.oldSubmissions.map(submission => ({
+          submissionId: submission.submissionId,
+          enrollmentId: submission.enrollmentId,
+          unitLetter: submission.unitLetter,
+          title: submission.title,
+          responseType: submission.responseType,
+          responseFilename: submission.responseFilename,
+          points: submission.points,
+          mark: submission.mark,
+          creationDate: this.dateService.fixPrismaReadDate(submission.creationDate),
+          finalizedDate: this.dateService.fixPrismaReadDate(submission.finalizedDate),
+          transferredDate: this.dateService.fixPrismaReadDate(submission.transferredDate),
+          tutorId: submission.tutorId,
+          markedDate: this.dateService.fixPrismaReadDate(submission.markedDate),
+          tutorComment: null, // students should never see the tutor comment
+          adminComment: submission.adminComment,
+          optional: submission.optional,
+          noMarks: submission.noMarks,
+          noAssignments: submission.noAssignments,
+          optionalUpload: submission.optionalUpload,
+          order: submission.order,
+          skipped: submission.skipped,
+          cost: submission.cost?.toNumber() ?? null,
+          currencyId: submission.currencyId,
+          audioProgress: submission.audioProgress,
+          timestamp: this.dateService.fixPrismaReadDate(submission.timestamp),
+          entityVersion: submission.entityVersion,
+        })),
+        newSubmissions: await Promise.all(enrollment.newSubmissions.map(async newSubmission => {
+          let submissionComplete = true;
+          let submissionMarked = true;
+          let submissionPoints = 0;
+          let submissionMark = 0;
+          return {
+            newAssignments: newSubmission.newAssignments.map(newAssignment => {
+              let assignmentComplete = true;
+              let assignmentMarked = true;
+              let assignmentPoints = 0;
+              let assignmentMark = 0;
+              for (const newPart of newAssignment.newParts) {
+                let partComplete = true;
+                let partMarked = true;
+                let partPoints = 0;
+                let partMark = 0;
+                for (const newTextBox of newPart.newTextBoxes) {
+                  const textBoxComplete = newTextBox.text.length > 0;
+                  if (!textBoxComplete && !newTextBox.optional) {
+                    partComplete = false;
+                  }
+                  if (textBoxComplete && newTextBox.mark === null && newTextBox.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (textBoxComplete || !newTextBox.optional) {
+                    partPoints += newTextBox.points;
+                    partMark += newTextBox.markOverride ?? newTextBox.mark ?? 0;
+                  }
+                }
+                for (const newUploadSlot of newPart.newUploadSlots) {
+                  const uploadSlotComplete = newUploadSlot.filename !== null;
+                  if (!uploadSlotComplete && !newUploadSlot.optional) {
+                    partComplete = false;
+                  }
+                  if (uploadSlotComplete && newUploadSlot.mark === null && newUploadSlot.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (uploadSlotComplete || !newUploadSlot.optional) {
+                    partPoints += newUploadSlot.points;
+                    partMark += newUploadSlot.markOverride ?? newUploadSlot.mark ?? 0;
+                  }
+                }
+                if (!partComplete) {
+                  assignmentComplete = false;
+                }
+                if (partComplete && !partMarked) {
+                  assignmentMarked = false;
+                }
+                // parts can't be optional, so we always add these
+                assignmentPoints += partPoints;
+                assignmentMark += partMark;
+              }
+              if (!assignmentComplete && !newAssignment.optional) {
+                submissionComplete = false;
+              }
+              if (assignmentComplete && !assignmentMarked) {
+                submissionMarked = false;
+              }
+              if (assignmentComplete || !newAssignment.optional) {
+                submissionPoints += assignmentPoints;
+                submissionMark += assignmentMark;
+              }
+              return {
+                assignmentId: this.uuidService.binToUUID(newAssignment.assignmentId),
+                submissionId: this.uuidService.binToUUID(newAssignment.submissionId),
+                assignmentNumber: newAssignment.assignmentNumber,
+                title: newAssignment.title,
+                description: newAssignment.description,
+                descriptionType: newAssignment.descriptionType,
+                markingCriteria: null, // students should never see the marking criteria
+                optional: newAssignment.optional,
+                complete: assignmentComplete,
+                points: assignmentPoints,
+                mark: newSubmission.closed && assignmentMarked ? assignmentMark : null,
+                created: this.dateService.fixPrismaReadDate(newAssignment.created),
+                modified: this.dateService.fixPrismaReadDate(newAssignment.modified),
+              };
+            }),
+            submissionId: this.uuidService.binToUUID(newSubmission.submissionId),
+            enrollmentId: newSubmission.enrollmentId,
+            tutorId: newSubmission.tutorId,
+            unitLetter: newSubmission.unitLetter,
+            title: newSubmission.title,
+            description: newSubmission.description,
+            markingCriteria: null, // students should never see the marking criteria
+            optional: newSubmission.optional,
+            order: newSubmission.order,
+            tutorComment: null, // students should never see the tutor comment
+            adminComment: newSubmission.adminComment,
+            submitted: this.dateService.fixPrismaReadDate(newSubmission.submitted),
+            transferred: this.dateService.fixPrismaReadDate(newSubmission.transferred),
+            closed: this.dateService.fixPrismaReadDate(newSubmission.closed),
+            skipped: newSubmission.skipped,
+            responseFilename: newSubmission.responseFilename === null ? null : `${enrollment.course.code}${enrollment.enrollmentId} Submission ${newSubmission.unitLetter}.mp3`,
+            responseFilesize: newSubmission.responseFilesize,
+            responseMimeTypeId: newSubmission.responseMimeTypeId,
+            responseProgress: newSubmission.responseProgress,
+            complete: submissionComplete,
+            points: submissionPoints,
+            mark: newSubmission.closed && submissionMarked ? submissionMark : null,
+            created: this.dateService.fixPrismaReadDate(newSubmission.created),
+            modified: this.dateService.fixPrismaReadDate(newSubmission.modified),
+            // badges: newSubmission.badges.map(b => ({
+            //   badgeId: this.uuidService.binToUUID(b.badge.badgeId),
+            //   name: b.badge.name,
+            //   description: b.badge.name,
+            //   created: b.created,
+            // })),
+            tutor: newSubmission.tutor === null ? null : {
+              tutorId: newSubmission.tutor.tutorId,
+              firstName: newSubmission.tutor.firstName,
+              lastName: newSubmission.tutor.lastName,
+              introduction: await this.isTutorIntroductionPresent(newSubmission.tutorId, enrollment.course.code),
+            },
+          };
+        })),
+        materialCompletions: enrollment.materialCompletions.map(m => ({
+          materialId: this.uuidService.binToUUID(m.materialId),
+          enrollmentId: m.enrollmentId,
+        })),
+      });
+
+    } catch (err) {
+      this.logger.error('error getting student', err instanceof Error ? err.message : err);
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+    }
+  }
+
+  private async isTutorIntroductionPresent(tutorId: number | null, courseCode: string): Promise<boolean> {
+    if (tutorId === null) {
+      return false;
+    }
+    const tutorAudioFileLocation = `${this.configService.config.paths.tutorIntroductionPath}/${tutorId}-${courseCode}`;
+    const fileStats = await this.fileService.stat(tutorAudioFileLocation);
+    if (fileStats) {
+      return true;
+    }
+    return false;
+  }
+}

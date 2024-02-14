@@ -127,7 +127,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         numLogins: student.numLogins,
         lastLogin: this.dateService.fixPrismaReadDate(student.lastLogin),
         expiry: this.dateService.fixPrismaReadDate(student.expiry),
-        emailAddress: student.emailAddress,
+        emailAddress: undefined,
         arrears: student.arrears,
         forumUsername: student.forumUsername,
         apiUsername: student.apiUsername,

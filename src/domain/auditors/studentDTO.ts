@@ -9,7 +9,7 @@ export type StudentDTO = {
   numLogins: number;
   lastLogin: Date | null;
   expiry: Date | null;
-  emailAddress: string | null;
+  emailAddress: undefined;
   arrears: boolean;
   entityVersion: number;
   created: Date;

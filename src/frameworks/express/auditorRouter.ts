@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { AuditorGuardMiddleware } from '../../controllers/auditors/auditorGuardMiddleware.js';
 import { GetAuditorController } from '../../controllers/auditors/getAuditorController.js';
+import { GetEnrollmentController } from '../../controllers/auditors/getEnrollmentController.js';
 import { GetStudentController } from '../../controllers/auditors/getStudentController.js';
 import { GetStudentsController } from '../../controllers/auditors/getStudentsController.js';
 import { UpdateEmailAddressController } from '../../controllers/auditors/updateEmailAddressController.js';
@@ -19,6 +20,7 @@ const routes: Route[] = [
   [ 'post', '/:auditorId/password', UpdatePasswordController ],
   [ 'get', '/:auditorId/students', GetStudentsController ],
   [ 'get', '/:auditorId/students/:studentId', GetStudentController ],
+  [ 'get', '/:auditorId/students/:studentId/courses/:courseId', GetEnrollmentController ],
 ];
 
 applyRoutes(auditorRouter, routes);
