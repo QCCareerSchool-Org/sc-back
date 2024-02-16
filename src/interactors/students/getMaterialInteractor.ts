@@ -4,9 +4,9 @@ import type { MaterialDTO } from '../../domain/materialDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetMaterialRequestDTO = {
   studentId: number;
@@ -17,14 +17,16 @@ export type GetMaterialResponseDTO = MaterialDTO & { materialData: Record<string
 
 export class GetMaterialNotFound extends Error { }
 
-export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO, GetMaterialResponseDTO> {
+export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestDTO, GetMaterialResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, materialId }: GetMaterialRequestDTO): Promise<ResultType<GetMaterialResponseDTO>> {
     try {

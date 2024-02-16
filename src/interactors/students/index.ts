@@ -26,7 +26,7 @@ import { UpdateNewSubmissionResponseProgressInteractor } from './updateNewSubmis
 import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor.js';
 
 // use-case interactor singletons
-export const lessonGuardInteractor = new LessonGuardInteractor(prisma, uuidService, winstonLoggerService);
+export const lessonGuardInteractor = new LessonGuardInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
 export const getStudentInteractor = new GetStudentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
@@ -35,19 +35,19 @@ export const getEnrollmentInteractor = new GetEnrollmentInteractor(prisma, uuidS
 export const saveNewTextBoxTextInteractor = new SaveNewTextBoxTextInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const uploadNewUploadSlotInteractor = new UploadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, sanitizerService, dateService, environmentConfigService, winstonLoggerService);
 export const eraseNewUploadSlotInteractor = new EraseNewUploadSlotInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
-export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, dateService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const submitNewSubmissionInteractor = new SubmitNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 export const skipNewSubmissionInteractor = new SkipNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const initializeNextNewSubmissionInteractor = new InitializeNextNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
-export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
-export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, dateService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, dateService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const updateEmailAddressInteractor = new UpdateEmailAddressInteractor(prisma, emailValidatorService, dateService, winstonLoggerService);
 export const getT2202ReceiptsInteractor = new GetT2202ReceiptsInteractor(prisma, dateService, winstonLoggerService);
-export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
-export const insertMaterialCompletionInteractor = new InsertMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
-export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, winstonLoggerService);
-export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);
-export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadMaterialImageInteractor = new DownloadMaterialImageInteractor(prisma, uuidService, dateService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
+export const insertMaterialCompletionInteractor = new InsertMaterialCompletionInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, dateService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const updateNewSubmissionResponseProgressInteractor = new UpdateNewSubmissionResponseProgressInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, dateService, winstonLoggerService);
-export const saveMaterialDataInteractor = new SaveMaterialDataInteractor(prisma, uuidService, intervalService, winstonLoggerService);
+export const saveMaterialDataInteractor = new SaveMaterialDataInteractor(prisma, uuidService, dateService, intervalService, winstonLoggerService);

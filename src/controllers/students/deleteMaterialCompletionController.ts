@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import type { DeleteMaterialCompletionResponseDTO } from '../../interactors/students/deleteMaterialCompletionInteractor.js';
 import { DeleteMaterialCompletionMaterialNotFound, DeleteMaterialCompletionNotFound } from '../../interactors/students/deleteMaterialCompletionInteractor.js';
 import { deleteMaterialCompletionInteractor } from '../../interactors/students/index.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -18,7 +18,7 @@ type Request = {
 
 type Response = DeleteMaterialCompletionResponseDTO;
 
-export class DeleteMaterialCompletionController extends BaseController<Request, Response> {
+export class DeleteMaterialCompletionController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -52,6 +52,10 @@ export class DeleteMaterialCompletionController extends BaseController<Request, 
 
     if (result.success) {
       return this.noContent();
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

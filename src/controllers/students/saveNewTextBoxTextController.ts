@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { saveNewTextBoxTextInteractor } from '../../interactors/students/index.js';
 import type { SaveNewTextBoxTextResponseDTO } from '../../interactors/students/saveNewTextBoxTextInteractor.js';
 import { SaveNewTextBoxTextNotFound, SaveNewTextBoxTextSubmissionSubmitted, SaveNewTextBoxTextTooLong } from '../../interactors/students/saveNewTextBoxTextInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -27,7 +27,7 @@ type Request = {
 
 type Response = SaveNewTextBoxTextResponseDTO;
 
-export class SaveNewTextBoxTextController extends BaseController<Request, Response> {
+export class SaveNewTextBoxTextController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -71,6 +71,10 @@ export class SaveNewTextBoxTextController extends BaseController<Request, Respon
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

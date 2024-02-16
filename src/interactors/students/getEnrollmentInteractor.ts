@@ -1,6 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
@@ -19,9 +18,9 @@ import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetEnrollmentRequestDTO = {
   studentId: number;
@@ -48,16 +47,18 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
 
 export class GetEnrollmentNotFound extends Error { }
 
-export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
+export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId }: GetEnrollmentRequestDTO): Promise<ResultType<GetEnrollmentResponseDTO>> {
     try {
@@ -124,6 +125,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         amountPaid: enrollment.amountPaid.toNumber(),
         monthlyInstallment: enrollment.monthlyInstallment?.toNumber() ?? null,
         enrollmentDate: this.dateService.fixPrismaReadDate(enrollment.enrollmentDate),
+        dueDate: this.dateService.fixPrismaReadDate(enrollment.dueDate),
         fastTrack: enrollment.fastTrack,
         paymentsDisabled: enrollment.paymentsDisabled,
         student: {

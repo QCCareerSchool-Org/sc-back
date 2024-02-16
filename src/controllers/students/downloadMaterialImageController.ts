@@ -4,7 +4,7 @@ import type { DownloadMaterialImageResponseDTO } from '../../interactors/student
 import { DownloadMaterialImageFileNotFound, DownloadMaterialImageFileReadError, DownloadMaterialImageNotFound } from '../../interactors/students/downloadMaterialImageInteractor.js';
 import { downloadMaterialImageInteractor } from '../../interactors/students/index.js';
 import type { ByteRange } from '../baseController.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   headers: {
@@ -20,7 +20,7 @@ type Request = {
 
 type Response = DownloadMaterialImageResponseDTO;
 
-export class DownloadMaterialImageController extends BaseController<Request, Response> {
+export class DownloadMaterialImageController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
@@ -75,6 +75,10 @@ export class DownloadMaterialImageController extends BaseController<Request, Res
         return this.found();
       }
       return this.sendInteractorFileStream(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

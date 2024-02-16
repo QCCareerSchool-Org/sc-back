@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 
-import { BaseMiddleware } from '../baseMiddleware.js';
+import { StudentMiddleware } from './index.js';
 
 type Request = {
   params: {
@@ -10,7 +10,7 @@ type Request = {
   };
 };
 
-export class StudentGuardMiddleware extends BaseMiddleware<Request, void> {
+export class StudentGuardMiddleware extends StudentMiddleware<Request, void> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({

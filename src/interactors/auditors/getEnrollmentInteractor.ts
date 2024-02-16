@@ -125,7 +125,8 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
         courseCost: enrollment.courseCost.toNumber(),
         amountPaid: enrollment.amountPaid.toNumber(),
         monthlyInstallment: enrollment.monthlyInstallment === null ? null : enrollment.monthlyInstallment.toNumber(),
-        enrollmentDate: enrollment.enrollmentDate,
+        enrollmentDate: this.dateService.fixPrismaReadDate(enrollment.enrollmentDate),
+        dueDate: this.dateService.fixPrismaReadDate(enrollment.dueDate),
         fastTrack: enrollment.fastTrack,
         paymentsDisabled: enrollment.paymentsDisabled,
         student: {

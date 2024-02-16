@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { DownloadNewUploadSlotFileNotFound, DownloadNewUploadSlotFileReadError, DownloadNewUploadSlotNotFound } from '../../interactors/students/downloadNewUploadSlotInteractor.js';
 import { downloadNewUploadSlotInteractor } from '../../interactors/students/index.js';
 import type { ByteRange } from '../baseController.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   headers: {
@@ -27,7 +27,7 @@ type Request = {
 
 type Response = void;
 
-export class DownloadNewUploadSlotController extends BaseController<Request, Response> {
+export class DownloadNewUploadSlotController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
@@ -87,6 +87,10 @@ export class DownloadNewUploadSlotController extends BaseController<Request, Res
 
     if (result.success) {
       return this.sendInteractorFileStream(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

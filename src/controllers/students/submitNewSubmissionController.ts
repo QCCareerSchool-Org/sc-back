@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { submitNewSubmissionInteractor } from '../../interactors/students/index.js';
 import type { SubmitNewSubmissionResponseDTO } from '../../interactors/students/submitNewSubmissionInteractor.js';
 import { SubmitNewSubmissionAlreadySubmitted, SubmitNewSubmissionDefaultPriceNotFound, SubmitNewSubmissionEnrollmentOnHold, SubmitNewSubmissionIncomplete, SubmitNewSubmissionMultipleDefaultPricesFound, SubmitNewSubmissionNotFound, SubmitNewSubmissionTutorNotAssigned } from '../../interactors/students/submitNewSubmissionInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -18,7 +18,7 @@ type Request = {
 
 type Response = SubmitNewSubmissionResponseDTO;
 
-export class SubmitNewSubmissionController extends BaseController<Request, Response> {
+export class SubmitNewSubmissionController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -52,6 +52,10 @@ export class SubmitNewSubmissionController extends BaseController<Request, Respo
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

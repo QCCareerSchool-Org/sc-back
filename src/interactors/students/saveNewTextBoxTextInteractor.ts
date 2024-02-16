@@ -4,9 +4,9 @@ import type { NewTextBoxDTO } from '../../domain/students/newTextBoxDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type SaveNewTextBoxTextRequestDTO = {
   studentId: number;
@@ -31,14 +31,16 @@ export class SaveNewTextBoxTextTooLong extends Error { }
 /**
  * Should consider mark overrides.
  */
-export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
+export class SaveNewTextBoxTextInteractor extends StudentInteractor<SaveNewTextBoxTextRequestDTO, SaveNewTextBoxTextResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId, assignmentId, partId, textBoxId, text }: SaveNewTextBoxTextRequestDTO): Promise<ResultType<SaveNewTextBoxTextResponseDTO>> {
     try {
@@ -46,6 +48,13 @@ export class SaveNewTextBoxTextInteractor implements IInteractor<SaveNewTextBoxT
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const textBoxIdBin = this.uuidService.uuidToBin(textBoxId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { studentId, courseId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const newTextBox = await this.prisma.newTextBox.findFirst({
         where: { textBoxId: textBoxIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId } } } } },

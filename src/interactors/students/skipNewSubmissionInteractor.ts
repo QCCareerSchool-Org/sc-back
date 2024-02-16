@@ -4,9 +4,9 @@ import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type SkipNewSubmissionRequestDTO = {
   studentId: number;
@@ -20,18 +20,27 @@ export class SkipNewSubmissionNotFound extends Error { }
 export class SkipNewSubmissionEnrollmentOnHold extends Error { }
 export class SkipNewSubmissionAlreadySubmitted extends Error { }
 
-export class SkipNewSubmissionInteractor implements IInteractor<SkipNewSubmissionRequestDTO, SkipNewSubmissionResponseDTO> {
+export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmissionRequestDTO, SkipNewSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId }: SkipNewSubmissionRequestDTO): Promise<ResultType<SkipNewSubmissionResponseDTO>> {
     try {
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { studentId, courseId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const submission = await this.prisma.newSubmission.findFirst({
         where: {

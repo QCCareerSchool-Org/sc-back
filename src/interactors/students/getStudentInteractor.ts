@@ -11,9 +11,9 @@ import type { SurveyDTO } from '../../domain/surveyDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetStudentRequestDTO = {
   studentId: number;
@@ -34,14 +34,16 @@ export type GetStudentResponseDTO = StudentDTO & {
 
 export class GetStudentNotFound extends Error { }
 
-export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, GetStudentResponseDTO> {
+export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO, GetStudentResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId }: GetStudentRequestDTO): Promise<ResultType<GetStudentResponseDTO>> {
     try {
@@ -124,6 +126,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           amountPaid: e.amountPaid.toNumber(),
           monthlyInstallment: e.monthlyInstallment === null ? null : e.monthlyInstallment.toNumber(),
           enrollmentDate: this.dateService.fixPrismaReadDate(e.enrollmentDate),
+          dueDate: this.dateService.fixPrismaReadDate(e.dueDate),
           fastTrack: e.fastTrack,
           paymentsDisabled: e.paymentsDisabled,
           updated: e.updated,

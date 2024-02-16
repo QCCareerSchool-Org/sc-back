@@ -4,7 +4,6 @@
 // import type { DownloadNewLessonFileResponseDTO } from '../../interactors/students/downloadNewLessonFileInteractor';
 // import { DownloadNewLessonFileFileNotFound, DownloadNewLessonFileFileReadError, DownloadNewLessonFileNotAFile, DownloadNewLessonFileNotEnrolled, DownloadNewLessonFileNotFound } from '../../interactors/students/downloadNewLessonFileInteractor';
 // import type { ByteRange } from '../baseController';
-// import { BaseController } from '../baseController';
 
 // type Request = {
 //   headers: {
@@ -22,7 +21,7 @@
 
 // type Response = DownloadNewLessonFileResponseDTO;
 
-// export class DownloadNewLessonFileController extends BaseController<Request, Response> {
+// export class DownloadNewLessonFileController extends StudentController<Request, Response> {
 
 //   protected async validate(): Promise<Request | false> {
 //     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
@@ -78,6 +77,10 @@
 //     if (result.success) {
 //       this.res.setHeader('Content-Security-Policy', `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *`);
 //       return this.sendInteractorFileStream(result.value);
+//     }
+
+//     if (this.handleStudentErrors(result.error)) {
+//       return;
 //     }
 
 //     switch (result.error.constructor) {

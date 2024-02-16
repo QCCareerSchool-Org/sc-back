@@ -7,9 +7,9 @@ import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type EraseNewUploadSlotRequestDTO = {
   studentId: number;
@@ -30,16 +30,18 @@ export class EraseNewUploadSlotNotFound extends Error { }
 export class EraseNewUploadSlotSubmissionSubmitted extends Error { }
 export class EraseNewUploadSlotUnlinkError extends Error { }
 
-export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadSlotRequestDTO, EraseNewUploadSlotResponseDTO> {
+export class EraseNewUploadSlotInteractor extends StudentInteractor<EraseNewUploadSlotRequestDTO, EraseNewUploadSlotResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly fileService: IFileService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId, assignmentId, partId, uploadSlotId }: EraseNewUploadSlotRequestDTO): Promise<ResultType<EraseNewUploadSlotResponseDTO>> {
     try {
@@ -47,6 +49,13 @@ export class EraseNewUploadSlotInteractor implements IInteractor<EraseNewUploadS
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { studentId, courseId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId } } } } },

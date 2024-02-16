@@ -1,11 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { IDateService } from '../../services/date/index.js';
 import type { IIntervalService } from '../../services/interval/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type SaveMaterialDataRequestDTO = {
   studentId: number;
@@ -17,14 +18,17 @@ export type SaveMaterialDataResponseDTO = void;
 
 export class SaveMaterialDataNotFound extends Error { }
 
-export class SaveMaterialDataInteractor implements IInteractor<SaveMaterialDataRequestDTO, SaveMaterialDataResponseDTO> {
+export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDataRequestDTO, SaveMaterialDataResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly intervalService: IIntervalService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, materialId, data }: SaveMaterialDataRequestDTO): Promise<ResultType<SaveMaterialDataResponseDTO>> {
     try {
@@ -44,7 +48,10 @@ export class SaveMaterialDataInteractor implements IInteractor<SaveMaterialDataR
 
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { studentId, courseId: material.unit.courseId },
+        include: { student: true },
       });
+
+      this.checkEnrollment(enrollment);
 
       if (!enrollment) {
         return Result.fail(new SaveMaterialDataNotFound());

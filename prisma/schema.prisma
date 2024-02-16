@@ -509,6 +509,7 @@ model Enrollment {
   amountPaid          Decimal              @default(0.00) @map("amount_paid") @db.Decimal(10, 2)
   monthlyInstallment  Decimal?             @map("monthly_installment") @db.Decimal(8, 2)
   enrollmentDate      DateTime?            @map("enrollment_date") @db.Timestamp(0)
+  dueDate             DateTime?            @map("due_date") @db.Timestamp(0)
   fastTrack           Boolean              @default(false) @map("fast_track")
   paymentsDisabled    Boolean              @default(false) @map("payments_disabled")
   updated             DateTime?            @db.Timestamp(0)

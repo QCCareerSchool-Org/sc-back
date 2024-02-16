@@ -9,9 +9,10 @@ import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
+import type { InteractorFileMemoryUpload } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type UploadNewUploadSlotRequestDTO = {
   studentId: number;
@@ -40,7 +41,7 @@ export class UploadNewUploadSlotSaveError extends Error { }
 /**
  * Should consider mark overrides.
  */
-export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploadSlotRequestDTO, UploadNewUploadSlotResponseDTO> {
+export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUploadSlotRequestDTO, UploadNewUploadSlotResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
@@ -48,10 +49,12 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
     private readonly fileService: IFileService,
     private readonly compressionService: ICompressionService,
     private readonly sanitizerService: ISanitizerService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId, assignmentId, partId, uploadSlotId, file }: UploadNewUploadSlotRequestDTO): Promise<ResultType<UploadNewUploadSlotResponseDTO>> {
     try {
@@ -59,6 +62,13 @@ export class UploadNewUploadSlotInteractor implements IInteractor<UploadNewUploa
       const assignmentIdBin = this.uuidService.uuidToBin(assignmentId);
       const partIdBin = this.uuidService.uuidToBin(partId);
       const uploadSlotIdBin = this.uuidService.uuidToBin(uploadSlotId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { studentId, courseId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const newUploadSlot = await this.prisma.newUploadSlot.findFirst({
         where: { uploadSlotId: uploadSlotIdBin, newPart: { partId: partIdBin, newAssignment: { assignmentId: assignmentIdBin, newSubmission: { submissionId: submissionIdBin, enrollment: { studentId, courseId } } } } },

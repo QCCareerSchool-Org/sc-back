@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { uploadNewUploadSlotInteractor } from '../../interactors/students/index.js';
 import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
 import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotSubmissionSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -32,7 +32,7 @@ type Request = {
 
 type Response = UploadNewUploadSlotResponseDTO;
 
-export class UploadNewUploadSlotController extends BaseController<Request, Response> {
+export class UploadNewUploadSlotController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -93,6 +93,10 @@ export class UploadNewUploadSlotController extends BaseController<Request, Respo
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

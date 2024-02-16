@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import type { GetNewAssignmentResponseDTO } from '../../interactors/students/getNewAssignmentInteractor.js';
 import { GetNewAssignmentNotFound } from '../../interactors/students/getNewAssignmentInteractor.js';
 import { getNewAssignmentInteractor } from '../../interactors/students/index.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -20,7 +20,7 @@ type Request = {
 
 type Response = GetNewAssignmentResponseDTO;
 
-export class GetNewAssignmentController extends BaseController<Request, Response> {
+export class GetNewAssignmentController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -55,6 +55,10 @@ export class GetNewAssignmentController extends BaseController<Request, Response
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

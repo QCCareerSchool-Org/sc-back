@@ -11,9 +11,9 @@ import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetNewAssignmentRequestDTO = {
   studentId: number;
@@ -37,14 +37,16 @@ export class GetNewAssignmentNotFound extends Error { }
 /**
  * Should consider mark overrides.
  */
-export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
+export class GetNewAssignmentInteractor extends StudentInteractor<GetNewAssignmentRequestDTO, GetNewAssignmentResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId, assignmentId }: GetNewAssignmentRequestDTO): Promise<ResultType<GetNewAssignmentResponseDTO>> {
     try {

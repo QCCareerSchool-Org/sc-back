@@ -4,7 +4,7 @@ import type { DownloadNewSubmissionFeedbackResponseDTO } from '../../interactors
 import { DownloadNewSubmissionFeedbackFileNotFound, DownloadNewSubmissionFeedbackFileReadError, DownloadNewSubmissionFeedbackNotClosed, DownloadNewSubmissionFeedbackNotFound, DownloadNewSubmissionFeedbackNotSubmitted, DownloadNewSubmissionFeedbackSkipped } from '../../interactors/students/downloadNewSubmissionFeedbackInteractor.js';
 import { downloadNewSubmissionFeedbackInteractor } from '../../interactors/students/index.js';
 import type { ByteRange } from '../baseController.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   headers: {
@@ -22,7 +22,7 @@ type Request = {
 
 type Response = DownloadNewSubmissionFeedbackResponseDTO;
 
-export class DownloadNewSubmissionFeedbackController extends BaseController<Request, Response> {
+export class DownloadNewSubmissionFeedbackController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
@@ -76,6 +76,10 @@ export class DownloadNewSubmissionFeedbackController extends BaseController<Requ
 
     if (result.success) {
       return this.sendInteractorFileStream(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

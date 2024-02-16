@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import type { GetT2202ReceiptsResponseDTO } from '../../interactors/students/getT2202ReceiptsInteractor.js';
 import { getT2202ReceiptsInteractor } from '../../interactors/students/index.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -13,7 +13,7 @@ type Request = {
 
 type Response = GetT2202ReceiptsResponseDTO;
 
-export class GetT2202ReceiptsController extends BaseController<Request, Response> {
+export class GetT2202ReceiptsController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -43,6 +43,10 @@ export class GetT2202ReceiptsController extends BaseController<Request, Response
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

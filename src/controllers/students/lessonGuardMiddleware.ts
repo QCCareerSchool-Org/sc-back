@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { lessonGuardInteractor } from '../../interactors/students/index.js';
 import { LessonGuardNotEnrolled } from '../../interactors/students/lessonGuardInteractor.js';
 import { environmentConfigService } from '../../services/index.js';
-import { BaseMiddleware } from '../baseMiddleware.js';
+import { StudentMiddleware } from './index.js';
 
 type Request = {
   params: {
@@ -14,7 +14,7 @@ type Request = {
   };
 };
 
-export class LessonGuardMiddleware extends BaseMiddleware<Request, void> {
+export class LessonGuardMiddleware extends StudentMiddleware<Request, void> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -45,6 +45,10 @@ export class LessonGuardMiddleware extends BaseMiddleware<Request, void> {
         : `default-src 'self' data: blob: gap: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; frame-ancestors https://studentcenter.qccareerschool.com`;
       this.res.setHeader('Content-Security-Policy', contentSecurityPolicy);
       return this.next();
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

@@ -4,9 +4,9 @@ import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailValidatorService } from '../../services/emailValidator/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type UpdateEmailAddressRequestDTO = {
   studentId: number;
@@ -18,14 +18,16 @@ export type UpdateEmailAddressResponseDTO = StudentDTO;
 export class UpdateEmailAddressStudentNotFound extends Error { }
 export class UpdateEmailAddressInvalidEmailAddress extends Error { }
 
-export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddressRequestDTO, UpdateEmailAddressResponseDTO> {
+export class UpdateEmailAddressInteractor extends StudentInteractor<UpdateEmailAddressRequestDTO, UpdateEmailAddressResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly emailValidator: IEmailValidatorService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, emailAddress }: UpdateEmailAddressRequestDTO): Promise<ResultType<UpdateEmailAddressResponseDTO>> {
     try {

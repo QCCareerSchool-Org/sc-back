@@ -1,11 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
 import type { VideoDTO } from '../../domain/videoDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetVideoRequestDTO = {
   studentId: number;
@@ -17,13 +18,16 @@ export type GetVideoResponseDTO = VideoDTO;
 
 export class GetVideoNotFound extends Error { }
 
-export class GetVideoInteractor implements IInteractor<GetVideoRequestDTO, GetVideoResponseDTO> {
+export class GetVideoInteractor extends StudentInteractor<GetVideoRequestDTO, GetVideoResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, videoId }: GetVideoRequestDTO): Promise<ResultType<GetVideoResponseDTO>> {
     try {

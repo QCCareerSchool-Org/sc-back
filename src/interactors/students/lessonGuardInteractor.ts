@@ -1,10 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type LessonGuardRequestDTO = {
   studentId: number;
@@ -16,17 +17,26 @@ export type LessonGuardResponseDTO = void;
 export class LessonGuardNotFound extends Error { }
 export class LessonGuardNotEnrolled extends Error { }
 
-export class LessonGuardInteractor implements IInteractor<LessonGuardRequestDTO, LessonGuardResponseDTO> {
+export class LessonGuardInteractor extends StudentInteractor<LessonGuardRequestDTO, LessonGuardResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute(request: LessonGuardRequestDTO): Promise<ResultType<LessonGuardResponseDTO>> {
     try {
       const materialIdBin = this.uuidService.uuidToBin(request.materialId);
+
+      const student = await this.prisma.student.findFirst({
+        where: { studentId: request.studentId },
+      });
+
+      this.checkStudent(student);
 
       const material = await this.prisma.material.findFirst({
         where: { materialId: materialIdBin },

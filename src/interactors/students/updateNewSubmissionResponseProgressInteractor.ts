@@ -4,9 +4,9 @@ import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type UpdateNewSubmissionResponseProgressRequestDTO = {
   studentId: number;
@@ -24,14 +24,16 @@ export class UpdateNewSubmissionResponseProgressGreaterThan100 extends UpdateNew
 
 type SubmissionWithEnrollmentAndCourse = NewSubmission & { enrollment: Enrollment & { course: Course } };
 
-export class UpdateNewSubmissionResponseProgressInteractor implements IInteractor<UpdateNewSubmissionResponseProgressRequestDTO, UpdateNewSubmissionResponseProgressResponseDTO> {
+export class UpdateNewSubmissionResponseProgressInteractor extends StudentInteractor<UpdateNewSubmissionResponseProgressRequestDTO, UpdateNewSubmissionResponseProgressResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId, progress }: UpdateNewSubmissionResponseProgressRequestDTO): Promise<ResultType<UpdateNewSubmissionResponseProgressResponseDTO>> {
     try {

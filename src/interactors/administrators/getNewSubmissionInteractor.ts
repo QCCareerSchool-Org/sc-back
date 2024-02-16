@@ -116,6 +116,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           amountPaid: submission.enrollment.amountPaid.toNumber(),
           monthlyInstallment: submission.enrollment.monthlyInstallment === null ? null : submission.enrollment.monthlyInstallment.toNumber(),
           enrollmentDate: this.dateService.fixPrismaReadDate(submission.enrollment.enrollmentDate),
+          dueDate: this.dateService.fixPrismaReadDate(submission.enrollment.dueDate),
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
           course: {

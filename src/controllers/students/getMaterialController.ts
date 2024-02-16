@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import type { GetMaterialResponseDTO } from '../../interactors/students/getMaterialInteractor.js';
 import { GetMaterialNotFound } from '../../interactors/students/getMaterialInteractor.js';
 import { getMaterialInteractor } from '../../interactors/students/index.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -16,7 +16,7 @@ type Request = {
 
 type Response = GetMaterialResponseDTO;
 
-export class GetMaterialController extends BaseController<Request, Response> {
+export class GetMaterialController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -47,6 +47,10 @@ export class GetMaterialController extends BaseController<Request, Response> {
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

@@ -2,13 +2,15 @@ import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
 import type { IConfigService } from '../../services/config/index.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
+import type { InteractorFileStreamDownload } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadNewAssignmentMediumRequestDTO = {
   studentId: number;
@@ -26,17 +28,20 @@ export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileReadError extends Error { }
 
-export class DownloadNewAssignmentMediumInteractor implements IInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
+export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly fileService: IFileService,
     private readonly sanitizerService: ISanitizerService,
     private readonly configService: IConfigService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute(request: DownloadNewAssignmentMediumRequestDTO): Promise<ResultType<DownloadNewAssignmentMediumResponseDTO>> {
     try {

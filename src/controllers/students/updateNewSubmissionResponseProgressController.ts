@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { updateNewSubmissionResponseProgressInteractor } from '../../interactors/students/index.js';
 import type { UpdateNewSubmissionResponseProgressResponseDTO } from '../../interactors/students/updateNewSubmissionResponseProgressInteractor.js';
 import { UpdateNewSubmissionResponseProgressGreaterThan100, UpdateNewSubmissionResponseProgressLessThanZero, UpdateNewSubmissionResponseProgressNotFound } from '../../interactors/students/updateNewSubmissionResponseProgressInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -21,7 +21,7 @@ type Request = {
 
 type Response = UpdateNewSubmissionResponseProgressResponseDTO;
 
-export class UpdateNewSubmissionResponseProgressController extends BaseController<Request, Response> {
+export class UpdateNewSubmissionResponseProgressController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -61,6 +61,10 @@ export class UpdateNewSubmissionResponseProgressController extends BaseControlle
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

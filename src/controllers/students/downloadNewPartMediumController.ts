@@ -4,7 +4,7 @@ import type { DownloadNewPartMediumResponseDTO } from '../../interactors/student
 import { DownloadNewPartMediumFileNotFound, DownloadNewPartMediumFileReadError, DownloadNewPartMediumNotFound } from '../../interactors/students/downloadNewPartMediumInteractor.js';
 import { downloadNewPartMediumInteractor } from '../../interactors/students/index.js';
 import type { ByteRange } from '../baseController.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   headers: {
@@ -28,7 +28,7 @@ type Request = {
 
 type Response = DownloadNewPartMediumResponseDTO;
 
-export class DownloadNewPartMediumController extends BaseController<Request, Response> {
+export class DownloadNewPartMediumController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
@@ -92,6 +92,10 @@ export class DownloadNewPartMediumController extends BaseController<Request, Res
         return this.found();
       }
       return this.sendInteractorFileStream(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

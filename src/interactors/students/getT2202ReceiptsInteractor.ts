@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
+
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
-
 import type { T2202ReceiptDTO } from '../../domain/t2202ReceiptDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetT2202ReceiptsRequestDTO = {
   studentId: number;
@@ -19,13 +19,15 @@ export type GetT2202ReceiptsResponseDTO = Array<T2202ReceiptDTO & {
   };
 }>;
 
-export class GetT2202ReceiptsInteractor implements IInteractor<GetT2202ReceiptsRequestDTO, GetT2202ReceiptsResponseDTO> {
+export class GetT2202ReceiptsInteractor extends StudentInteractor<GetT2202ReceiptsRequestDTO, GetT2202ReceiptsResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId }: GetT2202ReceiptsRequestDTO): Promise<ResultType<GetT2202ReceiptsResponseDTO>> {
     try {
@@ -67,6 +69,7 @@ export class GetT2202ReceiptsInteractor implements IInteractor<GetT2202ReceiptsR
           amountPaid: t.enrollment.amountPaid.toNumber(),
           monthlyInstallment: t.enrollment.monthlyInstallment?.toNumber() ?? null,
           enrollmentDate: this.dateService.fixPrismaReadDate(t.enrollment.enrollmentDate),
+          dueDate: this.dateService.fixPrismaReadDate(t.enrollment.dueDate),
           fastTrack: t.enrollment.fastTrack,
           paymentsDisabled: t.enrollment.paymentsDisabled,
           course: {

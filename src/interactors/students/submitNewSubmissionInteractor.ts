@@ -5,9 +5,9 @@ import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 import { submissionIsComplete } from './submissionIsComplete.js';
 
 export type SubmitNewSubmissionRequestDTO = {
@@ -28,19 +28,28 @@ export class SubmitNewSubmissionTutorNotAssigned extends SubmitNewSubmissionErro
 export class SubmitNewSubmissionDefaultPriceNotFound extends SubmitNewSubmissionError { }
 export class SubmitNewSubmissionMultipleDefaultPricesFound extends SubmitNewSubmissionError { }
 
-export class SubmitNewSubmissionInteractor implements IInteractor<SubmitNewSubmissionRequestDTO, SubmitNewSubmissionResponseDTO> {
+export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSubmissionRequestDTO, SubmitNewSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
     private readonly emailService: IEmailService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId }: SubmitNewSubmissionRequestDTO): Promise<ResultType<SubmitNewSubmissionResponseDTO>> {
     try {
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { studentId, courseId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       let updatedSubmission: NewSubmission & { tutor: Tutor | null; enrollment: Enrollment & { course: Course } };
 

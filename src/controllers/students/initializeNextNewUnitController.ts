@@ -2,8 +2,8 @@ import * as yup from 'yup';
 
 import { initializeNextNewSubmissionInteractor } from '../../interactors/students/index.js';
 import type { InitializeNextNewSubmissionResponseDTO } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
-import { InitializeNextCourseDisabled, InitializeNextNewSubmissionAssignmentsDisabled, InitializeNextNewSubmissionCantDetermineSubmission, InitializeNextNewSubmissionDefaultPriceNotFound, InitializeNextNewSubmissionEnrollmentNotFound, InitializeNextNewSubmissionEnrollmentOnHold, InitializeNextNewSubmissionMultipleDefaultPricesFound, InitializeNextNewSubmissionNoAssignmentsFound, InitializeNextNewSubmissionNoInputsFound, InitializeNextNewSubmissionNoMoreSubmissions, InitializeNextNewSubmissionNoPartsFound, InitializeNextNewSubmissionNotReady, InitializeNextNewSubmissionStudentArrears, InitializeNextNewSubmissionTemplateNotFound } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
-import { BaseController } from '../baseController.js';
+import { InitializeNextCourseDisabled, InitializeNextNewSubmissionAssignmentsDisabled, InitializeNextNewSubmissionCantDetermineSubmission, InitializeNextNewSubmissionDefaultPriceNotFound, InitializeNextNewSubmissionEnrollmentNotFound, InitializeNextNewSubmissionMultipleDefaultPricesFound, InitializeNextNewSubmissionNoAssignmentsFound, InitializeNextNewSubmissionNoInputsFound, InitializeNextNewSubmissionNoMoreSubmissions, InitializeNextNewSubmissionNoPartsFound, InitializeNextNewSubmissionNotReady, InitializeNextNewSubmissionTemplateNotFound } from '../../interactors/students/initializeNextNewSubmissionInteractor.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -16,7 +16,7 @@ type Request = {
 
 type Response = InitializeNextNewSubmissionResponseDTO;
 
-export class InitializeNextNewSubmissionController extends BaseController<Request, Response> {
+export class InitializeNextNewSubmissionController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -50,13 +50,13 @@ export class InitializeNextNewSubmissionController extends BaseController<Reques
       return this.ok(result.value);
     }
 
+    if (this.handleCommonErrors(result.error)) {
+      return;
+    }
+
     switch (result.error.constructor) {
       case InitializeNextNewSubmissionEnrollmentNotFound:
         return this.notFound('Enrollment not found');
-      case InitializeNextNewSubmissionStudentArrears:
-        return this.badRequest('Account is in arrears');
-      case InitializeNextNewSubmissionEnrollmentOnHold:
-        return this.badRequest('Course is on hold');
       case InitializeNextNewSubmissionAssignmentsDisabled:
         return this.badRequest('Assignments are disabled for this course');
       case InitializeNextCourseDisabled:

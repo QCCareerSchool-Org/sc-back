@@ -1,9 +1,9 @@
 import express from 'express';
 
 import { environmentConfigService } from '../../services/index.js';
-import { BaseMiddleware } from '../baseMiddleware.js';
+import { StudentMiddleware } from './index.js';
 
-export class LessonsStaticFilesMiddleware extends BaseMiddleware<void, void> {
+export class LessonsStaticFilesMiddleware extends StudentMiddleware<void, void> {
   public static readonly path = environmentConfigService.config.paths.materials.content;
 
   protected async validate(): Promise<void | false> {

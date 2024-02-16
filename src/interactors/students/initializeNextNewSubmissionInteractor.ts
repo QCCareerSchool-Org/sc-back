@@ -4,9 +4,9 @@ import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type InitializeNextNewSubmissionRequestDTO = {
   studentId: number;
@@ -16,8 +16,6 @@ export type InitializeNextNewSubmissionRequestDTO = {
 export type InitializeNextNewSubmissionResponseDTO = NewSubmissionDTO;
 
 export class InitializeNextNewSubmissionEnrollmentNotFound extends Error { }
-export class InitializeNextNewSubmissionStudentArrears extends Error { }
-export class InitializeNextNewSubmissionEnrollmentOnHold extends Error { }
 export class InitializeNextNewSubmissionAssignmentsDisabled extends Error { }
 export class InitializeNextCourseDisabled extends Error { }
 export class InitializeNextNewSubmissionNotReady extends Error { }
@@ -30,14 +28,16 @@ export class InitializeNextNewSubmissionNoAssignmentsFound extends Error { }
 export class InitializeNextNewSubmissionNoPartsFound extends Error { }
 export class InitializeNextNewSubmissionNoInputsFound extends Error { }
 
-export class InitializeNextNewSubmissionInteractor implements IInteractor<InitializeNextNewSubmissionRequestDTO, InitializeNextNewSubmissionResponseDTO> {
+export class InitializeNextNewSubmissionInteractor extends StudentInteractor<InitializeNextNewSubmissionRequestDTO, InitializeNextNewSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId }: InitializeNextNewSubmissionRequestDTO): Promise<ResultType<InitializeNextNewSubmissionResponseDTO>> {
     try {
@@ -46,16 +46,11 @@ export class InitializeNextNewSubmissionInteractor implements IInteractor<Initia
         where: { studentId, courseId },
         include: { student: true, course: true, newSubmissions: true },
       });
+
+      this.checkEnrollment(enrollment);
+
       if (!enrollment) {
         return Result.fail(new InitializeNextNewSubmissionEnrollmentNotFound());
-      }
-
-      if (enrollment.student.arrears) {
-        return Result.fail(new InitializeNextNewSubmissionStudentArrears());
-      }
-
-      if (enrollment.onHold) {
-        return Result.fail(new InitializeNextNewSubmissionEnrollmentOnHold());
       }
 
       if (enrollment.assignmentsDisabled) {

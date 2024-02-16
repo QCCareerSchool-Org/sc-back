@@ -15,6 +15,7 @@ export type EnrollmentDTO = {
   amountPaid: number;
   monthlyInstallment: number | null;
   enrollmentDate: Date | null;
+  dueDate: Date | null;
   fastTrack: boolean;
   paymentsDisabled: boolean;
 };

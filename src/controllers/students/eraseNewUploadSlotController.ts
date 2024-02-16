@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import type { EraseNewUploadSlotResponseDTO } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
 import { EraseNewUploadSlotNotFound, EraseNewUploadSlotSubmissionSubmitted, EraseNewUploadSlotUnlinkError } from '../../interactors/students/eraseNewUploadSlotInteractor.js';
 import { eraseNewUploadSlotInteractor } from '../../interactors/students/index.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -24,7 +24,7 @@ type Request = {
 
 type Response = EraseNewUploadSlotResponseDTO;
 
-export class EraseNewUploadSlotController extends BaseController<Request, Response> {
+export class EraseNewUploadSlotController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -61,6 +61,10 @@ export class EraseNewUploadSlotController extends BaseController<Request, Respon
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

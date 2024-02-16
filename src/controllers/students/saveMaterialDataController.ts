@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { saveMaterialDataInteractor } from '../../interactors/students/index.js';
 import type { SaveMaterialDataResponseDTO } from '../../interactors/students/saveMaterialDataInteractor.js';
 import { SaveMaterialDataNotFound } from '../../interactors/students/saveMaterialDataInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -17,7 +17,7 @@ type Request = {
 
 type Response = SaveMaterialDataResponseDTO;
 
-export class SaveMaterialDataController extends BaseController<Request, Response> {
+export class SaveMaterialDataController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -55,6 +55,10 @@ export class SaveMaterialDataController extends BaseController<Request, Response
 
     if (result.success) {
       return this.ok();
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

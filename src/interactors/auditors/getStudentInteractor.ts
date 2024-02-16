@@ -171,7 +171,8 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           courseCost: e.courseCost.toNumber(),
           amountPaid: e.amountPaid.toNumber(),
           monthlyInstallment: e.monthlyInstallment === null ? null : e.monthlyInstallment.toNumber(),
-          enrollmentDate: e.enrollmentDate,
+          enrollmentDate: this.dateService.fixPrismaReadDate(e.enrollmentDate),
+          dueDate: this.dateService.fixPrismaReadDate(e.dueDate),
           fastTrack: e.fastTrack,
           paymentsDisabled: e.paymentsDisabled,
           course: {

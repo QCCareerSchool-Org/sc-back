@@ -1,11 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type DeleteMaterialCompletionRequestDTO = {
   studentId: number;
@@ -19,17 +20,27 @@ abstract class DeleteMaterialCompletionError extends Error { }
 export class DeleteMaterialCompletionMaterialNotFound extends DeleteMaterialCompletionError { }
 export class DeleteMaterialCompletionNotFound extends DeleteMaterialCompletionError { }
 
-export class DeleteMaterialCompletionInteractor implements IInteractor<DeleteMaterialCompletionRequestDTO, DeleteMaterialCompletionResponseDTO> {
+export class DeleteMaterialCompletionInteractor extends StudentInteractor<DeleteMaterialCompletionRequestDTO, DeleteMaterialCompletionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, enrollmentId, materialId }: DeleteMaterialCompletionRequestDTO): Promise<ResultType<DeleteMaterialCompletionResponseDTO>> {
     try {
       const materialIdBin = this.uuidService.uuidToBin(materialId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { enrollmentId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const material = await this.prisma.material.findFirst({
         where: { materialId: materialIdBin, unit: { course: { enrollments: { some: { enrollmentId, student: { studentId } } } } } },

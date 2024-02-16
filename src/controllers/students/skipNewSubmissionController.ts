@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { skipNewSubmissionInteractor } from '../../interactors/students/index.js';
 import type { SkipNewSubmissionResponseDTO } from '../../interactors/students/skipNewSubmissionInteractor.js';
 import { SkipNewSubmissionAlreadySubmitted, SkipNewSubmissionEnrollmentOnHold, SkipNewSubmissionNotFound } from '../../interactors/students/skipNewSubmissionInteractor.js';
-import { BaseController } from '../baseController.js';
+import { StudentController } from './index.js';
 
 type Request = {
   params: {
@@ -18,7 +18,7 @@ type Request = {
 
 type Response = SkipNewSubmissionResponseDTO;
 
-export class SkipNewSubmissionController extends BaseController<Request, Response> {
+export class SkipNewSubmissionController extends StudentController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -52,6 +52,10 @@ export class SkipNewSubmissionController extends BaseController<Request, Respons
 
     if (result.success) {
       return this.ok(result.value);
+    }
+
+    if (this.handleCommonErrors(result.error)) {
+      return;
     }
 
     switch (result.error.constructor) {

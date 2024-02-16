@@ -1,6 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
 
-import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -13,9 +12,9 @@ import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type GetNewSubmissionRequestDTO = {
   studentId: number;
@@ -43,14 +42,16 @@ export class GetNewSubmissionNotFound extends Error { }
 /**
  * Should consider mark overrides.
  */
-export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
+export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, courseId, submissionId }: GetNewSubmissionRequestDTO): Promise<ResultType<GetNewSubmissionResponseDTO>> {
     try {
@@ -114,6 +115,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           amountPaid: submission.enrollment.amountPaid.toNumber(),
           monthlyInstallment: submission.enrollment.monthlyInstallment === null ? null : submission.enrollment.monthlyInstallment.toNumber(),
           enrollmentDate: this.dateService.fixPrismaReadDate(submission.enrollment.enrollmentDate),
+          dueDate: this.dateService.fixPrismaReadDate(submission.enrollment.dueDate),
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
           course: {

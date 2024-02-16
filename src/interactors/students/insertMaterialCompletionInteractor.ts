@@ -2,11 +2,12 @@ import type { MaterialCompletion, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
+import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { IInteractor } from '../index.js';
 import type { ResultType } from '../result.js';
 import { Result } from '../result.js';
+import { StudentInteractor } from './studentInteractor.js';
 
 export type InsertMaterialCompletionRequestDTO = {
   studentId: number;
@@ -20,17 +21,27 @@ abstract class InsertMaterialCompletionError extends Error { }
 export class InsertMaterialCompletionMaterialNotFound extends InsertMaterialCompletionError { }
 export class InsertMaterialCompletionAlreadyExists extends InsertMaterialCompletionError { }
 
-export class InsertMaterialCompletionInteractor implements IInteractor<InsertMaterialCompletionRequestDTO, InsertMaterialCompletionResponseDTO> {
+export class InsertMaterialCompletionInteractor extends StudentInteractor<InsertMaterialCompletionRequestDTO, InsertMaterialCompletionResponseDTO> {
 
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly uuidService: IUUIDService,
+    dateService: IDateService,
     private readonly logger: ILoggerService,
-  ) { /* empty */ }
+  ) {
+    super(dateService);
+  }
 
   public async execute({ studentId, enrollmentId, materialId }: InsertMaterialCompletionRequestDTO): Promise<ResultType<InsertMaterialCompletionResponseDTO>> {
     try {
       const materialIdBin = this.uuidService.uuidToBin(materialId);
+
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: { enrollmentId },
+        include: { student: true },
+      });
+
+      this.checkEnrollment(enrollment);
 
       const material = await this.prisma.material.findFirst({
         where: { materialId: materialIdBin, unit: { course: { enrollments: { some: { enrollmentId, student: { studentId } } } } } },
