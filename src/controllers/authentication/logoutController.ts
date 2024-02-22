@@ -1,15 +1,12 @@
 import * as yup from 'yup';
 
-import type { AccountType } from '../../domain/accountType.js';
 import { logoutInteractor } from '../../interactors/authentication/index.js';
-import { LogoutTokenInvalid, LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor.js';
+import { LogoutTokenNotFound } from '../../interactors/authentication/logoutInteractor.js';
 import { environmentConfigService } from '../../services/index.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
   cookies: {
-    refreshId: string;
-    refreshType: AccountType;
     refreshToken: string;
   };
 };
@@ -18,8 +15,6 @@ export class LogoutController extends BaseController<Request, void> {
 
   protected async validate(): Promise<Request | false> {
     const cookiesSchema: yup.SchemaOf<Request['cookies']> = yup.object({
-      refreshId: yup.string().required(),
-      refreshType: yup.mixed().oneOf<AccountType>([ 'admin', 'tutor', 'student' ]).required(),
       refreshToken: yup.string().required(),
     });
     try {
@@ -36,11 +31,9 @@ export class LogoutController extends BaseController<Request, void> {
   }
 
   protected async executeImpl({ cookies }: Request): Promise<void> {
-    const id = parseInt(cookies.refreshId, 10);
-
     const token = Buffer.from(cookies.refreshToken, 'base64');
 
-    const result = await logoutInteractor.execute({ id, type: cookies.refreshType, token });
+    const result = await logoutInteractor.execute({ token });
 
     this.clearCookies();
 
@@ -50,7 +43,6 @@ export class LogoutController extends BaseController<Request, void> {
 
     switch (result.error.constructor) {
       case LogoutTokenNotFound:
-      case LogoutTokenInvalid:
         return this.noContent(); // log out anyway
       default:
         return this.internalServerError(result.error.message);

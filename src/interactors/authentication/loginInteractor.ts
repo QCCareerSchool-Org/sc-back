@@ -195,7 +195,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
       const refreshCookieOptions: CookieOptions = {
         ...baseCookieOptions,
-        path: path.join(this.configService.config.auth.cookiePath, '/v1/auth/refresh'),
+        path: path.join(this.configService.config.auth.cookiePath, '/v1/auth'),
       };
 
       if (request.stayLoggedIn) {
