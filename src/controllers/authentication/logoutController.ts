@@ -58,8 +58,8 @@ export class LogoutController extends BaseController<Request, void> {
     const sameSite = 'strict';
     const httpOnly = true;
     const domain = environmentConfigService.config.auth.cookieDomain;
-    this.res.clearCookie('refeshToken', { secure, sameSite, httpOnly, domain, path: path.join(environmentConfigService.config.auth.cookiePath, '/v1/auth') });
+    this.res.clearCookie('refreshToken', { secure, sameSite, httpOnly, domain, path: path.join(environmentConfigService.config.auth.cookiePath, '/v1/auth') });
     this.res.clearCookie('accessToken', { secure, sameSite, httpOnly, domain, path: environmentConfigService.config.auth.accessCookiePath ?? environmentConfigService.config.auth.cookiePath });
-    this.res.clearCookie('XSRF-TOKEN', { secure, sameSite, httpOnly, domain, path: environmentConfigService.config.auth.accessCookiePath ?? environmentConfigService.config.auth.cookiePath });
+    this.res.clearCookie('XSRF-TOKEN', { secure, sameSite, httpOnly, domain });
   }
 }
