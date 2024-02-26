@@ -73,7 +73,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
               oldSubmissionTemplates: true,
               units: {
                 include: {
-                  materials: { include: { materialData: true }, orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
+                  materials: { include: { materialData: { where: { enrollment: { studentId, courseId } } } }, orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
                   videos: { include: { video: true } },
                 },
                 orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
