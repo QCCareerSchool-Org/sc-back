@@ -78,7 +78,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
                   oldSubmissionTemplates: true,
                   units: {
                     include: {
-                      materials: { include: { materialData: true } },
+                      materials: { include: { materialData: { where: { enrollment: { studentId } } } } },
                     },
                     orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
                   },
