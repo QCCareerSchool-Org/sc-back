@@ -59,6 +59,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
       return Result.success({
         courseId: course.courseId,
         schoolId: course.schoolId,
+        variantId: course.variantId,
         code: course.code,
         version: course.version,
         studentTypeId: course.studentTypeId,

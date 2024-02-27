@@ -447,22 +447,43 @@ enum TutorPaymentSchedule {
 /////////////////////////////////////////////////////////////////////////
 
 model School {
-  schoolId      Int      @id @default(autoincrement()) @map("id") @db.UnsignedInt
-  name          String   @unique(map: "name") @db.VarChar(50)
-  slug          String   @unique(map: "slug") @db.VarChar(25)
-  order         Int      @default(0) @db.UnsignedInt
-  entityVersion Int      @default(0) @map("entity_version")
+  schoolId      Int                 @id @default(autoincrement()) @map("id") @db.UnsignedInt
+  name          String              @unique(map: "name") @db.VarChar(50)
+  slug          String              @unique(map: "slug") @db.VarChar(25)
+  order         Int                 @default(0) @db.UnsignedInt
+  entityVersion Int                 @default(0) @map("entity_version")
   courses       Course[]
   tutors        Tutor[]
-  // badges        Badge[]
+  variants      SchoolsOnVariants[]
 
   @@unique([schoolId, entityVersion], map: "id_entity_version")
   @@map("schools")
 }
 
+model Variant {
+  variantId Int                 @id @default(autoincrement()) @db.Int
+  name      String              @unique(map: "name") @db.VarChar(191)
+  courses   Course[]
+  schools   SchoolsOnVariants[]
+
+  @@map("variants")
+}
+
+model SchoolsOnVariants {
+  schoolId  Int      @db.UnsignedInt
+  variantId Int      @db.Int
+  courses   Course[]
+  school    School   @relation(fields: [schoolId], references: [schoolId], map: "FK_schools_variants_schools")
+  variant   Variant  @relation(fields: [variantId], references: [variantId], map: "FK_schools_variants_variants")
+
+  @@id([schoolId, variantId])
+  @@map("schools_variants")
+}
+
 model Course {
   courseId               Int                     @id @default(autoincrement()) @map("id") @db.UnsignedInt
   schoolId               Int                     @map("school_id") @db.UnsignedInt
+  variantId              Int?                    @db.Int
   code                   String                  @db.Char(2)
   version                Int                     @default(0) @db.UnsignedSmallInt
   studentTypeId          String                  @map("student_type") @db.VarChar(50)
@@ -476,7 +497,9 @@ model Course {
   submissionsEnabled     Boolean                 @default(false) @map("new_units_enabled")
   entityVersion          Int                     @default(0) @map("entity_version")
   school                 School                  @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
+  variant                Variant?                @relation(fields: [variantId], references: [variantId], map: "courses_ibfk_3")
   studentType            StudentType             @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
+  schoolVariant          SchoolsOnVariants?      @relation(fields: [schoolId, variantId], references: [schoolId, variantId], map: "courses_ibfk_4")
   materialRights         MaterialV4Right[]
   units                  Unit[]
   newSubmissionTemplates NewSubmissionTemplate[]

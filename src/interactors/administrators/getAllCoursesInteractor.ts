@@ -28,6 +28,7 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
       return Result.success(courses.map(c => ({
         courseId: c.courseId,
         schoolId: c.schoolId,
+        variantId: c.variantId,
         code: c.code,
         version: c.version,
         studentTypeId: c.studentTypeId,

@@ -207,6 +207,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
             course: {
               courseId: submissionReturn.newSubmission.enrollment.course.courseId,
               schoolId: submissionReturn.newSubmission.enrollment.course.schoolId,
+              variantId: submissionReturn.newSubmission.enrollment.course.variantId,
               code: submissionReturn.newSubmission.enrollment.course.code,
               version: submissionReturn.newSubmission.enrollment.course.version,
               studentTypeId: submissionReturn.newSubmission.enrollment.course.studentTypeId,

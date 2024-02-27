@@ -8,6 +8,7 @@ import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { SurveyCompletionDTO } from '../../domain/surveyCompletionDTO.js';
 import type { SurveyDTO } from '../../domain/surveyDTO.js';
+import type { VariantDTO } from '../../domain/variantDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -25,6 +26,7 @@ export type GetStudentResponseDTO = StudentDTO & {
   enrollments: Array<EnrollmentDTO & {
     course: CourseDTO & {
       school: SchoolDTO;
+      variant: VariantDTO | null;
     };
   }>;
   surveyCompletions: Array<SurveyCompletionDTO & {
@@ -52,7 +54,7 @@ export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO
         include: {
           caSocialInsuranceNumber: true,
           enrollments: {
-            include: { course: { include: { school: true } } },
+            include: { course: { include: { school: true, variant: true } } },
             where: { course: { enabled: true } },
             orderBy: [ { course: { school: { order: 'asc' } } }, { course: { order: 'asc' } } ],
           },
@@ -134,6 +136,7 @@ export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO
           course: {
             courseId: e.course.courseId,
             schoolId: e.course.schoolId,
+            variantId: e.course.variantId,
             code: e.course.code,
             version: e.course.version,
             studentTypeId: e.course.studentTypeId,
@@ -152,6 +155,10 @@ export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO
               slug: e.course.school.slug,
               order: e.course.school.order,
               entityVersion: e.course.school.entityVersion,
+            },
+            variant: e.course.variant === null ? null : {
+              variantId: e.course.variant.variantId,
+              name: e.course.variant.name,
             },
           },
         })),

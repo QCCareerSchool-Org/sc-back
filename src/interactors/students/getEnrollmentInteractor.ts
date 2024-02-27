@@ -12,6 +12,7 @@ import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
+import type { VariantDTO } from '../../domain/variantDTO.js';
 import type { VideoDTO } from '../../domain/videoDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -31,6 +32,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   student: StudentDTO;
   course: CourseDTO & {
     school: SchoolDTO;
+    variant: VariantDTO | null;
     oldSubmissionTemplates: OldSubmissionTemplateDTO[];
     newSubmissionTemplates: NewSubmissionTemplateDTO[];
     units: Array<UnitDTO & {
@@ -69,6 +71,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
           course: {
             include: {
               school: true,
+              variant: true,
               newSubmissionTemplates: true,
               oldSubmissionTemplates: true,
               units: {
@@ -158,6 +161,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
         course: {
           courseId: enrollment.course.courseId,
           schoolId: enrollment.course.schoolId,
+          variantId: enrollment.course.variantId,
           code: enrollment.course.code,
           version: enrollment.course.version,
           studentTypeId: enrollment.course.studentTypeId,
@@ -176,6 +180,10 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
             slug: enrollment.course.school.slug,
             order: enrollment.course.school.order,
             entityVersion: enrollment.course.school.entityVersion,
+          },
+          variant: enrollment.course.variant === null ? null : {
+            variantId: enrollment.course.variant.variantId,
+            name: enrollment.course.variant.name,
           },
           oldSubmissionTemplates: enrollment.course.oldSubmissionTemplates.map(s => ({
             submissionTemplateId: s.submissionTemplateId,

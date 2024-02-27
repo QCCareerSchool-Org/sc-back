@@ -47,6 +47,7 @@ export class GetSchoolInteractor implements IInteractor<GetSchoolRequestDTO, Get
         courses: school.courses.map(c => ({
           courseId: c.courseId,
           schoolId: c.schoolId,
+          variantId: c.variantId,
           code: c.code,
           version: c.version,
           studentTypeId: c.studentTypeId,

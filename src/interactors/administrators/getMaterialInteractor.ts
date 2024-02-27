@@ -74,6 +74,7 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
           course: {
             courseId: material.unit.course.courseId,
             schoolId: material.unit.course.schoolId,
+            variantId: material.unit.course.variantId,
             code: material.unit.course.code,
             version: material.unit.course.version,
             studentTypeId: material.unit.course.studentTypeId,

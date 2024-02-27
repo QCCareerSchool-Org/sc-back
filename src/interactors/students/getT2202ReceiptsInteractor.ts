@@ -75,6 +75,7 @@ export class GetT2202ReceiptsInteractor extends StudentInteractor<GetT2202Receip
           course: {
             courseId: t.enrollment.course.courseId,
             schoolId: t.enrollment.course.schoolId,
+            variantId: t.enrollment.course.variantId,
             code: t.enrollment.course.code,
             version: t.enrollment.course.version,
             studentTypeId: t.enrollment.course.studentTypeId,

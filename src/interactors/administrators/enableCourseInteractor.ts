@@ -44,6 +44,7 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
       return Result.success({
         courseId: updatedCourse.courseId,
         schoolId: updatedCourse.schoolId,
+        variantId: updatedCourse.variantId,
         code: updatedCourse.code,
         version: updatedCourse.version,
         studentTypeId: updatedCourse.studentTypeId,
