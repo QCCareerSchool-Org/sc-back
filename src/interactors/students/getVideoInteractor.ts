@@ -34,7 +34,13 @@ export class GetVideoInteractor extends StudentInteractor<GetVideoRequestDTO, Ge
       const videoIdBin = this.uuidService.uuidToBin(videoId);
 
       const video = await this.prisma.video.findFirst({
-        where: { videoId: videoIdBin, units: { some: { unit: { course: { enrollments: { some: { studentId } } } } } } },
+        where: {
+          videoId: videoIdBin,
+          OR: [
+            { units: { some: { unit: { course: { enrollments: { some: { studentId } } } } } } },
+            { unrestricted: true },
+          ],
+        },
       });
 
       if (!video) {
