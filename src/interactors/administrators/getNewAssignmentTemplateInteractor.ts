@@ -50,10 +50,14 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         include: {
           newSubmissionTemplate: true,
           newPartTemplates: {
-            include: { newTextBoxTemplates: true, newUploadSlotTemplates: true, newPartMedia: true },
+            include: {
+              newTextBoxTemplates: { orderBy: [ { order: 'asc' } ] },
+              newUploadSlotTemplates: { orderBy: [ { order: 'asc' } ] },
+              newPartMedia: { orderBy: [ { order: 'asc' } ] },
+            },
             orderBy: [ { partNumber: 'asc' } ],
           },
-          newAssignmentMedia: true,
+          newAssignmentMedia: { orderBy: [ { order: 'asc' } ] },
         },
       });
       if (!assignmentTemplate) {
