@@ -49,13 +49,13 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         where: { assignmentId: assignmentIdBin },
         include: {
           newSubmission: { include: { enrollment: { include: { course: true } } } },
-          newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
+          newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: [ { order: 'asc' } ] },
           newParts: {
-            orderBy: { partNumber: 'asc' },
+            orderBy: [ { partNumber: 'asc' } ],
             include: {
-              newTextBoxes: true,
-              newUploadSlots: true,
-              newPartMedia: { include: { newPartMedium: true }, orderBy: { order: 'asc' } },
+              newTextBoxes: { orderBy: [ { order: 'asc' } ] },
+              newUploadSlots: { orderBy: [ { order: 'asc' } ] },
+              newPartMedia: { include: { newPartMedium: true }, orderBy: [ { order: 'asc' } ] },
             },
           },
         },
