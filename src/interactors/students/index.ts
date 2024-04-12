@@ -16,6 +16,7 @@ import { GetT2202ReceiptsInteractor } from './getT2202ReceiptsInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InitializeNextNewSubmissionInteractor } from './initializeNextNewSubmissionInteractor.js';
 import { InsertMaterialCompletionInteractor } from './insertMaterialCompletionInteractor.js';
+import { InsertOrUpdateMetadataInteractor } from './insertOrUpdateMetadataInteractor.js';
 import { LessonGuardInteractor } from './lessonGuardInteractor.js';
 import { SaveMaterialDataInteractor } from './saveMaterialDataInteractor.js';
 import { SaveNewTextBoxTextInteractor } from './saveNewTextBoxTextInteractor.js';
@@ -51,3 +52,4 @@ export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmission
 export const updateNewSubmissionResponseProgressInteractor = new UpdateNewSubmissionResponseProgressInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveMaterialDataInteractor = new SaveMaterialDataInteractor(prisma, uuidService, dateService, intervalService, winstonLoggerService);
+export const insertOrUpdateMetadataInteractor = new InsertOrUpdateMetadataInteractor(prisma, dateService, winstonLoggerService);

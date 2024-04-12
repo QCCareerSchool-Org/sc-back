@@ -4,6 +4,7 @@ import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
+import type { MetadataDTO } from '../../domain/metadataDTO.js';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { OldSubmissionDTO } from '../../domain/oldSubmissionDTO.js';
 import type { OldSubmissionTemplateDTO } from '../../domain/oldSubmissionTemplateDTO.js';
@@ -45,6 +46,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   // newSubmissions: Array<NewSubmissionDTO & { badges: BadgeDTO[] }>;
   newSubmissions: NewSubmissionDTO[];
   materialCompletions: MaterialCompletionDTO[];
+  metadata: MetadataDTO[];
 };
 
 export class GetEnrollmentNotFound extends Error { }
@@ -104,6 +106,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
             orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
           },
           materialCompletions: true,
+          metadata: { include: { metadata: true } },
         },
       });
 
@@ -386,6 +389,10 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
         materialCompletions: enrollment.materialCompletions.map(m => ({
           materialId: this.uuidService.binToUUID(m.materialId),
           enrollmentId: m.enrollmentId,
+        })),
+        metadata: enrollment.metadata.map(m => ({
+          name: m.metadata.name,
+          value: m.value,
         })),
       });
 

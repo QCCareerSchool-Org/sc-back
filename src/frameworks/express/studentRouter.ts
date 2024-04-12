@@ -17,6 +17,7 @@ import { GetT2202ReceiptsController } from '../../controllers/students/getT2202R
 import { GetVideoController } from '../../controllers/students/getVideoController.js';
 import { InitializeNextNewSubmissionController } from '../../controllers/students/initializeNextNewUnitController.js';
 import { InsertMaterialCompletionController } from '../../controllers/students/insertMaterialCompletionController.js';
+import { InsertOrUpdateMetadataController } from '../../controllers/students/insertOrUpdateMetadataController.js';
 import { LessonGuardMiddleware } from '../../controllers/students/lessonGuardMiddleware.js';
 import { LessonsStaticFilesMiddleware } from '../../controllers/students/lessonsStaticFilesMiddleware.js';
 import { SaveMaterialDataController } from '../../controllers/students/saveMaterialDataController.js';
@@ -60,6 +61,8 @@ const routes: Route[] = [
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   [ 'put', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', UploadNewUploadSlotController, multer().single('file') ],
   [ 'delete', '/:studentId/courses/:courseId/newSubmissions/:submissionId/assignments/:assignmentId/parts/:partId/uploadSlots/:uploadSlotId/file', EraseNewUploadSlotController ],
+  // metadata
+  [ 'post', '/:studentId/courses/:courseId/metadata', InsertOrUpdateMetadataController ],
   // materials
   [ 'get', '/:studentId/materials/:materialId', GetMaterialController ],
   [ 'post', '/:studentId/materials/:materialId/data', SaveMaterialDataController ],

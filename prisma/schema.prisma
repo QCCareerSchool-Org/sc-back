@@ -553,6 +553,7 @@ model Enrollment {
   writingAssignments  WritingAssignment[]
   writingProfiles     WritingProfile[]
   materialData        MaterialData[]
+  metadata            EnrollmentsOnMetadata[]
 
   @@unique([studentId, courseId], map: "account_id_course_id")
   @@unique([courseId, studentNumber], map: "course_id_student_number")
@@ -2268,4 +2269,23 @@ model SurveyCompletion {
   student            Student   @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_survey_completions_students")
   
   @@map("survey_completions")
+}
+
+model Metadata {
+  metadataId  Int                     @id
+  name        String                  @db.VarChar(191)
+  enrollments EnrollmentsOnMetadata[]
+
+  @@map("metadata")
+}
+
+model EnrollmentsOnMetadata {
+  enrollmentId Int        @db.UnsignedInt
+  metadataId   Int        
+  value        String?    @db.VarChar(191)
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "FK_enrollments_metadata_enrollments")
+  metadata     Metadata   @relation(fields: [metadataId], references: [metadataId], onDelete: Cascade, map: "FK_enrollments_metadata_metadata")
+
+  @@map("enrollments_metadata")
+  @@id(name: "id", [enrollmentId, metadataId])
 }
