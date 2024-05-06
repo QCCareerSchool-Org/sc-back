@@ -57,6 +57,7 @@ import { InsertUnitController } from '../../controllers/administrators/insertUni
 import { ReplaceMaterialContentController } from '../../controllers/administrators/replaceMaterialContentController.js';
 import { ReplaceMaterialImageController } from '../../controllers/administrators/replaceMaterialImageController.js';
 import { ReplaceNewSubmissionTemplatePricesController } from '../../controllers/administrators/replaceNewSubmissionTemplatePricesController.js';
+import { RestartNewSubmissionController } from '../../controllers/administrators/restartNewSubmissionController.js';
 import { SaveMaterialController } from '../../controllers/administrators/saveMaterialController.js';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController.js';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController.js';
@@ -80,7 +81,7 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/students/:studentId', GetStudentController ],
   // enrollment
   [ 'delete', '/:administratorId/enrollments/:enrollmentId', DeleteEnrollmentController ],
-  [ 'delete', '/:administratorId/enrollments/:enrollmentId/submissions', DeleteAllNewSubmissionsController ],
+  [ 'delete', '/:administratorId/enrollments/:enrollmentId/newSubmissions', DeleteAllNewSubmissionsController ],
   // schools
   [ 'get', '/:administratorId/schools', GetAllSchoolsController ],
   [ 'get', '/:administratorId/schools/:schoolId', GetSchoolController ],
@@ -138,6 +139,7 @@ const routes: Route[] = [
   // new submissions
   [ 'get', '/:administratorId/newSubmissions/:submissionId', GetNewSubmissionController ],
   [ 'get', '/:administratorId/newSubmissions/:submissionId/feedback', DownloadNewSubmissionFeedbackController ],
+  [ 'post', '/:administratorId/newSubmissions/:submissionId/restarts', RestartNewSubmissionController ],
   // new assignments
   [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
   // new text boxes

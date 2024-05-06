@@ -61,7 +61,7 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
           newSubmission: { update: { adminComment, submitted: null, modified: prismaNow } },
         },
         where: { submissionReturnId: submissionReturnIdBin },
-        include: { newSubmission: { include: { enrollment: { include: { student: true } } } } },
+        include: { newSubmission: { include: { enrollment: { include: { student: true } }, parent: true } } },
       });
 
       if (updatedSubmissionReturn.newSubmission.enrollment.student.emailAddress) {
@@ -98,6 +98,8 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
           responseFilesize: updatedSubmissionReturn.newSubmission.responseFilesize,
           responseMimeTypeId: updatedSubmissionReturn.newSubmission.responseMimeTypeId,
           responseProgress: updatedSubmissionReturn.newSubmission.responseProgress,
+          redoId: updatedSubmissionReturn.newSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmissionReturn.newSubmission.redoId),
+          hasParent: updatedSubmissionReturn.newSubmission.parent !== null,
           created: updatedSubmissionReturn.newSubmission.created,
           modified: updatedSubmissionReturn.newSubmission.modified,
         },

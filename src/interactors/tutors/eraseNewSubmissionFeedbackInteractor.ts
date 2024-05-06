@@ -78,7 +78,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
             modified: prismaNow,
           },
           where: { submissionId: submissionIdBin },
-          include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+          include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } }, parent: true },
         });
 
         const paddedEnrollmentId = newSubmission.enrollmentId.toString().padStart(8, '0');
@@ -181,6 +181,8 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
         responseProgress: updatedSubmission.responseProgress,
+        redoId: updatedSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmission.redoId),
+        hasParent: updatedSubmission.parent !== null,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,

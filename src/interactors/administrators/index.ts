@@ -55,6 +55,7 @@ import { InsertUnitInteractor } from './insertUnitInteractor.js';
 import { ReplaceMaterialContentInteractor } from './replaceMaterialContentInteractor.js';
 import { ReplaceMaterialImageInteractor } from './replaceMaterialImageInteractor.js';
 import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
+import { RestartNewSubmissionInteractor } from './restartNewSubmissionInteractor.js';
 import { SaveMaterialInteractor } from './saveMaterialInteractor.js';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor.js';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor.js';
@@ -152,3 +153,5 @@ export const deleteEnrollmentInteractor = new DeleteEnrollmentInteractor(prisma,
 export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInteractor(prisma, nodeFileService, environmentConfigService, winstonLoggerService);
 
 export const getAllTutorsBySchoolInteractor = new GetAllTutorsBySchoolInteractor(prisma, dateService, winstonLoggerService);
+
+export const restartNewSubmissionInteractor = new RestartNewSubmissionInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);

@@ -21,6 +21,9 @@ export type NewSubmissionDTO = {
   responseFilesize: number | null;
   responseMimeTypeId: string | null;
   responseProgress: number | null;
+  /** uuid */
+  redoId: string | null;
+  hasParent: boolean;
   complete: boolean;
   points: number;
   mark: number | null;

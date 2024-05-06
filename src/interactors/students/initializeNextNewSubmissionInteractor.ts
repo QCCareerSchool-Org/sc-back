@@ -280,7 +280,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
             })),
           },
         },
-        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+        include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } }, parent: true },
       });
 
       return Result.success({
@@ -303,6 +303,8 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
         responseFilesize: nextSubmission.responseFilesize,
         responseMimeTypeId: nextSubmission.responseMimeTypeId,
         responseProgress: nextSubmission.responseProgress,
+        redoId: nextSubmission.redoId === null ? null : this.uuidService.binToUUID(nextSubmission.redoId),
+        hasParent: nextSubmission.parent !== null,
         complete: submissionComplete,
         points: submissionPoints,
         mark: null,

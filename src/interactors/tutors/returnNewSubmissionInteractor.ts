@@ -46,6 +46,7 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
             newUploadSlots: NewUploadSlot[];
           })[];
         })[];
+        parent: NewSubmission | null;
       };
 
       try {
@@ -97,7 +98,7 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
               },
             },
             where: { submissionId: submissionIdBin },
-            include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } } },
+            include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } }, parent: true },
           });
         });
       } catch (err) {
@@ -193,6 +194,8 @@ export class ReturnNewSubmissionInteractor implements IInteractor<ReturnNewSubmi
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
         responseProgress: updatedSubmission.responseProgress,
+        redoId: updatedSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmission.redoId),
+        hasParent: updatedSubmission.parent !== null,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
         complete: submissionComplete,

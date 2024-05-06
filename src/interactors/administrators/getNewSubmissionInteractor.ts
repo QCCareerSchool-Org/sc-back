@@ -63,6 +63,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
+          parent: true,
           // badges: { include: { badge: true } },
         },
       });
@@ -97,6 +98,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         responseFilesize: submission.responseFilesize,
         responseMimeTypeId: submission.responseMimeTypeId,
         responseProgress: submission.responseProgress,
+        redoId: submission.redoId === null ? null : this.uuidService.binToUUID(submission.redoId),
+        hasParent: submission.parent !== null,
         created: this.dateService.fixPrismaReadDate(submission.created),
         modified: this.dateService.fixPrismaReadDate(submission.modified),
         enrollment: {

@@ -63,6 +63,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
         include: {
           enrollment: { include: { course: { include: { school: true } } } },
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
+          parent: true,
           // badges: { include: { badge: true } },
         },
       });
@@ -96,6 +97,8 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
         responseFilesize: submission.responseFilesize,
         responseMimeTypeId: submission.responseMimeTypeId,
         responseProgress: submission.responseProgress,
+        redoId: submission.redoId === null ? null : this.uuidService.binToUUID(submission.redoId),
+        hasParent: submission.parent !== null,
         created: this.dateService.fixPrismaReadDate(submission.created),
         modified: this.dateService.fixPrismaReadDate(submission.modified),
         enrollment: {

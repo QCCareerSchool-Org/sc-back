@@ -48,7 +48,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
       const assignment = await this.prisma.newAssignment.findFirst({
         where: { assignmentId: assignmentIdBin },
         include: {
-          newSubmission: { include: { enrollment: { include: { course: true } } } },
+          newSubmission: { include: { enrollment: { include: { course: true } }, parent: true } },
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: [ { order: 'asc' } ] },
           newParts: {
             orderBy: [ { partNumber: 'asc' } ],
@@ -240,6 +240,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           responseFilesize: assignment.newSubmission.responseFilesize,
           responseMimeTypeId: assignment.newSubmission.responseMimeTypeId,
           responseProgress: assignment.newSubmission.responseProgress,
+          redoId: assignment.newSubmission.redoId === null ? null : this.uuidService.binToUUID(assignment.newSubmission.redoId),
+          hasParent: assignment.newSubmission.parent !== null,
           created: this.dateService.fixPrismaReadDate(assignment.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(assignment.newSubmission.modified),
         },

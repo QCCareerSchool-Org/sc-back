@@ -22,7 +22,7 @@ export class UpdateNewSubmissionResponseProgressNotFound extends UpdateNewSubmis
 export class UpdateNewSubmissionResponseProgressLessThanZero extends UpdateNewSubmissionResponseProgressError { }
 export class UpdateNewSubmissionResponseProgressGreaterThan100 extends UpdateNewSubmissionResponseProgressError { }
 
-type SubmissionWithEnrollmentAndCourse = NewSubmission & { enrollment: Enrollment & { course: Course } };
+type SubmissionWithEnrollmentAndCourse = NewSubmission & { enrollment: Enrollment & { course: Course }; parent: NewSubmission | null };
 
 export class UpdateNewSubmissionResponseProgressInteractor extends StudentInteractor<UpdateNewSubmissionResponseProgressRequestDTO, UpdateNewSubmissionResponseProgressResponseDTO> {
 
@@ -78,6 +78,8 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
         responseProgress: updatedSubmission.responseProgress,
+        redoId: updatedSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmission.redoId),
+        hasParent: updatedSubmission.parent !== null,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
       });
@@ -94,7 +96,7 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
     return this.prisma.$transaction(async transaction => {
       const submission = await transaction.newSubmission.findFirst({
         where: { enrollment: { studentId, courseId }, submissionId: submissionIdBin },
-        include: { enrollment: { include: { course: true } } },
+        include: { enrollment: { include: { course: true } }, parent: true },
       });
       if (!submission) {
         throw new UpdateNewSubmissionResponseProgressNotFound();
@@ -107,7 +109,7 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
       return this.prisma.newSubmission.update({
         where: { submissionId: submissionIdBin },
         data: { responseProgress: progress, modified: prismaNow },
-        include: { enrollment: { include: { course: true } } },
+        include: { enrollment: { include: { course: true } }, parent: true },
       });
     });
   }

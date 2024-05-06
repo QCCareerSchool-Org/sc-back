@@ -15,6 +15,7 @@ export interface IFileService {
   rename: (source: string, dest: string) => Promise<void>;
   /** create a new directory and any parent directories, if needed */
   mkdir: (filePath: string) => Promise<void>;
+  /** delete a directory and any of its files and subdirectories */
   rmdir: (filePath: string) => Promise<void>;
   createReadStream: (filePath: string, range?: { start: number; end: number }) => ReadStream;
   // saveReadStream: (readStream: ReadStream, path: string) => Promise<void>;

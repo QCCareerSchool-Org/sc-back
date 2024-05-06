@@ -84,7 +84,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
             created: prismaNow,
           },
           include: {
-            newSubmission: { include: { enrollment: { include: { course: true } } } },
+            newSubmission: { include: { enrollment: { include: { course: true } }, parent: true } },
             preTutor: true,
             postTutor: true,
           },
@@ -148,6 +148,8 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
           responseFilesize: transfer.newSubmission.responseFilesize,
           responseMimeTypeId: transfer.newSubmission.responseMimeTypeId,
           responseProgress: transfer.newSubmission.responseProgress,
+          redoId: transfer.newSubmission.redoId === null ? null : this.uuidService.binToUUID(transfer.newSubmission.redoId),
+          hasParent: transfer.newSubmission.parent !== null,
           created: this.dateService.fixPrismaReadDate(transfer.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(transfer.newSubmission.modified),
         },

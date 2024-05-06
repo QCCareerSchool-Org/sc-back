@@ -78,7 +78,7 @@ export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmis
             modified: prismaNow,
           },
           where: { submissionId: submissionIdBin },
-          include: { enrollment: { include: { course: true } } },
+          include: { enrollment: { include: { course: true } }, parent: true },
         });
 
         if (s.unitLetter !== finalUnitLetter) { // this is not the final submission
@@ -123,6 +123,8 @@ export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmis
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
         responseProgress: updatedSubmission.responseProgress,
+        redoId: updatedSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmission.redoId),
+        hasParent: updatedSubmission.parent !== null,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
       });

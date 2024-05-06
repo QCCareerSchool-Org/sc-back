@@ -1378,6 +1378,7 @@ model NewSubmission {
   responseFilesize   Int?                     @map("response_filesize") @db.UnsignedInt
   responseMimeTypeId String?                  @map("response_mime_type_id") @db.VarChar(255)
   responseProgress   Int?                     @map("response_progress") @db.UnsignedTinyInt()
+  redoId             Bytes?                   @map("redo_id") @unique @db.Binary(16)
   entityVersion      Int                      @default(0) @map("entity_version")
   created            DateTime                 @default(now()) @db.Timestamp(0)
   modified           DateTime?                @updatedAt @db.Timestamp(0)
@@ -1385,6 +1386,8 @@ model NewSubmission {
   responseMimeType   MimeType?                @relation(fields: [responseMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "new_submissions_ibfk_3")
   enrollment         Enrollment               @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "new_submissions_ibfk_1")
   tutor              Tutor?                   @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "new_submissions_ibfk_2")
+  redo               NewSubmission?           @relation("SubmissionRedo", fields: [redoId], references: [submissionId], onDelete: SetNull, map: "new_submissions_ibfk_4")
+  parent             NewSubmission?           @relation("SubmissionRedo")
   newAssignments     NewAssignment[]
   prices             NewSubmissionPrice[]
   returns            NewSubmissionReturn[]

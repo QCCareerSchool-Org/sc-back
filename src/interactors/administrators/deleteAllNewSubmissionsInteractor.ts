@@ -33,10 +33,8 @@ export class DeleteAllNewSubmissionsInteractor implements IInteractor<DeleteAllN
         return Result.fail(new InsufficientPrivileges());
       }
 
-      // find the enrollment and the submissions
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { enrollmentId },
-        include: { newSubmissions: { include: { newAssignments: { include: { newParts: { include: { newUploadSlots: true } } } } } } },
       });
       if (!enrollment) {
         return Result.fail(new DeleteAllNewSubmissionsEnrollmentNotFound());

@@ -60,7 +60,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           },
         },
         include: {
-          newSubmission: { include: { enrollment: { include: { newSubmissions: true } } } },
+          newSubmission: { include: { enrollment: { include: { newSubmissions: true } }, parent: true } },
           newAssignmentMedia: { include: { newAssignmentMedium: true }, orderBy: { order: 'asc' } },
           newParts: {
             orderBy: { partNumber: 'asc' },
@@ -129,6 +129,8 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
           responseFilesize: newAssignment.newSubmission.responseFilesize,
           responseMimeTypeId: newAssignment.newSubmission.responseMimeTypeId,
           responseProgress: newAssignment.newSubmission.responseProgress,
+          redoId: newAssignment.newSubmission.redoId === null ? null : this.uuidService.binToUUID(newAssignment.newSubmission.redoId),
+          hasParent: newAssignment.newSubmission.parent !== null,
           created: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.created),
           modified: this.dateService.fixPrismaReadDate(newAssignment.newSubmission.modified),
           enrollment: {

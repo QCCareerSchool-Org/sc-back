@@ -89,6 +89,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
           oldSubmissions: true,
           newSubmissions: {
             include: {
+              parent: true,
               newAssignments: {
                 include: {
                   newParts: {
@@ -373,6 +374,8 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
             responseFilesize: newSubmission.responseFilesize,
             responseMimeTypeId: newSubmission.responseMimeTypeId,
             responseProgress: newSubmission.responseProgress,
+            redoId: newSubmission.redoId === null ? null : this.uuidService.binToUUID(newSubmission.redoId),
+            hasParent: newSubmission.parent !== null,
             complete: submissionComplete,
             points: submissionPoints,
             mark: newSubmission.closed && submissionMarked ? submissionMark : null,

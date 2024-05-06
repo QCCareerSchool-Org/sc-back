@@ -51,7 +51,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
 
       this.checkEnrollment(enrollment);
 
-      let updatedSubmission: NewSubmission & { tutor: Tutor | null; enrollment: Enrollment & { course: Course } };
+      let updatedSubmission: NewSubmission & { tutor: Tutor | null; enrollment: Enrollment & { course: Course }; parent: NewSubmission | null };
 
       try {
         updatedSubmission = await this.prisma.$transaction(async transaction => {
@@ -136,7 +136,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
               modified: prismaNow,
             },
             where: { submissionId: submissionIdBin },
-            include: { tutor: true, enrollment: { include: { course: true } } },
+            include: { tutor: true, enrollment: { include: { course: true } }, parent: true },
           });
         });
       } catch (err) {
@@ -193,6 +193,8 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
         responseFilesize: updatedSubmission.responseFilesize,
         responseMimeTypeId: updatedSubmission.responseMimeTypeId,
         responseProgress: updatedSubmission.responseProgress,
+        redoId: updatedSubmission.redoId === null ? null : this.uuidService.binToUUID(updatedSubmission.redoId),
+        hasParent: updatedSubmission.parent !== null,
         created: this.dateService.fixPrismaReadDate(updatedSubmission.created),
         modified: this.dateService.fixPrismaReadDate(updatedSubmission.modified),
       });
