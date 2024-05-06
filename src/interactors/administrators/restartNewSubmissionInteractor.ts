@@ -1,4 +1,4 @@
-import type { NewAssignment, NewAssignmentsOnNewAssignmentMedia, NewPart, NewPartsOnNewPartMedia, NewSubmission, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
+import type { NewAssignment, NewAssignmentsOnNewAssignmentMedia, NewPart, NewPartsOnNewPartMedia, NewSubmission, NewSubmissionPrice, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
 
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
@@ -33,6 +33,7 @@ type NewSubmissionWithChildren = NewSubmission & {
       newPartMedia: NewPartsOnNewPartMedia[];
     }>;
   }>;
+  prices: NewSubmissionPrice[];
   parent: NewSubmission | null;
 };
 
@@ -65,6 +66,7 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
                 },
               },
               enrollment: { include: { student: true } },
+              prices: true,
               parent: true,
             },
           });
@@ -72,6 +74,8 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
           if (!originalSubmission) {
             throw new RestartNewSubmissionNotFound();
           }
+
+          const x = originalSubmission.prices;
 
           if (originalSubmission.redoId !== null) {
             throw new RestartNewSubmissionAlreadyRestarted();
@@ -103,7 +107,7 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
             where: { submissionId: submissionIdBin },
           });
 
-          // await this.duplicateFiles(originalSubmission, restartedSubmission);
+          await this.duplicateFiles(originalSubmission, restartedSubmission);
 
           return restartedSubmission;
         }, { maxWait: 20_000, timeout: 50_000 });
@@ -258,7 +262,6 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
         description: originalSubmission.description,
         markingCriteria: originalSubmission.markingCriteria,
         optional: originalSubmission.optional,
-
         created: prismaNow,
         modified: prismaNow,
         newAssignments: {
@@ -336,6 +339,17 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
             },
           })),
         },
+        prices: {
+          create: originalSubmission.prices.map(p => ({
+            submissionPriceId: this.uuidService.uuidToBin(this.uuidService.createUUID()),
+            countryId: p.countryId,
+            price: p.price,
+            currencyId: p.currencyId,
+            selected: p.selected,
+            created: prismaNow,
+            modified: prismaNow,
+          })),
+        },
       },
       include: {
         newAssignments: {
@@ -344,6 +358,7 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
             newParts: { include: { newPartMedia: { include: { newPartMedium: true } }, newTextBoxes: true, newUploadSlots: true } },
           },
         },
+        prices: true,
         parent: true,
       },
     });
