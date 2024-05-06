@@ -34,6 +34,7 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
       newUploadSlots: NewUploadSlotDTO[];
     }>;
   }>;
+  parent: NewSubmissionDTO | null;
   // badges: BadgeDTO[];
 };
 
@@ -63,7 +64,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
         include: {
           enrollment: { include: { course: { include: { school: true } } } },
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
-          parent: true,
+          parent: { include: { parent: true } },
           // badges: { include: { badge: true } },
         },
       });
@@ -273,6 +274,34 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
         complete: submissionComplete,
         points: submissionPoints,
         mark: submission.closed && submissionMarked ? submissionMark : null,
+        parent: submission.parent === null ? null : {
+          submissionId: this.uuidService.binToUUID(submission.parent.submissionId),
+          enrollmentId: submission.parent.enrollmentId,
+          tutorId: submission.parent.tutorId,
+          unitLetter: submission.parent.unitLetter,
+          title: submission.parent.title,
+          description: submission.parent.description,
+          markingCriteria: null, // students should never see the marking criteria
+          optional: submission.parent.optional,
+          order: submission.parent.order,
+          tutorComment: null, // students should never see the tutor comment
+          adminComment: submission.parent.adminComment,
+          submitted: this.dateService.fixPrismaReadDate(submission.parent.submitted),
+          transferred: this.dateService.fixPrismaReadDate(submission.parent.transferred),
+          closed: this.dateService.fixPrismaReadDate(submission.parent.closed),
+          skipped: submission.parent.skipped,
+          responseFilename: submission.parent.responseFilename === null ? null : `${submission.enrollment.course.code}${submission.enrollment.enrollmentId} Submission ${submission.parent.unitLetter}.mp3`,
+          responseFilesize: submission.parent.responseFilesize,
+          responseMimeTypeId: submission.parent.responseMimeTypeId,
+          responseProgress: submission.parent.responseProgress,
+          redoId: submission.parent.redoId === null ? null : this.uuidService.binToUUID(submission.parent.redoId),
+          hasParent: submission.parent.parent !== null,
+          complete: true,
+          points: -1,
+          mark: null,
+          created: this.dateService.fixPrismaReadDate(submission.parent.created),
+          modified: this.dateService.fixPrismaReadDate(submission.parent.modified),
+        },
         // badges: submission.badges.map(b => ({
         //   badgeId: this.uuidService.binToUUID(b.badge.badgeId),
         //   name: b.badge.name,
