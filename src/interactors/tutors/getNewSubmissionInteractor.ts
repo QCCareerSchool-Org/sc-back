@@ -3,8 +3,12 @@ import type { PrismaClient } from '@prisma/client';
 import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
+import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewAssignmentDTO } from '../../domain/tutors/newAssignmentDTO.js';
+import type { NewPartDTO } from '../../domain/tutors/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
+import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
+import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
 import type { StudentDTO } from '../../domain/tutors/studentDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
@@ -24,7 +28,12 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
     course: CourseDTO;
     student: StudentDTO;
   };
-  newAssignments: NewAssignmentDTO[];
+  newAssignments: Array<NewAssignmentDTO & {
+    newParts: Array<NewPartDTO & {
+      newTextBoxes: NewTextBoxDTO[];
+      newUploadSlots: NewUploadSlotDTO[];
+    }>;
+  }>;
   // badges: BadgeDTO[];
 };
 
@@ -163,49 +172,112 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           let assignmentMarked = true;
           let assignmentPoints = 0;
           let assignmentMark = 0;
-          for (const p of a.newParts) {
-            let partComplete = true;
-            let partMarked = true;
-            let partPoints = 0;
-            let partMark = 0;
-            for (const t of p.newTextBoxes) {
-              const textBoxComplete = t.text.length > 0;
-              if (!textBoxComplete && !t.optional) {
-                partComplete = false;
+          const assignment = {
+            assignmentId: this.uuidService.binToUUID(a.assignmentId),
+            submissionId: this.uuidService.binToUUID(a.submissionId),
+            assignmentNumber: a.assignmentNumber,
+            title: a.title,
+            description: a.description,
+            descriptionType: a.descriptionType,
+            markingCriteria: a.markingCriteria,
+            optional: a.optional,
+            created: this.dateService.fixPrismaReadDate(a.created),
+            modified: this.dateService.fixPrismaReadDate(a.modified),
+            newParts: a.newParts.map(p => {
+              let partComplete = true;
+              let partMarked = true;
+              let partPoints = 0;
+              let partMark = 0;
+              const part = {
+                partId: this.uuidService.binToUUID(p.partId),
+                assignmentId: this.uuidService.binToUUID(p.assignmentId),
+                partNumber: p.partNumber,
+                title: p.title,
+                description: p.description,
+                descriptionType: p.descriptionType,
+                markingCriteria: p.markingCriteria,
+                markingComments: p.markingComments,
+                created: this.dateService.fixPrismaReadDate(p.created),
+                modified: this.dateService.fixPrismaReadDate(p.modified),
+                newTextBoxes: p.newTextBoxes.map(t => {
+                  const textBoxComplete = t.text.length > 0;
+                  if (!textBoxComplete && !t.optional) {
+                    partComplete = false;
+                  }
+                  if (textBoxComplete && t.mark === null && t.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (textBoxComplete || !t.optional) {
+                    partPoints += t.points;
+                    partMark += t.mark ?? 0;
+                  }
+                  return {
+                    textBoxId: this.uuidService.binToUUID(t.textBoxId),
+                    partId: this.uuidService.binToUUID(t.partId),
+                    description: t.description,
+                    lines: t.lines,
+                    points: t.points,
+                    mark: t.mark,
+                    notes: t.notes,
+                    optional: t.optional,
+                    order: t.order,
+                    text: t.text,
+                    complete: t.text.length > 0,
+                    created: this.dateService.fixPrismaReadDate(t.created),
+                    modified: this.dateService.fixPrismaReadDate(t.modified),
+                  };
+                }),
+                newUploadSlots: p.newUploadSlots.map(u => {
+                  const uploadSlotComplete = u.filename !== null;
+                  if (!uploadSlotComplete && !u.optional) {
+                    partComplete = false;
+                  }
+                  if (uploadSlotComplete && u.mark === null && u.points > 0) {
+                    partMarked = false;
+                  }
+                  // ignore incomplete, optional inputs
+                  if (uploadSlotComplete || !u.optional) {
+                    partPoints += u.points;
+                    partMark += u.mark ?? 0;
+                  }
+                  return {
+                    uploadSlotId: this.uuidService.binToUUID(u.uploadSlotId),
+                    partId: this.uuidService.binToUUID(u.partId),
+                    label: u.label,
+                    allowedTypes: u.allowedTypes.split(',') as NewUploadSlotAllowedType[],
+                    points: u.points,
+                    mark: u.mark,
+                    notes: u.notes,
+                    optional: u.optional,
+                    order: u.order,
+                    filename: u.filename,
+                    filesize: u.filesize,
+                    mimeTypeId: u.mimeTypeId,
+                    complete: u.filename !== null,
+                    created: this.dateService.fixPrismaReadDate(u.created),
+                    modified: this.dateService.fixPrismaReadDate(u.modified),
+                  };
+                }),
+                complete: partComplete,
+                points: partPoints,
+                mark: partMarked ? partMark : null,
+              };
+              if (!partComplete) {
+                assignmentComplete = false;
               }
-              if (textBoxComplete && t.mark === null && t.points > 0) {
-                partMarked = false;
+              if (!partMarked) {
+                assignmentMarked = false;
               }
-              // ignore incomplete, optional inputs
-              if (textBoxComplete || !t.optional) {
-                partPoints += t.points;
-                partMark += t.mark ?? 0;
-              }
-            }
-            for (const u of p.newUploadSlots) {
-              const uploadSlotComplete = u.filename !== null;
-              if (!uploadSlotComplete && !u.optional) {
-                partComplete = false;
-              }
-              if (uploadSlotComplete && u.mark === null && u.points > 0) {
-                partMarked = false;
-              }
-              // ignore incomplete, optional inputs
-              if (uploadSlotComplete || !u.optional) {
-                partPoints += u.points;
-                partMark += u.mark ?? 0;
-              }
-            }
-            if (!partComplete) {
-              assignmentComplete = false;
-            }
-            if (partComplete && !partMarked) {
-              assignmentMarked = false;
-            }
-            // parts can't be optional, so we always add these
-            assignmentPoints += partPoints;
-            assignmentMark += partMark;
-          }
+              // parts can't be optional, so we always add these
+              assignmentPoints += partPoints;
+              assignmentMark += partMark;
+              return part;
+            }),
+            complete: assignmentComplete,
+            points: assignmentPoints,
+            mark: assignmentMarked ? assignmentMark : null,
+          };
           if (!assignmentComplete && !a.optional) {
             submissionComplete = false;
           }
@@ -217,21 +289,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             submissionPoints += assignmentPoints;
             submissionMark += assignmentMark;
           }
-          return {
-            assignmentId: this.uuidService.binToUUID(a.assignmentId),
-            submissionId: this.uuidService.binToUUID(a.submissionId),
-            assignmentNumber: a.assignmentNumber,
-            title: a.title,
-            description: a.description,
-            descriptionType: a.descriptionType,
-            markingCriteria: a.markingCriteria,
-            optional: a.optional,
-            complete: assignmentComplete,
-            points: assignmentPoints,
-            mark: assignmentMarked ? assignmentMark : null,
-            created: this.dateService.fixPrismaReadDate(a.created),
-            modified: this.dateService.fixPrismaReadDate(a.modified),
-          };
+          return assignment;
         }),
         complete: submissionComplete,
         points: submissionPoints,
