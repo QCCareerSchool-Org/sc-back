@@ -262,6 +262,7 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
         description: originalSubmission.description,
         markingCriteria: originalSubmission.markingCriteria,
         optional: originalSubmission.optional,
+        order: originalSubmission.order,
         created: prismaNow,
         modified: prismaNow,
         newAssignments: {
