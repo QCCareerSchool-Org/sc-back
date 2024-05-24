@@ -370,8 +370,10 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
       for (let pIndex = 0; pIndex < originalSubmission.newAssignments[aIndex].newParts.length; pIndex++) {
         for (let uIndex = 0; uIndex < originalSubmission.newAssignments[aIndex].newParts[pIndex].newUploadSlots.length; uIndex++) {
           const originalUploadSlot = originalSubmission.newAssignments[aIndex].newParts[pIndex].newUploadSlots[uIndex];
-          const restartedUploadSlot = restartedSubmission.newAssignments[aIndex].newParts[pIndex].newUploadSlots[uIndex];
-          await this.copyUploadSlot(originalSubmission.enrollmentId, originalUploadSlot.uploadSlotId, restartedUploadSlot.uploadSlotId);
+          if (originalUploadSlot.filename !== null) {
+            const restartedUploadSlot = restartedSubmission.newAssignments[aIndex].newParts[pIndex].newUploadSlots[uIndex];
+            await this.copyUploadSlot(originalSubmission.enrollmentId, originalUploadSlot.uploadSlotId, restartedUploadSlot.uploadSlotId);
+          }
         }
       }
     }
