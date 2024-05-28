@@ -77,7 +77,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
       let unitLetter: string | undefined = undefined;
       let submissionFound = false;
       for (const t of submissionTemplates) {
-        if (!enrollment.newSubmissions.some(u => u.unitLetter === t.unitLetter)) {
+        if (!enrollment.newSubmissions.some(s => s.unitLetter === t.unitLetter)) {
           unitLetter = t.unitLetter;
           submissionFound = true;
           break;
@@ -92,6 +92,12 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
       // this should never happen, but is needed for type safety
       if (typeof unitLetter === 'undefined') {
         return Result.fail(new InitializeNextNewSubmissionCantDetermineSubmission());
+      }
+
+      // Fix for DG120097
+      const dg120097Fix = enrollment.enrollmentId === 120097 && unitLetter === 'I';
+      if (dg120097Fix) {
+        unitLetter = 'H';
       }
 
       // find the submission template with all its children
@@ -159,7 +165,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
           submissionId,
           enrollmentId: enrollment.enrollmentId,
           tutorId: null,
-          unitLetter: nextSubmissionTemplate.unitLetter,
+          unitLetter: dg120097Fix ? 'I' : nextSubmissionTemplate.unitLetter,
           title: nextSubmissionTemplate.title,
           description: nextSubmissionTemplate.description,
           markingCriteria: nextSubmissionTemplate.markingCriteria,
