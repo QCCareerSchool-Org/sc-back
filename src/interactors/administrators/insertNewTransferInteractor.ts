@@ -27,6 +27,7 @@ export class InsertNewTransferSubmissionNotFound extends Error { }
 export class InsertNewTransferSubmissionAlreadyClosed extends Error { }
 export class InsertNewTransferNoTutorAssigned extends Error { }
 export class InsertNewTransferInvalidTutor extends Error { }
+export class InsertNewTransferDefaultPriceNotFound extends Error { }
 
 export class InsertNewTransferInteractor implements IInteractor<InsertNewTransferRequestDTO, InsertNewTransferResponseDTO> {
 
@@ -48,7 +49,10 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
         // find the submission
         const submission = await this.prisma.newSubmission.findFirst({
           where: { submissionId: submissionIdBin },
-          include: { enrollment: { include: { course: true } } },
+          include: {
+            enrollment: { include: { course: true } },
+            prices: true,
+          },
         });
         if (!submission) {
           throw new InsertNewTransferSubmissionNotFound();
@@ -69,9 +73,32 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
           throw new InsertNewTransferInvalidTutor();
         }
 
+        // determine the new price to use
+        let submissionPriceIdBin: Buffer;
+        const price = submission.prices.find(p => p.countryId === tutor.countryId);
+        if (price) {
+          submissionPriceIdBin = price.submissionPriceId;
+        } else {
+          const defaultPrice = submission.prices.find(p => p.countryId === null);
+          if (!defaultPrice) {
+            throw new InsertNewTransferDefaultPriceNotFound();
+          }
+          submissionPriceIdBin = defaultPrice.submissionPriceId;
+        }
+
         await t.newSubmission.update({
           data: { tutorId, transferred: prismaNow, modified: prismaNow },
           where: { submissionId: submissionIdBin },
+        });
+
+        await t.newSubmissionPrice.updateMany({
+          data: { selected: false },
+          where: { submissionId: submissionIdBin },
+        });
+
+        await t.newSubmissionPrice.update({
+          data: { selected: true },
+          where: { submissionPriceId: submissionPriceIdBin },
         });
 
         return t.newTransfer.create({
