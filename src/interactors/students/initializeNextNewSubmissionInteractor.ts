@@ -95,8 +95,8 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
       }
 
       // Fix for DG120097
-      const dg120097Fix = enrollment.enrollmentId === 120097 && unitLetter === 'I';
-      if (dg120097Fix) {
+      const dg127361Fix = enrollment.enrollmentId === 120097 && unitLetter === 'I';
+      if (dg127361Fix) {
         unitLetter = 'H';
       }
 
@@ -165,7 +165,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
           submissionId,
           enrollmentId: enrollment.enrollmentId,
           tutorId: null,
-          unitLetter: dg120097Fix ? 'I' : nextSubmissionTemplate.unitLetter,
+          unitLetter: dg127361Fix ? 'I' : nextSubmissionTemplate.unitLetter,
           title: nextSubmissionTemplate.title,
           description: nextSubmissionTemplate.description,
           markingCriteria: nextSubmissionTemplate.markingCriteria,
