@@ -95,7 +95,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
       }
 
       // Fix for DG120097
-      const dg127361Fix = enrollment.enrollmentId === 120097 && unitLetter === 'I';
+      const dg127361Fix = enrollment.newSubmissions.some(s => s.unitLetter === 'H' && s.title === 'The Teddy Bear Cut') && unitLetter === 'I';
       if (dg127361Fix) {
         unitLetter = 'H';
       }
