@@ -85,7 +85,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
 
       let updatedMaterial: Material;
 
-      if (material.type === 'lesson') {
+      if (material.type === 'lesson' || material.type === 'scorm2004') {
         if (!request.lessonMeta) {
           throw new SaveMaterialMissingMetadata();
         }
