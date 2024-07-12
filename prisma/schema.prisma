@@ -2233,7 +2233,7 @@ model q_types {
 model Video {
   videoId      Bytes           @id @db.Binary(16)
   src          String          @db.VarChar(2048)
-  posterSrc    String          @db.VarChar(2048)
+  posterSrc    String?         @db.VarChar(2048)
   captionSrc   String?         @db.VarChar(2048)
   title        String          @db.VarChar(191)
   description  String?         @db.Text
