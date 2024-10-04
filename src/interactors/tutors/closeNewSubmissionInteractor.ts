@@ -212,7 +212,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       if (this.shouldSendMZKit(newSubmission, submissionPoints, submissionMark)) {
         try {
-          await this.sendMZKitShippingEmail(newSubmission);
+          await this.sendMakeupKitShippingEmail(newSubmission);
         } catch (err) {
           this.logger.error('Error sending MZ kit email', err);
         }
@@ -220,7 +220,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       if (this.shouldSendHSKit(newSubmission, submissionPoints, submissionMark)) {
         try {
-          await this.sendHSKitShippingEmail(newSubmission);
+          await this.sendMakeupKitShippingEmail(newSubmission);
         } catch (err) {
           this.logger.error('Error sending HS kit email', err);
         }
@@ -228,7 +228,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       if (this.shouldSendABKit(newSubmission, submissionPoints, submissionMark)) {
         try {
-          await this.sendABKitShippingEmail(newSubmission);
+          await this.sendMakeupKitShippingEmail(newSubmission);
         } catch (err) {
           this.logger.error('Error sending AB kit email', err);
         }
@@ -370,31 +370,11 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 
-  private async sendMZKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
+  private async sendMakeupKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
     const name = 'Shipping Department';
     const to = 'shipping@qccareerschool.com';
     const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
-    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship any applicable makeup kits that haven't already been shipped.`;
-    const htmlBody = `<p>${textBody}</p>`;
-
-    await this.emailService.send(name, to, subject, htmlBody, textBody);
-  }
-
-  private async sendHSKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
-    const name = 'Shipping Department';
-    const to = 'shipping@qccareerschool.com';
-    const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
-    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship any applicable hair styling kits that haven't already been shipped.`;
-    const htmlBody = `<p>${textBody}</p>`;
-
-    await this.emailService.send(name, to, subject, htmlBody, textBody);
-  }
-
-  private async sendABKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
-    const name = 'Shipping Department';
-    const to = 'shipping@qccareerschool.com';
-    const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
-    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship any applicable airbrush makeup kits that haven't already been shipped.`;
+    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship all applicable kits for _any_ makeup courses that haven't already been shipped.`;
     const htmlBody = `<p>${textBody}</p>`;
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
