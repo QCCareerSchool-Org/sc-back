@@ -44,7 +44,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
           assignmentMediumId: assignmentMediumIdBin,
           newAssignments: { some: { newAssignment: { newSubmission: {
             NOT: { submitted: null },
-            OR: { enrollment: { tutorId }, tutorId },
+            OR: [ { enrollment: { tutorId } }, { tutorId } ],
           } } } },
         },
       });
