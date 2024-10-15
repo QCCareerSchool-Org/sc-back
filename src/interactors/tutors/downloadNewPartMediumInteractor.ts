@@ -17,7 +17,7 @@ export type DownloadNewPartMediumRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewPartMediumResponseDTO = InteractorFileStreamDownload;
+export type DownloadNewPartMediumResponseDTO = InteractorFileStreamDownload | string;
 
 export class DownloadNewPartMediumNotFound extends Error { }
 export class DownloadNewPartMediumFileNotFound extends Error { }
@@ -51,6 +51,10 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
       if (!newPartMedium) {
         return Result.fail(new DownloadNewPartMediumNotFound());
+      }
+
+      if (newPartMedium.externalData !== null) {
+        return Result.success(newPartMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.partMediaPath}/${partMediumId}`;

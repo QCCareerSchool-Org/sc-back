@@ -70,6 +70,10 @@ export class DownloadNewPartMediumController extends BaseController<Request, Res
     });
 
     if (result.success) {
+      if (typeof result.value === 'string') {
+        this.res.setHeader('Location', result.value);
+        return this.found();
+      }
       return this.sendInteractorFileStream(result.value);
     }
 

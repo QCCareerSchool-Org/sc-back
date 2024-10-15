@@ -17,7 +17,7 @@ export type DownloadNewAssignmentMediumRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload | string;
 
 export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
@@ -51,6 +51,10 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
 
       if (!newAssignmentMedium) {
         return Result.fail(new DownloadNewAssignmentMediumNotFound());
+      }
+
+      if (newAssignmentMedium.externalData !== null) {
+        return Result.success(newAssignmentMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${assignmentMediumId}`;

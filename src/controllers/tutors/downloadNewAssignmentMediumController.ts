@@ -70,6 +70,10 @@ export class DownloadNewAssignmentMediumController extends BaseController<Reques
     });
 
     if (result.success) {
+      if (typeof result.value === 'string') {
+        this.res.setHeader('Location', result.value);
+        return this.found();
+      }
       return this.sendInteractorFileStream(result.value);
     }
 
