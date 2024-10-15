@@ -44,7 +44,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
           partMediumId: partMediumIdBin,
           newParts: { some: { newPart: { newAssignment: { newSubmission: {
             NOT: { submitted: null },
-            OR: [ { enrollment: { tutorId } }, { tutorId } ],
+            OR: [ { enrollment: { tutorId } }, { tutorId } ], // either the tutor of the enrollment in general, or the tutor assigned to this submission
           } } } } },
         },
       });
