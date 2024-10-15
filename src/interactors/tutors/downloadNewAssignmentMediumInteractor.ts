@@ -42,7 +42,10 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       const newAssignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
         where: {
           assignmentMediumId: assignmentMediumIdBin,
-          newAssignments: { some: { newAssignment: { newSubmission: { NOT: { submitted: null }, enrollment: { tutorId } } } } },
+          newAssignments: { some: { newAssignment: { newSubmission: {
+            NOT: { submitted: null },
+            OR: { enrollment: { tutorId }, tutorId },
+          } } } },
         },
       });
 
