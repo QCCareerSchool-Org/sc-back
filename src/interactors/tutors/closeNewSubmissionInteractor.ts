@@ -373,9 +373,10 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
   private async sendMakeupKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
     const name = 'Shipping Department';
     const to = 'shipping@qccareerschool.com';
+    const body = [ `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship all applicable kits for _any_ makeup courses that haven't already been shipped.`, 'Please check the student file to verify which kits the student should receive.' ];
     const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
-    const textBody = `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship all applicable kits for _any_ makeup courses that haven't already been shipped.`;
-    const htmlBody = `<p>${textBody}</p>`;
+    const textBody = body.join('\n\n');
+    const htmlBody = body.map(b => `<p>${b}</p>`).join('\n');
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
