@@ -17,7 +17,7 @@ export type DownloadNewAssignmentMediumRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload;
+export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload | string;
 
 export class DownloadNewAssignmentMediumNotFound extends Error { }
 export class DownloadNewAssignmentMediumFileNotFound extends Error { }
@@ -42,12 +42,19 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       const newAssignmentMedium = await this.prisma.newAssignmentMedium.findFirst({
         where: {
           assignmentMediumId: assignmentMediumIdBin,
-          newAssignments: { some: { newAssignment: { newSubmission: { NOT: { submitted: null }, enrollment: { tutorId } } } } },
+          newAssignments: { some: { newAssignment: { newSubmission: {
+            NOT: { submitted: null },
+            OR: [ { enrollment: { tutorId } }, { tutorId } ], // either the tutor of the enrollment in general, or the tutor assigned to this submission
+          } } } },
         },
       });
 
       if (!newAssignmentMedium) {
         return Result.fail(new DownloadNewAssignmentMediumNotFound());
+      }
+
+      if (newAssignmentMedium.externalData !== null) {
+        return Result.success(newAssignmentMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${assignmentMediumId}`;

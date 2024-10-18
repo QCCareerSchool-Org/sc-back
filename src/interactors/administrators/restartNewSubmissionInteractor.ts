@@ -75,8 +75,6 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
             throw new RestartNewSubmissionNotFound();
           }
 
-          const x = originalSubmission.prices;
-
           if (originalSubmission.redoId !== null) {
             throw new RestartNewSubmissionAlreadyRestarted();
           }

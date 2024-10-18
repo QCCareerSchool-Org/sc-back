@@ -17,7 +17,7 @@ export type DownloadNewPartMediumRequestDTO = {
   endByte?: number;
 };
 
-export type DownloadNewPartMediumResponseDTO = InteractorFileStreamDownload;
+export type DownloadNewPartMediumResponseDTO = InteractorFileStreamDownload | string;
 
 export class DownloadNewPartMediumNotFound extends Error { }
 export class DownloadNewPartMediumFileNotFound extends Error { }
@@ -42,12 +42,19 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
       const newPartMedium = await this.prisma.newPartMedium.findFirst({
         where: {
           partMediumId: partMediumIdBin,
-          newParts: { some: { newPart: { newAssignment: { newSubmission: { NOT: { submitted: null }, enrollment: { tutorId } } } } } },
+          newParts: { some: { newPart: { newAssignment: { newSubmission: {
+            NOT: { submitted: null },
+            OR: [ { enrollment: { tutorId } }, { tutorId } ], // either the tutor of the enrollment in general, or the tutor assigned to this submission
+          } } } } },
         },
       });
 
       if (!newPartMedium) {
         return Result.fail(new DownloadNewPartMediumNotFound());
+      }
+
+      if (newPartMedium.externalData !== null) {
+        return Result.success(newPartMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.partMediaPath}/${partMediumId}`;
