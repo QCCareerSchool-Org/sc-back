@@ -77,6 +77,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
           lastModified: stats.lastModified,
           mimeType: newUploadSlot.mimeTypeId ?? 'application/octet-stream',
           maxAge: DownloadNewUploadSlotInteractor.maxAge,
+          contentEncoding: newUploadSlot.compressed ? 'gzip' : undefined,
           byteRange: { start, end },
         });
       }
@@ -97,6 +98,7 @@ export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewU
         lastModified: stats.lastModified,
         mimeType: newUploadSlot.mimeTypeId ?? 'application/octet-stream',
         maxAge: DownloadNewUploadSlotInteractor.maxAge,
+        contentEncoding: newUploadSlot.compressed ? 'gzip' : undefined,
       });
 
     } catch (err) {
