@@ -47,8 +47,6 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
         return Result.fail(new GetMaterialNotFound());
       }
 
-      console.log(material.materialCompletions);
-
       const materialData = material.materialData.reduce<Record<string, string>>((prev, cur) => {
         prev[cur.key] = cur.value;
         return prev;
