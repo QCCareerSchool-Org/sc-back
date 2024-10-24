@@ -979,7 +979,6 @@ model Material {
   chapters            Int?
   videos              Int?
   knowledgeChecks     Int?                 @map("knowledge_checks")
-  complete            Boolean              @default(false)
   created             DateTime             @default(now()) @db.Timestamp(0)
   modified            DateTime?            @updatedAt @db.Timestamp(0)
   contentMimeType     MimeType?            @relation("mime_typesTonew_materials_content_mime_type", fields: [contentMimeTypeId], references: [mimeTypeId], onDelete: Restrict, map: "FK_new_materials_content_mime_types")
