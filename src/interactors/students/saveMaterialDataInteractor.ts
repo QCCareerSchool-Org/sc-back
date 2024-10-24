@@ -92,6 +92,7 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
         await transaction.materialData.deleteMany({ where: { materialId: materialIdBin, enrollmentId: enrollment.enrollmentId } });
         await transaction.materialData.createMany({ data: materialData });
         if (complete) {
+          // add a material completion to "lock in" the completion status, in case the material is changed in the future
           await transaction.materialCompletion.upsert({
             // eslint-disable-next-line camelcase
             where: { materialId_enrollmentId: { enrollmentId: enrollment.enrollmentId, materialId: materialIdBin } },
