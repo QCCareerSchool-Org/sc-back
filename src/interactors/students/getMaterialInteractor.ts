@@ -13,7 +13,7 @@ export type GetMaterialRequestDTO = {
   materialId: string;
 };
 
-export type GetMaterialResponseDTO = MaterialDTO & { materialData: Record<string, string> };
+export type GetMaterialResponseDTO = MaterialDTO & { complete: boolean; materialData: Record<string, string> };
 
 export class GetMaterialNotFound extends Error { }
 
@@ -37,7 +37,10 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
           materialId: materialIdBin,
           unit: { course: { enrollments: { some: { student: { studentId } } } } },
         },
-        include: { materialData: { where: { enrollment: { student: { studentId } } } } },
+        include: {
+          materialData: { where: { enrollment: { student: { studentId } } } },
+          materialCompletions: true,
+        },
       });
 
       if (!material) {
@@ -48,6 +51,8 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
         prev[cur.key] = cur.value;
         return prev;
       }, {});
+
+      const complete = material.materialCompletions.length > 0 || materialData['cmi.completion_status'] === 'completed';
 
       return Result.success({
         materialId: this.uuidService.binToUUID(material.materialId),
@@ -67,6 +72,7 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
         knowledgeChecks: material.knowledgeChecks,
         created: this.dateService.fixPrismaReadDate(material.created),
         modified: this.dateService.fixPrismaReadDate(material.modified),
+        complete,
         materialData,
       });
 
