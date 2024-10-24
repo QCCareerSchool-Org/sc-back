@@ -39,13 +39,15 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
         },
         include: {
           materialData: { where: { enrollment: { student: { studentId } } } },
-          materialCompletions: true,
+          materialCompletions: { where: { enrollment: { student: { studentId } } } },
         },
       });
 
       if (!material) {
         return Result.fail(new GetMaterialNotFound());
       }
+
+      console.log(material.materialCompletions);
 
       const materialData = material.materialData.reduce<Record<string, string>>((prev, cur) => {
         prev[cur.key] = cur.value;

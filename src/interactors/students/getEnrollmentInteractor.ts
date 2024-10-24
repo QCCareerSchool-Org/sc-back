@@ -80,7 +80,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
                 include: {
                   materials: {
                     include: {
-                      materialCompletions: true,
+                      materialCompletions: { where: { enrollment: { studentId, courseId } } },
                       materialData: { where: { enrollment: { studentId, courseId } } },
                     },
                     orderBy: [ { order: 'asc' }, { materialId: 'asc' } ],
