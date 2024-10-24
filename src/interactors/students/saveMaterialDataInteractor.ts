@@ -86,7 +86,7 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
       }
 
       const completionStatus = materialData.find(m => m.key === 'cmi.completion_status');
-      const complete = typeof completionStatus !== 'undefined' && completionStatus.value === 'complete';
+      const complete = typeof completionStatus !== 'undefined' && completionStatus.value === 'completed';
 
       await this.prisma.$transaction(async transaction => {
         await transaction.materialData.deleteMany({ where: { materialId: materialIdBin, enrollmentId: enrollment.enrollmentId } });
