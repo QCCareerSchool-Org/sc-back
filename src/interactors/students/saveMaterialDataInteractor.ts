@@ -85,9 +85,20 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
         });
       }
 
+      const completionStatus = materialData.find(m => m.key === 'cmi.completion_status');
+      const complete = typeof completionStatus !== 'undefined' && completionStatus.value === 'complete';
+
       await this.prisma.$transaction(async transaction => {
         await transaction.materialData.deleteMany({ where: { materialId: materialIdBin, enrollmentId: enrollment.enrollmentId } });
         await transaction.materialData.createMany({ data: materialData });
+        if (complete) {
+          await transaction.materialCompletion.upsert({
+            // eslint-disable-next-line camelcase
+            where: { materialId_enrollmentId: { enrollmentId: enrollment.enrollmentId, materialId: materialIdBin } },
+            update: { enrollmentId: enrollment.enrollmentId, materialId: materialIdBin },
+            create: { enrollmentId: enrollment.enrollmentId, materialId: materialIdBin },
+          });
+        }
       });
 
       return Result.success(undefined);
