@@ -37,7 +37,7 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
     oldSubmissionTemplates: OldSubmissionTemplateDTO[];
     newSubmissionTemplates: NewSubmissionTemplateDTO[];
     units: Array<UnitDTO & {
-      materials: Array<MaterialDTO & { materialData: Record<string, string> }>;
+      materials: Array<MaterialDTO & { complete: boolean; materialData: Record<string, string> }>;
       videos: VideoDTO[];
     }>;
   };
@@ -78,7 +78,13 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
               oldSubmissionTemplates: true,
               units: {
                 include: {
-                  materials: { include: { materialData: { where: { enrollment: { studentId, courseId } } } }, orderBy: [ { order: 'asc' }, { materialId: 'asc' } ] },
+                  materials: {
+                    include: {
+                      materialCompletions: true,
+                      materialData: { where: { enrollment: { studentId, courseId } } },
+                    },
+                    orderBy: [ { order: 'asc' }, { materialId: 'asc' } ],
+                  },
                   videos: { include: { video: true } },
                 },
                 orderBy: [ { order: 'asc' }, { unitLetter: 'asc' } ],
@@ -225,6 +231,9 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
                 prev[cur.key] = cur.value;
                 return prev;
               }, {});
+
+              const complete = m.materialCompletions.length > 0 || materialData['cmi.completion_status'] === 'completed';
+
               return {
                 materialId: this.uuidService.binToUUID(m.materialId),
                 unitId: this.uuidService.binToUUID(m.unitId),
@@ -244,6 +253,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
                 created: this.dateService.fixPrismaReadDate(m.created),
                 modified: this.dateService.fixPrismaReadDate(m.modified),
                 materialData,
+                complete,
               };
             }),
             videos: u.videos.map(v => ({
