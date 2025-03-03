@@ -25,6 +25,7 @@ export type ReplaceMaterialContentResponseDTO = MaterialDTO;
 
 abstract class ReplaceMaterialContentError extends Error { }
 export class ReplaceMaterialContentMaterialNotFound extends ReplaceMaterialContentError { }
+export class ReplaceMaterialDeleteMetaDataError extends ReplaceMaterialContentError { }
 export class ReplaceMaterialContentTooLarge extends ReplaceMaterialContentError { }
 export class ReplaceMaterialContentInvalidMimeType extends ReplaceMaterialContentError { }
 export class ReplaceMaterialContentSaveError extends ReplaceMaterialContentError { }
@@ -67,6 +68,14 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
           });
           if (!material) {
             throw new ReplaceMaterialContentMaterialNotFound();
+          }
+
+          try {
+            // delte old metadata because it can sometimes cause the material to show up blank, but leave any material completions
+            await transaction.materialData.deleteMany({ where: { materialId: materialIdBin } });
+          } catch (err) {
+            this.logger.warn('Unable to remove existing meta data', err);
+            throw new ReplaceMaterialDeleteMetaDataError();
           }
 
           try {
