@@ -226,14 +226,6 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         }
       }
 
-      if (this.shouldSendABKit(newSubmission, submissionPoints, submissionMark)) {
-        try {
-          await this.sendMakeupKitShippingEmail(newSubmission);
-        } catch (err) {
-          this.logger.error('Error sending AB kit email', err);
-        }
-      }
-
       if (newSubmission.enrollment.student.emailAddress) {
         const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
         try {
@@ -344,20 +336,16 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     }
   }
 
-  private shouldSendDGKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
+  private shouldSendDGKit(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
     return submission.enrollment.course.code === 'DG' && submission.unitLetter === 'B' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
   }
 
-  private shouldSendMZKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
-    return submission.enrollment.course.code === 'MZ' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+  private shouldSendMZKit(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
+    return submission.enrollment.studentNumber <= 143347 && submission.enrollment.course.code === 'MZ' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
   }
 
-  private shouldSendHSKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
-    return submission.enrollment.course.code === 'HS' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
-  }
-
-  private shouldSendABKit(submission: NewSubmission & { enrollment: { course: Course } }, points: number, mark: number): boolean {
-    return submission.enrollment.course.code === 'AB' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+  private shouldSendHSKit(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
+    return submission.enrollment.studentNumber <= 143347 && submission.enrollment.course.code === 'HS' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
   }
 
   private async sendDGKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
