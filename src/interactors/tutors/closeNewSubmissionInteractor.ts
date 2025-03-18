@@ -229,7 +229,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       if (newSubmission.enrollment.student.emailAddress) {
         const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
         try {
-          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter);
+          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter, failed);
         } catch (err) {
           this.logger.error('Error student email', err);
         }
@@ -369,10 +369,18 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 
-  private async sendStudentEmail(name: string, to: string, courseName: string, unitLetter: string): Promise<void> {
+  private async sendStudentEmail(name: string, to: string, courseName: string, unitLetter: string, failed: boolean): Promise<void> {
     const subject = 'Unit Has Been Marked';
-    const textBody = `${name},\n\nYour ${courseName} submission ${unitLetter} has been marked. You may now review your marks and your tutor's audio feedback at the Online Student Center (https://studentcenter.qccareerschool.com).`;
-    const htmlBody = `<p>${name},</p><p>Your ${courseName} submission ${this.sanitizerService.sanitizeHtml(unitLetter)} has been marked. You may now review your marks and your tutor's audio feedback at the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p>`;
+    let textBody: string;
+    let htmlBody: string;
+
+    if (failed) {
+      textBody = `Hi ${name},\n\nYour ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the Online Student Center (https://studentcenter.qccareerschool.com).\n\nUnfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!\n\nWe recommend reaching out to our Teaching Assistant Team at teachingassistant@qccareerschool.com. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.\n\nKeep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.`;
+      htmlBody = `<p>Hi ${name},</p><p>Your ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p><p>Unfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!</p><p>We recommend reaching out to our Teaching Assistant Team at <a href="mailto:teachingassistant@qccareerschool.com">teachingassistant@qccareerschool.com</a>. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.</p><p>Keep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.</p>`;
+    } else {
+      textBody = `${name},\n\nYour ${courseName} submission ${unitLetter} has been marked. You may now review your marks and your tutor's audio feedback at the Online Student Center (https://studentcenter.qccareerschool.com).`;
+      htmlBody = `<p>${name},</p><p>Your ${courseName} submission ${this.sanitizerService.sanitizeHtml(unitLetter)} has been marked. You may now review your marks and your tutor's audio feedback at the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p>`;
+    }
 
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
