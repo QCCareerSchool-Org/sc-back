@@ -86,7 +86,7 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
           }
 
           return material;
-        });
+        }, { timeout: 20_000 });
       } catch (err) {
         if (err instanceof ReplaceMaterialContentError) {
           return Result.fail(err);
