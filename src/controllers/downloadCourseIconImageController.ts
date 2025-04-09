@@ -18,7 +18,7 @@ type Request = {
 
 type Response = DownloadCourseIconImageResponseDTO;
 
-export class downloadCourseIconImageController extends BaseController<Request, Response> {
+export class DownloadCourseIconImageController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const headersSchema: yup.SchemaOf<Request['headers']> = yup.object({
