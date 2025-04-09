@@ -4,7 +4,7 @@ import type { Privileges } from '../../domain/accessTokenPayload.js';
 import { isAccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import { replaceMaterialContentInteractor } from '../../interactors/administrators/index.js';
 import type { ReplaceMaterialContentResponseDTO } from '../../interactors/administrators/replaceMaterialContentInteractor.js';
-import { ReplaceMaterialContentInvalidMimeType, ReplaceMaterialContentMaterialNotFound, ReplaceMaterialContentSaveError, ReplaceMaterialContentTooLarge } from '../../interactors/administrators/replaceMaterialContentInteractor.js';
+import { ReplaceMaterialContentInvalidMimeType, ReplaceMaterialContentMaterialNotFound, ReplaceMaterialContentSaveError, ReplaceMaterialContentTooLarge, ReplaceMaterialDeleteMetaDataError } from '../../interactors/administrators/replaceMaterialContentInteractor.js';
 import { InsufficientPrivileges } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -92,6 +92,8 @@ export class ReplaceMaterialContentController extends BaseController<Request, Re
         return this.forbidden('Insufficient privileges');
       case ReplaceMaterialContentMaterialNotFound:
         return this.notFound('Not found');
+      case ReplaceMaterialDeleteMetaDataError:
+        return this.internalServerError('Couldn\'t delete metadata');
       case ReplaceMaterialContentTooLarge:
         return this.badRequest('File exceeds maximum size');
       case ReplaceMaterialContentInvalidMimeType:
