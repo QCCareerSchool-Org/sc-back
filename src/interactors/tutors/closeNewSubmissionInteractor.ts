@@ -410,7 +410,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const url = this.getWebsite(schoolName) + '/award/' + submissionId;
     const subject = 'Your Award of Excellence is Ready to Share 🏅';
     const htmlBody = `
-<div style="max-width: 640px; margin: 2rem auto;">
+<div style="max-width: 720px; margin: 2rem auto;">
 <h1>You did it!</h1>
 <p>You've received an Award of Excellence for your outstanding achievement in ${courseName} with a final grade of ${grade}!</p>
 <p>Click below to view your personalized digital badge and share your success with the world 🌟</p>
