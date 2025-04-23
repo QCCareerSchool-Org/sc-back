@@ -3,7 +3,7 @@ import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
-import type { IGradeService } from '../../services/grade/index.js';
+import type { Grade, IGradeService } from '../../services/grade/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
@@ -48,7 +48,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         where: { submissionId: submissionIdBin, enrollment: { studentId } },
         include: {
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
-          enrollment: { include: { student: true, course: true } },
+          enrollment: { include: { student: true, course: { include: { school: true } } } },
         },
       });
 
@@ -226,15 +226,6 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         }
       }
 
-      if (newSubmission.enrollment.student.emailAddress) {
-        const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
-        try {
-          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter, failed);
-        } catch (err) {
-          this.logger.error('Error student email', err);
-        }
-      }
-
       submissionComplete = true;
       submissionMarked = true;
       submissionPoints = 0;
@@ -298,6 +289,22 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         if (assignmentComplete || !a.optional) {
           submissionPoints += assignmentPoints;
           submissionMark += assignmentMark;
+        }
+      }
+
+      if (newSubmission.enrollment.student.emailAddress) {
+        const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
+        try {
+          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter, failed);
+        } catch (err) {
+          this.logger.error('Error student email', err);
+        }
+
+        const allowedGrades: Grade[] = [ 'A-', 'A', 'A+' ];
+        const grade = this.gradeService.calculate(submissionMark / submissionPoints);
+        const schoolName = newSubmission.enrollment.course.school.name;
+        if (this.allowedSchool(schoolName) && submissionPoints > 0 && allowedGrades.includes(grade)) {
+          await this.sendAwardOfExcellenceEmail(studentName, newSubmission.enrollment.student.emailAddress, grade, newSubmission.enrollment.course.name, schoolName, submissionId);
         }
       }
 
@@ -397,5 +404,63 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
   private async getFinalUnitLetter(courseId: number): Promise<string | null> {
     const template = await this.prisma.newSubmissionTemplate.findFirst({ where: { courseId }, orderBy: [ { order: 'desc' }, { unitLetter: 'desc' } ] });
     return template?.unitLetter ?? null;
+  }
+
+  private async sendAwardOfExcellenceEmail(name: string, to: string, grade: string, courseName: string, schoolName: string, submissionId: string): Promise<void> {
+    const url = this.getWebsite(schoolName) + '/award/' + submissionId;
+    const subject = 'Your Award of Excellence is Ready to Share 🏅';
+    const htmlBody = `
+<div style="max-width: 640px; margin: 2rem auto;">
+<h1>You did it!</h1>
+<p>You've received an Award of Excellence for your outstanding achievement in ${courseName} with a final grade of ${grade}!</p>
+<p>Click below to view your personalized digital badge and share your success with the world 🌟</p>
+<p>👉 <a href="${url}"><button>View My Badge</button></a></p>
+<p>Keep aiming high—we're proud to have you in the ${schoolName} community!</p>
+<p>This achievement reflects your dedication and hard work, and we encourage you to share your success with your peers—you've absolutely earned it!</p>
+<p>All the best,</p>
+<p>Your Team at QC</p>
+<p>P.S. We'd love to share your story to inspire others! Just reply to this email if you'd like to be featured.</p>
+</div>
+`;
+    const txtBody = `
+*You did it!*
+
+You've received an Award of Excellence for your outstanding achievement in ${courseName} with a final grade of ${grade}!
+
+Click below to view your personalized digital badge and share your success with the world 🌟
+
+👉 View My Badge (${url})
+
+Keep aiming high—we're proud to have you in the ${schoolName} community!
+
+This achievement reflects your dedication and hard work, and we encourage you to share your success with your peers—you've absolutely earned it!
+
+All the best,
+
+Your Team at QC
+
+P.S. We'd love to share your story to inspire others! Just reply to this email if you'd like to be featured.
+`;
+    await this.emailService.send(name, 'dave@qccareerschool.com', subject, htmlBody, txtBody, undefined, { 'reply-to': 'info@qccareerschool.com' });
+  }
+
+  private getWebsite(schoolName: string): string {
+    switch (schoolName) {
+      case 'QC Design School':
+        return 'https://www.qcdesignschool.com';
+      case 'QC Event School':
+        return 'https://www.qceventplanning.com';
+      case 'QC Makeup Academy':
+        return 'https://www.qcmakeupacademy.com';
+      case 'QC Pet Studies':
+        return 'https://www.qcpetstudies.com';
+      case 'QC Wellness Studies':
+        return 'https://www.qcwellnessstudies.com';
+    }
+    return 'https://www.qccareerschool.com';
+  }
+
+  private allowedSchool(schoolName: string): boolean {
+    return [ 'QC Design School', 'QC Event School', 'QC Pet Studies' ].includes(schoolName);
   }
 }

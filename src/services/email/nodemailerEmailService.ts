@@ -14,7 +14,7 @@ export class NodemailerEmailService implements IEmailService {
     private readonly mode: 'TLS' | 'STARTTLS' | 'INSECURE',
   ) { /* empty */ }
 
-  public async send(name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[]): Promise<void> {
+  public async send(name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[], headers?: Record<string, string>): Promise<void> {
     const transport = this.createTransport();
     try {
       await transport.sendMail({
@@ -24,6 +24,7 @@ export class NodemailerEmailService implements IEmailService {
         html: htmlBody,
         text: textBody,
         attachments,
+        headers,
         // bcc: [ { name: 'Dave Welsh', address: 'dave@qccareerschool.com' } ],
       });
     } finally {
