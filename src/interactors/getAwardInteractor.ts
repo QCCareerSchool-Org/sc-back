@@ -85,8 +85,9 @@ export class GetAwardInteractor implements IInteractor<GetAwardRequestDTO, GetAw
         submissionId: this.uuidService.binToUUID(submission.submissionId),
         courseName: submission.enrollment.course.name,
         schoolName: submission.enrollment.course.school.name,
-        name: `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName}`,
+        unitLetter: submission.unitLetter,
         grade: this.gradeService.calculate(totalMarks / totalPoints),
+        name: `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName}`,
         created: submission.closed,
       });
 
