@@ -419,9 +419,14 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
     if (tutorId === null) {
       return false;
     }
-    const tutorAudioFileLocation = `${this.configService.config.paths.tutorIntroductionPath}/${tutorId}-${courseCode}.mp3`;
-    const fileStats = await this.fileService.stat(tutorAudioFileLocation);
-    if (fileStats) {
+    const tutorMP3AudioFileLocation = `${this.configService.config.paths.tutorIntroductionPath}/${tutorId}-${courseCode}.mp3`;
+    const mp3FileStats = await this.fileService.stat(tutorMP3AudioFileLocation);
+    if (mp3FileStats) {
+      return true;
+    }
+    const tutorOGGAudioFileLocation = `${this.configService.config.paths.tutorIntroductionPath}/${tutorId}-${courseCode}.ogg`;
+    const oggFileStats = await this.fileService.stat(tutorOGGAudioFileLocation);
+    if (oggFileStats) {
       return true;
     }
     return false;
