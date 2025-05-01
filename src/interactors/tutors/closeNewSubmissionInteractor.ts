@@ -461,6 +461,6 @@ P.S. We'd love to share your story to inspire others! Just reply to this email i
   }
 
   private allowedSchool(schoolName: string): boolean {
-    return [ 'QC Design School', 'QC Event School', 'QC Pet Studies' ].includes(schoolName);
+    return [ 'QC Design School', 'QC Event School', 'QC Makeup Academy', 'QC Pet Studies' ].includes(schoolName);
   }
 }
