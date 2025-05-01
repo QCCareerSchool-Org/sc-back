@@ -407,7 +407,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
   }
 
   private async sendAwardOfExcellenceEmail(name: string, to: string, grade: string, courseName: string, schoolName: string, submissionId: string): Promise<void> {
-    const url = this.getWebsite(schoolName) + '/award/' + submissionId;
+    const url = this.getAwardUrl(schoolName, submissionId);
     const subject = 'Your Award of Excellence is Ready to Share 🏅';
     const htmlBody = `
 <div style="max-width: 720px; margin: 2rem auto;">
@@ -444,18 +444,18 @@ P.S. We'd love to share your story to inspire others! Just reply to this email i
     await this.emailService.send(name, to, subject, htmlBody, txtBody, undefined, { 'reply-to': 'info@qccareerschool.com' });
   }
 
-  private getWebsite(schoolName: string): string {
+  private getAwardUrl(schoolName: string, submissionId: string): string {
     switch (schoolName) {
       case 'QC Design School':
-        return 'https://www.qcdesignschool.com';
+        return `https://www.qcdesignschool.com/awards/${submissionId}`;
       case 'QC Event School':
-        return 'https://www.qceventplanning.com';
+        return `https://www.qceventplanning.com/awards/${submissionId}`;
       case 'QC Makeup Academy':
-        return 'https://www.qcmakeupacademy.com';
+        return `https://www.qcmakeupacademy.com/award-of-excellence?submissionId=${submissionId}`;
       case 'QC Pet Studies':
-        return 'https://www.qcpetstudies.com';
+        return `https://www.qcpetstudies.com/awards/${submissionId}`;
       case 'QC Wellness Studies':
-        return 'https://www.qcwellnessstudies.com';
+        return `https://www.qcwellnessstudies.com/awards/${submissionId}`;
     }
     return 'https://www.qccareerschool.com';
   }
