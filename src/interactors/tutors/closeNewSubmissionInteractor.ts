@@ -441,7 +441,7 @@ Your Team at QC
 
 P.S. We'd love to share your story to inspire others! Just reply to this email if you'd like to be featured.
 `;
-    await this.emailService.send(name, to, subject, htmlBody, txtBody, undefined, { 'reply-to': 'info@qccareerschool.com' });
+    await this.emailService.send(name, to, subject, htmlBody, txtBody, undefined, { 'bcc': 'dave@qccareerschool.com', 'reply-to': 'info@qccareerschool.com' });
   }
 
   private getAwardUrl(schoolName: string, submissionId: string): string {

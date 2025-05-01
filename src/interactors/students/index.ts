@@ -6,6 +6,7 @@ import { DownloadNewAssignmentMediumInteractor } from './downloadNewAssignmentMe
 import { DownloadNewPartMediumInteractor } from './downloadNewPartMediumInteractor.js';
 import { DownloadNewSubmissionFeedbackInteractor } from './downloadNewSubmissionFeedbackInteractor.js';
 import { DownloadNewUploadSlotInteractor } from './downloadNewUploadSlotInteractor.js';
+import { DownloadTutorIntroInteractor } from './downloadTutorIntroInteractor.js';
 import { EraseNewUploadSlotInteractor } from './eraseNewUploadSlotInteractor.js';
 import { GetEnrollmentInteractor } from './getEnrollmentInteractor.js';
 import { GetMaterialInteractor } from './getMaterialInteractor.js';
@@ -49,6 +50,7 @@ export const insertMaterialCompletionInteractor = new InsertMaterialCompletionIn
 export const deleteMaterialCompletionInteractor = new DeleteMaterialCompletionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const downloadNewSubmissionFeedbackInteractor = new DownloadNewSubmissionFeedbackInteractor(prisma, uuidService, dateService, nodeFileService, environmentConfigService, winstonLoggerService);
+export const downloadTutorIntroInteractor = new DownloadTutorIntroInteractor(prisma, uuidService, dateService, nodeFileService, environmentConfigService, winstonLoggerService);
 export const updateNewSubmissionResponseProgressInteractor = new UpdateNewSubmissionResponseProgressInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getMaterialInteractor = new GetMaterialInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveMaterialDataInteractor = new SaveMaterialDataInteractor(prisma, uuidService, dateService, intervalService, winstonLoggerService);
