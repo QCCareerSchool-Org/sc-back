@@ -34,6 +34,8 @@ export type Config = {
   downloadMaxFileSize: number;
   /** maximum filesize of a material image */
   materialImageMaxFileSize: number;
+  /** the amount of time to allow for material content upload */
+  materialUploadTimeout: number;
   auth: {
     cookieDomain: string;
     cookiePath: string;
