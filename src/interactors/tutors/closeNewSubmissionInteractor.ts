@@ -297,7 +297,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         const grade = this.gradeService.calculate(submissionMark / submissionPoints);
         try {
           await this.sendStudentEmail(
-            newSubmission.enrollment.student.firstName,
+            studentName,
             newSubmission.enrollment.student.emailAddress,
             newSubmission.enrollment.course.school.name,
             newSubmission.enrollment.course.name,
@@ -384,7 +384,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 
-  private async sendStudentEmail(firstName: string, to: string, schoolName: string, courseName: string, unitLetter: string, grade: string, failed: boolean): Promise<void> {
+  private async sendStudentEmail(fullName: string, to: string, schoolName: string, courseName: string, unitLetter: string, grade: string, failed: boolean): Promise<void> {
     const subject = 'Unit Has Been Marked';
     let textBody: string;
     let htmlBody: string;
@@ -407,7 +407,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       }
     }
 
-    await this.emailService.send(firstName, to, subject, htmlBody, textBody, undefined, { bcc: 'dave@qccareerschool.com' });
+    await this.emailService.send(fullName, to, subject, htmlBody, textBody, undefined, { bcc: 'dave@qccareerschool.com' });
   }
 
   private async sendFailedEmail(courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
