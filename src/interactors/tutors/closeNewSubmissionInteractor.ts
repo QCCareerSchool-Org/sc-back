@@ -294,14 +294,22 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       if (newSubmission.enrollment.student.emailAddress) {
         const studentName = `${newSubmission.enrollment.student.firstName} ${newSubmission.enrollment.student.lastName}`;
+        const grade = this.gradeService.calculate(submissionMark / submissionPoints);
         try {
-          await this.sendStudentEmail(studentName, newSubmission.enrollment.student.emailAddress, newSubmission.enrollment.course.name, newSubmission.unitLetter, failed);
+          await this.sendStudentEmail(
+            newSubmission.enrollment.student.firstName,
+            newSubmission.enrollment.student.emailAddress,
+            newSubmission.enrollment.course.school.name,
+            newSubmission.enrollment.course.name,
+            newSubmission.unitLetter,
+            grade,
+            failed
+          );
         } catch (err) {
           this.logger.error('Error student email', err);
         }
 
         const allowedGrades: Grade[] = [ 'A-', 'A', 'A+' ];
-        const grade = this.gradeService.calculate(submissionMark / submissionPoints);
         const schoolName = newSubmission.enrollment.course.school.name;
         if (this.allowedSchool(schoolName) && submissionPoints > 0 && allowedGrades.includes(grade)) {
           await this.sendAwardOfExcellenceEmail(studentName, newSubmission.enrollment.student.emailAddress, grade, newSubmission.enrollment.course.name, schoolName, submissionId);
@@ -376,20 +384,30 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     await this.emailService.send(name, to, subject, htmlBody, textBody);
   }
 
-  private async sendStudentEmail(name: string, to: string, courseName: string, unitLetter: string, failed: boolean): Promise<void> {
+  private async sendStudentEmail(firstName: string, to: string, schoolName: string, courseName: string, unitLetter: string, grade: string, failed: boolean): Promise<void> {
     const subject = 'Unit Has Been Marked';
     let textBody: string;
     let htmlBody: string;
 
     if (failed) {
-      textBody = `Hi ${name},\n\nYour ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the Online Student Center (https://studentcenter.qccareerschool.com).\n\nUnfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!\n\nWe recommend reaching out to our Teaching Assistant Team at teachingassistant@qccareerschool.com. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.\n\nKeep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.`;
-      htmlBody = `<p>Hi ${name},</p><p>Your ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p><p>Unfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!</p><p>We recommend reaching out to our Teaching Assistant Team at <a href="mailto:teachingassistant@qccareerschool.com">teachingassistant@qccareerschool.com</a>. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.</p><p>Keep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.</p>`;
+      textBody = `Your ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the Online Student Center (https://studentcenter.qccareerschool.com).\n\nUnfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!\n\nWe recommend reaching out to our Teaching Assistant Team at teachingassistant@qccareerschool.com. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.\n\nKeep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.`;
+      htmlBody = `<p>Your ${courseName} submission for Unit ${unitLetter} has been marked. You can now review your marks and your tutor's audio feedback in the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p><p>Unfortunately, your submission didn't meet the required criteria, and you will need to resubmit in order to move forward. Please know that this is just a small setback. Many students face challenges along the way, and we are here to help you succeed!</p><p>We recommend reaching out to our Teaching Assistant Team at <a href="mailto:teachingassistant@qccareerschool.com">teachingassistant@qccareerschool.com</a>. They will assist with the steps you'll need to take to resubmit your unit. They can also help you with any questions you may have about the feedback, clarify anything you don't understand, or even set up a call to walk you through areas that need improvement. They're here to offer personalized guidance and support as you work toward successfully completing this unit.</p><p>Keep pushing forward—you've got this! We're confident that with a little extra support, you'll complete this unit successfully and continue making great progress in your studies.</p>`;
+
     } else {
-      textBody = `${name},\n\nYour ${courseName} submission ${unitLetter} has been marked. You may now review your marks and your tutor's audio feedback at the Online Student Center (https://studentcenter.qccareerschool.com).`;
-      htmlBody = `<p>${name},</p><p>Your ${courseName} submission ${this.sanitizerService.sanitizeHtml(unitLetter)} has been marked. You may now review your marks and your tutor's audio feedback at the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>.</p>`;
+      textBody = `*Your Submission B has been reviewed and you received a ${grade}.${[ 'B-', 'B', 'B+', 'A-', 'A', 'A+' ].includes(grade) ? ' Congratulations!' : ''}*\n\n`;
+      htmlBody = `<h4>Your Submission B has been reviewed and you received a ${grade}.${[ 'B-', 'B', 'B+', 'A-', 'A', 'A+' ].includes(grade) ? ' Congratulations!' : ''}</h4>`;
+
+      textBody += `You can now listen to your tutor's audio feedback in the Online Student Center (https://studentcenter.qccareerschool.com). We hope it helps you grow and improve as you move forward in your course.\n\n`;
+      htmlBody += `<p>You can now listen to your tutor's audio feedback in the <a href="https://studentcenter.qccareerschool.com">Online Student Center</a>. We hope it helps you grow and improve as you move forward in your course.</p>`;
+
+      const reviewUrl = this.getReviewUrl(schoolName);
+      if ([ 'B+', 'A-', 'A', 'A+' ].includes(grade) && reviewUrl) {
+        textBody += `*We'd love to hear how your course is going!*\n\nIf you have a moment, please consider sharing your experience by leaving us a review on Google (${reviewUrl}). Your feedback means a lot to us and helps others make informed decisions!`;
+        htmlBody += `<h4>We'd love to hear how your course is going!</h4><p>If you have a moment, please consider sharing your experience <a href="${reviewUrl}">by leaving us a review on Google</a>. Your feedback means a lot to us and helps others make informed decisions!`;
+      }
     }
 
-    await this.emailService.send(name, to, subject, htmlBody, textBody);
+    await this.emailService.send(firstName, to, subject, htmlBody, textBody, undefined, { bcc: 'dave@qccareerschool.com' });
   }
 
   private async sendFailedEmail(courseCode: string, studentNumber: number, unitLetter: string): Promise<void> {
@@ -441,7 +459,7 @@ Your Team at QC
 
 P.S. We'd love to share your story to inspire others! Just reply to this email if you'd like to be featured.
 `;
-    await this.emailService.send(name, to, subject, htmlBody, txtBody, undefined, { 'bcc': 'dave@qccareerschool.com', 'reply-to': 'info@qccareerschool.com' });
+    await this.emailService.send(name, to, subject, htmlBody, txtBody, undefined, { 'reply-to': 'info@qccareerschool.com' });
   }
 
   private getAwardUrl(schoolName: string, submissionId: string): string {
@@ -462,5 +480,18 @@ P.S. We'd love to share your story to inspire others! Just reply to this email i
 
   private allowedSchool(schoolName: string): boolean {
     return [ 'QC Design School', 'QC Event School', 'QC Makeup Academy', 'QC Pet Studies' ].includes(schoolName);
+  }
+
+  private getReviewUrl(schoolName: string): string | undefined {
+    switch (schoolName) {
+      case 'QC Design School':
+        return 'https://g.page/r/CSBpJ7EUV5BlEAE/review';
+      case 'QC Event School':
+        return 'https://g.page/r/CYFHXcguiSvZEBM/review';
+      case 'QC Makeup Academy':
+        return 'https://g.page/r/CUjPhFM_xCePEBM/review';
+      case 'QC Pet Studies':
+        return 'https://g.page/r/CecVjVSoL9bwEBM/review';
+    }
   }
 }
