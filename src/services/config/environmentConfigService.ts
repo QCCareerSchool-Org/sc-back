@@ -85,6 +85,15 @@ export class EnvironmentConfigService implements IConfigService {
       throw Error('Environment variable MATERIAL_IMAGE_MAX_FILESIZE is invalid');
     }
 
+    const materialUploadTimeout = process.env.MATERIAL_UPLOAD_TIMEOUT;
+    if (typeof materialUploadTimeout === 'undefined') {
+      throw Error('Environment variable MATERIAL_UPLOAD_TIMEOUT is undefined');
+    }
+    const materialUploadTimeoutNumber = parseInt(materialUploadTimeout, 10);
+    if (isNaN(materialUploadTimeoutNumber)) {
+      throw Error('Environment variable MATERIAL_UPLOAD_TIMEOUT is invalid');
+    }
+
     const downloadMaxFileSize = process.env.DOWNLOAD_MAX_FILESIZE;
     if (typeof downloadMaxFileSize === 'undefined') {
       throw Error('Environment variable DOWNLOAD_MAX_FILESIZE is undefined');
@@ -130,6 +139,7 @@ export class EnvironmentConfigService implements IConfigService {
       lessonArchiveMaxFileSize: lessonArchiveMaxFileSizeNumber,
       downloadMaxFileSize: downloadMaxFileSizeNumber,
       materialImageMaxFileSize: materialImageMaxFileSizeNumber,
+      materialUploadTimeout: materialUploadTimeoutNumber,
       auth: {
         cookieDomain: process.env.COOKIE_DOMAIN ?? 'studentcenter.qccareerschool.com',
         cookiePath: process.env.COOKIE_PATH ?? '/api/sc',

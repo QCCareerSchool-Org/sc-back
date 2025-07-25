@@ -129,6 +129,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
           return transaction.newSubmission.update({
             data: {
               submitted: prismaNow,
+              transferred: null,
               skipped: false,
               tutorId: tutor.tutorId,
               tutorComment: null,
