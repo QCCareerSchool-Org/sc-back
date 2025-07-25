@@ -22,6 +22,7 @@ import { DownloadNewPartMediumController } from '../../controllers/administrator
 import { DownloadNewSubmissionFeedbackController } from '../../controllers/administrators/downloadNewSubmissionFeedbackController.js';
 import { DownloadNewUploadSlotController } from '../../controllers/administrators/downloadNewUploadSlotController.js';
 import { EnableCourseController } from '../../controllers/administrators/enableCourseController.js';
+import { GetAllAwardsOfExcellenceController } from '../../controllers/administrators/getAllAwardsOfExcellenceController.js';
 import { GetAllCountriesController } from '../../controllers/administrators/getAllCountriesController.js';
 import { GetAllCoursesController } from '../../controllers/administrators/getAllCoursesController.js';
 import { GetAllCurrenciesController } from '../../controllers/administrators/getAllCurrenciesController.js';
@@ -167,6 +168,8 @@ const routes: Route[] = [
   [ 'put', '/:administratorId/materials/:materialId/image', ReplaceMaterialImageController, multer({ dest: '/tmp/web/' }).single('image') ],
   [ 'delete', '/:administratorId/materials/:materialId/image', DeleteMaterialImageController ],
   [ 'put', '/:administratorId/materials/:materialId/content', ReplaceMaterialContentController, multer({ dest: '/tmp/web/' }).single('content') ],
+
+  [ 'get', '/:administratorId/awardsOfExcellence', GetAllAwardsOfExcellenceController ],
 ];
 
 applyRoutes(administratorRouter, routes);

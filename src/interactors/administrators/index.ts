@@ -25,6 +25,7 @@ import { GetAllCoursesInteractor } from './getAllCoursesInteractor.js';
 import { GetAllCurrenciesInteractor } from './getAllCurrenciesInteractor.js';
 import { GetAllSchoolsInteractor } from './getAllSchoolsInteractor.js';
 import { GetAllTutorsBySchoolInteractor } from './getAllTutorsBySchoolInteractor.js';
+import { GetAllAwardsOfExcellenceInteractor } from './getAwardsOfExcellenceInteractor.js';
 import { GetCountryInteractor } from './getCountryInteractor.js';
 import { GetCourseInteractor } from './getCourseInteractor.js';
 import { GetMaterialInteractor } from './getMaterialInteractor.js';
@@ -155,3 +156,5 @@ export const deleteAllNewSubmissionsInteractor = new DeleteAllNewSubmissionsInte
 export const getAllTutorsBySchoolInteractor = new GetAllTutorsBySchoolInteractor(prisma, dateService, winstonLoggerService);
 
 export const restartNewSubmissionInteractor = new RestartNewSubmissionInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
+
+export const getAllAwardsOfExcellenceInteractor = new GetAllAwardsOfExcellenceInteractor(prisma, winstonLoggerService, uuidService, dateService);

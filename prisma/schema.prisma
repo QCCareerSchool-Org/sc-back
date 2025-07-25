@@ -2294,7 +2294,7 @@ model EnrollmentsOnMetadata {
 }
 
 model AwardOfExcellence {
-  submissionId       Bytes                    @id @map("submission_id") @db.Binary(16)
+  submissionId       Bytes                    @id @db.Binary(16)
   grade              String                   @db.VarChar(2)
   created            DateTime                 @default(now()) @db.Timestamp(0)
   newSubmission      NewSubmission            @relation(fields: [submissionId], references: [submissionId], onDelete: Restrict, map: "awards_of_excellence_ibfk_1")
