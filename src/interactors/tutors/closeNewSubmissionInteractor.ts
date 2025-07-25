@@ -304,6 +304,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         const grade = this.gradeService.calculate(submissionMark / submissionPoints);
         const schoolName = newSubmission.enrollment.course.school.name;
         if (this.allowedSchool(schoolName) && submissionPoints > 0 && allowedGrades.includes(grade)) {
+          await this.prisma.awardOfExcellence.create({ data: { submissionId: submissionIdBin, grade, created: prismaNow } });
           await this.sendAwardOfExcellenceEmail(studentName, newSubmission.enrollment.student.emailAddress, grade, newSubmission.enrollment.course.name, schoolName, submissionId);
         }
       }

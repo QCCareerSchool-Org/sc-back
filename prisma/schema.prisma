@@ -1391,6 +1391,7 @@ model NewSubmission {
   prices             NewSubmissionPrice[]
   returns            NewSubmissionReturn[]
   newTransfers       NewTransfer[]
+  awardOfExcellence  AwardOfExcellence?
   // badges             NewSubmissionsOnBadges[]
 
   @@unique([submissionId, entityVersion], map: "submission_id_entity_version")
@@ -2290,4 +2291,13 @@ model EnrollmentsOnMetadata {
 
   @@map("enrollments_metadata")
   @@id(name: "id", [enrollmentId, metadataId])
+}
+
+model AwardOfExcellence {
+  submissionId       Bytes                    @id @map("submission_id") @db.Binary(16)
+  grade              String                   @db.VarChar(2)
+  created            DateTime                 @default(now()) @db.Timestamp(0)
+  newSubmission      NewSubmission            @relation(fields: [submissionId], references: [submissionId], onDelete: Restrict, map: "awards_of_excellence_ibfk_1")
+
+  @@map("awards_of_excellence")
 }
