@@ -226,6 +226,14 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         }
       }
 
+      if (this.shouldSendExternshipEmail(newSubmission, submissionPoints, submissionMark)) {
+        try {
+          await this.sendExternshipEmail(newSubmission);
+        } catch (err) {
+          this.logger.error('Error sending HS kit email', err);
+        }
+      }
+
       submissionComplete = true;
       submissionMarked = true;
       submissionPoints = 0;
@@ -364,6 +372,10 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     return submission.enrollment.studentNumber <= 143347 && submission.enrollment.course.code === 'HS' && submission.unitLetter === 'A' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
   }
 
+  private shouldSendExternshipEmail(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
+    return submission.enrollment.course.code === 'DE' && submission.unitLetter === 'G' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+  }
+
   private async sendDGKitShippingEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
     const name = 'Shipping Department';
     const to = 'shipping@qccareerschool.com';
@@ -379,6 +391,17 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
     const to = 'shipping@qccareerschool.com';
     const body = [ `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked. Please ship all applicable kits for _any_ makeup courses that haven't already been shipped.`, 'Please check the student file to verify which kits the student should receive.' ];
     const subject = `${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
+    const textBody = body.join('\n\n');
+    const htmlBody = body.map(b => `<p>${b}</p>`).join('\n');
+
+    await this.emailService.send(name, to, subject, htmlBody, textBody);
+  }
+
+  private async sendExternshipEmail(submission: NewSubmission & { enrollment: Enrollment & { student: Student; course: Course } }): Promise<void> {
+    const name = 'Externship Admin';
+    const to = 'info@qccareerschool.com';
+    const body = [ `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName} (${submission.enrollment.course.code}${submission.enrollment.studentNumber})'s Submission ${submission.unitLetter} has been marked.` ];
+    const subject = `[Externship] ${submission.enrollment.course.code}${submission.enrollment.studentNumber} Submission ${submission.unitLetter} Has Been Marked`;
     const textBody = body.join('\n\n');
     const htmlBody = body.map(b => `<p>${b}</p>`).join('\n');
 
