@@ -24,7 +24,6 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
 
   public constructor(
     private readonly prisma: PrismaClient,
-    private readonly uuidService: IUUIDService,
     private readonly gradeService: IGradeService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
@@ -35,7 +34,6 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
         where: { submissionId },
         include: {
           enrollment: { include: { student: true, course: { include: { school: true } } } },
-          oldAssignments: { include: { oldParts: true } },
           quizzes: true,
         },
       });
