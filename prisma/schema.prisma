@@ -1781,7 +1781,7 @@ model OldSubmission {
   currency         Currency?         @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, map: "units_submitted_ibfk_3")
   enrollment       Enrollment        @relation(fields: [enrollmentId], references: [enrollmentId], onDelete: Cascade, map: "units_submitted_ibfk_2")
   tutor            Tutor?            @relation(fields: [tutorId], references: [tutorId], onDelete: Restrict, map: "units_submitted_ibfk_1")
-  oldAssignment    OldAssignment[]
+  oldAssignments   OldAssignment[]
   quizzes          Quiz[]
   return           Return?
   transfers        Transfer[]

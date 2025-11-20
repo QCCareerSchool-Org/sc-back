@@ -1,6 +1,6 @@
 export type AwardDTO = {
   /** uuid */
-  submissionId: string;
+  submissionId: string | number;
   courseName: string;
   schoolName: string;
   unitLetter: string;

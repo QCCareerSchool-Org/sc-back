@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { DownloadCourseHeaderImageController } from '../../controllers/downloadCourseHeaderImageController.js';
 import { DownloadCourseIconImageController } from '../../controllers/downloadCourseIconImageController.js';
 import { GetAwardController } from '../../controllers/getAwardController.js';
+import { GetOldAwardController } from '../../controllers/getOldAwardController.js';
 import { GetVideoController } from '../../controllers/getVideoController.js';
 import { InsertSurveyCompletionController } from '../../controllers/insertSurveyCompletionController.js';
 import type { Route } from './applyRoutes.js';
@@ -16,6 +17,7 @@ const routes: Route[] = [
   [ 'get', '/videos/:videoId', GetVideoController ],
   [ 'post', '/surveys/:surveyId/completions', InsertSurveyCompletionController ],
   [ 'get', '/awards/:submissionId', GetAwardController ],
+  [ 'get', '/oldAwards/:submissionId', GetOldAwardController ],
 ];
 
 applyRoutes(router, routes);

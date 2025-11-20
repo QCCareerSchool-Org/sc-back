@@ -5,6 +5,7 @@ import { dateService, environmentConfigService, gradeService, nodeCryptoService,
 import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
 import { DownloadCourseIconImageInteractor } from './downloadCourseIconImageInteractor.js';
 import { GetAwardInteractor } from './getAwardInteractor.js';
+import { GetOldAwardInteractor } from './getOldAwardInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InsertSurveyCompletionInteractor } from './insertSurveyCompletionInteractor.js';
 import type { ResultType } from './result.js';
@@ -55,3 +56,4 @@ export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, wi
 export const insertSurveyCompletionInteractor = new InsertSurveyCompletionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const validateHMACInteractor = new ValidateHMACInteractor(environmentConfigService, nodeCryptoService, winstonLoggerService);
 export const getAwardInteractor = new GetAwardInteractor(prisma, uuidService, gradeService, winstonLoggerService);
+export const getOldAwardInteractor = new GetOldAwardInteractor(prisma, uuidService, gradeService, winstonLoggerService);

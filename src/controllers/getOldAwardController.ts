@@ -1,24 +1,23 @@
 import * as yup from 'yup';
 
-import type { GetAwardResponseDTO } from '../interactors/getAwardInteractor.js';
-import { GetAwardGradeTooLow, GetAwardNoPoints, GetAwardNotFound, GetAwardNotMarked } from '../interactors/getAwardInteractor.js';
-import { getAwardInteractor } from '../interactors/index.js';
+import type { GetOldAwardResponseDTO } from '../interactors/getOldAwardInteractor.js';
+import { GetOldAwardGradeTooLow, GetOldAwardNoPoints, GetOldAwardNotFound, GetOldAwardNotMarked } from '../interactors/getOldAwardInteractor.js';
+import { getOldAwardInteractor } from '../interactors/index.js';
 import { BaseController } from './baseController.js';
 
 type Request = {
   params: {
-    /** uuid */
-    submissionId: string;
+    submissionId: number;
   };
 };
 
-type Response = GetAwardResponseDTO;
+type Response = GetOldAwardResponseDTO;
 
-export class GetAwardController extends BaseController<Request, Response> {
+export class GetOldAwardController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
-      submissionId: yup.string().matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu).defined(),
+      submissionId: yup.number().integer().positive().defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -38,17 +37,17 @@ export class GetAwardController extends BaseController<Request, Response> {
       return this.methodNotAllowed();
     }
 
-    const result = await getAwardInteractor.execute({ submissionId: params.submissionId });
+    const result = await getOldAwardInteractor.execute({ submissionId: params.submissionId });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case GetAwardNotFound:
-      case GetAwardNotMarked:
-      case GetAwardNoPoints:
-      case GetAwardGradeTooLow:
+      case GetOldAwardNotFound:
+      case GetOldAwardNotMarked:
+      case GetOldAwardNoPoints:
+      case GetOldAwardGradeTooLow:
         return this.notFound('Award not found');
       default:
         return this.internalServerError(result.error.message);
