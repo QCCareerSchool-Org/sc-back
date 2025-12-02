@@ -361,7 +361,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
   }
 
   private shouldSendDGKit(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
-    return submission.enrollment.course.code === 'DG' && submission.unitLetter === 'B' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
+    return (submission.enrollment.course.code === 'DG' || submission.enrollment.course.code === 'DE') && submission.unitLetter === 'B' && (points === 0 || this.gradeService.calculate(mark / points) !== 'F');
   }
 
   private shouldSendMZKit(submission: NewSubmission & { enrollment: { studentNumber: number; course: Course } }, points: number, mark: number): boolean {
