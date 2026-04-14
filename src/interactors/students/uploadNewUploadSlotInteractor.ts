@@ -7,6 +7,7 @@ import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
+import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileMemoryUpload } from '../index.js';
@@ -51,6 +52,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
     private readonly sanitizerService: ISanitizerService,
     dateService: IDateService,
     private readonly configService: IConfigService,
+    private readonly mimeTypeService: IMimeTypeService,
     private readonly logger: ILoggerService,
   ) {
     super(dateService);
@@ -84,6 +86,11 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
       if (file.size > this.configService.config.uploadSlotMaxFilesize) {
         return Result.fail(new UploadNewUploadSlotFileTooLarge());
+      }
+
+      const realMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
+      if (realMimeType !== file.mimeType) {
+        this.logger.warn(`Reported file type does not match ${realMimeType}`, { studentId, courseId, filename: file.filename, size: file.size, mimeType: file.mimeType });
       }
 
       if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {
