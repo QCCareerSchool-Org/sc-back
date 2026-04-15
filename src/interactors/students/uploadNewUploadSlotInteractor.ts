@@ -113,6 +113,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
           convertedFromMimeType = realMimeType;
         } else {
           this.logger.error(`Unable to convert ${realMimeType}`, conversionResult.error.message);
+          return Result.fail(new UploadNewUploadSlotUnsupportedFileType());
         }
       }
 
