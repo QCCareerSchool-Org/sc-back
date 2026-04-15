@@ -13,7 +13,7 @@ export class ImageConversionService implements IImageConversionService {
     return Buffer.from(converted);
   }
 
-  public setFileExtension(filename: string, newExtension: string): string {
+  public withFileExtension(filename: string, newExtension: string): string {
     // Find the last dot to identify the current extension
     const lastDotIndex = filename.lastIndexOf('.');
 

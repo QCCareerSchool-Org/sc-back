@@ -99,17 +99,34 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       let uploadMimeType = file.mimeType;
       let uploadFilename = file.filename;
       let uploadSize = file.size;
+      let convertedFromHeic = false;
 
       if (this.isHeicMimeType(realMimeType)) {
         uploadData = await this.imageConversionService.heicToJpg(file.data);
         uploadMimeType = 'image/jpeg';
-        uploadFilename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
+        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
         uploadSize = uploadData.byteLength;
+        convertedFromHeic = true;
       }
 
       if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
         this.logger.info('Invalid mime type', uploadMimeType);
         return Result.fail(new UploadNewUploadSlotInvalidFileType());
+      }
+
+      const sanitizedUploadFilename = this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(uploadFilename));
+      if (convertedFromHeic) {
+        this.logger.info('Converted HEIC upload slot file', {
+          studentId,
+          courseId,
+          uploadSlotId,
+          originalFilename: file.filename,
+          storedFilename: sanitizedUploadFilename,
+          detectedMimeType: realMimeType,
+          storedMimeType: uploadMimeType,
+          originalSize: file.size,
+          storedSize: uploadSize,
+        });
       }
 
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
@@ -126,7 +143,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
         const updated = await transaction.newUploadSlot.update({
           data: {
-            filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(uploadFilename)),
+            filename: sanitizedUploadFilename,
             filesize: uploadSize,
             mimeTypeId: mimeType.mimeTypeId,
             compressed: mimeType.compress,
@@ -163,6 +180,16 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
         return updated;
       });
+
+      if (convertedFromHeic && updatedUploadSlot.filename !== sanitizedUploadFilename) {
+        this.logger.warn('Converted HEIC upload slot filename changed after update', {
+          studentId,
+          courseId,
+          uploadSlotId,
+          expectedFilename: sanitizedUploadFilename,
+          updatedFilename: updatedUploadSlot.filename,
+        });
+      }
 
       return Result.success({
         uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),

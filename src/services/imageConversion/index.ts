@@ -9,7 +9,7 @@ export interface IImageConversionService {
    * @param {string} newExtension The new extension to use (e.g. "jpg")
    * @returns {string} A filename with the new extension
    */
-  setFileExtension: (filename: string, newExtension: string) => string;
+  withFileExtension: (filename: string, newExtension: string) => string;
 }
 
 export const imageConversionService = new ImageConversionService();
