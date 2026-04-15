@@ -102,8 +102,9 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       let uploadSize = file.size;
       let convertedFromMimeType: string | null = null;
 
-      if (this.isHeicMimeType(realMimeType)) {
-        const conversionResult = await this.imageConversionService.heicToJpg(file.data);
+      const converter = this.getImageToJpgConverter(realMimeType);
+      if (converter) {
+        const conversionResult = await converter(file.data);
         if (conversionResult.success) {
           uploadData = conversionResult.value;
           uploadMimeType = 'image/jpeg';
@@ -111,29 +112,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
           uploadSize = uploadData.byteLength;
           convertedFromMimeType = realMimeType;
         } else {
-          this.logger.error('Unable to convert HEIC', conversionResult.error.message);
-        }
-      } else if (this.isAvifMimeType(realMimeType)) {
-        const conversionResult = await this.imageConversionService.avifToJpg(file.data);
-        if (conversionResult.success) {
-          uploadData = conversionResult.value;
-          uploadMimeType = 'image/jpeg';
-          uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
-          uploadSize = uploadData.byteLength;
-          convertedFromMimeType = realMimeType;
-        } else {
-          this.logger.error('Unable to convert AVIF', conversionResult.error.message);
-        }
-      } else if (this.isWebpMimeType(realMimeType)) {
-        const conversionResult = await this.imageConversionService.webpToJpg(file.data);
-        if (conversionResult.success) {
-          uploadData = conversionResult.value;
-          uploadMimeType = 'image/jpeg';
-          uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
-          uploadSize = uploadData.byteLength;
-          convertedFromMimeType = realMimeType;
-        } else {
-          this.logger.error('Unable to convert WebP', conversionResult.error.message);
+          this.logger.error(`Unable to convert ${realMimeType}`, conversionResult.error.message);
         }
       }
 
@@ -279,5 +258,18 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
   private isWebpMimeType(mimeType: string): boolean {
     return mimeType === 'image/webp';
+  }
+
+  private getImageToJpgConverter(mimeType: string): ((buffer: Buffer) => ReturnType<IImageConversionService['heicToJpg'] | IImageConversionService['avifToJpg'] | IImageConversionService['webpToJpg']>) | null {
+    if (this.isHeicMimeType(mimeType)) {
+      return async buffer => this.imageConversionService.heicToJpg(buffer);
+    }
+    if (this.isAvifMimeType(mimeType)) {
+      return async buffer => this.imageConversionService.avifToJpg(buffer);
+    }
+    if (this.isWebpMimeType(mimeType)) {
+      return async buffer => this.imageConversionService.webpToJpg(buffer);
+    }
+    return null;
   }
 }
