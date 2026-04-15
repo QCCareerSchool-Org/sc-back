@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewTextBoxRequestDTO = {
   /** uuid */
@@ -42,23 +42,23 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         },
       });
       if (!textBox) {
-        return Result.fail(new SaveNewTextBoxNotFound());
+        return failure(new SaveNewTextBoxNotFound());
       }
 
       // submission must be submitted and can't be skipped
       if (!textBox.newPart.newAssignment.newSubmission.submitted || (textBox.newPart.newAssignment.newSubmission.submitted && textBox.newPart.newAssignment.newSubmission.skipped)) {
-        return Result.fail(new SaveNewTextBoxSubmissionNotSubmitted());
+        return failure(new SaveNewTextBoxSubmissionNotSubmitted());
       }
 
       // submission must be closed
       if (!textBox.newPart.newAssignment.newSubmission.closed) {
-        return Result.fail(new SaveNewTextBoxSubmissionNotClosed());
+        return failure(new SaveNewTextBoxSubmissionNotClosed());
       }
 
       // validate the data
       if (request.markOverride !== null) {
         if (request.markOverride < 0 || request.markOverride > textBox.points) {
-          return Result.fail(new SaveNewTextBoxMarkOverrideOutOfRange());
+          return failure(new SaveNewTextBoxMarkOverrideOutOfRange());
         }
       }
 
@@ -72,7 +72,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         where: { textBoxId: textBoxIdBin },
       });
 
-      return Result.success({
+      return success({
         textBoxId: this.uuidService.binToUUID(updatedTextBox.textBoxId),
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
@@ -91,7 +91,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
 
     } catch (err) {
       this.logger.error('error updating text box', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

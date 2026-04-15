@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CountryDTO } from '../../domain/countryDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { CurrencyDTO } from '../../domain/currencyDTO.js';
@@ -10,8 +12,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewSubmissionTemplateRequestDTO = {
   submissionId: string;
@@ -50,10 +50,10 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
         },
       });
       if (!submissionTemplate) {
-        return Result.fail(new GetNewSubmissionTemplateNotFound());
+        return failure(new GetNewSubmissionTemplateNotFound());
       }
 
-      return Result.success({
+      return success({
         submissionTemplateId: this.uuidService.binToUUID(submissionTemplate.submissionTemplateId),
         courseId: submissionTemplate.courseId,
         unitLetter: submissionTemplate.unitLetter,
@@ -118,7 +118,7 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
 
     } catch (err) {
       this.logger.error('error getting submission template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

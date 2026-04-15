@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -9,8 +11,6 @@ import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type UploadNewSubmissionFeedbackRequestDTO = {
   tutorId: number;
@@ -61,28 +61,28 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
       });
 
       if (!newSubmission) {
-        return Result.fail(new UploadNewSubmissionFeedbackNotFound());
+        return failure(new UploadNewSubmissionFeedbackNotFound());
       }
 
       if (!newSubmission.submitted) {
-        return Result.fail(new UploadNewSubmissionFeedbackSubmissionNotSubmitted());
+        return failure(new UploadNewSubmissionFeedbackSubmissionNotSubmitted());
       }
 
       if (newSubmission.skipped) {
-        return Result.fail(new UploadNewSubmissionFeedbackSubmissionSkipped());
+        return failure(new UploadNewSubmissionFeedbackSubmissionSkipped());
       }
 
       if (newSubmission.closed) {
-        return Result.fail(new UploadNewSubmissionFeedbackSubmissionAlreadyClosed());
+        return failure(new UploadNewSubmissionFeedbackSubmissionAlreadyClosed());
       }
 
       if (newSubmission.tutorId !== tutorId) {
-        return Result.fail(new UploadNewSubmissionFeedbackWrongTutor());
+        return failure(new UploadNewSubmissionFeedbackWrongTutor());
       }
 
       const detectedMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
       if (detectedMimeType !== file.mimeType) {
-        return Result.fail(new UploadNewSubmissionFeedbackMimeTypeDoesntMatch(detectedMimeType, file.mimeType));
+        return failure(new UploadNewSubmissionFeedbackMimeTypeDoesntMatch(detectedMimeType, file.mimeType));
       }
 
       const updatedSubmission = await this.prisma.$transaction(async transaction => {
@@ -200,7 +200,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
         }
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -231,7 +231,7 @@ export class UploadNewSubmissionFeedbackInteractor implements IInteractor<Upload
 
     } catch (err) {
       this.logger.error('error uploading new submission feedback', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

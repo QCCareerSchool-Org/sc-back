@@ -1,14 +1,14 @@
 import type { NewPartTemplate, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewPartTemplateRequestDTO = {
   partId: string;
@@ -55,45 +55,45 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         },
       });
       if (!partTemplate) {
-        return Result.fail(new SaveNewPartTemplateNotFound());
+        return failure(new SaveNewPartTemplateNotFound());
       }
 
       if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewPartTemplateSubmissionsEnabled());
+        return failure(new SaveNewPartTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (title.length === 0) {
-        return Result.fail(new SaveNewPartTemplatePartTitleEmpty());
+        return failure(new SaveNewPartTemplatePartTitleEmpty());
       }
       if ([ ...title ].length > 191) {
-        return Result.fail(new SaveNewPartTemplatePartTitleTooLong());
+        return failure(new SaveNewPartTemplatePartTitleTooLong());
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new SaveNewPartTemplateDescriptionTooLong());
+          return failure(new SaveNewPartTemplateDescriptionTooLong());
         }
       }
 
       if (descriptionType.length === 0) {
-        return Result.fail(new SaveNewPartTemplateDescriptionTypeEmpty());
+        return failure(new SaveNewPartTemplateDescriptionTypeEmpty());
       }
       if (!isNewDescriptionType(descriptionType)) {
-        return Result.fail(new SaveNewPartTemplateInvalidDescriptionType());
+        return failure(new SaveNewPartTemplateInvalidDescriptionType());
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new SaveNewPartTemplateMarkingCriteriaTooLong());
+          return failure(new SaveNewPartTemplateMarkingCriteriaTooLong());
         }
       }
 
       if (partNumber < 1) {
-        return Result.fail(new SaveNewPartTemplatePartNumberLessThanOne());
+        return failure(new SaveNewPartTemplatePartNumberLessThanOne());
       }
       if (partNumber > 127) {
-        return Result.fail(new SaveNewPartTemplatePartNumberTooLarge());
+        return failure(new SaveNewPartTemplatePartNumberTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -116,13 +116,13 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'assignment_template_id_part_number') {
-            return Result.fail(new SaveNewPartTemplatePartNumberAlreadyInUse());
+            return failure(new SaveNewPartTemplatePartNumberAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         partTemplateId: this.uuidService.binToUUID(updatedPartTemplate.partTemplateId),
         assignmentTemplateId: this.uuidService.binToUUID(updatedPartTemplate.assignmentTemplateId),
         partNumber: updatedPartTemplate.partNumber,
@@ -136,7 +136,7 @@ export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTem
 
     } catch (err) {
       this.logger.error('error saving part template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { StudentDTO } from '../../domain/administrators/studentDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
@@ -12,8 +14,6 @@ import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewSubmissionReturnRequestDTO = {
   submissionReturnId: string;
@@ -62,11 +62,11 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
         },
       });
       if (!submissionReturn) {
-        return Result.fail(new GetNewSubmissionReturnNotFound());
+        return failure(new GetNewSubmissionReturnNotFound());
       }
 
       if (!submissionReturn.newSubmission.tutor) {
-        return Result.fail(new GetNewSubmissionReturnTutorNotFound());
+        return failure(new GetNewSubmissionReturnTutorNotFound());
       }
 
       let submissionComplete = true;
@@ -148,7 +148,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
         }
       }
 
-      return Result.success({
+      return success({
         submissionReturnId: this.uuidService.binToUUID(submissionReturn.submissionReturnId),
         submissionId: this.uuidService.binToUUID(submissionReturn.submissionId),
         returned: this.dateService.fixPrismaReadDate(submissionReturn.returned),
@@ -254,7 +254,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
 
     } catch (err) {
       this.logger.error('error getting submission template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type InitializeNextNewSubmissionRequestDTO = {
@@ -50,20 +50,20 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
       this.checkEnrollment(enrollment);
 
       if (!enrollment) {
-        return Result.fail(new InitializeNextNewSubmissionEnrollmentNotFound());
+        return failure(new InitializeNextNewSubmissionEnrollmentNotFound());
       }
 
       if (enrollment.assignmentsDisabled) {
-        return Result.fail(new InitializeNextNewSubmissionAssignmentsDisabled());
+        return failure(new InitializeNextNewSubmissionAssignmentsDisabled());
       }
 
       // make sure there are no open (unskipped or unmarked) submissions
       if (!enrollment.newSubmissions.every(u => u.skipped || u.closed)) {
-        return Result.fail(new InitializeNextNewSubmissionNotReady());
+        return failure(new InitializeNextNewSubmissionNotReady());
       }
 
       if (!enrollment.course.submissionsEnabled) {
-        return Result.fail(new InitializeNextCourseDisabled());
+        return failure(new InitializeNextCourseDisabled());
       }
 
       // determine what the next submission should be
@@ -86,12 +86,12 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
 
       // no more submissions remaining
       if (!submissionFound) {
-        return Result.fail(new InitializeNextNewSubmissionNoMoreSubmissions());
+        return failure(new InitializeNextNewSubmissionNoMoreSubmissions());
       }
 
       // this should never happen, but is needed for type safety
       if (typeof unitLetter === 'undefined') {
-        return Result.fail(new InitializeNextNewSubmissionCantDetermineSubmission());
+        return failure(new InitializeNextNewSubmissionCantDetermineSubmission());
       }
 
       // Fix for DG120097
@@ -120,34 +120,34 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
         },
       });
       if (!nextSubmissionTemplate) {
-        return Result.fail(new InitializeNextNewSubmissionTemplateNotFound());
+        return failure(new InitializeNextNewSubmissionTemplateNotFound());
       }
 
       const defaultPriceCount = nextSubmissionTemplate.prices.filter(p => p.countryId === null).length;
       if (defaultPriceCount < 1) {
         this.logger.error(`No default price found for ${this.uuidService.binToUUID(nextSubmissionTemplate.submissionTemplateId)}`);
-        return Result.fail(new InitializeNextNewSubmissionDefaultPriceNotFound());
+        return failure(new InitializeNextNewSubmissionDefaultPriceNotFound());
       }
       if (defaultPriceCount > 1) {
         this.logger.error(`Multiple default prices found for ${this.uuidService.binToUUID(nextSubmissionTemplate.submissionTemplateId)}`);
-        return Result.fail(new InitializeNextNewSubmissionMultipleDefaultPricesFound());
+        return failure(new InitializeNextNewSubmissionMultipleDefaultPricesFound());
       }
 
       // make sure the submission has assignments
       if (nextSubmissionTemplate.newAssignmentTemplates.length === 0) {
-        return Result.fail(new InitializeNextNewSubmissionNoAssignmentsFound());
+        return failure(new InitializeNextNewSubmissionNoAssignmentsFound());
       }
 
       // make sure the each assignment has parts
       for (const assignment of nextSubmissionTemplate.newAssignmentTemplates) {
         if (assignment.newPartTemplates.length === 0) {
-          return Result.fail(new InitializeNextNewSubmissionNoPartsFound());
+          return failure(new InitializeNextNewSubmissionNoPartsFound());
         }
 
         // make sure each part has inputs
         for (const part of assignment.newPartTemplates) {
           if (part.newTextBoxTemplates.length === 0 && part.newUploadSlotTemplates.length === 0) {
-            return Result.fail(new InitializeNextNewSubmissionNoInputsFound());
+            return failure(new InitializeNextNewSubmissionNoInputsFound());
           }
         }
       }
@@ -289,7 +289,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
         include: { newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } }, parent: true },
       });
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(nextSubmission.submissionId),
         enrollmentId: nextSubmission.enrollmentId,
         tutorId: nextSubmission.tutorId,
@@ -320,7 +320,7 @@ export class InitializeNextNewSubmissionInteractor extends StudentInteractor<Ini
 
     } catch (err) {
       this.logger.error('error initializing new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

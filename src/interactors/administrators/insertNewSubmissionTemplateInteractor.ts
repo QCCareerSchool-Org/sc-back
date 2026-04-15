@@ -1,13 +1,13 @@
 import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewSubmissionTemplateRequestDTO = {
   courseId: number;
@@ -51,47 +51,47 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
         where: { courseId },
       });
       if (!course) {
-        return Result.fail(new InsertNewSubmissionTemplateCourseNotFound());
+        return failure(new InsertNewSubmissionTemplateCourseNotFound());
       }
 
       if (course.submissionsEnabled) {
-        return Result.fail(new InsertNewSubmissionTemplateSubmissionsEnabled());
+        return failure(new InsertNewSubmissionTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (unitLetter.length === 0) {
-        return Result.fail(new InsertNewSubmissionTemplateSubmissionLetterEmpty());
+        return failure(new InsertNewSubmissionTemplateSubmissionLetterEmpty());
       }
       if (unitLetter.length > 1) {
-        return Result.fail(new InsertNewSubmissionTemplateSubmissionLetterTooLong());
+        return failure(new InsertNewSubmissionTemplateSubmissionLetterTooLong());
       }
       if (!/^[a-z0-9]$/iu.test(unitLetter)) {
-        return Result.fail(new InsertNewSubmissionTemplateInvalidSubmissionLetter());
+        return failure(new InsertNewSubmissionTemplateInvalidSubmissionLetter());
       }
 
       if (title !== null) {
         if ([ ...title ].length > 191) {
-          return Result.fail(new InsertNewSubmissionTemplateTitleTooLong());
+          return failure(new InsertNewSubmissionTemplateTitleTooLong());
         }
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new InsertNewSubmissionTemplateDescriptionTooLong());
+          return failure(new InsertNewSubmissionTemplateDescriptionTooLong());
         }
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new InsertNewSubmissionTemplateMarkingCriteriaTooLong());
+          return failure(new InsertNewSubmissionTemplateMarkingCriteriaTooLong());
         }
       }
 
       if (order < 0) {
-        return Result.fail(new InsertNewSubmissionTemplateOrderLessThanZero());
+        return failure(new InsertNewSubmissionTemplateOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new InsertNewSubmissionTemplateOrderTooLarge());
+        return failure(new InsertNewSubmissionTemplateOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -117,13 +117,13 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'course_id_submission_letter') {
-            return Result.fail(new InsertNewSubmissionTemplateSubmissionLetterAlreadyInUse());
+            return failure(new InsertNewSubmissionTemplateSubmissionLetterAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         submissionTemplateId: this.uuidService.binToUUID(insertedSubmissionTemplate.submissionTemplateId),
         courseId: insertedSubmissionTemplate.courseId,
         unitLetter: insertedSubmissionTemplate.unitLetter,
@@ -138,7 +138,7 @@ export class InsertNewSubmissionTemplateInteractor implements IInteractor<Insert
 
     } catch (err) {
       this.logger.error('error inserting submission template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

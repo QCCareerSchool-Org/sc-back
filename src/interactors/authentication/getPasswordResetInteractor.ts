@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { PasswordResetRequestDTO } from '../../domain/passwordResetRequestDTO.js';
 import type { IInteractor } from '../../interactors/index.js';
-import type { ResultType } from '../../interactors/result.js';
-import { Result } from '../../interactors/result.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 
@@ -32,14 +32,14 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
       });
 
       if (!passwordResetRequest) {
-        return Result.fail(new GetPasswordResetNotFound());
+        return failure(new GetPasswordResetNotFound());
       }
 
       if (passwordResetRequest.code !== code) {
-        return Result.fail(new GetPasswordResetInvalidCode());
+        return failure(new GetPasswordResetInvalidCode());
       }
 
-      return Result.success({
+      return success({
         id: passwordResetRequest.id,
         code: passwordResetRequest.code,
         studentId: passwordResetRequest.studentId,
@@ -54,7 +54,7 @@ export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetR
 
     } catch (err) {
       this.logger.error('error getting password reset', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

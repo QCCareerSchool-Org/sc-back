@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewAssignmentMediumRequestDTO = {
   mediumId: string;
@@ -45,26 +45,26 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         },
       });
       if (!assignmentMedium) {
-        return Result.fail(new SaveNewAssignmentMediumNotFound());
+        return failure(new SaveNewAssignmentMediumNotFound());
       }
 
       if (assignmentMedium.newAssignmentTemplate?.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewAssignmentMediumSubmissionsEnabled());
+        return failure(new SaveNewAssignmentMediumSubmissionsEnabled());
       }
 
       // validate the data
       if (caption.length === 0) {
-        return Result.fail(new SaveNewAssignmentMediumPartCaptionEmpty());
+        return failure(new SaveNewAssignmentMediumPartCaptionEmpty());
       }
       if ([ ...caption ].length > 191) {
-        return Result.fail(new SaveNewAssignmentMediumPartCaptionTooLong());
+        return failure(new SaveNewAssignmentMediumPartCaptionTooLong());
       }
 
       if (order < 0) {
-        return Result.fail(new SaveNewAssignmentMediumOrderLessThanZero());
+        return failure(new SaveNewAssignmentMediumOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new SaveNewAssignmentMediumOrderTooLarge());
+        return failure(new SaveNewAssignmentMediumOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -75,7 +75,7 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
         where: { assignmentMediumId: mediumIdBin },
       });
 
-      return Result.success({
+      return success({
         assignmentMediumId: this.uuidService.binToUUID(updatedAssignmentMedium.assignmentMediumId),
         assignmentTemplateId: updatedAssignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(updatedAssignmentMedium.assignmentTemplateId),
         mimeTypeId: updatedAssignmentMedium.mimeTypeId,
@@ -91,7 +91,7 @@ export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAss
 
     } catch (err) {
       this.logger.error('error saving assignment medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

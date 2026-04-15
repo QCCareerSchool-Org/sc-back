@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -11,8 +13,6 @@ import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type GetNewAssignmentRequestDTO = {
@@ -71,7 +71,7 @@ export class GetNewAssignmentInteractor extends StudentInteractor<GetNewAssignme
       });
 
       if (!assignment) {
-        return Result.fail(new GetNewAssignmentNotFound());
+        return failure(new GetNewAssignmentNotFound());
       }
 
       let assignmentComplete = true;
@@ -79,7 +79,7 @@ export class GetNewAssignmentInteractor extends StudentInteractor<GetNewAssignme
       let assignmentPoints = 0;
       let assignmentMark = 0;
 
-      return Result.success({
+      return success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
         submissionId: this.uuidService.binToUUID(assignment.submissionId),
         assignmentNumber: assignment.assignmentNumber,
@@ -239,7 +239,7 @@ export class GetNewAssignmentInteractor extends StudentInteractor<GetNewAssignme
 
     } catch (err) {
       this.logger.error('error getting new assignment', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

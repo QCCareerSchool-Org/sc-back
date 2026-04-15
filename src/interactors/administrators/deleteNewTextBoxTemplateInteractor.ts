@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteNewTextBoxTemplateRequestDTO = {
   textBoxId: string;
@@ -35,21 +35,21 @@ export class DeleteNewTextBoxTemplateInteractor implements IInteractor<DeleteNew
         },
       });
       if (!textBoxTemplate) {
-        return Result.fail(new DeleteNewTextBoxTemplateNotFound());
+        return failure(new DeleteNewTextBoxTemplateNotFound());
       }
 
       if (textBoxTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new DeleteNewTextBoxTemplateSubmissionsEnabled());
+        return failure(new DeleteNewTextBoxTemplateSubmissionsEnabled());
       }
 
       // delete the text box template
       await this.prisma.newTextBoxTemplate.delete({ where: { textBoxTemplateId: textBoxIdBin } });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting text box template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

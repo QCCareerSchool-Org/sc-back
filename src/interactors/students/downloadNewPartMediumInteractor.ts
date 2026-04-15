@@ -1,6 +1,8 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadNewPartMediumRequestDTO = {
@@ -76,11 +76,11 @@ export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadN
         },
       });
       if (!partMedium) {
-        return Result.fail(new DownloadNewPartMediumNotFound());
+        return failure(new DownloadNewPartMediumNotFound());
       }
 
       if (partMedium.externalData !== null) {
-        return Result.success(partMedium.externalData);
+        return success(partMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.partMediaPath}/${this.uuidService.binToUUID(partMedium.partMediumId)}`;
@@ -88,7 +88,7 @@ export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadN
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadNewPartMediumFileNotFound(filePath));
+        return failure(new DownloadNewPartMediumFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -104,7 +104,7 @@ export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadN
           throw new DownloadNewPartMediumFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           download: true,
           filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
@@ -122,10 +122,10 @@ export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadN
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadNewPartMediumFileReadError(filePath));
+        return failure(new DownloadNewPartMediumFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         download: true,
         filename: this.sanitizerService.sanitizeFilename(partMedium.filename ?? 'unknown'),
@@ -137,7 +137,7 @@ export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadN
 
     } catch (err) {
       this.logger.error('error downloading part medium file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

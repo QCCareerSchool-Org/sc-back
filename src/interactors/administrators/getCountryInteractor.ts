@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CountryDTO } from '../../domain/countryDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetCountryRequestDTO = {
   countryId: number;
@@ -27,10 +27,10 @@ export class GetCountryInteractor implements IInteractor<GetCountryRequestDTO, G
         where: { countryId },
       });
       if (!country) {
-        return Result.fail(new GetCountryNotFound());
+        return failure(new GetCountryNotFound());
       }
 
-      return Result.success({
+      return success({
         countryId: country.countryId,
         code: country.code,
         name: country.name,
@@ -39,7 +39,7 @@ export class GetCountryInteractor implements IInteractor<GetCountryRequestDTO, G
 
     } catch (err) {
       this.logger.error('error getting country', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

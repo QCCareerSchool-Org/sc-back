@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AwardDTO } from '../domain/awardDTO.js';
 import type { IGradeService } from '../services/grade/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
 import type { IUUIDService } from '../services/uuid/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor } from './index.js';
 
 export type GetOldAwardRequestDTO = {
@@ -39,11 +39,11 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
       });
 
       if (!oldSubmission) {
-        return Result.fail(new GetOldAwardNotFound());
+        return failure(new GetOldAwardNotFound());
       }
 
       if (oldSubmission.mark === null || oldSubmission.points === null) {
-        return Result.fail(new GetOldAwardNotMarked());
+        return failure(new GetOldAwardNotMarked());
       }
 
       let quizMarks = 0;
@@ -60,16 +60,16 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
       const totalPoints = oldSubmission.points + quizPoints;
 
       if (totalPoints === 0) {
-        return Result.fail(new GetOldAwardNoPoints());
+        return failure(new GetOldAwardNoPoints());
       }
 
       const grade = this.gradeService.calculate(totalMarks / totalPoints);
 
       if (!(grade === 'A-' || grade === 'A' || grade === 'A+')) {
-        return Result.fail(new GetOldAwardGradeTooLow());
+        return failure(new GetOldAwardGradeTooLow());
       }
 
-      return Result.success({
+      return success({
         submissionId: oldSubmission.submissionId,
         courseName: oldSubmission.enrollment.course.name,
         schoolName: oldSubmission.enrollment.course.school.name,
@@ -81,7 +81,7 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
 
     } catch (err) {
       this.logger.error('error getting award', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

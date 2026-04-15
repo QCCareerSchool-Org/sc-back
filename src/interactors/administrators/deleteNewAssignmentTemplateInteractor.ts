@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteNewAssignmentTemplateRequestDTO = {
   assignmentId: string;
@@ -41,11 +41,11 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
         },
       });
       if (!assignmentTemplate) {
-        return Result.fail(new DeleteNewAssignmentTemplateNotFound());
+        return failure(new DeleteNewAssignmentTemplateNotFound());
       }
 
       if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new DeleteNewAssignmentTemplateSubmissionsEnabled());
+        return failure(new DeleteNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // delete the assignment template
@@ -102,11 +102,11 @@ export class DeleteNewAssignmentTemplateInteractor implements IInteractor<Delete
         }
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting assignment template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

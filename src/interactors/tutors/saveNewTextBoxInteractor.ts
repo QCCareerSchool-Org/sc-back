@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewTextBoxDTO } from '../../domain/tutors/newTextBoxDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type SaveNewTextBoxRequestDTO = {
   tutorId: number;
@@ -68,24 +68,24 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
       }
 
       if (newTextBox.newPart.newAssignment.newSubmission.closed) {
-        return Result.fail(new SaveNewTextBoxSubmissionAlreadyClosed());
+        return failure(new SaveNewTextBoxSubmissionAlreadyClosed());
       }
 
       if (newTextBox.newPart.newAssignment.newSubmission.tutorId !== tutorId) {
-        return Result.fail(new SaveNewTextBoxWrongTutor());
+        return failure(new SaveNewTextBoxWrongTutor());
       }
 
       if (newTextBox.newPart.newAssignment.newSubmission.tutorComment) {
-        return Result.fail(new SaveNewTextBoxAlreadyReturned());
+        return failure(new SaveNewTextBoxAlreadyReturned());
       }
 
       if (newTextBox.text.length === 0) {
-        return Result.fail(new SaveNewTextBoxIncomplete());
+        return failure(new SaveNewTextBoxIncomplete());
       }
 
       if (mark !== null) {
         if (newTextBox.points === 0) {
-          return Result.fail(new SaveNewTextBoxZeroPoints());
+          return failure(new SaveNewTextBoxZeroPoints());
         }
         if (mark < 0) {
           throw new SaveNewTextBoxMarkLessThanZero();
@@ -110,7 +110,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
         where: { textBoxId: textBoxIdBin },
       });
 
-      return Result.success({
+      return success({
         textBoxId: this.uuidService.binToUUID(updatedTextBox.textBoxId),
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
@@ -128,7 +128,7 @@ export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxReque
 
     } catch (err) {
       this.logger.error('error saving text box mark', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

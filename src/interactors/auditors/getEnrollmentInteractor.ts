@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentDTO } from '../../domain/auditors/newAssignmentDTO.js';
 import type { NewSubmissionDTO } from '../../domain/auditors/newSubmissionDTO.js';
 import type { StudentDTO } from '../../domain/auditors/studentDTO.js';
@@ -19,8 +21,6 @@ import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetEnrollmentRequestDTO = {
   auditorId: number;
@@ -106,10 +106,10 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
       });
 
       if (!enrollment) {
-        return Result.fail(new EnrollmentNotFound());
+        return failure(new EnrollmentNotFound());
       }
 
-      return Result.success({
+      return success({
         enrollmentId: enrollment.enrollmentId,
         courseId: enrollment.courseId,
         studentId: enrollment.studentId,
@@ -395,7 +395,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
 
     } catch (err) {
       this.logger.error('error getting student', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

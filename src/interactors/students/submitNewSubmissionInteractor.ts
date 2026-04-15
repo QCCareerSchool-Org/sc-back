@@ -1,12 +1,12 @@
 import type { Course, Enrollment, NewSubmission, PrismaClient, Tutor } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 import { submissionIsComplete } from './submissionIsComplete.js';
 
@@ -142,7 +142,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
         });
       } catch (err) {
         if (err instanceof SubmitNewSubmissionError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
@@ -174,7 +174,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
         }
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -202,7 +202,7 @@ export class SubmitNewSubmissionInteractor extends StudentInteractor<SubmitNewSu
 
     } catch (err) {
       this.logger.error('error submitting new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

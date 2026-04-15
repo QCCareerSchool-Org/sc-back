@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type EnableCourseRequestDTO = {
   courseId: number;
@@ -29,11 +29,11 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         where: { courseId },
       });
       if (!course) {
-        return Result.fail(new EnableCourseNotFound());
+        return failure(new EnableCourseNotFound());
       }
 
       if (course.submissionType !== 1) {
-        return Result.fail(new EnableCourseWrongSubmissionType());
+        return failure(new EnableCourseWrongSubmissionType());
       }
 
       const updatedCourse = await this.prisma.course.update({
@@ -41,7 +41,7 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         data: { submissionsEnabled: enable },
       });
 
-      return Result.success({
+      return success({
         courseId: updatedCourse.courseId,
         schoolId: updatedCourse.schoolId,
         variantId: updatedCourse.variantId,
@@ -61,7 +61,7 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
 
     } catch (err) {
       this.logger.error('error updating course enabled state', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

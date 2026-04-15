@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteNewPartMediumRequestDTO = {
   mediumId: string;
@@ -43,11 +43,11 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
         },
       });
       if (!partMedium) {
-        return Result.fail(new DeleteNewPartMediumNotFound());
+        return failure(new DeleteNewPartMediumNotFound());
       }
 
       if (partMedium.newPartTemplate?.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new DeleteNewPartMediumSubmissionsEnabled());
+        return failure(new DeleteNewPartMediumSubmissionsEnabled());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -82,11 +82,11 @@ export class DeleteNewPartMediumInteractor implements IInteractor<DeleteNewPartM
         }
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting part medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

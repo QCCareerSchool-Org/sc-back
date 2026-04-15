@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IDateService } from '../../services/date/index.js';
 import type { IIntervalService } from '../../services/interval/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type SaveMaterialDataRequestDTO = {
@@ -43,7 +43,7 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
       });
 
       if (!material) {
-        return Result.fail(new SaveMaterialDataNotFound());
+        return failure(new SaveMaterialDataNotFound());
       }
 
       const enrollment = await this.prisma.enrollment.findFirst({
@@ -54,7 +54,7 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
       this.checkEnrollment(enrollment);
 
       if (!enrollment) {
-        return Result.fail(new SaveMaterialDataNotFound());
+        return failure(new SaveMaterialDataNotFound());
       }
 
       const materialData = Object.entries(data).map(([ key, value ]) => ({
@@ -102,11 +102,11 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
         }
       });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error getting material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

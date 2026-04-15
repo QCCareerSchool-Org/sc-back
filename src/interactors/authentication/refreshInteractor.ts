@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import type { AccountType } from '../../domain/accountType.js';
 import { isValidStudentType } from '../../domain/studentType.js';
 import type { IInteractor } from '../../interactors/index.js';
-import type { ResultType } from '../../interactors/result.js';
-import { Result } from '../../interactors/result.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { ICryptoService } from '../../services/crypto/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -61,13 +61,13 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         include: { student: true, administrator: true },
       });
       if (refreshToken === null) {
-        return Result.fail(new RefreshTokenNotFound());
+        return failure(new RefreshTokenNotFound());
       }
 
       // make sure it's not expired
       const properExpiry = this.dateService.fixPrismaReadDate(refreshToken.expiry);
       if (properExpiry < this.dateService.getDate()) {
-        return Result.fail(new RefreshTokenExpired());
+        return failure(new RefreshTokenExpired());
       }
 
       // determine which account we're dealing with
@@ -86,7 +86,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         accountId = refreshToken.auditorId;
         accountType = 'auditor';
       } else {
-        return Result.fail(new RefreshStudentInvalidType());
+        return failure(new RefreshStudentInvalidType());
       }
 
       // determine when the new access token should expire
@@ -107,7 +107,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       };
       if (accountType === 'admin') {
         if (!refreshToken.administrator) {
-          return Result.fail(new RefreshAccountNotFound());
+          return failure(new RefreshAccountNotFound());
         }
         accessTokenPayload.studentCenter.privileges = {
           submissionPriceChange: refreshToken.administrator.submissionPricePriv,
@@ -123,7 +123,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
       }
       if (accountType === 'student') { // add student-only data to payload
         if (!refreshToken.student) {
-          return Result.fail(new RefreshAccountNotFound());
+          return failure(new RefreshAccountNotFound());
         }
         if (isValidStudentType(refreshToken.student.studentTypeId)) {
           accessTokenPayload.studentCenter.studentType = refreshToken.student.studentTypeId;
@@ -134,7 +134,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
             };
           }
         } else {
-          return Result.fail(new RefreshStudentInvalidType());
+          return failure(new RefreshStudentInvalidType());
         }
       }
       const accessToken = await this.jwtService.sign(accessTokenPayload);
@@ -152,7 +152,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
         maxAge: this.configService.config.auth.accessTokenLifetime * 1000,
       };
 
-      return Result.success({
+      return success({
         accessTokenPayload,
         cookies: [
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
@@ -162,7 +162,7 @@ export class RefreshInteractor implements IInteractor<RefreshRequestDTO, Refresh
 
     } catch (err) {
       this.logger.error('error refreshing user', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

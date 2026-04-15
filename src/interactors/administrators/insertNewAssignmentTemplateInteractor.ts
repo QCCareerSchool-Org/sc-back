@@ -1,14 +1,14 @@
 import { Prisma } from '@prisma/client';
 import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewAssignmentTemplateRequestDTO = {
   submissionId: string;
@@ -53,43 +53,43 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         include: { course: true },
       });
       if (!submissionTemplate) {
-        return Result.fail(new InsertNewAssignmentTemplateSubmissionNotFound());
+        return failure(new InsertNewAssignmentTemplateSubmissionNotFound());
       }
 
       if (submissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewAssignmentTemplateSubmissionsEnabled());
+        return failure(new InsertNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (assignmentNumber < 1) {
-        return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberLessThanOne());
+        return failure(new InsertNewAssignmentTemplateAssignmentNumberLessThanOne());
       }
       if (assignmentNumber > 127) {
-        return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberTooLarge());
+        return failure(new InsertNewAssignmentTemplateAssignmentNumberTooLarge());
       }
 
       if (title !== null) {
         if ([ ...title ].length > 191) {
-          return Result.fail(new InsertNewAssignmentTemplateTitleTooLong());
+          return failure(new InsertNewAssignmentTemplateTitleTooLong());
         }
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new InsertNewAssignmentTemplateDescriptionTooLong());
+          return failure(new InsertNewAssignmentTemplateDescriptionTooLong());
         }
       }
 
       if (descriptionType.length === 0) {
-        return Result.fail(new InsertNewAssignmentTemplateDescriptionTypeEmpty());
+        return failure(new InsertNewAssignmentTemplateDescriptionTypeEmpty());
       }
       if (!isNewDescriptionType(descriptionType)) {
-        return Result.fail(new InsertNewAssignmentTemplateInvalidDescriptionType());
+        return failure(new InsertNewAssignmentTemplateInvalidDescriptionType());
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new InsertNewAssignmentTemplateMarkingCriteriaTooLong());
+          return failure(new InsertNewAssignmentTemplateMarkingCriteriaTooLong());
         }
       }
 
@@ -116,13 +116,13 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'submission_template_id_assignment_number') {
-            return Result.fail(new InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse());
+            return failure(new InsertNewAssignmentTemplateAssignmentNumberAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         assignmentTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.assignmentTemplateId),
         submissionTemplateId: this.uuidService.binToUUID(insertedAssignmentTemplate.submissionTemplateId),
         assignmentNumber: insertedAssignmentTemplate.assignmentNumber,
@@ -137,7 +137,7 @@ export class InsertNewAssignmentTemplateInteractor implements IInteractor<Insert
 
     } catch (err) {
       this.logger.error('error inserting assignment template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

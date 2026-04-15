@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { VideoDTO } from '../../domain/videoDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type GetVideoRequestDTO = {
@@ -44,10 +44,10 @@ export class GetVideoInteractor extends StudentInteractor<GetVideoRequestDTO, Ge
       });
 
       if (!video) {
-        return Result.fail(new GetVideoNotFound());
+        return failure(new GetVideoNotFound());
       }
 
-      return Result.success({
+      return success({
         videoId: this.uuidService.binToUUID(video.videoId),
         src: video.src,
         posterSrc: video.posterSrc,
@@ -58,7 +58,7 @@ export class GetVideoInteractor extends StudentInteractor<GetVideoRequestDTO, Ge
 
     } catch (err) {
       this.logger.error('error getting video', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

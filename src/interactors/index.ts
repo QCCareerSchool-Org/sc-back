@@ -1,5 +1,6 @@
 import type { Stream } from 'stream';
 
+import type { Result as ResultType } from 'generic-result-type';
 import { prisma } from '../frameworks/prisma/index.js';
 import { dateService, environmentConfigService, gradeService, nodeCryptoService, nodeFileService, uuidService, winstonLoggerService } from '../services/index.js';
 import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
@@ -8,7 +9,6 @@ import { GetAwardInteractor } from './getAwardInteractor.js';
 import { GetOldAwardInteractor } from './getOldAwardInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InsertSurveyCompletionInteractor } from './insertSurveyCompletionInteractor.js';
-import type { ResultType } from './result.js';
 import { ValidateHMACInteractor } from './validateHMACInteractor.js';
 
 export class InsufficientPrivileges extends Error { }

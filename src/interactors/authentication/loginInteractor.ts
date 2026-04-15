@@ -2,6 +2,8 @@ import path from 'path';
 import type { Administrator, Auditor, PrismaClient, Student, Tutor } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
 import type { AccountType } from '../../domain/accountType.js';
 import { isValidStudentType } from '../../domain/studentType.js';
@@ -14,8 +16,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IStudentService } from '../../services/student/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 type LoginRequestDTO = {
   username: string;
@@ -78,30 +78,30 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
     try {
       const lookup = await this.getAccount(request.username);
       if (!lookup) {
-        return Result.fail(new LoginNotFound());
+        return failure(new LoginNotFound());
       }
 
       const [ accountId, account, accountType ] = lookup;
 
       if (account.passwordHash === null) {
-        return Result.fail(new LoginNoPasswordHash());
+        return failure(new LoginNoPasswordHash());
       }
 
       const passwordMatches = await this.cryptoService.verify(request.password, account.passwordHash);
       if (!passwordMatches) {
-        return Result.fail(new LoginWrongPassword());
+        return failure(new LoginWrongPassword());
       }
 
       if (account.expiry) {
         const expiry = this.dateService.fixPrismaReadDate(account.expiry);
         if (expiry <= this.dateService.getDate()) {
-          return Result.fail(new LoginExpired());
+          return failure(new LoginExpired());
         }
       }
 
       if (accountType === 'student') {
         if ((account as Student).arrears) {
-          return Result.fail(new LoginArears());
+          return failure(new LoginArears());
         }
       }
 
@@ -202,7 +202,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
         refreshCookieOptions.maxAge = this.configService.config.auth.refreshTokenLifetime * 1000;
       }
 
-      return Result.success({
+      return success({
         accessTokenPayload,
         cookies: [
           { name: 'accessToken', value: accessToken, options: accessCookieOptions },
@@ -213,7 +213,7 @@ export class LoginInteractor implements IInteractor<LoginRequestDTO, LoginRespon
 
     } catch (err) {
       this.logger.error('error authenticating user', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type DownloadNewSubmissionFeedbackRequestDTO = {
   tutorId: number;
@@ -54,15 +54,15 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       });
 
       if (!newSubmission) {
-        return Result.fail(new DownloadNewSubmissionFeedbackNotFound());
+        return failure(new DownloadNewSubmissionFeedbackNotFound());
       }
 
       if (!newSubmission.submitted) {
-        return Result.fail(new DownloadNewSubmissionFeedbackNotSubmitted());
+        return failure(new DownloadNewSubmissionFeedbackNotSubmitted());
       }
 
       if (newSubmission.skipped) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSkipped());
+        return failure(new DownloadNewSubmissionFeedbackSkipped());
       }
 
       const isThisSubmissionsTutor = newSubmission.tutorId === tutorId;
@@ -70,7 +70,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId);
 
       if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
-        return Result.fail(new DownloadNewSubmissionFeedbackWrongTutor());
+        return failure(new DownloadNewSubmissionFeedbackWrongTutor());
       }
 
       const paddedEnrollmentId = newSubmission.enrollmentId.toString().padStart(8, '0');
@@ -80,7 +80,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find feedback file ${filePath}`);
-        return Result.fail(new DownloadNewSubmissionFeedbackFileNotFound(filePath));
+        return failure(new DownloadNewSubmissionFeedbackFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -96,7 +96,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
           throw new DownloadNewSubmissionFeedbackFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: this.sanitizerService.sanitizeFilename(newSubmission.responseFilename ?? 'unknown'),
           size: stats.size,
@@ -116,7 +116,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         throw new DownloadNewSubmissionFeedbackFileReadError();
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(newSubmission.responseFilename ?? 'unknown'),
         size: stats.size,
@@ -127,7 +127,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
 
     } catch (err) {
       this.logger.error('error downloading new submission feedback', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

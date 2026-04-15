@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { ICompressionService } from '../../services/compression/index.js';
@@ -12,8 +14,6 @@ import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileMemoryUpload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type UploadNewUploadSlotRequestDTO = {
@@ -80,15 +80,15 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
       if (!newUploadSlot) {
-        return Result.fail(new UploadNewUploadSlotNotFound());
+        return failure(new UploadNewUploadSlotNotFound());
       }
 
       if (newUploadSlot.newPart.newAssignment.newSubmission.submitted) {
-        return Result.fail(new UploadNewUploadSlotSubmissionSubmitted());
+        return failure(new UploadNewUploadSlotSubmissionSubmitted());
       }
 
       if (file.size > this.configService.config.uploadSlotMaxFilesize) {
-        return Result.fail(new UploadNewUploadSlotFileTooLarge());
+        return failure(new UploadNewUploadSlotFileTooLarge());
       }
 
       const realMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
@@ -113,13 +113,13 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
           convertedFromMimeType = realMimeType;
         } else {
           this.logger.error(`Unable to convert ${realMimeType}`, conversionResult.error.message);
-          return Result.fail(new UploadNewUploadSlotUnsupportedFileType());
+          return failure(new UploadNewUploadSlotUnsupportedFileType());
         }
       }
 
       if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
         this.logger.info('Invalid mime type', uploadMimeType);
-        return Result.fail(new UploadNewUploadSlotInvalidFileType());
+        return failure(new UploadNewUploadSlotInvalidFileType());
       }
 
       const sanitizedUploadFilename = this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(uploadFilename));
@@ -199,7 +199,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         });
       }
 
-      return Result.success({
+      return success({
         uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
         partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
         label: updatedUploadSlot.label,
@@ -219,7 +219,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
     } catch (err) {
       this.logger.error('error uploading upload slot file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

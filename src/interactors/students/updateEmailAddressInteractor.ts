@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { StudentDTO } from '../../domain/students/studentDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailValidatorService } from '../../services/emailValidator/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type UpdateEmailAddressRequestDTO = {
@@ -36,11 +36,11 @@ export class UpdateEmailAddressInteractor extends StudentInteractor<UpdateEmailA
         include: { caSocialInsuranceNumber: true },
       });
       if (!student) {
-        return Result.fail(new UpdateEmailAddressStudentNotFound());
+        return failure(new UpdateEmailAddressStudentNotFound());
       }
 
       if (!this.emailValidator.validate(emailAddress)) {
-        return Result.fail(new UpdateEmailAddressInvalidEmailAddress());
+        return failure(new UpdateEmailAddressInvalidEmailAddress());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -57,7 +57,7 @@ export class UpdateEmailAddressInteractor extends StudentInteractor<UpdateEmailA
         include: { caSocialInsuranceNumber: true },
       });
 
-      return Result.success({
+      return success({
         studentId: updated.studentId,
         countryId: updated.countryId,
         provinceId: updated.provinceId,
@@ -87,7 +87,7 @@ export class UpdateEmailAddressInteractor extends StudentInteractor<UpdateEmailA
 
     } catch (err) {
       this.logger.error('error updating email address', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

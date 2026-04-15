@@ -1,5 +1,7 @@
 import type { NewAssignmentMedium, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentMediumDTO, NewMediumType } from '../../domain/newAssignmentMediumDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -9,8 +11,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewAssignmentMediumRequestDTO = {
   assignmentId: string;
@@ -71,31 +71,31 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
         include: { newSubmissionTemplate: { include: { course: true } } },
       });
       if (!assignmentTemplate) {
-        return Result.fail(new InsertNewAssignmentMediumAssignmentNotFound());
+        return failure(new InsertNewAssignmentMediumAssignmentNotFound());
       }
 
       if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewAssignmentMediumSubmissionsEnabled());
+        return failure(new InsertNewAssignmentMediumSubmissionsEnabled());
       }
 
       // validate the data
       if (caption.length === 0) {
-        return Result.fail(new InsertNewAssignmentMediumCaptionEmpty());
+        return failure(new InsertNewAssignmentMediumCaptionEmpty());
       }
       if ([ ...caption ].length > 191) {
-        return Result.fail(new InsertNewAssignmentMediCaptionTooLong());
+        return failure(new InsertNewAssignmentMediCaptionTooLong());
       }
 
       if (order < 0) {
-        return Result.fail(new InsertNewAssignmentMediumOrderLessThanZero());
+        return failure(new InsertNewAssignmentMediumOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new InsertNewAssignmentMediumOrderTooLarge());
+        return failure(new InsertNewAssignmentMediumOrderTooLarge());
       }
 
       if (typeof externalData !== 'undefined') {
         if (!/^https:\/\//iu.test(externalData)) {
-          return Result.fail(new InsertNewAssignmentMediumExternalDataInvalid());
+          return failure(new InsertNewAssignmentMediumExternalDataInvalid());
         }
       }
 
@@ -106,10 +106,10 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
       } else if (externalData) {
         insertedAssignmentMedium = await this.insertWithExternalData(assignmentIdBin, caption, order, externalData);
       } else {
-        return Result.fail(new InsertNewAssignmentMediumDataMissing());
+        return failure(new InsertNewAssignmentMediumDataMissing());
       }
 
-      return Result.success({
+      return success({
         assignmentMediumId: this.uuidService.binToUUID(insertedAssignmentMedium.assignmentMediumId),
         assignmentTemplateId: insertedAssignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(insertedAssignmentMedium.assignmentTemplateId),
         mimeTypeId: insertedAssignmentMedium.mimeTypeId,
@@ -125,7 +125,7 @@ export class InsertNewAssignmentMediumInteractor implements IInteractor<InsertNe
 
     } catch (err) {
       this.logger.error('error inserting assignment medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
 import { InsufficientPrivileges } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteAllNewSubmissionsRequestDTO = {
   enrollmentId: number;
@@ -30,25 +30,25 @@ export class DeleteAllNewSubmissionsInteractor implements IInteractor<DeleteAllN
   public async execute({ enrollmentId, privileges }: DeleteAllNewSubmissionsRequestDTO): Promise<ResultType<DeleteAllNewSubmissionsResponseDTO>> {
     try {
       if (!privileges?.delete) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { enrollmentId },
       });
       if (!enrollment) {
-        return Result.fail(new DeleteAllNewSubmissionsEnrollmentNotFound());
+        return failure(new DeleteAllNewSubmissionsEnrollmentNotFound());
       }
 
       await this.prisma.newSubmission.deleteMany({ where: { enrollmentId } });
 
       await this.deleteFiles(enrollmentId);
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting enrollment', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

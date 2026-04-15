@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
 import { InsufficientPrivileges } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteNewSubmissionTemplatePricesRequestDTO = {
   courseId: number;
@@ -25,7 +25,7 @@ export class DeleteNewSubmissionTemplatePricesInteractor implements IInteractor<
   public async execute({ courseId, countryId, privileges }: DeleteNewSubmissionTemplatePricesRequestDTO): Promise<ResultType<DeleteNewSubmissionTemplatePricesResponseDTO>> {
     try {
       if (!privileges?.submissionPriceChange) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       // delete the existing prices for this countryId
@@ -36,11 +36,11 @@ export class DeleteNewSubmissionTemplatePricesInteractor implements IInteractor<
         },
       });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleteing submission template prices', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

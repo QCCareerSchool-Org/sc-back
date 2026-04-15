@@ -1,6 +1,8 @@
 import type { PrismaClient, Unit } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertUnitRequestDTO = {
   courseId: number;
@@ -45,40 +45,40 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
   public async execute(request: InsertUnitRequestDTO): Promise<ResultType<InsertUnitResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       // find the course
       const course = await this.prisma.course.findUnique({ where: { courseId: request.courseId } });
       if (!course) {
-        return Result.fail(new InsertUnitCourseNotFound());
+        return failure(new InsertUnitCourseNotFound());
       }
 
       if (course.submissionType !== 1) {
-        return Result.fail(new InsertUnitIncorrectSubmissionType());
+        return failure(new InsertUnitIncorrectSubmissionType());
       }
 
       if (request.title !== null) {
         if (request.title.length === 0) {
-          return Result.fail(new InsertUnitTitleEmpty());
+          return failure(new InsertUnitTitleEmpty());
         }
         if ([ ...request.title ].length > 255) {
-          return Result.fail(new InsertUnitTitleTooLong());
+          return failure(new InsertUnitTitleTooLong());
         }
       }
 
       if (request.unitLetter.length === 0) {
-        return Result.fail(new InsertUnitUnitLetterEmpty());
+        return failure(new InsertUnitUnitLetterEmpty());
       }
       if ([ ...request.unitLetter ].length > 1) {
-        return Result.fail(new InsertUnitUnitLetterTooLong());
+        return failure(new InsertUnitUnitLetterTooLong());
       }
 
       if (request.order < 0) {
-        return Result.fail(new InsertUnitOrderLessThanZero());
+        return failure(new InsertUnitOrderLessThanZero());
       }
       if (request.order > 127) {
-        return Result.fail(new InsertUnitOrderTooLarge());
+        return failure(new InsertUnitOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -98,12 +98,12 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
         });
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta?.target === 'course_id_unit_letter') {
-          return Result.fail(new InsertUnitUnitLetterAlreadyExists());
+          return failure(new InsertUnitUnitLetterAlreadyExists());
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         unitId: this.uuidService.binToUUID(insertedUnit.unitId),
         courseId: insertedUnit.courseId,
         unitLetter: insertedUnit.unitLetter,
@@ -115,7 +115,7 @@ export class InsertUnitInteractor implements IInteractor<InsertUnitRequestDTO, I
 
     } catch (err) {
       this.logger.error('error inserting unit', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

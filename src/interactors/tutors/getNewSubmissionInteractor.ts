@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
@@ -14,8 +16,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type GetNewSubmissionRequestDTO = {
   tutorId: number;
@@ -70,15 +70,15 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       });
 
       if (!newSubmission) {
-        return Result.fail(new GetNewSubmissionNotFound());
+        return failure(new GetNewSubmissionNotFound());
       }
 
       if (!newSubmission.submitted) {
-        return Result.fail(new GetNewSubmissionNotSubmitted());
+        return failure(new GetNewSubmissionNotSubmitted());
       }
 
       if (newSubmission.skipped) {
-        return Result.fail(new GetNewSubmissionSkipped());
+        return failure(new GetNewSubmissionSkipped());
       }
 
       const isThisSubmissionsTutor = newSubmission.tutorId === tutorId;
@@ -86,7 +86,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       const hasAnotherSubmissionToMark = newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId);
 
       if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
-        return Result.fail(new GetNewSubmissionWrongTutor());
+        return failure(new GetNewSubmissionWrongTutor());
       }
 
       let submissionComplete = true;
@@ -94,7 +94,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       let submissionPoints = 0;
       let submissionMark = 0;
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(newSubmission.submissionId),
         enrollmentId: newSubmission.enrollmentId,
         tutorId: newSubmission.tutorId,
@@ -304,7 +304,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
 
     } catch (err) {
       this.logger.error('error getting new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

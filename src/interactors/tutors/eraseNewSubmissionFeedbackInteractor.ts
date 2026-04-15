@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -7,8 +9,6 @@ import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type EraseNewSubmissionFeedbackRequestDTO = {
   tutorId: number;
@@ -48,23 +48,23 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
       });
 
       if (!newSubmission) {
-        return Result.fail(new EraseNewSubmissionFeedbackNotFound());
+        return failure(new EraseNewSubmissionFeedbackNotFound());
       }
 
       if (!newSubmission.submitted) {
-        return Result.fail(new EraseNewSubmissionFeedbackSubmissionNotSubmitted());
+        return failure(new EraseNewSubmissionFeedbackSubmissionNotSubmitted());
       }
 
       if (newSubmission.skipped) {
-        return Result.fail(new EraseNewSubmissionFeedbackSubmissionSkipped());
+        return failure(new EraseNewSubmissionFeedbackSubmissionSkipped());
       }
 
       if (newSubmission.closed) {
-        return Result.fail(new EraseNewSubmissionFeedbackSubmissionAlreadyClosed());
+        return failure(new EraseNewSubmissionFeedbackSubmissionAlreadyClosed());
       }
 
       if (newSubmission.tutorId !== tutorId) {
-        return Result.fail(new EraseNewSubmissionFeedbackWrongTutor());
+        return failure(new EraseNewSubmissionFeedbackWrongTutor());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -161,7 +161,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
         }
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -192,7 +192,7 @@ export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNe
 
     } catch (err) {
       this.logger.error('error deleting new submission feedback', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

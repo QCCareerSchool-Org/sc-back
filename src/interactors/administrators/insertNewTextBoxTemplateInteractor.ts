@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewTextBoxTemplateDTO } from '../../domain/newTextBoxTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewTextBoxTemplateRequestDTO = {
   partId: string;
@@ -50,35 +50,35 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
         },
       });
       if (!partTemplate) {
-        return Result.fail(new InsertNewTextBoxTemplatePartNotFound());
+        return failure(new InsertNewTextBoxTemplatePartNotFound());
       }
 
       if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewTextBoxTemplateSubmissionsEnabled());
+        return failure(new InsertNewTextBoxTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (lines !== null) {
         if (lines < 1) {
-          return Result.fail(new InsertNewTextBoxTemplateLinesLessThanOne());
+          return failure(new InsertNewTextBoxTemplateLinesLessThanOne());
         }
         if (lines > 127) {
-          return Result.fail(new InsertNewTextBoxTemplateLinesTooLarge());
+          return failure(new InsertNewTextBoxTemplateLinesTooLarge());
         }
       }
 
       if (points < 0) {
-        return Result.fail(new InsertNewTextBoxTemplatePointsLessThanZero());
+        return failure(new InsertNewTextBoxTemplatePointsLessThanZero());
       }
       if (points > 127) {
-        return Result.fail(new InsertNewTextBoxTemplatePointsTooLarge());
+        return failure(new InsertNewTextBoxTemplatePointsTooLarge());
       }
 
       if (order < 0) {
-        return Result.fail(new InsertNewTextBoxTemplateOrderLessThanZero());
+        return failure(new InsertNewTextBoxTemplateOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new InsertNewTextBoxTemplateOrderTooLarge());
+        return failure(new InsertNewTextBoxTemplateOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -98,7 +98,7 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
         },
       });
 
-      return Result.success({
+      return success({
         textBoxTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.textBoxTemplateId),
         partTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.partTemplateId),
         description: insertedTextBoxTemplate.description,
@@ -112,7 +112,7 @@ export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNew
 
     } catch (err) {
       this.logger.error('error inserting text box template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { FileStats, IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadNewSubmissionFeedbackRequestDTO = {
@@ -58,25 +58,25 @@ export class DownloadNewSubmissionFeedbackInteractor extends StudentInteractor<D
       });
 
       if (!submission) {
-        return Result.fail(new DownloadNewSubmissionFeedbackNotFound());
+        return failure(new DownloadNewSubmissionFeedbackNotFound());
       }
 
       if (!submission.submitted) {
-        return Result.fail(new DownloadNewSubmissionFeedbackNotSubmitted());
+        return failure(new DownloadNewSubmissionFeedbackNotSubmitted());
       }
 
       if (submission.skipped) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSkipped());
+        return failure(new DownloadNewSubmissionFeedbackSkipped());
       }
 
       if (!submission.closed) {
-        return Result.fail(new DownloadNewSubmissionFeedbackNotClosed());
+        return failure(new DownloadNewSubmissionFeedbackNotClosed());
       }
 
       // determine which file to use
       const file = await this.getFilePathAndStats(submission.enrollmentId, request.submissionId);
       if (!file) {
-        return Result.fail(new DownloadNewSubmissionFeedbackFileNotFound());
+        return failure(new DownloadNewSubmissionFeedbackFileNotFound());
       }
       const [ filePath, stats ] = file;
 
@@ -114,7 +114,7 @@ export class DownloadNewSubmissionFeedbackInteractor extends StudentInteractor<D
           throw new DownloadNewSubmissionFeedbackFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename,
           size: stats.size,
@@ -131,10 +131,10 @@ export class DownloadNewSubmissionFeedbackInteractor extends StudentInteractor<D
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadNewSubmissionFeedbackFileReadError(filePath));
+        return failure(new DownloadNewSubmissionFeedbackFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename,
         size: stats.size,
@@ -145,7 +145,7 @@ export class DownloadNewSubmissionFeedbackInteractor extends StudentInteractor<D
 
     } catch (err) {
       this.logger.error('error downloading submission response', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

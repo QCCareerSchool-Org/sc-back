@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { SurveyCompletionDTO } from '../domain/surveyCompletionDTO.js';
 import type { IDateService } from '../services/date/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
 import type { IUUIDService } from '../services/uuid/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor } from './index.js';
 
 export type InsertSurveyCompletionRequestDTO = {
@@ -34,7 +34,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
 
       const survey = await this.prisma.survey.findFirst({ where: { surveyId: surveyIdBin } });
       if (!survey) {
-        return Result.fail(new InsertSurveyCompletionSurveyNotFound());
+        return failure(new InsertSurveyCompletionSurveyNotFound());
       }
 
       const student = await this.prisma.student.findFirst({
@@ -43,7 +43,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
       });
 
       if (!student) {
-        return Result.fail(new InsertSurveyCompletionStudentNotFound());
+        return failure(new InsertSurveyCompletionStudentNotFound());
       }
 
       // look for an existing survey completion with this surveyId
@@ -64,7 +64,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
         });
       }
 
-      return Result.success({
+      return success({
         surveyCompletionId: this.uuidService.binToUUID(surveyCompletion.surveyCompletionId),
         surveyId: this.uuidService.binToUUID(surveyCompletion.surveyId),
         studentId: surveyCompletion.studentId,
@@ -74,7 +74,7 @@ export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurve
 
     } catch (err) {
       this.logger.error('error inserting survey completion', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

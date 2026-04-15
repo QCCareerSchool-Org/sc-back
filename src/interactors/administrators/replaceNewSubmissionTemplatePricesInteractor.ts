@@ -1,13 +1,13 @@
 import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 type PriceData = Array<{
   submissionTemplateId: string;
@@ -39,7 +39,7 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
   public async execute({ courseId, countryId, priceData, privileges }: ReplaceNewSubmissionTemplatePricesRequestDTO): Promise<ResultType<ReplaceNewSubmissionTemplatePricesResponseDTO>> {
     try {
       if (!privileges?.submissionPriceChange) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       try {
@@ -84,16 +84,16 @@ export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor
         });
       } catch (err) {
         if (err instanceof Error) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error replacing submission template prices', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

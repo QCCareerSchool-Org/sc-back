@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { AuditorDTO } from '../../domain/auditors/auditorDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetAuditorRequestDTO = {
   auditorId: number;
@@ -30,10 +30,10 @@ export class GetAuditorInteractor implements IInteractor<GetAuditorRequestDTO, G
       });
 
       if (!auditor) {
-        return Result.fail(new AuditorNotFound());
+        return failure(new AuditorNotFound());
       }
 
-      return Result.success({
+      return success({
         auditorId: auditor.auditorId,
         emailAddress: auditor.emailAddress,
         firstName: auditor.firstName,
@@ -46,7 +46,7 @@ export class GetAuditorInteractor implements IInteractor<GetAuditorRequestDTO, G
 
     } catch (err) {
       this.logger.error('error getting auditor', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

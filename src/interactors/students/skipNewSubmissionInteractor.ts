@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type SkipNewSubmissionRequestDTO = {
@@ -54,15 +54,15 @@ export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmis
       });
 
       if (!submission) {
-        return Result.fail(new SkipNewSubmissionNotFound());
+        return failure(new SkipNewSubmissionNotFound());
       }
 
       if (submission.enrollment.onHold) {
-        return Result.fail(new SkipNewSubmissionEnrollmentOnHold());
+        return failure(new SkipNewSubmissionEnrollmentOnHold());
       }
 
       if (submission.submitted) {
-        return Result.fail(new SkipNewSubmissionAlreadySubmitted());
+        return failure(new SkipNewSubmissionAlreadySubmitted());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -103,7 +103,7 @@ export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmis
         return s;
       });
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -131,7 +131,7 @@ export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmis
 
     } catch (err) {
       this.logger.error('error skipping new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

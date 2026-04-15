@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -8,8 +10,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetMaterialRequestDTO = {
   /** uuid */
@@ -42,10 +42,10 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
         include: { unit: { include: { course: true } } },
       });
       if (!material) {
-        return Result.fail(new GetMaterialNotFound());
+        return failure(new GetMaterialNotFound());
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(material.materialId),
         unitId: this.uuidService.binToUUID(material.unitId),
         type: materialType(material.type),
@@ -93,7 +93,7 @@ export class GetMaterialInteractor implements IInteractor<GetMaterialRequestDTO,
 
     } catch (err) {
       this.logger.error('error getting material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

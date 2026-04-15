@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteUnitRequestDTO = {
   unitId: string;
@@ -31,7 +31,7 @@ export class DeleteUnitInteractor implements IInteractor<DeleteUnitRequestDTO, D
   public async execute(request: DeleteUnitRequestDTO): Promise<ResultType<DeleteUnitResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
@@ -42,21 +42,21 @@ export class DeleteUnitInteractor implements IInteractor<DeleteUnitRequestDTO, D
         where: { unitId: unitIdBin },
       });
       if (!unit) {
-        return Result.fail(new DeleteUnitNotFound());
+        return failure(new DeleteUnitNotFound());
       }
 
       if (unit.materials.length) {
-        return Result.fail(new DeleteUnitMaterialsPresent());
+        return failure(new DeleteUnitMaterialsPresent());
       }
 
       // delete the record
       await this.prisma.unit.delete({ where: { unitId: unitIdBin } });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting unit', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

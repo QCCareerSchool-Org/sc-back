@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { describe, it, jest } from '@jest/globals';
 import type { Course, Currency, Material, NewSubmissionTemplate, NewSubmissionTemplatePrice, PrismaClient, School, Unit } from '@prisma/client';
+import { isErrorResult, isSuccessResult } from 'generic-result-type';
 
 import type { ILoggerService } from '../../../services/logger/index.js';
 import type { IUUIDService } from '../../../services/uuid/index.js';
 import { UUIDService } from '../../../services/uuid/uuidService.js';
-import { isErrorResult, isSuccessResult } from '../../result.js';
 import { GetCourseInteractor, GetCourseNotFound } from '../getCourseInteractor.js';
 
 type PrismaCourseResult = Course & {

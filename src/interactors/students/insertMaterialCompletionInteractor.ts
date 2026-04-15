@@ -1,12 +1,12 @@
 import type { MaterialCompletion, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { MaterialCompletionDTO } from '../../domain/materialCompletionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type InsertMaterialCompletionRequestDTO = {
@@ -48,7 +48,7 @@ export class InsertMaterialCompletionInteractor extends StudentInteractor<Insert
       });
 
       if (!material) {
-        return Result.fail(new InsertMaterialCompletionMaterialNotFound());
+        return failure(new InsertMaterialCompletionMaterialNotFound());
       }
 
       let materialCompletion: MaterialCompletion;
@@ -58,19 +58,19 @@ export class InsertMaterialCompletionInteractor extends StudentInteractor<Insert
         });
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-          return Result.fail(new InsertMaterialCompletionAlreadyExists());
+          return failure(new InsertMaterialCompletionAlreadyExists());
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(materialCompletion.materialId),
         enrollmentId: materialCompletion.enrollmentId,
       });
 
     } catch (err) {
       this.logger.error('error inserting material completion', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

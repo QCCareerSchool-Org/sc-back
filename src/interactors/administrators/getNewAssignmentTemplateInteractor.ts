@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
@@ -11,8 +13,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewAssignmentTemplateRequestDTO = {
   assignmentId: string;
@@ -61,10 +61,10 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
         },
       });
       if (!assignmentTemplate) {
-        return Result.fail(new GetNewAssignmentTemplateNotFound());
+        return failure(new GetNewAssignmentTemplateNotFound());
       }
 
-      return Result.success({
+      return success({
         assignmentTemplateId: this.uuidService.binToUUID(assignmentTemplate.assignmentTemplateId),
         submissionTemplateId: this.uuidService.binToUUID(assignmentTemplate.submissionTemplateId),
         assignmentNumber: assignmentTemplate.assignmentNumber,
@@ -150,7 +150,7 @@ export class GetNewAssignmentTemplateInteractor implements IInteractor<GetNewAss
 
     } catch (err) {
       this.logger.error('error getting assignment template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

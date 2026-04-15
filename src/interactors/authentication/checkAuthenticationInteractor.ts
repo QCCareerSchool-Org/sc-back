@@ -1,3 +1,5 @@
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import * as yup from 'yup';
 
 import type { AccessTokenPayload } from '../../domain/accessTokenPayload.js';
@@ -6,8 +8,6 @@ import type { StudentTypeType } from '../../domain/studentType.js';
 import type { IJWTService } from '../../services/jwt/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 type CheckAuthenticationRequestDTO = {
   accessToken: string;
@@ -35,7 +35,7 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
       try {
         decoded = await this.jwtService.verify(accessToken);
       } catch (err: unknown) {
-        return Result.fail(new CheckAuthenticationVerifyError());
+        return failure(new CheckAuthenticationVerifyError());
       }
 
       const schema = yup.object({ // const schema: yup.SchemaOf<AccessTokenPayload> = yup.object({
@@ -63,23 +63,23 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
         if (err instanceof Error) {
           this.logger.error(err.message);
         }
-        return Result.fail(new CheckAuthenticationInvalidPayload());
+        return failure(new CheckAuthenticationInvalidPayload());
       }
 
       if (checkXsrf) {
         if (typeof xsrfToken === 'undefined') {
-          return Result.fail(new CheckAuthenticationMissingXSRF());
+          return failure(new CheckAuthenticationMissingXSRF());
         }
         if (xsrfToken !== accessTokenPayload.xsrf) {
-          return Result.fail(new CheckAuthenticationInvalidXSRF());
+          return failure(new CheckAuthenticationInvalidXSRF());
         }
       }
 
-      return Result.success<CheckAuthenticationResponseDTO>(accessTokenPayload);
+      return success<CheckAuthenticationResponseDTO>(accessTokenPayload);
 
     } catch (err) {
       this.logger.error('error checking authentication', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

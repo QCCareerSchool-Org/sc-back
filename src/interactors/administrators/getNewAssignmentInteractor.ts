@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentDTO } from '../../domain/administrators/newAssignmentDTO.js';
 import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
@@ -12,8 +14,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewAssignmentRequestDTO = {
   assignmentId: string;
@@ -61,7 +61,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
         },
       });
       if (!assignment) {
-        return Result.fail(new GetNewAssignmentNotFound());
+        return failure(new GetNewAssignmentNotFound());
       }
 
       let assignmentComplete = true;
@@ -71,7 +71,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
       let assignmentMarkOverride = 0;
       let assignmentOverridden = false;
 
-      return Result.success({
+      return success({
         assignmentId: this.uuidService.binToUUID(assignment.assignmentId),
         submissionId: this.uuidService.binToUUID(assignment.submissionId),
         assignmentNumber: assignment.assignmentNumber,
@@ -249,7 +249,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
     } catch (err) {
       this.logger.error('error getting assignment', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

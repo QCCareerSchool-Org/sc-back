@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
 import type { UnitDTO } from '../../domain/unitDTO.js';
@@ -7,8 +9,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetUnitRequestDTO = {
   /** uuid */
@@ -39,10 +39,10 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
         where: { unitId: unitIdBin },
       });
       if (!unit) {
-        return Result.fail(new GetUnitNotFound());
+        return failure(new GetUnitNotFound());
       }
 
-      return Result.success({
+      return success({
         unitId: this.uuidService.binToUUID(unit.unitId),
         courseId: unit.courseId,
         unitLetter: unit.unitLetter,
@@ -73,7 +73,7 @@ export class GetUnitInteractor implements IInteractor<GetUnitRequestDTO, GetUnit
 
     } catch (err) {
       this.logger.error('error getting unit', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

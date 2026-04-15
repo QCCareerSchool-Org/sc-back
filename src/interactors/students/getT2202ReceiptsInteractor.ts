@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { T2202ReceiptDTO } from '../../domain/t2202ReceiptDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type GetT2202ReceiptsRequestDTO = {
@@ -36,7 +36,7 @@ export class GetT2202ReceiptsInteractor extends StudentInteractor<GetT2202Receip
         include: { enrollment: { include: { course: true } } },
       });
 
-      return Result.success(t2202Receipts.map(t => ({
+      return success(t2202Receipts.map(t => ({
         t2202ReceiptId: t.t2202ReceiptId,
         enrollmentId: t.enrollmentId,
         startYear: t.startYear,
@@ -94,7 +94,7 @@ export class GetT2202ReceiptsInteractor extends StudentInteractor<GetT2202Receip
 
     } catch (err) {
       this.logger.error('error getting t2202 receipts', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

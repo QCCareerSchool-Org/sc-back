@@ -1,10 +1,10 @@
 import type { ReadStream } from 'fs';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../services/config/index.js';
 import type { IFileService } from '../services/file/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor, InteractorFileStreamDownload } from './index.js';
 
 export type DownloadCourseHeaderImageRequestDTO = {
@@ -34,7 +34,7 @@ export class DownloadCourseHeaderImageInteractor implements IInteractor<Download
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadCourseHeaderImageFileNotFound(filePath));
+        return failure(new DownloadCourseHeaderImageFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -50,7 +50,7 @@ export class DownloadCourseHeaderImageInteractor implements IInteractor<Download
           throw new DownloadCourseHeaderImageFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: `course-banner-${courseId}.jpg`,
           size: stats.size,
@@ -67,10 +67,10 @@ export class DownloadCourseHeaderImageInteractor implements IInteractor<Download
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadCourseHeaderImageFileReadError(filePath));
+        return failure(new DownloadCourseHeaderImageFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: `course-banner-${courseId}.jpg`,
         size: stats.size,
@@ -81,7 +81,7 @@ export class DownloadCourseHeaderImageInteractor implements IInteractor<Download
 
     } catch (err) {
       this.logger.error('error downloading course header image', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

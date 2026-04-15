@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentDTO } from '../../domain/administrators/newAssignmentDTO.js';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
@@ -7,8 +9,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewAssignmentMediumRequestDTO = {
   mediumId: string;
@@ -43,10 +43,10 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
         },
       });
       if (!assignmentMedium) {
-        return Result.fail(new GetNewAssignmentMediumNotFound());
+        return failure(new GetNewAssignmentMediumNotFound());
       }
 
-      return Result.success({
+      return success({
         assignmentMediumId: this.uuidService.binToUUID(assignmentMedium.assignmentMediumId),
         assignmentTemplateId: assignmentMedium.assignmentTemplateId === null ? null : this.uuidService.binToUUID(assignmentMedium.assignmentTemplateId),
         mimeTypeId: assignmentMedium.mimeTypeId,
@@ -86,7 +86,7 @@ export class GetNewAssignmentMediumInteractor implements IInteractor<GetNewAssig
 
     } catch (err) {
       this.logger.error('error getting assignment medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

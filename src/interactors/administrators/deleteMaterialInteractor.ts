@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
@@ -7,8 +9,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteMaterialRequestDTO = {
   materialId: string;
@@ -34,7 +34,7 @@ export class DeleteMaterialInteractor implements IInteractor<DeleteMaterialReque
   public async execute(request: DeleteMaterialRequestDTO): Promise<ResultType<DeleteMaterialResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const materialIdBin = this.uuidService.uuidToBin(request.materialId);
@@ -45,7 +45,7 @@ export class DeleteMaterialInteractor implements IInteractor<DeleteMaterialReque
         where: { materialId: materialIdBin },
       });
       if (!material) {
-        return Result.fail(new DeleteMaterialNotFound());
+        return failure(new DeleteMaterialNotFound());
       }
 
       // delete the record
@@ -76,11 +76,11 @@ export class DeleteMaterialInteractor implements IInteractor<DeleteMaterialReque
         }
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting new material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

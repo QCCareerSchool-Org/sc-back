@@ -1,9 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type InsertOrUpdateMetadataRequestDTO = {
@@ -39,14 +39,14 @@ export class InsertOrUpdateMetadataInteractor extends StudentInteractor<InsertOr
       ]);
 
       if (!enrollment) {
-        return Result.fail(new InsertOrUpdateMetadataEnrollmentNotFound());
+        return failure(new InsertOrUpdateMetadataEnrollmentNotFound());
       }
       if (!metadata) {
-        return Result.fail(new InsertOrUpdateMetadataMetadataNotFound());
+        return failure(new InsertOrUpdateMetadataMetadataNotFound());
       }
 
       if (value !== null && value.length >= InsertOrUpdateMetadataInteractor.valueMaxLength) {
-        return Result.fail(new InsertOrUpdateMetadataValueTooLong());
+        return failure(new InsertOrUpdateMetadataValueTooLong());
       }
 
       await this.prisma.enrollmentsOnMetadata.upsert({
@@ -66,11 +66,11 @@ export class InsertOrUpdateMetadataInteractor extends StudentInteractor<InsertOr
         },
       });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error inserting or updating metadata', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

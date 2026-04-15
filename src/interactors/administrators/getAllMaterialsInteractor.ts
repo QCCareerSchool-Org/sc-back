@@ -4,8 +4,8 @@
 // import type { ILoggerService } from '../../services/logger/index.js';
 // import type { IUUIDService } from '../../services/uuid/index.js';
 // import type { IInteractor } from '../index.js';
-// import { Result } from '../result.js';
-// import type { ResultType } from '../result.js';
+// import { failure, success } from 'generic-result-type';
+// import type { Result as ResultType } from 'generic-result-type';
 
 // export type GetAllMaterialsRequestDTO = {
 //   courseId: number;
@@ -31,7 +31,7 @@
 //         ],
 //       });
 
-//       return Result.success(materials.map(l => ({
+//       return success(materials.map(l => ({
 //         materialId: this.uuidService.binToUUID(l.materialId),
 //         courseId: l.courseId,
 //         type: materialType(l.type),
@@ -46,7 +46,7 @@
 
 //     } catch (err) {
 //       this.logger.error('error getting new materials', err instanceof Error ? err.message : err);
-//       return Result.fail(err instanceof Error ? err : Error('unknown error'));
+//       return failure(err instanceof Error ? err : Error('unknown error'));
 //     }
 //   }
 // }

@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CountryDTO } from '../../domain/countryDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetAllCountriesRequestDTO = never;
 
@@ -23,7 +23,7 @@ export class GetAllCountriesInteractor implements IInteractor<GetAllCountriesReq
         orderBy: [ { name: 'asc' } ],
       });
 
-      return Result.success(countries.map(c => ({
+      return success(countries.map(c => ({
         countryId: c.countryId,
         code: c.code,
         name: c.name,
@@ -32,7 +32,7 @@ export class GetAllCountriesInteractor implements IInteractor<GetAllCountriesReq
 
     } catch (err) {
       this.logger.error('error getting countries', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

@@ -1,5 +1,7 @@
 import type { NewPartMedium, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewMediumType } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
@@ -10,8 +12,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileMemoryUpload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewPartMediumRequestDTO = {
   partId: string;
@@ -72,31 +72,31 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
         include: { newAssignmentTemplate: { include: { newSubmissionTemplate: { include: { course: true } } } } },
       });
       if (!partTemplate) {
-        return Result.fail(new InsertNewPartMediumPartNotFound());
+        return failure(new InsertNewPartMediumPartNotFound());
       }
 
       if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewPartMediumSubmissionsEnabled());
+        return failure(new InsertNewPartMediumSubmissionsEnabled());
       }
 
       // validate the data
       if (caption.length === 0) {
-        return Result.fail(new InsertNewPartMediumCaptionEmpty());
+        return failure(new InsertNewPartMediumCaptionEmpty());
       }
       if ([ ...caption ].length > 191) {
-        return Result.fail(new InsertNewPartMediumCaptionTooLong());
+        return failure(new InsertNewPartMediumCaptionTooLong());
       }
 
       if (order < 0) {
-        return Result.fail(new InsertNewPartMediumOrderLessThanZero());
+        return failure(new InsertNewPartMediumOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new InsertNewPartMediumOrderTooLarge());
+        return failure(new InsertNewPartMediumOrderTooLarge());
       }
 
       if (typeof externalData !== 'undefined') {
         if (!/^https:\/\//iu.test(externalData)) {
-          return Result.fail(new InsertNewPartMediumExternalDataInvalid());
+          return failure(new InsertNewPartMediumExternalDataInvalid());
         }
       }
 
@@ -107,10 +107,10 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
       } else if (externalData) {
         insertedPartMedium = await this.insertWithExternalData(partIdBin, caption, order, externalData);
       } else {
-        return Result.fail(new InsertNewPartMediumDataMissing());
+        return failure(new InsertNewPartMediumDataMissing());
       }
 
-      return Result.success({
+      return success({
         partMediumId: this.uuidService.binToUUID(insertedPartMedium.partMediumId),
         partTemplateId: insertedPartMedium.partTemplateId === null ? null : this.uuidService.binToUUID(insertedPartMedium.partTemplateId),
         mimeTypeId: insertedPartMedium.mimeTypeId,
@@ -126,7 +126,7 @@ export class InsertNewPartMediumInteractor implements IInteractor<InsertNewPartM
 
     } catch (err) {
       this.logger.error('error inserting part medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

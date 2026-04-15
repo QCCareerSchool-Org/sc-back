@@ -1,5 +1,7 @@
 import type { PasswordResetRequest, PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AccountType } from '../../domain/accountType.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { ICryptoService } from '../../services/crypto/index.js';
@@ -7,8 +9,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IPasswordService } from '../../services/password/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 type UsePasswordResetRequestDTO = {
   id: number;
@@ -41,23 +41,23 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
       const passwordReset = await this.prisma.passwordResetRequest.findUnique({ where: { id } });
 
       if (passwordReset === null) {
-        return Result.fail(new UsePasswordResetNotFound());
+        return failure(new UsePasswordResetNotFound());
       }
 
       if (passwordReset.used) {
-        return Result.fail(new UsePasswordResetAlreadyUsed());
+        return failure(new UsePasswordResetAlreadyUsed());
       }
 
       if (passwordReset.code !== code) {
-        return Result.fail(new UsePasswordResetInvalidCode());
+        return failure(new UsePasswordResetInvalidCode());
       }
 
       if (this.isExpired(passwordReset)) {
-        return Result.fail(new UsePasswordResetExpired());
+        return failure(new UsePasswordResetExpired());
       }
 
       if (this.passwordService.isPoor(password)) {
-        return Result.fail(new UsePasswordResetPoorPassword());
+        return failure(new UsePasswordResetPoorPassword());
       }
 
       const [ accountId, accountType ] = this.getAccountId(passwordReset);
@@ -97,16 +97,16 @@ export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetR
         });
       } catch (err) {
         if (err instanceof Error) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error using password reset', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

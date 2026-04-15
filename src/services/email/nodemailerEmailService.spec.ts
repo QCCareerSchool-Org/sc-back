@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import nodemailer from 'nodemailer';
-import type Mail from 'nodemailer/lib/mailer';
+import type Mail from 'nodemailer/lib/mailer/index.js';
 
 import { NodemailerEmailService } from './nodemailerEmailService.js';
 
@@ -42,6 +42,7 @@ describe('NodeMailerEmailService', () => {
 
     it('should return a transport created with the settings provided by getOptions', () => {
       const transport = { sendMail: jest.fn(), close: jest.fn() };
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       jest.spyOn(nodemailer, 'createTransport').mockReturnValue(transport as unknown as Mail);
 
       const options = { host: 'localhost' };

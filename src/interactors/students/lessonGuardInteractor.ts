@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type LessonGuardRequestDTO = {
@@ -43,7 +43,7 @@ export class LessonGuardInteractor extends StudentInteractor<LessonGuardRequestD
         include: { unit: true },
       });
       if (!material) {
-        return Result.fail(new LessonGuardNotFound());
+        return failure(new LessonGuardNotFound());
       }
 
       const enrollment = await this.prisma.enrollment.findUnique({
@@ -51,14 +51,14 @@ export class LessonGuardInteractor extends StudentInteractor<LessonGuardRequestD
         where: { studentId_courseId: { studentId: request.studentId, courseId: material.unit.courseId } },
       });
       if (!enrollment) {
-        return Result.fail(new LessonGuardNotEnrolled());
+        return failure(new LessonGuardNotEnrolled());
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error in lesson guard', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

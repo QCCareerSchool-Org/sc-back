@@ -1,6 +1,8 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadNewUploadSlotRequestDTO = {
@@ -74,7 +74,7 @@ export class DownloadNewUploadSlotInteractor extends StudentInteractor<DownloadN
       });
 
       if (!uploadSlot) {
-        return Result.fail(new DownloadNewUploadSlotNotFound());
+        return failure(new DownloadNewUploadSlotNotFound());
       }
 
       // we can now trust all values for submissionId, assignmentId, partId, and textBoxId
@@ -85,7 +85,7 @@ export class DownloadNewUploadSlotInteractor extends StudentInteractor<DownloadN
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadNewUploadSlotFileNotFound(filePath));
+        return failure(new DownloadNewUploadSlotFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -101,7 +101,7 @@ export class DownloadNewUploadSlotInteractor extends StudentInteractor<DownloadN
           throw new DownloadNewUploadSlotFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
           size: stats.size,
@@ -119,10 +119,10 @@ export class DownloadNewUploadSlotInteractor extends StudentInteractor<DownloadN
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadNewUploadSlotFileReadError(filePath));
+        return failure(new DownloadNewUploadSlotFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(uploadSlot.filename ?? 'unknown'),
         size: stats.size,
@@ -134,7 +134,7 @@ export class DownloadNewUploadSlotInteractor extends StudentInteractor<DownloadN
 
     } catch (err) {
       this.logger.error('error downloading upload slot file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

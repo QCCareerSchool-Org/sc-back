@@ -1,5 +1,7 @@
 import type { Material, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -10,8 +12,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteMaterialImageRequestDTO = {
   /** uuid */
@@ -41,7 +41,7 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
   public async execute({ materialId, privileges }: DeleteMaterialImageRequestDTO): Promise<ResultType<DeleteMaterialImageResponseDTO>> {
     try {
       if (!privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const materialIdBin = this.uuidService.uuidToBin(materialId);
@@ -74,12 +74,12 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
         });
       } catch (err) {
         if (err instanceof DeleteMaterialImageError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
         unitId: this.uuidService.binToUUID(updatedMaterial.unitId),
         type: materialType(updatedMaterial.type),
@@ -101,7 +101,7 @@ export class DeleteMaterialImageInteractor implements IInteractor<DeleteMaterial
 
     } catch (err) {
       this.logger.error('error deleting material image', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

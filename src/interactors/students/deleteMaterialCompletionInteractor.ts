@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DeleteMaterialCompletionRequestDTO = {
@@ -47,7 +47,7 @@ export class DeleteMaterialCompletionInteractor extends StudentInteractor<Delete
       });
 
       if (!material) {
-        return Result.fail(new DeleteMaterialCompletionMaterialNotFound());
+        return failure(new DeleteMaterialCompletionMaterialNotFound());
       }
 
       try {
@@ -57,16 +57,16 @@ export class DeleteMaterialCompletionInteractor extends StudentInteractor<Delete
         });
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
-          return Result.fail(new DeleteMaterialCompletionNotFound());
+          return failure(new DeleteMaterialCompletionNotFound());
         }
         throw err;
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting material completion', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

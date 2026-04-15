@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type DownloadNewPartMediumRequestDTO = {
   tutorId: number;
@@ -50,11 +50,11 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
       });
 
       if (!newPartMedium) {
-        return Result.fail(new DownloadNewPartMediumNotFound());
+        return failure(new DownloadNewPartMediumNotFound());
       }
 
       if (newPartMedium.externalData !== null) {
-        return Result.success(newPartMedium.externalData);
+        return success(newPartMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.partMediaPath}/${partMediumId}`;
@@ -63,7 +63,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find feedback file ${filePath}`);
-        return Result.fail(new DownloadNewPartMediumFileNotFound(filePath));
+        return failure(new DownloadNewPartMediumFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -79,7 +79,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
           throw new DownloadNewPartMediumFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: this.sanitizerService.sanitizeFilename(newPartMedium.filename),
           size: stats.size,
@@ -99,7 +99,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
         throw new DownloadNewPartMediumFileReadError();
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(newPartMedium.filename),
         size: stats.size,
@@ -110,7 +110,7 @@ export class DownloadNewPartMediumInteractor implements IInteractor<DownloadNewP
 
     } catch (err) {
       this.logger.error('error downloading new part medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

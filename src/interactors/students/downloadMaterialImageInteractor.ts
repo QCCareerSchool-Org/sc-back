@@ -1,6 +1,8 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { FileStats, IFileService } from '../../services/file/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadMaterialImageRequestDTO = {
@@ -55,13 +55,13 @@ export class DownloadMaterialImageInteractor extends StudentInteractor<DownloadM
         include: { imageMimeType: true },
       });
       if (!material) {
-        return Result.fail(new DownloadMaterialImageNotFound());
+        return failure(new DownloadMaterialImageNotFound());
       }
 
       // determine which file to use
       const file = await this.getFilePathAndStats(request.materialId);
       if (!file) {
-        return Result.fail(new DownloadMaterialImageFileNotFound());
+        return failure(new DownloadMaterialImageFileNotFound());
       }
       const [ filePath, stats ] = file;
 
@@ -78,7 +78,7 @@ export class DownloadMaterialImageInteractor extends StudentInteractor<DownloadM
           throw new DownloadMaterialImageFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: this.sanitizerService.sanitizeFilename(material.filename ?? 'unknown'),
           size: stats.size,
@@ -95,10 +95,10 @@ export class DownloadMaterialImageInteractor extends StudentInteractor<DownloadM
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadMaterialImageFileReadError(filePath));
+        return failure(new DownloadMaterialImageFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(material.filename ?? 'unknown'),
         size: stats.size,
@@ -109,7 +109,7 @@ export class DownloadMaterialImageInteractor extends StudentInteractor<DownloadM
 
     } catch (err) {
       this.logger.error('error downloading material image', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

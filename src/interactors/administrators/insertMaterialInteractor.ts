@@ -1,5 +1,7 @@
 import type { Material, PrismaClient, Unit } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -14,8 +16,6 @@ import type { IUnzipService } from '../../services/unzip/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor, InteractorFileDiskUpload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertMaterialRequestDTO = {
   unitId: string;
@@ -97,7 +97,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
   public async execute(request: InsertMaterialRequestDTO): Promise<ResultType<InsertMaterialResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const unitIdBin = this.uuidService.uuidToBin(request.unitId);
@@ -105,37 +105,37 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
       // find the material unit
       const unit = await this.prisma.unit.findUnique({ where: { unitId: unitIdBin } });
       if (!unit) {
-        return Result.fail(new InsertMaterialUnitNotFound());
+        return failure(new InsertMaterialUnitNotFound());
       }
 
       // validate the data common to all material types
       if (request.title.length === 0) {
-        return Result.fail(new InsertMaterialTitleEmpty());
+        return failure(new InsertMaterialTitleEmpty());
       }
       if ([ ...request.title ].length > 191) {
-        return Result.fail(new InsertMaterialTitleTooLong());
+        return failure(new InsertMaterialTitleTooLong());
       }
 
       if (request.description.length === 0) {
-        return Result.fail(new InsertMaterialDescriptionEmpty());
+        return failure(new InsertMaterialDescriptionEmpty());
       }
       if ([ ...request.description ].length > 65_536) {
-        return Result.fail(new InsertMaterialDescriptionTooLong());
+        return failure(new InsertMaterialDescriptionTooLong());
       }
 
       if (request.order < 0) {
-        return Result.fail(new InsertMaterialOrderLessThanZero());
+        return failure(new InsertMaterialOrderLessThanZero());
       }
       if (request.order > 127) {
-        return Result.fail(new InsertMaterialOrderTooLarge());
+        return failure(new InsertMaterialOrderTooLarge());
       }
 
       if (request.imageFile) {
         if (request.imageFile.size >= this.configService.config.materialImageMaxFileSize) {
-          return Result.fail(new InsertMaterialImageTooLarge(this.configService.config.materialImageMaxFileSize, request.imageFile.size));
+          return failure(new InsertMaterialImageTooLarge(this.configService.config.materialImageMaxFileSize, request.imageFile.size));
         }
         if (request.imageFile.mimeType !== 'image/jpeg' && request.imageFile.mimeType !== 'image/png') {
-          return Result.fail(new InsertMaterialInvalidImageMimeType(request.imageFile.mimeType));
+          return failure(new InsertMaterialInvalidImageMimeType(request.imageFile.mimeType));
         }
       }
 
@@ -150,16 +150,16 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
         } else if (request.type === 'assignment') {
           material = await this.insertAssignment(request, unit);
         } else {
-          return Result.fail(new InsertMaterialInvalidType());
+          return failure(new InsertMaterialInvalidType());
         }
       } catch (err) {
         if (err instanceof InsertMaterialError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(material.materialId),
         unitId: this.uuidService.binToUUID(material.unitId),
         type: materialType(material.type),
@@ -181,7 +181,7 @@ export class InsertMaterialInteractor implements IInteractor<InsertMaterialReque
 
     } catch (err) {
       this.logger.error('error inserting material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     } finally {
       try {
         await Promise.allSettled([

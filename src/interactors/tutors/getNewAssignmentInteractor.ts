@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewAssignmentMediumDTO } from '../../domain/newAssignmentMediumDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -12,8 +14,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type GetNewAssignmentRequestDTO = {
   tutorId: number;
@@ -74,15 +74,15 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
       });
 
       if (!newAssignment) {
-        return Result.fail(new GetNewAssignmentNotFound());
+        return failure(new GetNewAssignmentNotFound());
       }
 
       if (!newAssignment.newSubmission.submitted) {
-        return Result.fail(new GetNewAssignmentSubmissionNotSubmitted());
+        return failure(new GetNewAssignmentSubmissionNotSubmitted());
       }
 
       if (newAssignment.newSubmission.skipped) {
-        return Result.fail(new GetNewAssignmentSubmissionSkipped());
+        return failure(new GetNewAssignmentSubmissionSkipped());
       }
 
       const isThisSubmissionsTutor = newAssignment.newSubmission.tutorId === tutorId;
@@ -90,7 +90,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
       const hasAnotherSubmissionToMark = newAssignment.newSubmission.enrollment.newSubmissions.some(s => s.submitted && !s.skipped && !s.closed && s.tutorId === tutorId);
 
       if (!isThisSubmissionsTutor && !isThisEnrollmentsTutor && !hasAnotherSubmissionToMark) {
-        return Result.fail(new GetNewAssignmentWrongTutor());
+        return failure(new GetNewAssignmentWrongTutor());
       }
 
       let assignmentComplete = true;
@@ -98,7 +98,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
       let assignmentPoints = 0;
       let assignmentMark = 0;
 
-      return Result.success({
+      return success({
         assignmentId: this.uuidService.binToUUID(newAssignment.assignmentId),
         submissionId: this.uuidService.binToUUID(newAssignment.submissionId),
         assignmentNumber: newAssignment.assignmentNumber,
@@ -277,7 +277,7 @@ export class GetNewAssignmentInteractor implements IInteractor<GetNewAssignmentR
 
     } catch (err) {
       this.logger.error('error getting new assignment', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

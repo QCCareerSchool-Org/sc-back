@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { SchoolDTO } from '../../domain/schoolDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetAllCoursesRequestDTO = never;
 
@@ -25,7 +25,7 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
         include: { school: true },
       });
 
-      return Result.success(courses.map(c => ({
+      return success(courses.map(c => ({
         courseId: c.courseId,
         schoolId: c.schoolId,
         variantId: c.variantId,
@@ -52,7 +52,7 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
 
     } catch (err) {
       this.logger.error('error getting courses', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

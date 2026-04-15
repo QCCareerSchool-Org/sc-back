@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentDTO } from '../../domain/administrators/newAssignmentDTO.js';
 import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
@@ -15,8 +17,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewSubmissionRequestDTO = {
   submissionId: string;
@@ -68,7 +68,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         },
       });
       if (!submission) {
-        return Result.fail(new GetNewSubmissionNotFound());
+        return failure(new GetNewSubmissionNotFound());
       }
 
       let submissionComplete = true;
@@ -78,7 +78,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       let submissionMarkOverride = 0;
       let submissionOverridden = false;
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(submission.submissionId),
         enrollmentId: submission.enrollmentId,
         tutorId: submission.tutorId,
@@ -328,7 +328,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
 
     } catch (err) {
       this.logger.error('error getting submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

@@ -1,8 +1,8 @@
 import type { Enrollment, Student } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
 import type { IDateService } from '../../services/date/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
 
 type EnrollmentWithStudent = Enrollment & { student: Student };
 

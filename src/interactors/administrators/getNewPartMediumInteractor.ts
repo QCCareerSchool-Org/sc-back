@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
@@ -7,8 +9,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewPartMediumRequestDTO = {
   mediumId: string;
@@ -43,10 +43,10 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
         },
       });
       if (!partMedium) {
-        return Result.fail(new GetNewPartMediumNotFound());
+        return failure(new GetNewPartMediumNotFound());
       }
 
-      return Result.success({
+      return success({
         partMediumId: this.uuidService.binToUUID(partMedium.partMediumId),
         partTemplateId: partMedium.partTemplateId === null ? null : this.uuidService.binToUUID(partMedium.partTemplateId),
         mimeTypeId: partMedium.mimeTypeId,
@@ -85,7 +85,7 @@ export class GetNewPartMediumInteractor implements IInteractor<GetNewPartMediumR
 
     } catch (err) {
       this.logger.error('error getting assignment medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

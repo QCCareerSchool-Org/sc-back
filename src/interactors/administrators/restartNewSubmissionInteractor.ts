@@ -1,5 +1,7 @@
 import type { NewAssignment, NewAssignmentsOnNewAssignmentMedia, NewPart, NewPartsOnNewPartMedia, NewSubmission, NewSubmissionPrice, NewTextBox, NewUploadSlot, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -7,8 +9,6 @@ import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type RestartNewSubmissionRequestDTO = {
   submissionId: string;
@@ -203,7 +203,7 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
           }
         }
 
-        return Result.success({
+        return success({
           submissionId: this.uuidService.binToUUID(submission.submissionId),
           enrollmentId: submission.enrollmentId,
           tutorId: submission.tutorId,
@@ -235,14 +235,14 @@ export class RestartNewSubmissionInteractor implements IInteractor<RestartNewSub
 
       } catch (err) {
         if (err instanceof RestartNewSubmissionErorr) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
     } catch (err) {
       this.logger.error('error restarting new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

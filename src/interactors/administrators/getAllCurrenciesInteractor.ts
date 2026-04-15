@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { CurrencyDTO } from '../../domain/currencyDTO.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetAllCurrenciesRequestDTO = never;
 
@@ -21,7 +21,7 @@ export class GetAllCurrenciesInteractor implements IInteractor<GetAllCurrenciesR
     try {
       const currencies = await this.prisma.currency.findMany();
 
-      return Result.success(currencies.map(c => ({
+      return success(currencies.map(c => ({
         currencyId: c.currencyId,
         code: c.code,
         name: c.name,
@@ -30,7 +30,7 @@ export class GetAllCurrenciesInteractor implements IInteractor<GetAllCurrenciesR
 
     } catch (err) {
       this.logger.error('error getting currencies', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

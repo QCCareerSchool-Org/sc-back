@@ -1,13 +1,13 @@
 import type { NewSubmissionTemplate, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionTemplateDTO } from '../../domain/newSubmissionTemplateDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewSubmissionTemplateRequestDTO = {
   submissionId: string;
@@ -55,47 +55,47 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
         },
       });
       if (!submissionTemplate) {
-        return Result.fail(new SaveNewSubmissionTemplateNotFound());
+        return failure(new SaveNewSubmissionTemplateNotFound());
       }
 
       if (submissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewSubmissionTemplateSubmissionsEnabled());
+        return failure(new SaveNewSubmissionTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (unitLetter.length === 0) {
-        return Result.fail(new SaveNewSubmissionTemplateUnitLetterEmpty());
+        return failure(new SaveNewSubmissionTemplateUnitLetterEmpty());
       }
       if (unitLetter.length > 1) {
-        return Result.fail(new SaveNewSubmissionTemplateUnitLetterTooLong());
+        return failure(new SaveNewSubmissionTemplateUnitLetterTooLong());
       }
       if (!/^[a-z0-9]$/iu.test(unitLetter)) {
-        return Result.fail(new SaveNewSubmissionTemplateInvalidUnitLetter());
+        return failure(new SaveNewSubmissionTemplateInvalidUnitLetter());
       }
 
       if (title !== null) {
         if ([ ...title ].length > 191) {
-          return Result.fail(new SaveNewSubmissionTemplateTitleTooLong());
+          return failure(new SaveNewSubmissionTemplateTitleTooLong());
         }
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new SaveNewSubmissionTemplateDescriptionTooLong());
+          return failure(new SaveNewSubmissionTemplateDescriptionTooLong());
         }
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new SaveNewSubmissionTemplateMarkingCriteriaTooLong());
+          return failure(new SaveNewSubmissionTemplateMarkingCriteriaTooLong());
         }
       }
 
       if (order < 0) {
-        return Result.fail(new SaveNewSubmissionTemplateOrderLessThanZero());
+        return failure(new SaveNewSubmissionTemplateOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new SaveNewSubmissionTemplateOrderTooLarge());
+        return failure(new SaveNewSubmissionTemplateOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -119,13 +119,13 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'course_id_submission_letter') {
-            return Result.fail(new SaveNewSubmissionTemplateUnitLetterAlreadyInUse());
+            return failure(new SaveNewSubmissionTemplateUnitLetterAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         submissionTemplateId: this.uuidService.binToUUID(updatedSubmissionTemplate.submissionTemplateId),
         courseId: updatedSubmissionTemplate.courseId,
         unitLetter: updatedSubmissionTemplate.unitLetter,
@@ -140,7 +140,7 @@ export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewS
 
     } catch (err) {
       this.logger.error('error saving submission template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

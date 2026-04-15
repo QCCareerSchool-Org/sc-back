@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewSubmissionReturnDTO } from '../../domain/newSubmissionReturnDTO.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -7,8 +9,6 @@ import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type CloseNewSubmissionReturnRequestDTO = {
   submissionReturnId: string;
@@ -42,15 +42,15 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
         where: { submissionReturnId: submissionReturnIdBin },
       });
       if (!submissionReturn) {
-        return Result.fail(new CloseNewSubmissionReturnNotFound());
+        return failure(new CloseNewSubmissionReturnNotFound());
       }
 
       if (submissionReturn.completed) {
-        return Result.fail(new CloseNewSubmissionReturnAlreadyCompleted());
+        return failure(new CloseNewSubmissionReturnAlreadyCompleted());
       }
 
       if (adminComment.length === 0) {
-        return Result.fail(new CloseNewSubmissionReturnAdminCommentEmpty());
+        return failure(new CloseNewSubmissionReturnAdminCommentEmpty());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -73,7 +73,7 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
         }
       }
 
-      return Result.success({
+      return success({
         submissionReturnId: this.uuidService.binToUUID(updatedSubmissionReturn.submissionReturnId),
         submissionId: this.uuidService.binToUUID(updatedSubmissionReturn.submissionId),
         returned: updatedSubmissionReturn.returned,
@@ -107,7 +107,7 @@ export class CloseNewSubmissionReturnInteractor implements IInteractor<CloseNewS
 
     } catch (err) {
       this.logger.error('error updating submission return', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

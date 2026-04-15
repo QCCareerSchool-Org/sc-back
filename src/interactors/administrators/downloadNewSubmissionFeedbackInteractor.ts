@@ -1,13 +1,13 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DownloadNewSubmissionFeedbackRequestDTO = {
   submissionId: string;
@@ -45,26 +45,26 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         include: { enrollment: { include: { course: true } } },
       });
       if (!submission) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSubmissionNotFound());
+        return failure(new DownloadNewSubmissionFeedbackSubmissionNotFound());
       }
 
       if (!submission.submitted) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSubmissionNotSubmitted());
+        return failure(new DownloadNewSubmissionFeedbackSubmissionNotSubmitted());
       }
 
       if (submission.skipped) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSubmissionSkipped());
+        return failure(new DownloadNewSubmissionFeedbackSubmissionSkipped());
       }
 
       if (!submission.closed) {
-        return Result.fail(new DownloadNewSubmissionFeedbackSubmissionNotClosed());
+        return failure(new DownloadNewSubmissionFeedbackSubmissionNotClosed());
       }
 
       const filePath = this.getFilePath(submission.enrollmentId, submissionId);
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find submission feedback file ${filePath}`);
-        return Result.fail(new DownloadNewSubmissionFeedbackFileNotFound(filePath));
+        return failure(new DownloadNewSubmissionFeedbackFileNotFound(filePath));
       }
 
       const filename = `${submission.enrollment.course.code}${submission.enrollment.studentNumber}_Unit_${submission.unitLetter}.mp3`;
@@ -82,7 +82,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
           throw new DownloadNewSubmissionFeedbackFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           download: true,
           filename,
@@ -100,10 +100,10 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read part medium file ${filePath}`, err);
-        return Result.fail(new DownloadNewSubmissionFeedbackFileReadError(filePath));
+        return failure(new DownloadNewSubmissionFeedbackFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         download: true,
         filename,
@@ -115,7 +115,7 @@ export class DownloadNewSubmissionFeedbackInteractor implements IInteractor<Down
 
     } catch (err) {
       this.logger.error('error downloading submission feedback file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

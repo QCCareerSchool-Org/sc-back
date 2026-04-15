@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewUploadSlotTemplateRequestDTO = {
   partId: string;
@@ -51,39 +51,39 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         },
       });
       if (!partTemplate) {
-        return Result.fail(new InsertNewUploadSlotTemplatePartNotFound());
+        return failure(new InsertNewUploadSlotTemplatePartNotFound());
       }
 
       if (partTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewUploadSlotTemplateSubmissionsEnabled());
+        return failure(new InsertNewUploadSlotTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (label.length === 0) {
-        return Result.fail(new InsertNewUploadSlotTemplateLabelEmpty());
+        return failure(new InsertNewUploadSlotTemplateLabelEmpty());
       }
 
       if (allowedTypes.length === 0) {
-        return Result.fail(new InsertNewUploadSlotTemplateAllowedTypesEmpty());
+        return failure(new InsertNewUploadSlotTemplateAllowedTypesEmpty());
       }
       for (const allowedType of allowedTypes) {
         if (![ 'image', 'pdf', 'word', 'excel' ].includes(allowedType)) {
-          return Result.fail(new InsertNewUploadSlotTemplateInvalidAllowedType());
+          return failure(new InsertNewUploadSlotTemplateInvalidAllowedType());
         }
       }
 
       if (points < 0) {
-        return Result.fail(new InsertNewUploadSlotTemplatePointsLessThanZero());
+        return failure(new InsertNewUploadSlotTemplatePointsLessThanZero());
       }
       if (points > 127) {
-        return Result.fail(new InsertNewUploadSlotTemplatePointsTooLarge());
+        return failure(new InsertNewUploadSlotTemplatePointsTooLarge());
       }
 
       if (order < 0) {
-        return Result.fail(new InsertNewUploadSlotTemplateOrderLessThanZero());
+        return failure(new InsertNewUploadSlotTemplateOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new InsertNewUploadSlotTemplateOrderTooLarge());
+        return failure(new InsertNewUploadSlotTemplateOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -103,7 +103,7 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
         },
       });
 
-      return Result.success({
+      return success({
         uploadSlotTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.uploadSlotTemplateId),
         partTemplateId: this.uuidService.binToUUID(insertedTextBoxTemplate.partTemplateId),
         label: insertedTextBoxTemplate.label,
@@ -117,7 +117,7 @@ export class InsertNewUploadSlotTemplateInteractor implements IInteractor<Insert
 
     } catch (err) {
       this.logger.error('error inserting upload slot template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

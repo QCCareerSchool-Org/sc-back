@@ -1,10 +1,10 @@
 import type { ReadStream } from 'fs';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../services/config/index.js';
 import type { FileStats, IFileService } from '../services/file/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor, InteractorFileStreamDownload } from './index.js';
 
 export type DownloadCourseIconImageRequestDTO = {
@@ -44,7 +44,7 @@ export class DownloadCourseIconImageInteractor implements IInteractor<DownloadCo
           throw new DownloadCourseIconImageFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: `course-icon-${courseId}.jpg`,
           size: stats.size,
@@ -61,10 +61,10 @@ export class DownloadCourseIconImageInteractor implements IInteractor<DownloadCo
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadCourseIconImageFileReadError(filePath));
+        return failure(new DownloadCourseIconImageFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: `course-icon-${courseId}.jpg`,
         size: stats.size,
@@ -75,7 +75,7 @@ export class DownloadCourseIconImageInteractor implements IInteractor<DownloadCo
 
     } catch (err) {
       this.logger.error('error downloading course icon image', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js';
 import type { IConfigService } from '../../services/config/index.js';
@@ -7,8 +9,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type EraseNewUploadSlotRequestDTO = {
@@ -88,7 +88,7 @@ export class EraseNewUploadSlotInteractor extends StudentInteractor<EraseNewUplo
         return updated;
       });
 
-      return Result.success({
+      return success({
         uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
         partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
         label: updatedUploadSlot.label,
@@ -108,7 +108,7 @@ export class EraseNewUploadSlotInteractor extends StudentInteractor<EraseNewUplo
 
     } catch (err) {
       this.logger.error('error deleting upload slot file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

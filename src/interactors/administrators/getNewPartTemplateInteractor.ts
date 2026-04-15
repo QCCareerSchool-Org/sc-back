@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
@@ -9,8 +11,6 @@ import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewPartTemplateRequestDTO = {
   partId: string;
@@ -53,10 +53,10 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
         },
       });
       if (!partTemplate) {
-        return Result.fail(new GetNewPartTemplateNotFound());
+        return failure(new GetNewPartTemplateNotFound());
       }
 
-      return Result.success({
+      return success({
         partTemplateId: this.uuidService.binToUUID(partTemplate.partTemplateId),
         assignmentTemplateId: this.uuidService.binToUUID(partTemplate.assignmentTemplateId),
         partNumber: partTemplate.partNumber,
@@ -117,7 +117,7 @@ export class GetNewPartTemplateInteractor implements IInteractor<GetNewPartTempl
 
     } catch (err) {
       this.logger.error('error getting part template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

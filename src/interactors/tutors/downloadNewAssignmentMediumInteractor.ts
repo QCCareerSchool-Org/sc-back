@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor, InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type DownloadNewAssignmentMediumRequestDTO = {
   tutorId: number;
@@ -50,11 +50,11 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       });
 
       if (!newAssignmentMedium) {
-        return Result.fail(new DownloadNewAssignmentMediumNotFound());
+        return failure(new DownloadNewAssignmentMediumNotFound());
       }
 
       if (newAssignmentMedium.externalData !== null) {
-        return Result.success(newAssignmentMedium.externalData);
+        return success(newAssignmentMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${assignmentMediumId}`;
@@ -63,7 +63,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
         this.logger.error(`Could not find feedback file ${filePath}`);
-        return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
+        return failure(new DownloadNewAssignmentMediumFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -79,7 +79,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
           throw new DownloadNewAssignmentMediumFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename: this.sanitizerService.sanitizeFilename(newAssignmentMedium.filename),
           size: stats.size,
@@ -99,7 +99,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
         throw new DownloadNewAssignmentMediumFileReadError();
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename: this.sanitizerService.sanitizeFilename(newAssignmentMedium.filename),
         size: stats.size,
@@ -110,7 +110,7 @@ export class DownloadNewAssignmentMediumInteractor implements IInteractor<Downlo
 
     } catch (err) {
       this.logger.error('error downloading new assignment medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

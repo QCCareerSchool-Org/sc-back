@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type GetMaterialRequestDTO = {
@@ -44,7 +44,7 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
       });
 
       if (!material) {
-        return Result.fail(new GetMaterialNotFound());
+        return failure(new GetMaterialNotFound());
       }
 
       const materialData = material.materialData.reduce<Record<string, string>>((prev, cur) => {
@@ -54,7 +54,7 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
 
       const complete = material.materialCompletions.length > 0 || materialData['cmi.completion_status'] === 'completed';
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(material.materialId),
         unitId: this.uuidService.binToUUID(material.unitId),
         type: material.type,
@@ -78,7 +78,7 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
 
     } catch (err) {
       this.logger.error('error getting material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

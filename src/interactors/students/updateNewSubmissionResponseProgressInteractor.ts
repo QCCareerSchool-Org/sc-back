@@ -1,11 +1,11 @@
 import type { Course, Enrollment, NewSubmission, PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/students/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type UpdateNewSubmissionResponseProgressRequestDTO = {
@@ -38,11 +38,11 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
   public async execute({ studentId, courseId, submissionId, progress }: UpdateNewSubmissionResponseProgressRequestDTO): Promise<ResultType<UpdateNewSubmissionResponseProgressResponseDTO>> {
     try {
       if (progress < 0) {
-        return Result.fail(new UpdateNewSubmissionResponseProgressLessThanZero());
+        return failure(new UpdateNewSubmissionResponseProgressLessThanZero());
       }
 
       if (progress > 100) {
-        return Result.fail(new UpdateNewSubmissionResponseProgressGreaterThan100());
+        return failure(new UpdateNewSubmissionResponseProgressGreaterThan100());
       }
 
       const submissionIdBin = this.uuidService.uuidToBin(submissionId);
@@ -53,12 +53,12 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
         updatedSubmission = await this.updateSubmission(studentId, courseId, submissionIdBin, progress);
       } catch (err) {
         if (err instanceof UpdateNewSubmissionResponseProgressError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -86,7 +86,7 @@ export class UpdateNewSubmissionResponseProgressInteractor extends StudentIntera
 
     } catch (err) {
       this.logger.error('error submitting new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

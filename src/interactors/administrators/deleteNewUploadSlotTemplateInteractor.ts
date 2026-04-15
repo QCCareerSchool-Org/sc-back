@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type DeleteNewUploadSlotTemplateRequestDTO = {
   uploadSlotId: string;
@@ -35,21 +35,21 @@ export class DeleteNewUploadSlotTemplateInteractor implements IInteractor<Delete
         },
       });
       if (!uploadSlotTemplate) {
-        return Result.fail(new DeleteNewUploadSlotTemplateNotFound());
+        return failure(new DeleteNewUploadSlotTemplateNotFound());
       }
 
       if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new DeleteNewUploadSlotTemplateSubmissionsEnabled());
+        return failure(new DeleteNewUploadSlotTemplateSubmissionsEnabled());
       }
 
       // delete the upload slot template
       await this.prisma.newUploadSlotTemplate.delete({ where: { uploadSlotTemplateId: uploadSlotIdBin } });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error deleting upload slot template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

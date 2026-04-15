@@ -1,5 +1,7 @@
 import type { Material, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -11,8 +13,6 @@ import type { IUnzipService } from '../../services/unzip/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor, InteractorFileDiskUpload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type ReplaceMaterialContentRequestDTO = {
   /** uuid */
@@ -45,17 +45,17 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
   public async execute(request: ReplaceMaterialContentRequestDTO): Promise<ResultType<ReplaceMaterialContentResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const materialIdBin = this.uuidService.uuidToBin(request.materialId);
 
       if (request.fileData.size >= this.configService.config.lessonArchiveMaxFileSize) {
-        return Result.fail(new ReplaceMaterialContentTooLarge(request.fileData.size.toString()));
+        return failure(new ReplaceMaterialContentTooLarge(request.fileData.size.toString()));
       }
 
       if (request.fileData.mimeType !== 'application/x-zip-compressed') {
-        return Result.fail(new ReplaceMaterialContentInvalidMimeType());
+        return failure(new ReplaceMaterialContentInvalidMimeType());
       }
 
       let updatedMaterial: Material;
@@ -89,12 +89,12 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
         }, { timeout: this.configService.config.materialUploadTimeout });
       } catch (err) {
         if (err instanceof ReplaceMaterialContentError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
         unitId: this.uuidService.binToUUID(updatedMaterial.unitId),
         type: materialType(updatedMaterial.type),
@@ -116,7 +116,7 @@ export class ReplaceMaterialContentInteractor implements IInteractor<ReplaceMate
 
     } catch (err) {
       this.logger.error('error replacing material content', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

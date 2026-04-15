@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/tutors/newUploadSlotDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type SaveNewUploadSlotRequestDTO = {
   tutorId: number;
@@ -69,24 +69,24 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
       }
 
       if (newUploadSlot.newPart.newAssignment.newSubmission.closed) {
-        return Result.fail(new SaveNewUploadSlotSubmissionAlreadyClosed());
+        return failure(new SaveNewUploadSlotSubmissionAlreadyClosed());
       }
 
       if (newUploadSlot.newPart.newAssignment.newSubmission.tutorId !== tutorId) {
-        return Result.fail(new SaveNewUploadSlotWrongTutor());
+        return failure(new SaveNewUploadSlotWrongTutor());
       }
 
       if (newUploadSlot.newPart.newAssignment.newSubmission.tutorComment) {
-        return Result.fail(new SaveNewUploadSlotAlreadyReturned());
+        return failure(new SaveNewUploadSlotAlreadyReturned());
       }
 
       if (newUploadSlot.filename === null) {
-        return Result.fail(new SaveNewUploadSlotIncomplete());
+        return failure(new SaveNewUploadSlotIncomplete());
       }
 
       if (mark !== null) {
         if (newUploadSlot.points === 0) {
-          return Result.fail(new SaveNewUploadSlotZeroPoints());
+          return failure(new SaveNewUploadSlotZeroPoints());
         }
         if (mark < 0) {
           throw new SaveNewUploadSlotMarkLessThanZero();
@@ -111,7 +111,7 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
         where: { uploadSlotId: uploadSlotIdBin },
       });
 
-      return Result.success({
+      return success({
         uploadSlotId: this.uuidService.binToUUID(updatedUploadSlot.uploadSlotId),
         partId: this.uuidService.binToUUID(updatedUploadSlot.partId),
         label: updatedUploadSlot.label,
@@ -131,7 +131,7 @@ export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlo
 
     } catch (err) {
       this.logger.error('error saving text box mark', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

@@ -1,5 +1,7 @@
 import type { Material, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -10,8 +12,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor, InteractorFileDiskUpload } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type ReplaceMaterialImageRequestDTO = {
   /** uuid */
@@ -42,17 +42,17 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
   public async execute({ materialId, fileData, privileges }: ReplaceMaterialImageRequestDTO): Promise<ResultType<ReplaceMaterialImageResponseDTO>> {
     try {
       if (!privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const materialIdBin = this.uuidService.uuidToBin(materialId);
 
       if (fileData.size >= this.configService.config.materialImageMaxFileSize) {
-        return Result.fail(new ReplaceMaterialImageTooLarge(fileData.size.toString()));
+        return failure(new ReplaceMaterialImageTooLarge(fileData.size.toString()));
       }
 
       if (!this.isValidMimeType(fileData.mimeType)) {
-        return Result.fail(new ReplaceMaterialImageInvalidMimeType());
+        return failure(new ReplaceMaterialImageInvalidMimeType());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -90,12 +90,12 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
         });
       } catch (err) {
         if (err instanceof ReplaceMaterialImageError) {
-          return Result.fail(err);
+          return failure(err);
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
         unitId: this.uuidService.binToUUID(updatedMaterial.unitId),
         type: materialType(updatedMaterial.type),
@@ -117,7 +117,7 @@ export class ReplaceMaterialImageInteractor implements IInteractor<ReplaceMateri
 
     } catch (err) {
       this.logger.error('error replacing material image', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     } finally {
       try {
         await this.fileService.unlink(fileData.path);

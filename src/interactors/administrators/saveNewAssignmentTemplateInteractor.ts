@@ -1,14 +1,14 @@
 import type { NewAssignmentTemplate, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewAssignmentTemplateDTO } from '../../domain/newAssignmentTemplateDTO.js';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewAssignmentTemplateRequestDTO = {
   assignmentId: string;
@@ -55,43 +55,43 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         },
       });
       if (!assignmentTemplate) {
-        return Result.fail(new SaveNewAssignmentTemplateNotFound());
+        return failure(new SaveNewAssignmentTemplateNotFound());
       }
 
       if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewAssignmentTemplateSubmissionsEnabled());
+        return failure(new SaveNewAssignmentTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (assignmentNumber < 1) {
-        return Result.fail(new SaveNewAssignmentTemplateAssignmentNumberLessThanOne());
+        return failure(new SaveNewAssignmentTemplateAssignmentNumberLessThanOne());
       }
       if (assignmentNumber > 127) {
-        return Result.fail(new SaveNewAssignmentTemplateAssignmentNumberTooLarge());
+        return failure(new SaveNewAssignmentTemplateAssignmentNumberTooLarge());
       }
 
       if (title !== null) {
         if ([ ...title ].length > 191) {
-          return Result.fail(new SaveNewAssignmentTemplateTitleTooLong());
+          return failure(new SaveNewAssignmentTemplateTitleTooLong());
         }
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new SaveNewAssignmentTemplateDescriptionTooLong());
+          return failure(new SaveNewAssignmentTemplateDescriptionTooLong());
         }
       }
 
       if (descriptionType.length === 0) {
-        return Result.fail(new SaveNewAssignmentTemplateDescriptionTypeEmpty());
+        return failure(new SaveNewAssignmentTemplateDescriptionTypeEmpty());
       }
       if (!isNewDescriptionType(descriptionType)) {
-        return Result.fail(new SaveNewAssignmentTemplateInvalidDescriptionType());
+        return failure(new SaveNewAssignmentTemplateInvalidDescriptionType());
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new SaveNewAssignmentTemplateMarkingCriteriaTooLong());
+          return failure(new SaveNewAssignmentTemplateMarkingCriteriaTooLong());
         }
       }
 
@@ -116,13 +116,13 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'submission_template_id_assignment_number') {
-            return Result.fail(new SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse());
+            return failure(new SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         assignmentTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.assignmentTemplateId),
         submissionTemplateId: this.uuidService.binToUUID(updatedAssignmentTemplate.submissionTemplateId),
         assignmentNumber: updatedAssignmentTemplate.assignmentNumber,
@@ -137,7 +137,7 @@ export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewA
 
     } catch (err) {
       this.logger.error('error saving assignment template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

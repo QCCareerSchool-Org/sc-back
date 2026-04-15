@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { ICryptoService } from '../../services/crypto/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type UpdateEmailAddressRequestDTO = {
   auditorId: number;
@@ -35,15 +35,15 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
       });
 
       if (!auditor) {
-        return Result.fail(new AuditorNotFound());
+        return failure(new AuditorNotFound());
       }
 
       if (auditor.expiry !== null && this.dateService.fixPrismaReadDate(auditor.expiry) <= this.dateService.getDate()) {
-        return Result.fail(new AuditorExpired());
+        return failure(new AuditorExpired());
       }
 
       if (!await this.cryptoService.verify(password, auditor.passwordHash)) {
-        return Result.fail(new IncorrectPassword());
+        return failure(new IncorrectPassword());
       }
 
       await this.prisma.auditor.update({
@@ -51,11 +51,11 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
         where: { auditorId },
       });
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error updating email address', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

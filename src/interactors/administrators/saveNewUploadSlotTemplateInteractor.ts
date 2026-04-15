@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewUploadSlotTemplateRequestDTO = {
   uploadSlotId: string;
@@ -51,39 +51,39 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         },
       });
       if (!uploadSlotTemplate) {
-        return Result.fail(new SaveNewUploadSlotTemplateNotFound());
+        return failure(new SaveNewUploadSlotTemplateNotFound());
       }
 
       if (uploadSlotTemplate.newPartTemplate.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewUploadSlotTemplateSubmissionsEnabled());
+        return failure(new SaveNewUploadSlotTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (label.length === 0) {
-        return Result.fail(new SaveNewUploadSlotTemplateLabelEmpty());
+        return failure(new SaveNewUploadSlotTemplateLabelEmpty());
       }
 
       if (allowedTypes.length === 0) {
-        return Result.fail(new SaveNewUploadSlotTemplateAllowedTypesEmpty());
+        return failure(new SaveNewUploadSlotTemplateAllowedTypesEmpty());
       }
       for (const allowedType of allowedTypes) {
         if (![ 'image', 'pdf', 'word', 'excel' ].includes(allowedType)) {
-          return Result.fail(new SaveNewUploadSlotTemplateInvalidAllowedType());
+          return failure(new SaveNewUploadSlotTemplateInvalidAllowedType());
         }
       }
 
       if (points < 0) {
-        return Result.fail(new SaveNewUploadSlotTemplatePointsLessThanZero());
+        return failure(new SaveNewUploadSlotTemplatePointsLessThanZero());
       }
       if (points > 127) {
-        return Result.fail(new SaveNewUploadSlotTemplatePointsTooLarge());
+        return failure(new SaveNewUploadSlotTemplatePointsTooLarge());
       }
 
       if (order < 0) {
-        return Result.fail(new SaveNewUploadSlotTemplateOrderLessThanZero());
+        return failure(new SaveNewUploadSlotTemplateOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new SaveNewUploadSlotTemplateOrderTooLarge());
+        return failure(new SaveNewUploadSlotTemplateOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -101,7 +101,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
         where: { uploadSlotTemplateId: uploadSlotIdBin },
       });
 
-      return Result.success({
+      return success({
         uploadSlotTemplateId: this.uuidService.binToUUID(updatedUploadSlotTemplate.uploadSlotTemplateId),
         partTemplateId: this.uuidService.binToUUID(updatedUploadSlotTemplate.partTemplateId),
         label: updatedUploadSlotTemplate.label,
@@ -115,7 +115,7 @@ export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewU
 
     } catch (err) {
       this.logger.error('error saving upload slot template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

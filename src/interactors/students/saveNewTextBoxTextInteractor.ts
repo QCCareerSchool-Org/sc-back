@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewTextBoxDTO } from '../../domain/students/newTextBoxDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type SaveNewTextBoxTextRequestDTO = {
@@ -82,7 +82,7 @@ export class SaveNewTextBoxTextInteractor extends StudentInteractor<SaveNewTextB
         include: { newPart: { include: { newAssignment: { include: { newSubmission: true } } } } },
       });
 
-      return Result.success({
+      return success({
         textBoxId: this.uuidService.binToUUID(updatedTextBox.textBoxId),
         partId: this.uuidService.binToUUID(updatedTextBox.partId),
         description: updatedTextBox.description,
@@ -100,7 +100,7 @@ export class SaveNewTextBoxTextInteractor extends StudentInteractor<SaveNewTextB
 
     } catch (err) {
       this.logger.error('error saving text box text', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

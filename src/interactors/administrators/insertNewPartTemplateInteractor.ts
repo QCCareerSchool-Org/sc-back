@@ -1,14 +1,14 @@
 import type { NewPartTemplate, PrismaClient } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import { isNewDescriptionType } from '../../domain/newDescriptionType.js';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewPartTemplateRequestDTO = {
   assignmentId: string;
@@ -55,45 +55,45 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         },
       });
       if (!assignmentTemplate) {
-        return Result.fail(new InsertNewPartTemplateAssignmentNotFound());
+        return failure(new InsertNewPartTemplateAssignmentNotFound());
       }
 
       if (assignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new InsertNewPartTemplateSubmissionsEnabled());
+        return failure(new InsertNewPartTemplateSubmissionsEnabled());
       }
 
       // validate the data
       if (title.length === 0) {
-        return Result.fail(new InsertNewPartTemplatePartTitleEmpty());
+        return failure(new InsertNewPartTemplatePartTitleEmpty());
       }
       if ([ ...title ].length > 191) {
-        return Result.fail(new InsertNewPartTemplatePartTitleTooLong());
+        return failure(new InsertNewPartTemplatePartTitleTooLong());
       }
 
       if (description !== null) {
         if ([ ...description ].length > 65_535) {
-          return Result.fail(new InsertNewPartTemplateDescriptionTooLong());
+          return failure(new InsertNewPartTemplateDescriptionTooLong());
         }
       }
 
       if (descriptionType.length === 0) {
-        return Result.fail(new InsertNewPartTemplateDescriptionTypeEmpty());
+        return failure(new InsertNewPartTemplateDescriptionTypeEmpty());
       }
       if (!isNewDescriptionType(descriptionType)) {
-        return Result.fail(new InsertNewPartTemplateInvalidDescriptionType());
+        return failure(new InsertNewPartTemplateInvalidDescriptionType());
       }
 
       if (markingCriteria !== null) {
         if ([ ...markingCriteria ].length > 65_535) {
-          return Result.fail(new InsertNewPartTemplateMarkingCriteriaTooLong());
+          return failure(new InsertNewPartTemplateMarkingCriteriaTooLong());
         }
       }
 
       if (partNumber < 1) {
-        return Result.fail(new InsertNewPartTemplatePartNumberLessThanOne());
+        return failure(new InsertNewPartTemplatePartNumberLessThanOne());
       }
       if (partNumber > 127) {
-        return Result.fail(new InsertNewPartTemplatePartNumberTooLarge());
+        return failure(new InsertNewPartTemplatePartNumberTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -118,13 +118,13 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' && err.meta) {
           const meta = err.meta as { target: string };
           if (meta.target === 'assignment_template_id_part_number') {
-            return Result.fail(new InsertNewPartTemplatePartNumberAlreadyInUse());
+            return failure(new InsertNewPartTemplatePartNumberAlreadyInUse());
           }
         }
         throw err;
       }
 
-      return Result.success({
+      return success({
         partTemplateId: this.uuidService.binToUUID(insertedPartTemplate.partTemplateId),
         assignmentTemplateId: this.uuidService.binToUUID(insertedPartTemplate.assignmentTemplateId),
         partNumber: insertedPartTemplate.partNumber,
@@ -138,7 +138,7 @@ export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPar
 
     } catch (err) {
       this.logger.error('error inserting part template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

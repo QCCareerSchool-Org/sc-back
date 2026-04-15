@@ -1,9 +1,9 @@
 import type { Administrator, PasswordResetRequest, PrismaClient, Student, Tutor } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AccountType } from '../../domain/accountType.js';
 import type { IInteractor } from '../../interactors/index.js';
-import type { ResultType } from '../../interactors/result.js';
-import { Result } from '../../interactors/result.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { ICryptoService } from '../../services/crypto/index.js';
 import type { IDateService } from '../../services/date/index.js';
@@ -49,13 +49,13 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
       const lookup = await this.getAccount(username);
 
       if (!lookup) {
-        return Result.fail(new CreatePasswordResetUserNotFound());
+        return failure(new CreatePasswordResetUserNotFound());
       }
 
       const [ accountId, account, accountType ] = lookup;
 
       if (!account.emailAddress) {
-        return Result.fail(new CreatePasswordResetNoEmailAddress());
+        return failure(new CreatePasswordResetNoEmailAddress());
       }
 
       const randomBytes = await this.cryptoService.randomBytes(16); // 128 bits of entropy
@@ -90,7 +90,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
         htmlBodyFile = 'email/password-reset/student.html';
         textBodyFile = 'email/password-reset/student.txt';
       } else {
-        return Result.fail(new CreatePasswordResetInvalidAccountType());
+        return failure(new CreatePasswordResetInvalidAccountType());
       }
 
       // const headerImageFile = path.resolve(__dirname, '../../../email/header.png');
@@ -104,7 +104,7 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
 
       const country = await this.prisma.country.findUnique({ where: { countryId: account.countryId } });
       if (!country) {
-        return Result.fail(new CreatePasswordResetCountryNotFound());
+        return failure(new CreatePasswordResetCountryNotFound());
       }
 
       const name = account.firstName + ' ' + account.lastName;
@@ -123,21 +123,21 @@ export class CreatePasswordResetInteractor implements IInteractor<CreatePassword
         );
       } catch (err) {
         this.logger.error('Email failure', err);
-        return Result.fail(new CreatePasswordResetEmailFailure());
+        return failure(new CreatePasswordResetEmailFailure());
       }
 
       if (passwordResetRequest.expiryDate === null) {
         throw Error('password reset request expiry date is null');
       }
 
-      return Result.success({
+      return success({
         maskedEmailAddress: this.emailService.mask(account.emailAddress),
         expiryDate: this.dateService.fixPrismaReadDate(passwordResetRequest.expiryDate),
       });
 
     } catch (err) {
       this.logger.error('error creating password reset', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

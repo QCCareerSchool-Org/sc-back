@@ -1,6 +1,8 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadNewAssignmentMediumRequestDTO = {
@@ -71,11 +71,11 @@ export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<Dow
         },
       });
       if (!assignmentMedium) {
-        return Result.fail(new DownloadNewAssignmentMediumNotFound());
+        return failure(new DownloadNewAssignmentMediumNotFound());
       }
 
       if (assignmentMedium.externalData !== null) {
-        return Result.success(assignmentMedium.externalData);
+        return success(assignmentMedium.externalData);
       }
 
       const filePath = `${this.configService.config.paths.assignmentMediaPath}/${this.uuidService.binToUUID(assignmentMedium.assignmentMediumId)}`;
@@ -83,7 +83,7 @@ export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<Dow
       // check if the file exists
       const stats = await this.fileService.stat(filePath);
       if (!stats) {
-        return Result.fail(new DownloadNewAssignmentMediumFileNotFound(filePath));
+        return failure(new DownloadNewAssignmentMediumFileNotFound(filePath));
       }
 
       if (typeof startByte !== 'undefined') {
@@ -99,7 +99,7 @@ export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<Dow
           throw new DownloadNewAssignmentMediumFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           download: true,
           filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
@@ -117,10 +117,10 @@ export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<Dow
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadNewAssignmentMediumFileReadError(filePath));
+        return failure(new DownloadNewAssignmentMediumFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         download: true,
         filename: this.sanitizerService.sanitizeFilename(assignmentMedium.filename ?? 'unknown'),
@@ -132,7 +132,7 @@ export class DownloadNewAssignmentMediumInteractor extends StudentInteractor<Dow
 
     } catch (err) {
       this.logger.error('error downloading assignment medium file', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

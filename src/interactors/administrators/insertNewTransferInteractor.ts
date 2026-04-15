@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewTransferDTO } from '../../domain/newTransfer.js';
 import type { TutorDTO } from '../../domain/tutorDTO.js';
@@ -8,8 +10,6 @@ import type { IEmailService } from '../../services/email/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type InsertNewTransferRequestDTO = {
   administratorId: number;
@@ -136,7 +136,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
         }
       }
 
-      return Result.success({
+      return success({
         transferId: this.uuidService.binToUUID(transfer.transferId),
         submissionId: this.uuidService.binToUUID(transfer.submissionId),
         administratorId: transfer.administratorId,
@@ -184,7 +184,7 @@ export class InsertNewTransferInteractor implements IInteractor<InsertNewTransfe
 
     } catch (err) {
       this.logger.error('error inserting new transfer', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

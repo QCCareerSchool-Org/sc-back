@@ -1,11 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { AwardDTO } from '../domain/awardDTO.js';
 import type { IGradeService } from '../services/grade/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
 import type { IUUIDService } from '../services/uuid/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor } from './index.js';
 
 export type GetAwardRequestDTO = {
@@ -42,11 +42,11 @@ export class GetAwardInteractor implements IInteractor<GetAwardRequestDTO, GetAw
       });
 
       if (!submission) {
-        return Result.fail(new GetAwardNotFound());
+        return failure(new GetAwardNotFound());
       }
 
       if (submission.closed === null) {
-        return Result.fail(new GetAwardNotMarked());
+        return failure(new GetAwardNotMarked());
       }
 
       let totalMarks = 0;
@@ -72,16 +72,16 @@ export class GetAwardInteractor implements IInteractor<GetAwardRequestDTO, GetAw
       }
 
       if (totalPoints === 0) {
-        return Result.fail(new GetAwardNoPoints());
+        return failure(new GetAwardNoPoints());
       }
 
       const grade = this.gradeService.calculate(totalMarks / totalPoints);
 
       if (!(grade === 'A-' || grade === 'A' || grade === 'A+')) {
-        return Result.fail(new GetAwardGradeTooLow());
+        return failure(new GetAwardGradeTooLow());
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(submission.submissionId),
         courseName: submission.enrollment.course.name,
         schoolName: submission.enrollment.course.school.name,
@@ -93,7 +93,7 @@ export class GetAwardInteractor implements IInteractor<GetAwardRequestDTO, GetAw
 
     } catch (err) {
       this.logger.error('error getting award', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

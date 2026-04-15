@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "lint": "eslint src",
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/frameworks/express",
     "check-domain": "find src/interactors/administrators -type f -print0 | xargs -0 grep --color \"domain/students\\|domain/tutors\" && find src/interactors/tutors -type f -print0 | xargs -0 grep --color \"domain/students\\|domain/administrators\" && find src/interactors/students -type f -print0 | xargs -0 grep --color \"domain/tutors\\|domain/administrators\""

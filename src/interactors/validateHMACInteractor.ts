@@ -1,8 +1,8 @@
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../services/config/index.js';
 import type { ICryptoService } from '../services/crypto/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
-import type { ResultType } from './result.js';
-import { Result } from './result.js';
 import type { IInteractor } from './index.js';
 
 export type ValidateHMACRequestDTO = {
@@ -28,14 +28,14 @@ export class ValidateHMACInteractor implements IInteractor<ValidateHMACRequestDT
 
       const calculatedHash = this.cryptoService.sha256Hmac(data, this.configService.config.hmacSecret);
       if (hmac !== calculatedHash) {
-        return Result.fail(new ValidateHMACFailed());
+        return failure(new ValidateHMACFailed());
       }
 
-      return Result.success(undefined);
+      return success(undefined);
 
     } catch (err) {
       this.logger.error('error validating HMAC', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

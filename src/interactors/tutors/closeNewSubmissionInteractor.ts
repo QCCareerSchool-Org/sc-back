@@ -1,5 +1,7 @@
 import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { NewSubmissionDTO } from '../../domain/tutors/newSubmissionDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IEmailService } from '../../services/email/index.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 
 export type CloseNewSubmissionRequestDTO = {
   tutorId: number;
@@ -53,31 +53,31 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       });
 
       if (!newSubmission) {
-        return Result.fail(new CloseNewSubmissionNotFound());
+        return failure(new CloseNewSubmissionNotFound());
       }
 
       if (!newSubmission.submitted) {
-        return Result.fail(new CloseNewSubmissionNotSubmitted());
+        return failure(new CloseNewSubmissionNotSubmitted());
       }
 
       if (newSubmission.skipped) {
-        return Result.fail(new CloseNewSubmissionSkipped());
+        return failure(new CloseNewSubmissionSkipped());
       }
 
       if (newSubmission.closed) {
-        return Result.fail(new CloseNewSubmissionAlreadyClosed());
+        return failure(new CloseNewSubmissionAlreadyClosed());
       }
 
       if (newSubmission.tutorId !== tutorId) {
-        return Result.fail(new CloseNewSubmissionWrongTutor());
+        return failure(new CloseNewSubmissionWrongTutor());
       }
 
       if (newSubmission.tutorComment) {
-        return Result.fail(new CloseNewSubmissionAlreadyReturned());
+        return failure(new CloseNewSubmissionAlreadyReturned());
       }
 
       if (newSubmission.responseFilename === null) {
-        return Result.fail(new CloseNewSubmissionNoFeedback());
+        return failure(new CloseNewSubmissionNoFeedback());
       }
 
       let submissionComplete = true;
@@ -147,7 +147,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       }
 
       if (!submissionMarked) {
-        return Result.fail(new CloseNewSubmissionNotMarked());
+        return failure(new CloseNewSubmissionNotMarked());
       }
 
       const failed = submissionPoints > 0 && submissionMark / submissionPoints < 0.5;
@@ -325,7 +325,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         }
       }
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(updatedSubmission.submissionId),
         enrollmentId: updatedSubmission.enrollmentId,
         tutorId: updatedSubmission.tutorId,
@@ -356,7 +356,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
     } catch (err) {
       this.logger.error('error closing new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

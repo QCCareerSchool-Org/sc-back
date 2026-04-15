@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -12,8 +14,6 @@ import type { NewUploadSlotDTO } from '../../domain/students/newUploadSlotDTO.js
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type GetNewSubmissionRequestDTO = {
@@ -70,7 +70,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
       });
 
       if (!submission) {
-        return Result.fail(new GetNewSubmissionNotFound());
+        return failure(new GetNewSubmissionNotFound());
       }
 
       let submissionComplete = true;
@@ -78,7 +78,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
       let submissionPoints = 0;
       let submissionMark = 0;
 
-      return Result.success({
+      return success({
         submissionId: this.uuidService.binToUUID(submission.submissionId),
         enrollmentId: submission.enrollmentId,
         tutorId: submission.tutorId,
@@ -312,7 +312,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
 
     } catch (err) {
       this.logger.error('error getting new submission', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

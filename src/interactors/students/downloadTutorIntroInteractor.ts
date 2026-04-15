@@ -1,14 +1,14 @@
 import type { ReadStream } from 'fs';
 import type { PrismaClient } from '@prisma/client';
 
+import type { Result as ResultType } from 'generic-result-type';
+import { failure, success } from 'generic-result-type';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { FileStats, IFileService } from '../../services/file/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { InteractorFileStreamDownload } from '../index.js';
-import type { ResultType } from '../result.js';
-import { Result } from '../result.js';
 import { StudentInteractor } from './studentInteractor.js';
 
 export type DownloadTutorIntroRequestDTO = {
@@ -58,17 +58,17 @@ export class DownloadTutorIntroInteractor extends StudentInteractor<DownloadTuto
       });
 
       if (!enrollment) {
-        return Result.fail(new DownloadTutorIntroEnrollmentNotFound());
+        return failure(new DownloadTutorIntroEnrollmentNotFound());
       }
 
       if (enrollment.tutor === null) {
-        return Result.fail(new DownloadTutorIntroTutorNotAssigned());
+        return failure(new DownloadTutorIntroTutorNotAssigned());
       }
 
       // determine which file to use
       const file = await this.getFilePathAndStats(enrollment.tutor.tutorId, enrollment.course.code);
       if (!file) {
-        return Result.fail(new DownloadTutorIntroFileNotFound());
+        return failure(new DownloadTutorIntroFileNotFound());
       }
       const [ filePath, fileExtension, stats ] = file;
 
@@ -87,7 +87,7 @@ export class DownloadTutorIntroInteractor extends StudentInteractor<DownloadTuto
           throw new DownloadTutorIntroFileReadError(filePath);
         }
 
-        return Result.success({
+        return success({
           stream: fileStream,
           filename,
           size: stats.size,
@@ -104,10 +104,10 @@ export class DownloadTutorIntroInteractor extends StudentInteractor<DownloadTuto
         fileStream = this.fileService.createReadStream(filePath);
       } catch (err) {
         this.logger.error(`Could not read file ${filePath}`, err);
-        return Result.fail(new DownloadTutorIntroFileReadError(filePath));
+        return failure(new DownloadTutorIntroFileReadError(filePath));
       }
 
-      return Result.success({
+      return success({
         stream: fileStream,
         filename,
         size: stats.size,
@@ -118,7 +118,7 @@ export class DownloadTutorIntroInteractor extends StudentInteractor<DownloadTuto
 
     } catch (err) {
       this.logger.error('error downloading tutor intro', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 

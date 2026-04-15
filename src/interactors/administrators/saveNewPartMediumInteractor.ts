@@ -1,12 +1,12 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewPartMediumDTO } from '../../domain/newPartMediumDTO.js';
 import type { DateService } from '../../services/date/dateService.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveNewPartMediumRequestDTO = {
   mediumId: string;
@@ -44,26 +44,26 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
         },
       });
       if (!partMedium) {
-        return Result.fail(new SaveNewPartMediumNotFound());
+        return failure(new SaveNewPartMediumNotFound());
       }
 
       if (partMedium.newPartTemplate?.newAssignmentTemplate.newSubmissionTemplate.course.submissionsEnabled) {
-        return Result.fail(new SaveNewPartMediumSubmissionsEnabled());
+        return failure(new SaveNewPartMediumSubmissionsEnabled());
       }
 
       // validate the data
       if (caption.length === 0) {
-        return Result.fail(new SaveNewPartMediumPartCaptionEmpty());
+        return failure(new SaveNewPartMediumPartCaptionEmpty());
       }
       if ([ ...caption ].length > 191) {
-        return Result.fail(new SaveNewPartMediumPartCaptionTooLong());
+        return failure(new SaveNewPartMediumPartCaptionTooLong());
       }
 
       if (order < 0) {
-        return Result.fail(new SaveNewPartMediumOrderLessThanZero());
+        return failure(new SaveNewPartMediumOrderLessThanZero());
       }
       if (order > 127) {
-        return Result.fail(new SaveNewPartMediumOrderTooLarge());
+        return failure(new SaveNewPartMediumOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -74,7 +74,7 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
         where: { partMediumId: mediumIdBin },
       });
 
-      return Result.success({
+      return success({
         partMediumId: this.uuidService.binToUUID(updatedPartMedium.partMediumId),
         partTemplateId: updatedPartMedium.partTemplateId === null ? null : this.uuidService.binToUUID(updatedPartMedium.partTemplateId),
         mimeTypeId: updatedPartMedium.mimeTypeId,
@@ -90,7 +90,7 @@ export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediu
 
     } catch (err) {
       this.logger.error('error saving part medium', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

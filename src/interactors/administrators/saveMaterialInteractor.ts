@@ -1,5 +1,7 @@
 import type { Material, PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { Privileges } from '../../domain/accessTokenPayload.js';
 import type { MaterialDTO } from '../../domain/materialDTO.js';
 import { materialType } from '../../domain/materialDTO.js';
@@ -8,8 +10,6 @@ import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import { InsufficientPrivileges } from '../index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type SaveMaterialRequestDTO = {
   /** uuid */
@@ -49,36 +49,36 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
   public async execute(request: SaveMaterialRequestDTO): Promise<ResultType<SaveMaterialResponseDTO>> {
     try {
       if (!request.privileges?.courseDevelopment) {
-        return Result.fail(new InsufficientPrivileges());
+        return failure(new InsufficientPrivileges());
       }
 
       const materialIdBin = this.uuidService.uuidToBin(request.materialId);
 
       const material = await this.prisma.material.findUnique({ where: { materialId: materialIdBin } });
       if (!material) {
-        return Result.fail(new SaveMaterialNotFound());
+        return failure(new SaveMaterialNotFound());
       }
 
       // validate the data
       if (request.title.length === 0) {
-        return Result.fail(new SaveMaterialTitleEmpty());
+        return failure(new SaveMaterialTitleEmpty());
       }
       if ([ ...request.title ].length > 191) {
-        return Result.fail(new SaveMaterialTitleTooLong());
+        return failure(new SaveMaterialTitleTooLong());
       }
 
       if (request.description.length === 0) {
-        return Result.fail(new SaveMaterialDescriptionEmpty());
+        return failure(new SaveMaterialDescriptionEmpty());
       }
       if ([ ...request.description ].length > 65_536) {
-        return Result.fail(new SaveMaterialDescriptionTooLong());
+        return failure(new SaveMaterialDescriptionTooLong());
       }
 
       if (request.order < 0) {
-        return Result.fail(new SaveMaterialOrderLessThanZero());
+        return failure(new SaveMaterialOrderLessThanZero());
       }
       if (request.order > 127) {
-        return Result.fail(new SaveMaterialOrderTooLarge());
+        return failure(new SaveMaterialOrderTooLarge());
       }
 
       const prismaNow = this.dateService.fixPrismaWriteDate(this.dateService.getDate());
@@ -114,7 +114,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
         });
       }
 
-      return Result.success({
+      return success({
         materialId: this.uuidService.binToUUID(updatedMaterial.materialId),
         unitId: this.uuidService.binToUUID(updatedMaterial.unitId),
         type: materialType(updatedMaterial.type),
@@ -136,7 +136,7 @@ export class SaveMaterialInteractor implements IInteractor<SaveMaterialRequestDT
 
     } catch (err) {
       this.logger.error('error updating material', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

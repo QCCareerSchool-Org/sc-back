@@ -1,13 +1,13 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { failure, success } from 'generic-result-type';
+import type { Result as ResultType } from 'generic-result-type';
 import type { NewPartTemplateDTO } from '../../domain/newPartTemplateDTO.js';
 import type { NewUploadSlotAllowedType, NewUploadSlotTemplateDTO } from '../../domain/newUploadSlotTemplateDTO.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
-import { Result } from '../result.js';
-import type { ResultType } from '../result.js';
 
 export type GetNewUploadSlotTemplateRequestDTO = {
   uploadSlotId: string;
@@ -38,10 +38,10 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
         include: { newPartTemplate: true },
       });
       if (!uploadSlotTemplate) {
-        return Result.fail(new GetNewUploadSlotTemplateNotFound());
+        return failure(new GetNewUploadSlotTemplateNotFound());
       }
 
-      return Result.success({
+      return success({
         uploadSlotTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.uploadSlotTemplateId),
         partTemplateId: this.uuidService.binToUUID(uploadSlotTemplate.partTemplateId),
         label: uploadSlotTemplate.label,
@@ -66,7 +66,7 @@ export class GetNewUploadSlotTemplateInteractor implements IInteractor<GetNewUpl
 
     } catch (err) {
       this.logger.error('error getting upload slot template', err instanceof Error ? err.message : err);
-      return Result.fail(err instanceof Error ? err : Error('unknown error'));
+      return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }
