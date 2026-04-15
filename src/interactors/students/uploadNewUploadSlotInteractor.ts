@@ -95,25 +95,30 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         this.logger.warn(`Reported file type does not match ${realMimeType}`, { studentId, courseId, filename: file.filename, size: file.size, mimeType: file.mimeType });
       }
 
+      let uploadData = file.data;
+      let uploadMimeType = file.mimeType;
+      let uploadFilename = file.filename;
+      let uploadSize = file.size;
+
       if (this.isHeicMimeType(realMimeType)) {
-        file.data = await this.imageConversionService.heicToJpg(file.data);
-        file.mimeType = 'image/jpeg';
-        file.filename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
-        file.size = file.data.byteLength;
+        uploadData = await this.imageConversionService.heicToJpg(file.data);
+        uploadMimeType = 'image/jpeg';
+        uploadFilename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
+        uploadSize = uploadData.byteLength;
       }
 
-      if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {
-        this.logger.info('Invalid mime type', file.mimeType);
+      if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
+        this.logger.info('Invalid mime type', uploadMimeType);
         return Result.fail(new UploadNewUploadSlotInvalidFileType());
       }
 
       const updatedUploadSlot = await this.prisma.$transaction(async transaction => {
         // look up the mime type
         const mimeType = await transaction.mimeType.findUnique({
-          where: { mimeTypeId: file.mimeType },
+          where: { mimeTypeId: uploadMimeType },
         });
         if (!mimeType) {
-          this.logger.error(`Could not find mime type "${file.mimeType}"`);
+          this.logger.error(`Could not find mime type "${uploadMimeType}"`);
           throw new UploadNewUploadSlotEntityNotFound();
         }
 
@@ -121,8 +126,8 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
         const updated = await transaction.newUploadSlot.update({
           data: {
-            filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(file.filename)),
-            filesize: file.size,
+            filename: this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(uploadFilename)),
+            filesize: uploadSize,
             mimeTypeId: mimeType.mimeTypeId,
             compressed: mimeType.compress,
             modified: prismaNow,
@@ -147,9 +152,9 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         const filePath = `${path}/${uploadSlotId}`;
         try {
           if (mimeType.compress) {
-            await this.fileService.writeFile(filePath, await this.compressionService.gzip(file.data));
+            await this.fileService.writeFile(filePath, await this.compressionService.gzip(uploadData));
           } else {
-            await this.fileService.writeFile(filePath, file.data);
+            await this.fileService.writeFile(filePath, uploadData);
           }
         } catch (err) {
           this.logger.error('Could not save file', err);
