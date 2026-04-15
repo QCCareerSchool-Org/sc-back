@@ -94,7 +94,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       if (realMimeType !== file.mimeType) {
         this.logger.warn(`Reported file type does not match ${realMimeType}`, { studentId, courseId, filename: file.filename, size: file.size, mimeType: file.mimeType });
         if (realMimeType === 'image/heic') {
-          file.data = this.imageConversionService.heicToJpg(file.data);
+          file.data = await this.imageConversionService.heicToJpg(file.data);
           file.mimeType = 'image/jpg';
           file.filename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
         }

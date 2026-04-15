@@ -1,8 +1,15 @@
+import heicConvert from 'heic-convert';
+
 import type { IImageConversionService } from './index.js';
 
 export class ImageConversionService implements IImageConversionService {
-  public heicToJpg(buffer: Buffer): Buffer {
-    return buffer;
+  public async heicToJpg(buffer: Buffer): Promise<Buffer> {
+    const converted = await heicConvert({
+      buffer: buffer.buffer,
+      format: 'JPEG',
+      quality: 1,
+    });
+    return Buffer.from(converted);
   }
 
   public setFileExtension(filename: string, newExtension: string): string {

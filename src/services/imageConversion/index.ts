@@ -1,7 +1,7 @@
 import { ImageConversionService } from './imageConversionService.js';
 
 export interface IImageConversionService {
-  heicToJpg: (buffer: Buffer) => Buffer;
+  heicToJpg: (buffer: Buffer) => Promise<Buffer>;
 
   /**
    * Adds or replaces the file extension with a new one
