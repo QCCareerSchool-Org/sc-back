@@ -113,6 +113,12 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
         uploadSize = uploadData.byteLength;
         convertedFromMimeType = realMimeType;
+      } else if (this.isWebpMimeType(realMimeType)) {
+        uploadData = await this.imageConversionService.webpToJpg(file.data);
+        uploadMimeType = 'image/jpeg';
+        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
+        uploadSize = uploadData.byteLength;
+        convertedFromMimeType = realMimeType;
       }
 
       if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
@@ -253,5 +259,9 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
 
   private isAvifMimeType(mimeType: string): boolean {
     return mimeType === 'image/avif';
+  }
+
+  private isWebpMimeType(mimeType: string): boolean {
+    return mimeType === 'image/webp';
   }
 }

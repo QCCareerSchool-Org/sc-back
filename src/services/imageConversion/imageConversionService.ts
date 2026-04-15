@@ -18,6 +18,10 @@ export class ImageConversionService implements IImageConversionService {
     return sharp(buffer).jpeg({ quality: 100 }).toBuffer();
   }
 
+  public async webpToJpg(buffer: Buffer): Promise<Buffer> {
+    return sharp(buffer).jpeg({ quality: 100 }).toBuffer();
+  }
+
   public withFileExtension(filename: string, newExtension: string): string {
     // Find the last dot to identify the current extension
     const lastDotIndex = filename.lastIndexOf('.');
