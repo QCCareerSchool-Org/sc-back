@@ -6,6 +6,7 @@ import type { ICompressionService } from '../../services/compression/index.js';
 import type { IConfigService } from '../../services/config/index.js';
 import type { IDateService } from '../../services/date/index.js';
 import type { IFileService } from '../../services/file/index.js';
+import type { IImageConversionService } from '../../services/imageConversion/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
 import type { IMimeTypeService } from '../../services/mimeType/index.js';
 import type { ISanitizerService } from '../../services/sanitizer/index.js';
@@ -53,6 +54,7 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
     dateService: IDateService,
     private readonly configService: IConfigService,
     private readonly mimeTypeService: IMimeTypeService,
+    private readonly imageConversionService: IImageConversionService,
     private readonly logger: ILoggerService,
   ) {
     super(dateService);
@@ -91,6 +93,11 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       const realMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
       if (realMimeType !== file.mimeType) {
         this.logger.warn(`Reported file type does not match ${realMimeType}`, { studentId, courseId, filename: file.filename, size: file.size, mimeType: file.mimeType });
+        if (realMimeType === 'image/heic') {
+          file.data = this.imageConversionService.heicToJpg(file.data);
+          file.mimeType = 'image/jpg';
+          file.filename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
+        }
       }
 
       if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {

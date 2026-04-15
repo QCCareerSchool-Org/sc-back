@@ -1,4 +1,5 @@
 import { prisma } from '../../frameworks/prisma/index.js';
+import { imageConversionService } from '../../services/imageConversion/index.js';
 import { dateService, emailValidatorService, environmentConfigService, fileTypeMimeTypeService, intervalService, nodeFileService, nodeMailerEmailService, sanitizerService, uuidService, winstonLoggerService, zLibcompressionService } from '../../services/index.js';
 import { DeleteMaterialCompletionInteractor } from './deleteMaterialCompletionInteractor.js';
 import { DownloadMaterialImageInteractor } from './downloadMaterialImageInteractor.js';
@@ -35,7 +36,7 @@ export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma,
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getEnrollmentInteractor = new GetEnrollmentInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const saveNewTextBoxTextInteractor = new SaveNewTextBoxTextInteractor(prisma, uuidService, dateService, winstonLoggerService);
-export const uploadNewUploadSlotInteractor = new UploadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, sanitizerService, dateService, environmentConfigService, fileTypeMimeTypeService, winstonLoggerService);
+export const uploadNewUploadSlotInteractor = new UploadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, zLibcompressionService, sanitizerService, dateService, environmentConfigService, fileTypeMimeTypeService, imageConversionService, winstonLoggerService);
 export const eraseNewUploadSlotInteractor = new EraseNewUploadSlotInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, dateService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const submitNewSubmissionInteractor = new SubmitNewSubmissionInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
