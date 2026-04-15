@@ -4,8 +4,9 @@ import type { IImageConversionService } from './index.js';
 
 export class ImageConversionService implements IImageConversionService {
   public async heicToJpg(buffer: Buffer): Promise<Buffer> {
+    const input = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     const converted = await heicConvert({
-      buffer: buffer.buffer,
+      buffer: input as unknown as ArrayBufferLike,
       format: 'JPEG',
       quality: 1,
     });

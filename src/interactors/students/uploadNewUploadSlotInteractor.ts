@@ -93,11 +93,13 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       const realMimeType = await this.mimeTypeService.getTypeFromBuffer(file.data);
       if (realMimeType !== file.mimeType) {
         this.logger.warn(`Reported file type does not match ${realMimeType}`, { studentId, courseId, filename: file.filename, size: file.size, mimeType: file.mimeType });
-        if (realMimeType === 'image/heic') {
-          file.data = await this.imageConversionService.heicToJpg(file.data);
-          file.mimeType = 'image/jpg';
-          file.filename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
-        }
+      }
+
+      if (this.isHeicMimeType(realMimeType)) {
+        file.data = await this.imageConversionService.heicToJpg(file.data);
+        file.mimeType = 'image/jpeg';
+        file.filename = this.imageConversionService.setFileExtension(file.filename, 'jpg');
+        file.size = file.data.byteLength;
       }
 
       if (!this.allowedType(file.mimeType, newUploadSlot.allowedTypes.split(','))) {
@@ -202,5 +204,12 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       }
     }
     return false;
+  }
+
+  private isHeicMimeType(mimeType: string): boolean {
+    return mimeType === 'image/heic'
+      || mimeType === 'image/heif'
+      || mimeType === 'image/heic-sequence'
+      || mimeType === 'image/heif-sequence';
   }
 }
