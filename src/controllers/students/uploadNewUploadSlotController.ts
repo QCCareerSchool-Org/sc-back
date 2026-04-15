@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { uploadNewUploadSlotInteractor } from '../../interactors/students/index.js';
 import type { UploadNewUploadSlotResponseDTO } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
-import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotSubmissionSubmitted } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
+import { UploadNewUploadSlotCouldNotCreateDirectory, UploadNewUploadSlotEntityNotFound, UploadNewUploadSlotFileTooLarge, UploadNewUploadSlotInvalidFileType, UploadNewUploadSlotNotFound, UploadNewUploadSlotSaveError, UploadNewUploadSlotSubmissionSubmitted, UploadNewUploadSlotUnsupportedFileType } from '../../interactors/students/uploadNewUploadSlotInteractor.js';
 import { StudentController } from './index.js';
 
 type Request = {
@@ -108,6 +108,8 @@ export class UploadNewUploadSlotController extends StudentController<Request, Re
         return this.badRequest('File too large');
       case UploadNewUploadSlotInvalidFileType:
         return this.badRequest('Invalid file type');
+      case UploadNewUploadSlotUnsupportedFileType:
+        return this.badRequest('Unsupported file type');
       case UploadNewUploadSlotEntityNotFound:
         return this.internalServerError('Associated entity not found');
       case UploadNewUploadSlotCouldNotCreateDirectory:

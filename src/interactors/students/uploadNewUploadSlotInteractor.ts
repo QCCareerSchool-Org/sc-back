@@ -36,6 +36,7 @@ export class UploadNewUploadSlotNotFound extends Error { }
 export class UploadNewUploadSlotSubmissionSubmitted extends Error { }
 export class UploadNewUploadSlotFileTooLarge extends Error { }
 export class UploadNewUploadSlotInvalidFileType extends Error { }
+export class UploadNewUploadSlotUnsupportedFileType extends Error { }
 export class UploadNewUploadSlotEntityNotFound extends Error { }
 export class UploadNewUploadSlotCouldNotCreateDirectory extends Error { }
 export class UploadNewUploadSlotSaveError extends Error { }
@@ -102,23 +103,38 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       let convertedFromMimeType: string | null = null;
 
       if (this.isHeicMimeType(realMimeType)) {
-        uploadData = await this.imageConversionService.heicToJpg(file.data);
-        uploadMimeType = 'image/jpeg';
-        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
-        uploadSize = uploadData.byteLength;
-        convertedFromMimeType = realMimeType;
+        const conversionResult = await this.imageConversionService.heicToJpg(file.data);
+        if (conversionResult.success) {
+          uploadData = conversionResult.value;
+          uploadMimeType = 'image/jpeg';
+          uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
+          uploadSize = uploadData.byteLength;
+          convertedFromMimeType = realMimeType;
+        } else {
+          this.logger.error('Unable to convert HEIC', conversionResult.error.message);
+        }
       } else if (this.isAvifMimeType(realMimeType)) {
-        uploadData = await this.imageConversionService.avifToJpg(file.data);
-        uploadMimeType = 'image/jpeg';
-        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
-        uploadSize = uploadData.byteLength;
-        convertedFromMimeType = realMimeType;
+        const conversionResult = await this.imageConversionService.avifToJpg(file.data);
+        if (conversionResult.success) {
+          uploadData = conversionResult.value;
+          uploadMimeType = 'image/jpeg';
+          uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
+          uploadSize = uploadData.byteLength;
+          convertedFromMimeType = realMimeType;
+        } else {
+          this.logger.error('Unable to convert AVIF', conversionResult.error.message);
+        }
       } else if (this.isWebpMimeType(realMimeType)) {
-        uploadData = await this.imageConversionService.webpToJpg(file.data);
-        uploadMimeType = 'image/jpeg';
-        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
-        uploadSize = uploadData.byteLength;
-        convertedFromMimeType = realMimeType;
+        const conversionResult = await this.imageConversionService.webpToJpg(file.data);
+        if (conversionResult.success) {
+          uploadData = conversionResult.value;
+          uploadMimeType = 'image/jpeg';
+          uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
+          uploadSize = uploadData.byteLength;
+          convertedFromMimeType = realMimeType;
+        } else {
+          this.logger.error('Unable to convert WebP', conversionResult.error.message);
+        }
       }
 
       if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
