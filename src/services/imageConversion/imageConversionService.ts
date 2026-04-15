@@ -1,4 +1,5 @@
 import heicConvert from 'heic-convert';
+import sharp from 'sharp';
 
 import type { IImageConversionService } from './index.js';
 
@@ -11,6 +12,10 @@ export class ImageConversionService implements IImageConversionService {
       quality: 1,
     });
     return Buffer.from(converted);
+  }
+
+  public async avifToJpg(buffer: Buffer): Promise<Buffer> {
+    return sharp(buffer).jpeg({ quality: 100 }).toBuffer();
   }
 
   public withFileExtension(filename: string, newExtension: string): string {

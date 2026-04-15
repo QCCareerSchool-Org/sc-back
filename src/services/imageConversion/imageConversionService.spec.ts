@@ -7,7 +7,7 @@ describe('ImageConversionService', () => {
     imageConversionService = new ImageConversionService();
   });
 
-  describe('setFileExtension', () => {
+  describe('withFileExtension', () => {
     it('replaces a HEIC extension with jpg', () => {
       expect(imageConversionService.withFileExtension('IMG_1234.HEIC', 'jpg')).toBe('IMG_1234.jpg');
     });

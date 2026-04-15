@@ -99,14 +99,20 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       let uploadMimeType = file.mimeType;
       let uploadFilename = file.filename;
       let uploadSize = file.size;
-      let convertedFromHeic = false;
+      let convertedFromMimeType: string | null = null;
 
       if (this.isHeicMimeType(realMimeType)) {
         uploadData = await this.imageConversionService.heicToJpg(file.data);
         uploadMimeType = 'image/jpeg';
         uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
         uploadSize = uploadData.byteLength;
-        convertedFromHeic = true;
+        convertedFromMimeType = realMimeType;
+      } else if (this.isAvifMimeType(realMimeType)) {
+        uploadData = await this.imageConversionService.avifToJpg(file.data);
+        uploadMimeType = 'image/jpeg';
+        uploadFilename = this.imageConversionService.withFileExtension(file.filename, 'jpg');
+        uploadSize = uploadData.byteLength;
+        convertedFromMimeType = realMimeType;
       }
 
       if (!this.allowedType(uploadMimeType, newUploadSlot.allowedTypes.split(','))) {
@@ -115,14 +121,14 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       }
 
       const sanitizedUploadFilename = this.sanitizerService.shortenSanitizedFilename(this.sanitizerService.sanitizeFilename(uploadFilename));
-      if (convertedFromHeic) {
-        this.logger.info('Converted HEIC upload slot file', {
+      if (convertedFromMimeType) {
+        this.logger.info('Converted upload slot image file', {
           studentId,
           courseId,
           uploadSlotId,
           originalFilename: file.filename,
           storedFilename: sanitizedUploadFilename,
-          detectedMimeType: realMimeType,
+          detectedMimeType: convertedFromMimeType,
           storedMimeType: uploadMimeType,
           originalSize: file.size,
           storedSize: uploadSize,
@@ -181,8 +187,8 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
         return updated;
       });
 
-      if (convertedFromHeic && updatedUploadSlot.filename !== sanitizedUploadFilename) {
-        this.logger.warn('Converted HEIC upload slot filename changed after update', {
+      if (convertedFromMimeType && updatedUploadSlot.filename !== sanitizedUploadFilename) {
+        this.logger.warn('Converted upload slot image filename changed after update', {
           studentId,
           courseId,
           uploadSlotId,
@@ -243,5 +249,9 @@ export class UploadNewUploadSlotInteractor extends StudentInteractor<UploadNewUp
       || mimeType === 'image/heif'
       || mimeType === 'image/heic-sequence'
       || mimeType === 'image/heif-sequence';
+  }
+
+  private isAvifMimeType(mimeType: string): boolean {
+    return mimeType === 'image/avif';
   }
 }
