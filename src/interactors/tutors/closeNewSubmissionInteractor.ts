@@ -151,7 +151,6 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
       }
 
       const failed = submissionPoints > 0 && submissionMark / submissionPoints < 0.5;
-      this.logger.info('Submission closed', { newSubmission, submissionPoints, submissionMark, failed });
 
       const finalUnitLetter = await this.getFinalUnitLetter(newSubmission.enrollment.courseId);
 
