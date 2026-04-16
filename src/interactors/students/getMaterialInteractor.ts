@@ -77,7 +77,7 @@ export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestD
       });
 
     } catch (err) {
-      this.logger.error('error getting material', err instanceof Error ? err.message : err);
+      this.logger.error('error getting material', { studentId, materialId, err: err instanceof Error ? err.message : err });
       return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
