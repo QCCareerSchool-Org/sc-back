@@ -17,7 +17,7 @@ export abstract class StudentController<RequestDTO = unknown, ResponseDTO = unkn
   protected handleCommonErrors(error: Error): boolean {
     switch (error.constructor) {
       case StudentNotFound:
-        this.notFound('Student not found');
+        this.unauthorized('Student not found');
         return true;
       case StudentExpired:
         this.forbidden('Account is expired');
@@ -26,7 +26,7 @@ export abstract class StudentController<RequestDTO = unknown, ResponseDTO = unkn
         this.forbidden('Account is in arrears');
         return true;
       case EnrollmentNotFound:
-        this.notFound('Enrollment not found');
+        this.unauthorized('Enrollment not found');
         return true;
       case EnrollmentDueDatePassed:
         this.forbidden('Course due date has passed');
