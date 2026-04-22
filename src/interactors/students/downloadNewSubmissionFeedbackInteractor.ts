@@ -22,12 +22,18 @@ export type DownloadNewSubmissionFeedbackRequestDTO = {
 
 export type DownloadNewSubmissionFeedbackResponseDTO = InteractorFileStreamDownload;
 
-export class DownloadNewSubmissionFeedbackNotFound extends Error { }
-export class DownloadNewSubmissionFeedbackNotSubmitted extends Error { }
-export class DownloadNewSubmissionFeedbackSkipped extends Error { }
-export class DownloadNewSubmissionFeedbackNotClosed extends Error { }
-export class DownloadNewSubmissionFeedbackFileNotFound extends Error { }
-export class DownloadNewSubmissionFeedbackFileReadError extends Error { }
+abstract class DownloadNewSubmissionFeedbackError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadNewSubmissionFeedbackNotFound extends DownloadNewSubmissionFeedbackError { }
+export class DownloadNewSubmissionFeedbackNotSubmitted extends DownloadNewSubmissionFeedbackError { }
+export class DownloadNewSubmissionFeedbackSkipped extends DownloadNewSubmissionFeedbackError { }
+export class DownloadNewSubmissionFeedbackNotClosed extends DownloadNewSubmissionFeedbackError { }
+export class DownloadNewSubmissionFeedbackFileNotFound extends DownloadNewSubmissionFeedbackError { }
+export class DownloadNewSubmissionFeedbackFileReadError extends DownloadNewSubmissionFeedbackError { }
 
 export class DownloadNewSubmissionFeedbackInteractor extends StudentInteractor<DownloadNewSubmissionFeedbackRequestDTO, DownloadNewSubmissionFeedbackResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds

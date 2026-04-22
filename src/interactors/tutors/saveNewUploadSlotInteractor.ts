@@ -18,17 +18,23 @@ export type SaveNewUploadSlotRequestDTO = {
 
 export type SaveNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
-export class SaveNewUploadSlotNotFound extends Error { }
-export class SaveNewUploadSlotSubmissionNotSubmitted extends Error { }
-export class SaveNewUploadSlotSubmissionSkipped extends Error { }
-export class SaveNewUploadSlotSubmissionAlreadyClosed extends Error { }
-export class SaveNewUploadSlotWrongTutor extends Error { }
-export class SaveNewUploadSlotAlreadyReturned extends Error { }
-export class SaveNewUploadSlotIncomplete extends Error { }
-export class SaveNewUploadSlotZeroPoints extends Error { }
-export class SaveNewUploadSlotMarkLessThanZero extends Error { }
-export class SaveNewUploadSlotMarkTooHigh extends Error { public constructor(public maxMark: number) { super(); } }
-export class SaveNewUploadSlotNotesTooLong extends Error { }
+abstract class SaveNewUploadSlotError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewUploadSlotNotFound extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotSubmissionNotSubmitted extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotSubmissionSkipped extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotSubmissionAlreadyClosed extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotWrongTutor extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotAlreadyReturned extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotIncomplete extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotZeroPoints extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotMarkLessThanZero extends SaveNewUploadSlotError { }
+export class SaveNewUploadSlotMarkTooHigh extends SaveNewUploadSlotError { public constructor(public maxMark: number) { super(); } }
+export class SaveNewUploadSlotNotesTooLong extends SaveNewUploadSlotError { }
 
 export class SaveNewUploadSlotInteractor implements IInteractor<SaveNewUploadSlotRequestDTO, SaveNewUploadSlotResponseDTO> {
 

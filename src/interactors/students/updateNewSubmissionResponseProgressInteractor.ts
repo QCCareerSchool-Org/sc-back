@@ -17,7 +17,12 @@ export type UpdateNewSubmissionResponseProgressRequestDTO = {
 
 export type UpdateNewSubmissionResponseProgressResponseDTO = Omit<NewSubmissionDTO, 'complete' | 'points' | 'mark'>;
 
-abstract class UpdateNewSubmissionResponseProgressError extends Error { }
+abstract class UpdateNewSubmissionResponseProgressError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class UpdateNewSubmissionResponseProgressNotFound extends UpdateNewSubmissionResponseProgressError { }
 export class UpdateNewSubmissionResponseProgressLessThanZero extends UpdateNewSubmissionResponseProgressError { }
 export class UpdateNewSubmissionResponseProgressGreaterThan100 extends UpdateNewSubmissionResponseProgressError { }

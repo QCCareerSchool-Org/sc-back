@@ -18,13 +18,19 @@ type UsePasswordResetRequestDTO = {
 
 type UsePasswordResetResponseDTO = void;
 
-export class UsePasswordResetNotFound extends Error { }
-export class UsePasswordResetInvalidCode extends Error { }
-export class UsePasswordResetAlreadyUsed extends Error { }
-export class UsePasswordResetExpired extends Error { }
-export class UsePasswordResetPoorPassword extends Error { }
-export class UsePasswordResetAccountNotFound extends Error { }
-export class UsePasswordResetInvalidAccountType extends Error { }
+abstract class UsePasswordResetError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class UsePasswordResetNotFound extends UsePasswordResetError { }
+export class UsePasswordResetInvalidCode extends UsePasswordResetError { }
+export class UsePasswordResetAlreadyUsed extends UsePasswordResetError { }
+export class UsePasswordResetExpired extends UsePasswordResetError { }
+export class UsePasswordResetPoorPassword extends UsePasswordResetError { }
+export class UsePasswordResetAccountNotFound extends UsePasswordResetError { }
+export class UsePasswordResetInvalidAccountType extends UsePasswordResetError { }
 
 export class UsePasswordResetInteractor implements IInteractor<UsePasswordResetRequestDTO, UsePasswordResetResponseDTO> {
   public constructor(

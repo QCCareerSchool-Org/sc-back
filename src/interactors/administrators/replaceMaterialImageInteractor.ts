@@ -22,7 +22,12 @@ export type ReplaceMaterialImageRequestDTO = {
 
 export type ReplaceMaterialImageResponseDTO = MaterialDTO;
 
-abstract class ReplaceMaterialImageError extends Error { }
+abstract class ReplaceMaterialImageError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class ReplaceMaterialImageMaterialNotFound extends ReplaceMaterialImageError { }
 export class ReplaceMaterialImageTooLarge extends ReplaceMaterialImageError { }
 export class ReplaceMaterialImageInvalidMimeType extends ReplaceMaterialImageError { }

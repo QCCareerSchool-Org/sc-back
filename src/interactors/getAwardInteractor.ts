@@ -14,7 +14,12 @@ export type GetAwardRequestDTO = {
 
 export type GetAwardResponseDTO = AwardDTO;
 
-export abstract class GetAwardError extends Error {}
+export abstract class GetAwardError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class GetAwardNotFound extends GetAwardError { }
 export class GetAwardNotMarked extends GetAwardError { }
 export class GetAwardNoPoints extends GetAwardError { }

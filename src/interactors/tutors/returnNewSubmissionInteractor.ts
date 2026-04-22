@@ -17,7 +17,12 @@ export type ReturnNewSubmissionRequestDTO = {
 
 export type ReturnNewSubmissionResponseDTO = NewSubmissionDTO;
 
-abstract class ReturnNewSubmissionError extends Error { }
+abstract class ReturnNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class ReturnNewSubmissionNotFound extends ReturnNewSubmissionError { }
 export class ReturnNewSubmissionNotSubmitted extends ReturnNewSubmissionError { }
 export class ReturnNewSubmissionSkipped extends ReturnNewSubmissionError { }

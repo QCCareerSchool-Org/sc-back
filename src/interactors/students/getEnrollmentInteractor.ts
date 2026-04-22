@@ -49,7 +49,13 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   metadata: MetadataDTO[];
 };
 
-export class GetEnrollmentNotFound extends Error { }
+abstract class GetEnrollmentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetEnrollmentNotFound extends GetEnrollmentError { }
 
 export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
 

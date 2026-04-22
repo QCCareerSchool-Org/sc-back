@@ -18,7 +18,12 @@ export type SubmitNewSubmissionRequestDTO = {
 
 export type SubmitNewSubmissionResponseDTO = Omit<NewSubmissionDTO, 'complete' | 'points' | 'mark'>;
 
-abstract class SubmitNewSubmissionError extends Error { }
+abstract class SubmitNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class SubmitNewSubmissionNotFound extends SubmitNewSubmissionError { }
 export class SubmitNewSubmissionEnrollmentOnHold extends SubmitNewSubmissionError { }
 export class SubmitNewSubmissionAlreadySubmitted extends SubmitNewSubmissionError { }

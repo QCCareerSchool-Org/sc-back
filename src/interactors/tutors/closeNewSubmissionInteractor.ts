@@ -19,14 +19,20 @@ export type CloseNewSubmissionRequestDTO = {
 
 export type CloseNewSubmissionResponseDTO = NewSubmissionDTO;
 
-export class CloseNewSubmissionNotFound extends Error { }
-export class CloseNewSubmissionNotSubmitted extends Error { }
-export class CloseNewSubmissionSkipped extends Error { }
-export class CloseNewSubmissionAlreadyClosed extends Error { }
-export class CloseNewSubmissionWrongTutor extends Error { }
-export class CloseNewSubmissionAlreadyReturned extends Error { }
-export class CloseNewSubmissionNoFeedback extends Error { }
-export class CloseNewSubmissionNotMarked extends Error { }
+abstract class CloseNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class CloseNewSubmissionNotFound extends CloseNewSubmissionError { }
+export class CloseNewSubmissionNotSubmitted extends CloseNewSubmissionError { }
+export class CloseNewSubmissionSkipped extends CloseNewSubmissionError { }
+export class CloseNewSubmissionAlreadyClosed extends CloseNewSubmissionError { }
+export class CloseNewSubmissionWrongTutor extends CloseNewSubmissionError { }
+export class CloseNewSubmissionAlreadyReturned extends CloseNewSubmissionError { }
+export class CloseNewSubmissionNoFeedback extends CloseNewSubmissionError { }
+export class CloseNewSubmissionNotMarked extends CloseNewSubmissionError { }
 
 export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmissionRequestDTO, CloseNewSubmissionResponseDTO> {
 

@@ -15,7 +15,12 @@ export type DeleteUnitRequestDTO = {
 
 export type DeleteUnitResponseDTO = void;
 
-abstract class DeleteUnitError extends Error { }
+abstract class DeleteUnitError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 
 export class DeleteUnitNotFound extends DeleteUnitError { }
 export class DeleteUnitMaterialsPresent extends DeleteUnitError { }

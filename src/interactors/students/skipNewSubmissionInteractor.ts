@@ -16,9 +16,15 @@ export type SkipNewSubmissionRequestDTO = {
 
 export type SkipNewSubmissionResponseDTO = Omit<NewSubmissionDTO, 'complete' | 'points' | 'mark'>;
 
-export class SkipNewSubmissionNotFound extends Error { }
-export class SkipNewSubmissionEnrollmentOnHold extends Error { }
-export class SkipNewSubmissionAlreadySubmitted extends Error { }
+abstract class SkipNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SkipNewSubmissionNotFound extends SkipNewSubmissionError { }
+export class SkipNewSubmissionEnrollmentOnHold extends SkipNewSubmissionError { }
+export class SkipNewSubmissionAlreadySubmitted extends SkipNewSubmissionError { }
 
 export class SkipNewSubmissionInteractor extends StudentInteractor<SkipNewSubmissionRequestDTO, SkipNewSubmissionResponseDTO> {
 

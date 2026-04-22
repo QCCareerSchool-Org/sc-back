@@ -34,7 +34,13 @@ export type GetStudentResponseDTO = StudentDTO & {
   }>;
 };
 
-export class GetStudentNotFound extends Error { }
+abstract class GetStudentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetStudentNotFound extends GetStudentError { }
 
 export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO, GetStudentResponseDTO> {
 

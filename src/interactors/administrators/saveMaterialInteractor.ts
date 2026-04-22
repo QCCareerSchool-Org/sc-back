@@ -28,7 +28,12 @@ export type SaveMaterialRequestDTO = {
 
 export type SaveMaterialResponseDTO = MaterialDTO;
 
-abstract class SaveMaterialError extends Error { }
+abstract class SaveMaterialError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class SaveMaterialNotFound extends SaveMaterialError { }
 export class SaveMaterialTitleEmpty extends SaveMaterialError { }
 export class SaveMaterialTitleTooLong extends SaveMaterialError { }

@@ -20,13 +20,19 @@ export type DownloadTutorIntroRequestDTO = {
 
 export type DownloadTutorIntroResponseDTO = InteractorFileStreamDownload;
 
-export class DownloadTutorIntroEnrollmentNotFound extends Error { }
-export class DownloadTutorIntroTutorNotAssigned extends Error { }
-export class DownloadTutorIntroNotSubmitted extends Error { }
-export class DownloadTutorIntroSkipped extends Error { }
-export class DownloadTutorIntroNotClosed extends Error { }
-export class DownloadTutorIntroFileNotFound extends Error { }
-export class DownloadTutorIntroFileReadError extends Error { }
+abstract class DownloadTutorIntroError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadTutorIntroEnrollmentNotFound extends DownloadTutorIntroError { }
+export class DownloadTutorIntroTutorNotAssigned extends DownloadTutorIntroError { }
+export class DownloadTutorIntroNotSubmitted extends DownloadTutorIntroError { }
+export class DownloadTutorIntroSkipped extends DownloadTutorIntroError { }
+export class DownloadTutorIntroNotClosed extends DownloadTutorIntroError { }
+export class DownloadTutorIntroFileNotFound extends DownloadTutorIntroError { }
+export class DownloadTutorIntroFileReadError extends DownloadTutorIntroError { }
 
 type FileExtension = 'mp3' | 'ogg' | 'm4a';
 

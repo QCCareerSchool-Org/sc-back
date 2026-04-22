@@ -17,7 +17,12 @@ export type SaveNewUploadSlotRequestDTO = {
 
 export type SaveNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
-abstract class SaveNewUploadSlotError extends Error { }
+abstract class SaveNewUploadSlotError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class SaveNewUploadSlotNotFound extends SaveNewUploadSlotError { }
 export class SaveNewUploadSlotSubmissionNotSubmitted extends SaveNewUploadSlotError { }
 export class SaveNewUploadSlotSubmissionSkipped extends SaveNewUploadSlotError { }

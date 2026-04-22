@@ -22,11 +22,17 @@ export type CreatePasswordResetResponseDTO = {
   expiryDate: Date;
 };
 
-export class CreatePasswordResetUserNotFound extends Error { }
-export class CreatePasswordResetNoEmailAddress extends Error { }
-export class CreatePasswordResetInvalidAccountType extends Error { }
-export class CreatePasswordResetCountryNotFound extends Error { }
-export class CreatePasswordResetEmailFailure extends Error { }
+abstract class CreatePasswordResetError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class CreatePasswordResetUserNotFound extends CreatePasswordResetError { }
+export class CreatePasswordResetNoEmailAddress extends CreatePasswordResetError { }
+export class CreatePasswordResetInvalidAccountType extends CreatePasswordResetError { }
+export class CreatePasswordResetCountryNotFound extends CreatePasswordResetError { }
+export class CreatePasswordResetEmailFailure extends CreatePasswordResetError { }
 
 type Account = Administrator | Tutor | Student;
 

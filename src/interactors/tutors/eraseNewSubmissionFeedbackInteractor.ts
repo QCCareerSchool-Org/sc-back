@@ -18,12 +18,18 @@ export type EraseNewSubmissionFeedbackRequestDTO = {
 
 export type EraseNewSubmissionFeedbackResponseDTO = NewSubmissionDTO;
 
-export class EraseNewSubmissionFeedbackNotFound extends Error { }
-export class EraseNewSubmissionFeedbackSubmissionNotSubmitted extends Error { }
-export class EraseNewSubmissionFeedbackSubmissionSkipped extends Error { }
-export class EraseNewSubmissionFeedbackSubmissionAlreadyClosed extends Error { }
-export class EraseNewSubmissionFeedbackWrongTutor extends Error { }
-export class EraseNewSubmissionFeedbackFileUnlinkError extends Error { }
+abstract class EraseNewSubmissionFeedbackError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class EraseNewSubmissionFeedbackNotFound extends EraseNewSubmissionFeedbackError { }
+export class EraseNewSubmissionFeedbackSubmissionNotSubmitted extends EraseNewSubmissionFeedbackError { }
+export class EraseNewSubmissionFeedbackSubmissionSkipped extends EraseNewSubmissionFeedbackError { }
+export class EraseNewSubmissionFeedbackSubmissionAlreadyClosed extends EraseNewSubmissionFeedbackError { }
+export class EraseNewSubmissionFeedbackWrongTutor extends EraseNewSubmissionFeedbackError { }
+export class EraseNewSubmissionFeedbackFileUnlinkError extends EraseNewSubmissionFeedbackError { }
 
 export class EraseNewSubmissionFeedbackInteractor implements IInteractor<EraseNewSubmissionFeedbackRequestDTO, EraseNewSubmissionFeedbackResponseDTO> {
 

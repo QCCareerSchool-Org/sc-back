@@ -16,7 +16,12 @@ export type DeleteMaterialCompletionRequestDTO = {
 
 export type DeleteMaterialCompletionResponseDTO = void;
 
-abstract class DeleteMaterialCompletionError extends Error { }
+abstract class DeleteMaterialCompletionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class DeleteMaterialCompletionMaterialNotFound extends DeleteMaterialCompletionError { }
 export class DeleteMaterialCompletionNotFound extends DeleteMaterialCompletionError { }
 

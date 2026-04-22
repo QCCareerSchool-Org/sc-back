@@ -19,9 +19,15 @@ export type DownloadNewAssignmentMediumRequestDTO = {
 
 export type DownloadNewAssignmentMediumResponseDTO = InteractorFileStreamDownload | string;
 
-export class DownloadNewAssignmentMediumNotFound extends Error { }
-export class DownloadNewAssignmentMediumFileNotFound extends Error { }
-export class DownloadNewAssignmentMediumFileReadError extends Error { }
+abstract class DownloadNewAssignmentMediumError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadNewAssignmentMediumNotFound extends DownloadNewAssignmentMediumError { }
+export class DownloadNewAssignmentMediumFileNotFound extends DownloadNewAssignmentMediumError { }
+export class DownloadNewAssignmentMediumFileReadError extends DownloadNewAssignmentMediumError { }
 
 export class DownloadNewAssignmentMediumInteractor implements IInteractor<DownloadNewAssignmentMediumRequestDTO, DownloadNewAssignmentMediumResponseDTO> {
   private static readonly maxAge = 300; // five minutes in seconds

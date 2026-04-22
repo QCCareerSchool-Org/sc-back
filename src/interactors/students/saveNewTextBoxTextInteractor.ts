@@ -24,9 +24,15 @@ export type SaveNewTextBoxTextRequestDTO = {
 
 export type SaveNewTextBoxTextResponseDTO = NewTextBoxDTO;
 
-export class SaveNewTextBoxTextNotFound extends Error { }
-export class SaveNewTextBoxTextSubmissionSubmitted extends Error { }
-export class SaveNewTextBoxTextTooLong extends Error { }
+abstract class SaveNewTextBoxTextError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewTextBoxTextNotFound extends SaveNewTextBoxTextError { }
+export class SaveNewTextBoxTextSubmissionSubmitted extends SaveNewTextBoxTextError { }
+export class SaveNewTextBoxTextTooLong extends SaveNewTextBoxTextError { }
 
 /**
  * Should consider mark overrides.

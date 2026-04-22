@@ -32,14 +32,20 @@ export type UploadNewUploadSlotRequestDTO = {
 
 export type UploadNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
-export class UploadNewUploadSlotNotFound extends Error { }
-export class UploadNewUploadSlotSubmissionSubmitted extends Error { }
-export class UploadNewUploadSlotFileTooLarge extends Error { }
-export class UploadNewUploadSlotInvalidFileType extends Error { }
-export class UploadNewUploadSlotUnsupportedFileType extends Error { }
-export class UploadNewUploadSlotEntityNotFound extends Error { }
-export class UploadNewUploadSlotCouldNotCreateDirectory extends Error { }
-export class UploadNewUploadSlotSaveError extends Error { }
+abstract class UploadNewUploadSlotError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class UploadNewUploadSlotNotFound extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotSubmissionSubmitted extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotFileTooLarge extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotInvalidFileType extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotUnsupportedFileType extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotEntityNotFound extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotCouldNotCreateDirectory extends UploadNewUploadSlotError { }
+export class UploadNewUploadSlotSaveError extends UploadNewUploadSlotError { }
 
 /**
  * Should consider mark overrides.

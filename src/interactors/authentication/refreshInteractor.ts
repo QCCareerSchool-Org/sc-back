@@ -36,11 +36,17 @@ export type RefreshResponseDTO = {
   cookies: Cookie[];
 };
 
-export class RefreshTokenNotFound extends Error {}
-export class RefreshTokenExpired extends Error {}
-export class RefreshTokenInvalidType extends Error {}
-export class RefreshAccountNotFound extends Error {}
-export class RefreshStudentInvalidType extends Error {}
+abstract class RefreshError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class RefreshTokenNotFound extends RefreshError { }
+export class RefreshTokenExpired extends RefreshError { }
+export class RefreshTokenInvalidType extends RefreshError { }
+export class RefreshAccountNotFound extends RefreshError { }
+export class RefreshStudentInvalidType extends RefreshError { }
 
 export class RefreshInteractor implements IInteractor<RefreshRequestDTO, RefreshResponseDTO> {
 

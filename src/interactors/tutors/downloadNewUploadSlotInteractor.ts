@@ -19,10 +19,16 @@ export type DownloadNewUploadSlotRequestDTO = {
 
 export type DownloadNewUploadSlotResponseDTO = InteractorFileStreamDownload;
 
-export class DownloadNewUploadSlotNotFound extends Error { }
-export class DownloadNewUploadSlotWrongTutor extends Error { }
-export class DownloadNewUploadSlotFileNotFound extends Error { }
-export class DownloadNewUploadSlotFileReadError extends Error { }
+abstract class DownloadNewUploadSlotError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadNewUploadSlotNotFound extends DownloadNewUploadSlotError { }
+export class DownloadNewUploadSlotWrongTutor extends DownloadNewUploadSlotError { }
+export class DownloadNewUploadSlotFileNotFound extends DownloadNewUploadSlotError { }
+export class DownloadNewUploadSlotFileReadError extends DownloadNewUploadSlotError { }
 
 export class DownloadNewUploadSlotInteractor implements IInteractor<DownloadNewUploadSlotRequestDTO, DownloadNewUploadSlotResponseDTO> {
   private static readonly maxAge = 300; // five minutes in seconds

@@ -15,9 +15,15 @@ export type InsertOrUpdateMetadataRequestDTO = {
 
 export type InsertOrUpdateMetadataResponseDTO = void;
 
-export class InsertOrUpdateMetadataEnrollmentNotFound extends Error { }
-export class InsertOrUpdateMetadataMetadataNotFound extends Error { }
-export class InsertOrUpdateMetadataValueTooLong extends Error { }
+abstract class InsertOrUpdateMetadataError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertOrUpdateMetadataEnrollmentNotFound extends InsertOrUpdateMetadataError { }
+export class InsertOrUpdateMetadataMetadataNotFound extends InsertOrUpdateMetadataError { }
+export class InsertOrUpdateMetadataValueTooLong extends InsertOrUpdateMetadataError { }
 
 export class InsertOrUpdateMetadataInteractor extends StudentInteractor<InsertOrUpdateMetadataRequestDTO, InsertOrUpdateMetadataResponseDTO> {
 

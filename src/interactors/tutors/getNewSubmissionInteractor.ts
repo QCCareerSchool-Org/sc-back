@@ -37,10 +37,16 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   // badges: BadgeDTO[];
 };
 
-export class GetNewSubmissionNotFound extends Error { }
-export class GetNewSubmissionNotSubmitted extends Error { }
-export class GetNewSubmissionSkipped extends Error { }
-export class GetNewSubmissionWrongTutor extends Error { }
+abstract class GetNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetNewSubmissionNotFound extends GetNewSubmissionError { }
+export class GetNewSubmissionNotSubmitted extends GetNewSubmissionError { }
+export class GetNewSubmissionSkipped extends GetNewSubmissionError { }
+export class GetNewSubmissionWrongTutor extends GetNewSubmissionError { }
 
 export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionRequestDTO, GetNewSubmissionResponseDTO> {
 

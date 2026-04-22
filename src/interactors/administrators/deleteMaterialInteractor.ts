@@ -17,7 +17,12 @@ export type DeleteMaterialRequestDTO = {
 
 export type DeleteMaterialResponseDTO = void;
 
-abstract class DeleteMaterialError extends Error { }
+abstract class DeleteMaterialError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 
 export class DeleteMaterialNotFound extends DeleteMaterialError { }
 

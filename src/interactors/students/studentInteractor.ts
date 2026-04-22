@@ -6,13 +6,25 @@ import type { IInteractor } from '../index.js';
 
 type EnrollmentWithStudent = Enrollment & { student: Student };
 
-abstract class StudentError extends Error {}
-export class StudentNotFound extends StudentError {}
-export class StudentExpired extends StudentError {}
-export class StudentInArrears extends StudentError {}
-export class EnrollmentNotFound extends StudentError {}
-export class EnrollmentDueDatePassed extends StudentError {}
-export class EnrollmentOnHold extends StudentError {}
+abstract class StudentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class StudentNotFound extends StudentError { }
+export class StudentExpired extends StudentError { }
+export class StudentInArrears extends StudentError { }
+
+abstract class EnrollmentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class EnrollmentNotFound extends EnrollmentError { }
+export class EnrollmentDueDatePassed extends EnrollmentError { }
+export class EnrollmentOnHold extends EnrollmentError { }
 
 /** provides helper methods to detect if accounts are expired, on hold, etc. */
 export abstract class StudentInteractor<RequestDTO, ResponseDTO> implements IInteractor<RequestDTO, ResponseDTO> {

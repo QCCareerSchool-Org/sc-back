@@ -37,8 +37,12 @@ export type InsertMaterialRequestDTO = {
 
 export type InsertMaterialResponseDTO = MaterialDTO;
 
-abstract class InsertMaterialError extends Error { }
-
+abstract class InsertMaterialError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class InsertMaterialUnitNotFound extends InsertMaterialError { }
 export class InsertMaterialTitleEmpty extends InsertMaterialError { }
 export class InsertMaterialTitleTooLong extends InsertMaterialError { }

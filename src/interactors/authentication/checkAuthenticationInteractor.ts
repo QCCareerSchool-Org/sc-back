@@ -17,10 +17,16 @@ type CheckAuthenticationRequestDTO = {
 
 type CheckAuthenticationResponseDTO = AccessTokenPayload;
 
-export class CheckAuthenticationVerifyError extends Error { }
-export class CheckAuthenticationInvalidPayload extends Error { }
-export class CheckAuthenticationMissingXSRF extends Error { }
-export class CheckAuthenticationInvalidXSRF extends Error { }
+abstract class CheckAuthenticationError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class CheckAuthenticationVerifyError extends CheckAuthenticationError { }
+export class CheckAuthenticationInvalidPayload extends CheckAuthenticationError { }
+export class CheckAuthenticationMissingXSRF extends CheckAuthenticationError { }
+export class CheckAuthenticationInvalidXSRF extends CheckAuthenticationError { }
 
 export class CheckAuthenticationInteractor implements IInteractor<CheckAuthenticationRequestDTO, CheckAuthenticationResponseDTO> {
 

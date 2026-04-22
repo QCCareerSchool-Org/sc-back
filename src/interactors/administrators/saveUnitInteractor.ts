@@ -22,7 +22,12 @@ export type SaveUnitRequestDTO = {
 
 export type SaveUnitResponseDTO = UnitDTO;
 
-abstract class SaveUnitError extends Error { }
+abstract class SaveUnitError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class SaveUnitNotFound extends SaveUnitError { }
 export class SaveUnitTitleEmpty extends SaveUnitError { }
 export class SaveUnitTitleTooLong extends SaveUnitError { }

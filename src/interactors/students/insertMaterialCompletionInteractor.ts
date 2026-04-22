@@ -17,7 +17,12 @@ export type InsertMaterialCompletionRequestDTO = {
 
 export type InsertMaterialCompletionResponseDTO = MaterialCompletionDTO;
 
-abstract class InsertMaterialCompletionError extends Error { }
+abstract class InsertMaterialCompletionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class InsertMaterialCompletionMaterialNotFound extends InsertMaterialCompletionError { }
 export class InsertMaterialCompletionAlreadyExists extends InsertMaterialCompletionError { }
 

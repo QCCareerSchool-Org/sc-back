@@ -38,7 +38,13 @@ export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   // badges: BadgeDTO[];
 };
 
-export class GetNewSubmissionNotFound extends Error { }
+abstract class GetNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetNewSubmissionNotFound extends GetNewSubmissionError { }
 
 /**
  * Should consider mark overrides.

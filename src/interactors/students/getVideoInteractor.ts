@@ -16,7 +16,13 @@ export type GetVideoRequestDTO = {
 
 export type GetVideoResponseDTO = VideoDTO;
 
-export class GetVideoNotFound extends Error { }
+abstract class GetVideoError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetVideoNotFound extends GetVideoError { }
 
 export class GetVideoInteractor extends StudentInteractor<GetVideoRequestDTO, GetVideoResponseDTO> {
 

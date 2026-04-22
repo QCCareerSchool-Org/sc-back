@@ -17,17 +17,23 @@ export type SaveNewTextBoxRequestDTO = {
 
 export type SaveNewTextBoxResponseDTO = NewTextBoxDTO;
 
-export class SaveNewTextBoxNotFound extends Error { }
-export class SaveNewTextBoxSubmissionNotSubmitted extends Error { }
-export class SaveNewTextBoxSubmissionSkipped extends Error { }
-export class SaveNewTextBoxSubmissionAlreadyClosed extends Error { }
-export class SaveNewTextBoxWrongTutor extends Error { }
-export class SaveNewTextBoxAlreadyReturned extends Error { }
-export class SaveNewTextBoxIncomplete extends Error { }
-export class SaveNewTextBoxZeroPoints extends Error { }
-export class SaveNewTextBoxMarkLessThanZero extends Error { }
-export class SaveNewTextBoxMarkTooHigh extends Error { public constructor(public maxMark: number) { super(); } }
-export class SaveNewTextBoxNotesTooLong extends Error { }
+abstract class SaveNewTextBoxError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewTextBoxNotFound extends SaveNewTextBoxError { }
+export class SaveNewTextBoxSubmissionNotSubmitted extends SaveNewTextBoxError { }
+export class SaveNewTextBoxSubmissionSkipped extends SaveNewTextBoxError { }
+export class SaveNewTextBoxSubmissionAlreadyClosed extends SaveNewTextBoxError { }
+export class SaveNewTextBoxWrongTutor extends SaveNewTextBoxError { }
+export class SaveNewTextBoxAlreadyReturned extends SaveNewTextBoxError { }
+export class SaveNewTextBoxIncomplete extends SaveNewTextBoxError { }
+export class SaveNewTextBoxZeroPoints extends SaveNewTextBoxError { }
+export class SaveNewTextBoxMarkLessThanZero extends SaveNewTextBoxError { }
+export class SaveNewTextBoxMarkTooHigh extends SaveNewTextBoxError { public constructor(public maxMark: number) { super(); } }
+export class SaveNewTextBoxNotesTooLong extends SaveNewTextBoxError { }
 
 export class SaveNewTextBoxInteractor implements IInteractor<SaveNewTextBoxRequestDTO, SaveNewTextBoxResponseDTO> {
 

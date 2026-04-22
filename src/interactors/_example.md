@@ -13,7 +13,13 @@ export type GetFoosResponseDTO = Array<{
   unitId: number;
 }>;
 
-export class GetFoosInvalidBar extends Error { }
+abstract class GetFoosError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetFoosInvalidBar extends GetFoosError { }
 
 export class GetFoosInteractor implements IInteractor<GetFoosRequestDTO, GetFoosResponseDTO> {
 

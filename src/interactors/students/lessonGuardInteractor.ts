@@ -14,8 +14,14 @@ export type LessonGuardRequestDTO = {
 
 export type LessonGuardResponseDTO = void;
 
-export class LessonGuardNotFound extends Error { }
-export class LessonGuardNotEnrolled extends Error { }
+abstract class LessonGuardError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class LessonGuardNotFound extends LessonGuardError { }
+export class LessonGuardNotEnrolled extends LessonGuardError { }
 
 export class LessonGuardInteractor extends StudentInteractor<LessonGuardRequestDTO, LessonGuardResponseDTO> {
 

@@ -26,9 +26,15 @@ export type EraseNewUploadSlotRequestDTO = {
 
 export type EraseNewUploadSlotResponseDTO = NewUploadSlotDTO;
 
-export class EraseNewUploadSlotNotFound extends Error { }
-export class EraseNewUploadSlotSubmissionSubmitted extends Error { }
-export class EraseNewUploadSlotUnlinkError extends Error { }
+abstract class EraseNewUploadSlotError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class EraseNewUploadSlotNotFound extends EraseNewUploadSlotError { }
+export class EraseNewUploadSlotSubmissionSubmitted extends EraseNewUploadSlotError { }
+export class EraseNewUploadSlotUnlinkError extends EraseNewUploadSlotError { }
 
 export class EraseNewUploadSlotInteractor extends StudentInteractor<EraseNewUploadSlotRequestDTO, EraseNewUploadSlotResponseDTO> {
 

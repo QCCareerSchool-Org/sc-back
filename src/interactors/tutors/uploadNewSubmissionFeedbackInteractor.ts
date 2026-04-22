@@ -21,20 +21,26 @@ export type UploadNewSubmissionFeedbackRequestDTO = {
 
 export type UploadNewSubmissionFeedbackResponseDTO = NewSubmissionDTO;
 
-export class UploadNewSubmissionFeedbackNotFound extends Error { }
-export class UploadNewSubmissionFeedbackSubmissionNotSubmitted extends Error { }
-export class UploadNewSubmissionFeedbackSubmissionSkipped extends Error { }
-export class UploadNewSubmissionFeedbackSubmissionAlreadyClosed extends Error { }
-export class UploadNewSubmissionFeedbackWrongTutor extends Error { }
-export class UploadNewSubmissionFeedbackMimeTypeDoesntMatch extends Error {
+abstract class UploadNewSubmissionFeedbackError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class UploadNewSubmissionFeedbackNotFound extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackSubmissionNotSubmitted extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackSubmissionSkipped extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackSubmissionAlreadyClosed extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackWrongTutor extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackMimeTypeDoesntMatch extends UploadNewSubmissionFeedbackError {
   public constructor(public readonly detected: string, public readonly expected: string, message?: string) {
     super(message);
   }
 }
-export class UploadNewSubmissionFeedbackUnknownMimeType extends Error { }
-export class UploadNewSubmissionFeedbackInvalidMimeType extends Error { }
-export class UploadNewSubmissionFeedbackCouldNotCreateDirectory extends Error { }
-export class UploadNewSubmissionFeedbackFileWriteError extends Error { }
+export class UploadNewSubmissionFeedbackUnknownMimeType extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackInvalidMimeType extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackCouldNotCreateDirectory extends UploadNewSubmissionFeedbackError { }
+export class UploadNewSubmissionFeedbackFileWriteError extends UploadNewSubmissionFeedbackError { }
 
 export class UploadNewSubmissionFeedbackInteractor implements IInteractor<UploadNewSubmissionFeedbackRequestDTO, UploadNewSubmissionFeedbackResponseDTO> {
 

@@ -5,7 +5,6 @@ import { failure, success } from 'generic-result-type';
 import type { AwardDTO } from '../domain/awardDTO.js';
 import type { IGradeService } from '../services/grade/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
-import type { IUUIDService } from '../services/uuid/index.js';
 import type { IInteractor } from './index.js';
 
 export type GetOldAwardRequestDTO = {
@@ -14,7 +13,12 @@ export type GetOldAwardRequestDTO = {
 
 export type GetOldAwardResponseDTO = AwardDTO;
 
-export abstract class GetOldAwardError extends Error { }
+export abstract class GetOldAwardError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class GetOldAwardNotFound extends GetOldAwardError { }
 export class GetOldAwardNotMarked extends GetOldAwardError { }
 export class GetOldAwardNoPoints extends GetOldAwardError { }

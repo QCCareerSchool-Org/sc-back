@@ -21,8 +21,12 @@ export type InsertUnitRequestDTO = {
 
 export type InsertUnitResponseDTO = UnitDTO;
 
-abstract class InsertUnitError extends Error { }
-
+abstract class InsertUnitError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class InsertUnitCourseNotFound extends InsertUnitError { }
 export class InsertUnitIncorrectSubmissionType extends InsertUnitError { }
 export class InsertUnitTitleEmpty extends InsertUnitError { }

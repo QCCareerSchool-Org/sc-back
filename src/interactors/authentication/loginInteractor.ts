@@ -52,11 +52,17 @@ type LoginResponseDTO = {
   cookies: Cookie[];
 };
 
-export class LoginNotFound extends Error { }
-export class LoginNoPasswordHash extends Error { }
-export class LoginWrongPassword extends Error { }
-export class LoginExpired extends Error { }
-export class LoginArears extends Error { }
+abstract class LoginError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class LoginNotFound extends LoginError { }
+export class LoginNoPasswordHash extends LoginError { }
+export class LoginWrongPassword extends LoginError { }
+export class LoginExpired extends LoginError { }
+export class LoginArears extends LoginError { }
 
 type Account = Administrator | Tutor | Student | Auditor;
 

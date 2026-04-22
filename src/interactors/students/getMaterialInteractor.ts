@@ -15,7 +15,13 @@ export type GetMaterialRequestDTO = {
 
 export type GetMaterialResponseDTO = MaterialDTO & { complete: boolean; materialData: Record<string, string> };
 
-export class GetMaterialNotFound extends Error { }
+abstract class GetMaterialError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetMaterialNotFound extends GetMaterialError { }
 
 export class GetMaterialInteractor extends StudentInteractor<GetMaterialRequestDTO, GetMaterialResponseDTO> {
 

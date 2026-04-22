@@ -32,10 +32,16 @@ export type GetNewAssignmentResponseDTO = NewAssignmentDTO & {
   }>;
 };
 
-export class GetNewAssignmentNotFound extends Error { }
-export class GetNewAssignmentSubmissionNotSubmitted extends Error { }
-export class GetNewAssignmentSubmissionSkipped extends Error { }
-export class GetNewAssignmentWrongTutor extends Error { }
+abstract class GetNewAssignmentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetNewAssignmentNotFound extends GetNewAssignmentError { }
+export class GetNewAssignmentSubmissionNotSubmitted extends GetNewAssignmentError { }
+export class GetNewAssignmentSubmissionSkipped extends GetNewAssignmentError { }
+export class GetNewAssignmentWrongTutor extends GetNewAssignmentError { }
 
 /**
  * Should only consider the tutor's marks, not mark overrides.

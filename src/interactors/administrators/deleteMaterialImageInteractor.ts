@@ -21,7 +21,12 @@ export type DeleteMaterialImageRequestDTO = {
 
 export type DeleteMaterialImageResponseDTO = MaterialDTO;
 
-abstract class DeleteMaterialImageError extends Error { }
+abstract class DeleteMaterialImageError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class DeleteMaterialImageMaterialNotFound extends DeleteMaterialImageError { }
 export class DeleteMaterialImageTooLarge extends DeleteMaterialImageError { }
 export class DeleteMaterialImageInvalidMimeType extends DeleteMaterialImageError { }

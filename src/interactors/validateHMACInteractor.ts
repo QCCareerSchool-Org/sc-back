@@ -12,7 +12,13 @@ export type ValidateHMACRequestDTO = {
 
 export type ValidateHMACResponseDTO = void;
 
-export class ValidateHMACFailed extends Error { }
+abstract class ValidateHMACError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class ValidateHMACFailed extends ValidateHMACError { }
 
 export class ValidateHMACInteractor implements IInteractor<ValidateHMACRequestDTO, ValidateHMACResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds

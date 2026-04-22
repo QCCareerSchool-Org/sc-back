@@ -15,18 +15,24 @@ export type InitializeNextNewSubmissionRequestDTO = {
 
 export type InitializeNextNewSubmissionResponseDTO = NewSubmissionDTO;
 
-export class InitializeNextNewSubmissionEnrollmentNotFound extends Error { }
-export class InitializeNextNewSubmissionAssignmentsDisabled extends Error { }
-export class InitializeNextCourseDisabled extends Error { }
-export class InitializeNextNewSubmissionNotReady extends Error { }
-export class InitializeNextNewSubmissionNoMoreSubmissions extends Error { }
-export class InitializeNextNewSubmissionCantDetermineSubmission extends Error { }
-export class InitializeNextNewSubmissionTemplateNotFound extends Error { }
-export class InitializeNextNewSubmissionDefaultPriceNotFound extends Error { }
-export class InitializeNextNewSubmissionMultipleDefaultPricesFound extends Error { }
-export class InitializeNextNewSubmissionNoAssignmentsFound extends Error { }
-export class InitializeNextNewSubmissionNoPartsFound extends Error { }
-export class InitializeNextNewSubmissionNoInputsFound extends Error { }
+abstract class InitializeNextNewSubmissionError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InitializeNextNewSubmissionEnrollmentNotFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionAssignmentsDisabled extends InitializeNextNewSubmissionError { }
+export class InitializeNextCourseDisabled extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionNotReady extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionNoMoreSubmissions extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionCantDetermineSubmission extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionTemplateNotFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionDefaultPriceNotFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionMultipleDefaultPricesFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionNoAssignmentsFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionNoPartsFound extends InitializeNextNewSubmissionError { }
+export class InitializeNextNewSubmissionNoInputsFound extends InitializeNextNewSubmissionError { }
 
 export class InitializeNextNewSubmissionInteractor extends StudentInteractor<InitializeNextNewSubmissionRequestDTO, InitializeNextNewSubmissionResponseDTO> {
 

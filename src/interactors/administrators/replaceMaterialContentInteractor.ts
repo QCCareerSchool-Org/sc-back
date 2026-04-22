@@ -23,7 +23,12 @@ export type ReplaceMaterialContentRequestDTO = {
 
 export type ReplaceMaterialContentResponseDTO = MaterialDTO;
 
-abstract class ReplaceMaterialContentError extends Error { }
+abstract class ReplaceMaterialContentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class ReplaceMaterialContentMaterialNotFound extends ReplaceMaterialContentError { }
 export class ReplaceMaterialDeleteMetaDataError extends ReplaceMaterialContentError { }
 export class ReplaceMaterialContentTooLarge extends ReplaceMaterialContentError { }

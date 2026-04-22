@@ -16,7 +16,12 @@ export type SaveNewTextBoxRequestDTO = {
 
 export type SaveNewTextBoxResponseDTO = NewTextBoxDTO;
 
-abstract class SaveNewTextBoxError extends Error { }
+abstract class SaveNewTextBoxError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class SaveNewTextBoxNotFound extends SaveNewTextBoxError { }
 export class SaveNewTextBoxSubmissionNotSubmitted extends SaveNewTextBoxError { }
 export class SaveNewTextBoxSubmissionSkipped extends SaveNewTextBoxError { }

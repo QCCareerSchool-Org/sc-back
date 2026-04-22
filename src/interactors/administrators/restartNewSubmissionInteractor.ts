@@ -16,7 +16,12 @@ export type RestartNewSubmissionRequestDTO = {
 
 export type RestartNewSubmissionResponseDTO = NewSubmissionDTO;
 
-export abstract class RestartNewSubmissionErorr extends Error { }
+export abstract class RestartNewSubmissionErorr extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 export class RestartNewSubmissionNotFound extends RestartNewSubmissionErorr { }
 export class RestartNewSubmissionAlreadyRestarted extends RestartNewSubmissionErorr { }
 export class RestartNewSubmissionStudentExpired extends RestartNewSubmissionErorr { }
