@@ -7,14 +7,14 @@ export class WinstonLoggerService implements ILoggerService {
   public constructor(private readonly winston: Logger) { /* empty */ }
 
   public error(message: string, ...meta: unknown[]): void {
-    this.winston.error(message, meta);
+    this.winston.error(message, ...meta);
   }
 
   public warn(message: string, ...meta: unknown[]): void {
-    this.winston.warn(message, meta);
+    this.winston.warn(message, ...meta);
   }
 
   public info(message: string, ...meta: unknown[]): void {
-    this.winston.info(message, meta);
+    this.winston.info(message, ...meta);
   }
 }
