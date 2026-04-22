@@ -105,7 +105,7 @@ export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDa
       return success(undefined);
 
     } catch (err) {
-      this.logger.error('error saving material', { error: err instanceof Error ? err.message : err });
+      this.logger.error('error saving material', { studentId, materialId, error: err });
       return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
