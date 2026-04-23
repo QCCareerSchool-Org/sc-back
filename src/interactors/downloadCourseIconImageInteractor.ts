@@ -15,8 +15,14 @@ export type DownloadCourseIconImageRequestDTO = {
 
 export type DownloadCourseIconImageResponseDTO = InteractorFileStreamDownload | string;
 
-export class DownloadCourseIconImageFileNotFound extends Error { }
-export class DownloadCourseIconImageFileReadError extends Error { }
+abstract class DownloadCourseIconImageError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadCourseIconImageFileNotFound extends DownloadCourseIconImageError { }
+export class DownloadCourseIconImageFileReadError extends DownloadCourseIconImageError { }
 
 export class DownloadCourseIconImageInteractor implements IInteractor<DownloadCourseIconImageRequestDTO, DownloadCourseIconImageResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds
@@ -79,7 +85,7 @@ export class DownloadCourseIconImageInteractor implements IInteractor<DownloadCo
     }
   }
 
-  private async getFileAndStats(courseId: number): Promise<[ filePath: string, stats: FileStats ]> {
+  private async getFileAndStats(courseId: number): Promise<[filePath: string, stats: FileStats]> {
     const filePath = `${this.configService.config.paths.courseIconsPath}/${courseId}.jpg`;
     const stats = await this.fileService.stat(filePath);
     if (stats) {

@@ -16,12 +16,18 @@ export type SaveNewAssignmentMediumRequestDTO = {
 
 export type SaveNewAssignmentMediumResponseDTO = NewAssignmentMediumDTO;
 
-export class SaveNewAssignmentMediumNotFound extends Error { }
-export class SaveNewAssignmentMediumSubmissionsEnabled extends Error { }
-export class SaveNewAssignmentMediumPartCaptionEmpty extends Error { }
-export class SaveNewAssignmentMediumPartCaptionTooLong extends Error { }
-export class SaveNewAssignmentMediumOrderLessThanZero extends Error { }
-export class SaveNewAssignmentMediumOrderTooLarge extends Error { }
+abstract class SaveNewAssignmentMediumError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewAssignmentMediumNotFound extends SaveNewAssignmentMediumError { }
+export class SaveNewAssignmentMediumSubmissionsEnabled extends SaveNewAssignmentMediumError { }
+export class SaveNewAssignmentMediumPartCaptionEmpty extends SaveNewAssignmentMediumError { }
+export class SaveNewAssignmentMediumPartCaptionTooLong extends SaveNewAssignmentMediumError { }
+export class SaveNewAssignmentMediumOrderLessThanZero extends SaveNewAssignmentMediumError { }
+export class SaveNewAssignmentMediumOrderTooLarge extends SaveNewAssignmentMediumError { }
 
 export class SaveNewAssignmentMediumInteractor implements IInteractor<SaveNewAssignmentMediumRequestDTO, SaveNewAssignmentMediumResponseDTO> {
 

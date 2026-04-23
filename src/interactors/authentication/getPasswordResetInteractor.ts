@@ -14,8 +14,14 @@ type GetPasswordResetRequestDTO = {
 
 export type GetPasswordResetResponseDTO = PasswordResetRequestDTO;
 
-export class GetPasswordResetNotFound extends Error { }
-export class GetPasswordResetInvalidCode extends Error { }
+abstract class GetPasswordResetError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetPasswordResetNotFound extends GetPasswordResetError { }
+export class GetPasswordResetInvalidCode extends GetPasswordResetError { }
 
 export class GetPasswordResetInteractor implements IInteractor<GetPasswordResetRequestDTO, GetPasswordResetResponseDTO> {
 

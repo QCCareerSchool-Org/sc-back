@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { EnrollmentNotFound, type GetEnrollmentResponseDTO } from '../../interactors/auditors/getEnrollmentInteractor.js';
+import { GetEnrollmentNotFound, type GetEnrollmentResponseDTO } from '../../interactors/auditors/getEnrollmentInteractor.js';
 import { getEnrollmentInteractor } from '../../interactors/auditors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -54,7 +54,7 @@ export class GetEnrollmentController extends BaseController<Request, Response> {
     }
 
     switch (result.error.constructor) {
-      case EnrollmentNotFound:
+      case GetEnrollmentNotFound:
         return this.notFound('Enrollment not found');
       default:
         return this.internalServerError(result.error.message);

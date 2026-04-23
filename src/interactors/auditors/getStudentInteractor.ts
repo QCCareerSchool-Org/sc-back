@@ -49,7 +49,13 @@ export type GetStudentResponseDTO = StudentDTO & {
   groups: string[];
 };
 
-export class StudentNotFound extends Error { }
+abstract class GetStudentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetStudentStudentNotFound extends GetStudentError { }
 
 export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, GetStudentResponseDTO> {
 
@@ -112,7 +118,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
       });
 
       if (!student) {
-        return failure(new StudentNotFound());
+        return failure(new GetStudentStudentNotFound());
       }
 
       return success({

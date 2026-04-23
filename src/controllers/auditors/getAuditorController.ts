@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { GetAuditorResponseDTO } from '../../interactors/auditors/getAuditorInteractor.js';
-import { AuditorNotFound } from '../../interactors/auditors/getAuditorInteractor.js';
+import { GetAuditorNotFound } from '../../interactors/auditors/getAuditorInteractor.js';
 import { getAuditorInteractor } from '../../interactors/auditors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -47,7 +47,7 @@ export class GetAuditorController extends BaseController<Request, Response> {
     }
 
     switch (result.error.constructor) {
-      case AuditorNotFound:
+      case GetAuditorNotFound:
         return this.notFound('Auditor not found');
       default:
         return this.internalServerError(result.error.message);

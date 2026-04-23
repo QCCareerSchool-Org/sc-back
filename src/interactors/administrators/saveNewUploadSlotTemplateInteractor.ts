@@ -19,15 +19,21 @@ export type SaveNewUploadSlotTemplateRequestDTO = {
 
 export type SaveNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO;
 
-export class SaveNewUploadSlotTemplateNotFound extends Error { }
-export class SaveNewUploadSlotTemplateSubmissionsEnabled extends Error { }
-export class SaveNewUploadSlotTemplateLabelEmpty extends Error { }
-export class SaveNewUploadSlotTemplateAllowedTypesEmpty extends Error { }
-export class SaveNewUploadSlotTemplateInvalidAllowedType extends Error { }
-export class SaveNewUploadSlotTemplatePointsLessThanZero extends Error { }
-export class SaveNewUploadSlotTemplatePointsTooLarge extends Error { }
-export class SaveNewUploadSlotTemplateOrderLessThanZero extends Error { }
-export class SaveNewUploadSlotTemplateOrderTooLarge extends Error { }
+abstract class SaveNewUploadSlotTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewUploadSlotTemplateNotFound extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateSubmissionsEnabled extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateLabelEmpty extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateAllowedTypesEmpty extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateInvalidAllowedType extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplatePointsLessThanZero extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplatePointsTooLarge extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateOrderLessThanZero extends SaveNewUploadSlotTemplateError { }
+export class SaveNewUploadSlotTemplateOrderTooLarge extends SaveNewUploadSlotTemplateError { }
 
 export class SaveNewUploadSlotTemplateInteractor implements IInteractor<SaveNewUploadSlotTemplateRequestDTO, SaveNewUploadSlotTemplateResponseDTO> {
 

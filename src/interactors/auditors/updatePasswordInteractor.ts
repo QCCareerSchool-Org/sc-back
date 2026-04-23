@@ -16,10 +16,16 @@ export type UpdatePasswordRequestDTO = {
 
 export type UpdatePasswordResponseDTO = void;
 
-export class AuditorNotFound extends Error { }
-export class AuditorExpired extends Error { }
-export class IncorrectPassword extends Error { }
-export class NewPasswordsDontMatch extends Error { }
+abstract class UpdatePasswordError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class AuditorNotFound extends UpdatePasswordError { }
+export class AuditorExpired extends UpdatePasswordError { }
+export class IncorrectPassword extends UpdatePasswordError { }
+export class NewPasswordsDontMatch extends UpdatePasswordError { }
 
 export class UpdatePasswordInteractor implements IInteractor<UpdatePasswordRequestDTO, UpdatePasswordResponseDTO> {
 

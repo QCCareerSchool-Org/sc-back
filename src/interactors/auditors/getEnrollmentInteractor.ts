@@ -48,7 +48,13 @@ export type GetEnrollmentResponseDTO = EnrollmentDTO & {
   materialCompletions: MaterialCompletionDTO[];
 };
 
-export class EnrollmentNotFound extends Error { }
+abstract class GetEnrollmentError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetEnrollmentNotFound extends GetEnrollmentError { }
 
 export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequestDTO, GetEnrollmentResponseDTO> {
 
@@ -106,7 +112,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
       });
 
       if (!enrollment) {
-        return failure(new EnrollmentNotFound());
+        return failure(new GetEnrollmentNotFound());
       }
 
       return success({

@@ -21,17 +21,23 @@ export type InsertNewSubmissionTemplateRequestDTO = {
 
 export type InsertNewSubmissionTemplateResponseDTO = NewSubmissionTemplateDTO;
 
-export class InsertNewSubmissionTemplateCourseNotFound extends Error { }
-export class InsertNewSubmissionTemplateSubmissionsEnabled extends Error { }
-export class InsertNewSubmissionTemplateSubmissionLetterEmpty extends Error { }
-export class InsertNewSubmissionTemplateSubmissionLetterTooLong extends Error { }
-export class InsertNewSubmissionTemplateInvalidSubmissionLetter extends Error { }
-export class InsertNewSubmissionTemplateTitleTooLong extends Error { }
-export class InsertNewSubmissionTemplateDescriptionTooLong extends Error { }
-export class InsertNewSubmissionTemplateMarkingCriteriaTooLong extends Error { }
-export class InsertNewSubmissionTemplateOrderLessThanZero extends Error { }
-export class InsertNewSubmissionTemplateOrderTooLarge extends Error { }
-export class InsertNewSubmissionTemplateSubmissionLetterAlreadyInUse extends Error { }
+abstract class InsertNewSubmissionTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertNewSubmissionTemplateCourseNotFound extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateSubmissionsEnabled extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateSubmissionLetterEmpty extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateSubmissionLetterTooLong extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateInvalidSubmissionLetter extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateTitleTooLong extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateDescriptionTooLong extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateMarkingCriteriaTooLong extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateOrderLessThanZero extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateOrderTooLarge extends InsertNewSubmissionTemplateError { }
+export class InsertNewSubmissionTemplateSubmissionLetterAlreadyInUse extends InsertNewSubmissionTemplateError { }
 
 export class InsertNewSubmissionTemplateInteractor implements IInteractor<InsertNewSubmissionTemplateRequestDTO, InsertNewSubmissionTemplateResponseDTO> {
 

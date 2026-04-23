@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 import { updateEmailAddressInteractor } from '../../interactors/auditors/index.js';
 import type { UpdateEmailAddressResponseDTO } from '../../interactors/auditors/updateEmailAddressInteractor.js';
-import { AuditorExpired, AuditorNotFound, IncorrectPassword } from '../../interactors/auditors/updateEmailAddressInteractor.js';
+import { UpdateEmailAddressAuditorExpired, UpdateEmailAddressAuditorNotFound, UpdateEmailAddressIncorrectPassword } from '../../interactors/auditors/updateEmailAddressInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -58,11 +58,11 @@ export class UpdateEmailAddressController extends BaseController<Request, Respon
     }
 
     switch (result.error.constructor) {
-      case AuditorNotFound:
+      case UpdateEmailAddressAuditorNotFound:
         return this.notFound('Auditor not found');
-      case AuditorExpired:
+      case UpdateEmailAddressAuditorExpired:
         return this.unauthorized('Account is expired');
-      case IncorrectPassword:
+      case UpdateEmailAddressIncorrectPassword:
         return this.badRequest('Incorrect password');
       default:
         return this.internalServerError(result.error.message);

@@ -15,8 +15,14 @@ export type UpdateEmailAddressRequestDTO = {
 
 export type UpdateEmailAddressResponseDTO = StudentDTO;
 
-export class UpdateEmailAddressStudentNotFound extends Error { }
-export class UpdateEmailAddressInvalidEmailAddress extends Error { }
+abstract class UpdateEmailAddressError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class UpdateEmailAddressStudentNotFound extends UpdateEmailAddressError { }
+export class UpdateEmailAddressInvalidEmailAddress extends UpdateEmailAddressError { }
 
 export class UpdateEmailAddressInteractor extends StudentInteractor<UpdateEmailAddressRequestDTO, UpdateEmailAddressResponseDTO> {
 

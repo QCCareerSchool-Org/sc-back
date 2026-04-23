@@ -15,9 +15,15 @@ export type UpdateEmailAddressRequestDTO = {
 
 export type UpdateEmailAddressResponseDTO = void;
 
-export class AuditorNotFound extends Error { }
-export class AuditorExpired extends Error { }
-export class IncorrectPassword extends Error { }
+abstract class UpdateEmailAddressError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class UpdateEmailAddressAuditorNotFound extends UpdateEmailAddressError { }
+export class UpdateEmailAddressAuditorExpired extends UpdateEmailAddressError { }
+export class UpdateEmailAddressIncorrectPassword extends UpdateEmailAddressError { }
 
 export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddressRequestDTO, UpdateEmailAddressResponseDTO> {
 
@@ -35,15 +41,15 @@ export class UpdateEmailAddressInteractor implements IInteractor<UpdateEmailAddr
       });
 
       if (!auditor) {
-        return failure(new AuditorNotFound());
+        return failure(new UpdateEmailAddressAuditorNotFound());
       }
 
       if (auditor.expiry !== null && this.dateService.fixPrismaReadDate(auditor.expiry) <= this.dateService.getDate()) {
-        return failure(new AuditorExpired());
+        return failure(new UpdateEmailAddressAuditorExpired());
       }
 
       if (!await this.cryptoService.verify(password, auditor.passwordHash)) {
-        return failure(new IncorrectPassword());
+        return failure(new UpdateEmailAddressIncorrectPassword());
       }
 
       await this.prisma.auditor.update({

@@ -25,9 +25,15 @@ export type DownloadNewPartMediumRequestDTO = {
 
 export type DownloadNewPartMediumResponseDTO = InteractorFileStreamDownload | string;
 
-export class DownloadNewPartMediumNotFound extends Error { }
-export class DownloadNewPartMediumFileNotFound extends Error { }
-export class DownloadNewPartMediumFileReadError extends Error { }
+abstract class DownloadNewPartMediumError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadNewPartMediumNotFound extends DownloadNewPartMediumError { }
+export class DownloadNewPartMediumFileNotFound extends DownloadNewPartMediumError { }
+export class DownloadNewPartMediumFileReadError extends DownloadNewPartMediumError { }
 
 export class DownloadNewPartMediumInteractor extends StudentInteractor<DownloadNewPartMediumRequestDTO, DownloadNewPartMediumResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds

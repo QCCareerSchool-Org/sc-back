@@ -16,7 +16,13 @@ export type SaveMaterialDataRequestDTO = {
 
 export type SaveMaterialDataResponseDTO = void;
 
-export class SaveMaterialDataNotFound extends Error { }
+abstract class SaveMaterialDataError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveMaterialDataNotFound extends SaveMaterialDataError { }
 
 export class SaveMaterialDataInteractor extends StudentInteractor<SaveMaterialDataRequestDTO, SaveMaterialDataResponseDTO> {
 

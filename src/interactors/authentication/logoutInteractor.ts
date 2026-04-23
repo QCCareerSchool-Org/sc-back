@@ -11,7 +11,13 @@ type LogoutRequestDTO = {
 
 type LogoutResponseDTO = void;
 
-export class LogoutTokenNotFound extends Error { }
+abstract class LogoutError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class LogoutTokenNotFound extends LogoutError { }
 
 export class LogoutInteractor implements IInteractor<LogoutRequestDTO, LogoutResponseDTO> {
 

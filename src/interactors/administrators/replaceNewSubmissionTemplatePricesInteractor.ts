@@ -24,8 +24,14 @@ export type ReplaceNewSubmissionTemplatePricesRequestDTO = {
 
 export type ReplaceNewSubmissionTemplatePricesResponseDTO = void;
 
-export class ReplaceNewSubmissionTemplatePricesCourseNotFound extends Error { }
-export class ReplaceNewSubmissionTemplatePricesMissingSubmissions extends Error { }
+abstract class ReplaceNewSubmissionTemplatePricesError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class ReplaceNewSubmissionTemplatePricesCourseNotFound extends ReplaceNewSubmissionTemplatePricesError { }
+export class ReplaceNewSubmissionTemplatePricesMissingSubmissions extends ReplaceNewSubmissionTemplatePricesError { }
 
 export class ReplaceNewSubmissionTemplatePricesInteractor implements IInteractor<ReplaceNewSubmissionTemplatePricesRequestDTO, ReplaceNewSubmissionTemplatePricesResponseDTO> {
 

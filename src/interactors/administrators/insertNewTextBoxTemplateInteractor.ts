@@ -19,14 +19,20 @@ export type InsertNewTextBoxTemplateRequestDTO = {
 
 export type InsertNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
 
-export class InsertNewTextBoxTemplatePartNotFound extends Error { }
-export class InsertNewTextBoxTemplateSubmissionsEnabled extends Error { }
-export class InsertNewTextBoxTemplateLinesLessThanOne extends Error { }
-export class InsertNewTextBoxTemplateLinesTooLarge extends Error { }
-export class InsertNewTextBoxTemplatePointsLessThanZero extends Error { }
-export class InsertNewTextBoxTemplatePointsTooLarge extends Error { }
-export class InsertNewTextBoxTemplateOrderLessThanZero extends Error { }
-export class InsertNewTextBoxTemplateOrderTooLarge extends Error { }
+abstract class InsertNewTextBoxTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertNewTextBoxTemplatePartNotFound extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplateSubmissionsEnabled extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplateLinesLessThanOne extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplateLinesTooLarge extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplatePointsLessThanZero extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplatePointsTooLarge extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplateOrderLessThanZero extends InsertNewTextBoxTemplateError { }
+export class InsertNewTextBoxTemplateOrderTooLarge extends InsertNewTextBoxTemplateError { }
 
 export class InsertNewTextBoxTemplateInteractor implements IInteractor<InsertNewTextBoxTemplateRequestDTO, InsertNewTextBoxTemplateResponseDTO> {
 

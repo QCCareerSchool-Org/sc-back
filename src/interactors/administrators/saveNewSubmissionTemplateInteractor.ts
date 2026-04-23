@@ -21,17 +21,23 @@ export type SaveNewSubmissionTemplateRequestDTO = {
 
 export type SaveNewSubmissionTemplateResponseDTO = NewSubmissionTemplateDTO;
 
-export class SaveNewSubmissionTemplateNotFound extends Error { }
-export class SaveNewSubmissionTemplateSubmissionsEnabled extends Error { }
-export class SaveNewSubmissionTemplateUnitLetterEmpty extends Error { }
-export class SaveNewSubmissionTemplateUnitLetterTooLong extends Error { }
-export class SaveNewSubmissionTemplateInvalidUnitLetter extends Error { }
-export class SaveNewSubmissionTemplateTitleTooLong extends Error { }
-export class SaveNewSubmissionTemplateDescriptionTooLong extends Error { }
-export class SaveNewSubmissionTemplateMarkingCriteriaTooLong extends Error { }
-export class SaveNewSubmissionTemplateOrderLessThanZero extends Error { }
-export class SaveNewSubmissionTemplateOrderTooLarge extends Error { }
-export class SaveNewSubmissionTemplateUnitLetterAlreadyInUse extends Error { }
+abstract class SaveNewSubmissionTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewSubmissionTemplateNotFound extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateSubmissionsEnabled extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateUnitLetterEmpty extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateUnitLetterTooLong extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateInvalidUnitLetter extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateTitleTooLong extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateDescriptionTooLong extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateMarkingCriteriaTooLong extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateOrderLessThanZero extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateOrderTooLarge extends SaveNewSubmissionTemplateError { }
+export class SaveNewSubmissionTemplateUnitLetterAlreadyInUse extends SaveNewSubmissionTemplateError { }
 
 export class SaveNewSubmissionTemplateInteractor implements IInteractor<SaveNewSubmissionTemplateRequestDTO, SaveNewSubmissionTemplateResponseDTO> {
 

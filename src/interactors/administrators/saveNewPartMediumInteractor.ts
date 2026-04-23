@@ -16,12 +16,18 @@ export type SaveNewPartMediumRequestDTO = {
 
 export type SaveNewPartMediumResponseDTO = NewPartMediumDTO;
 
-export class SaveNewPartMediumNotFound extends Error { }
-export class SaveNewPartMediumSubmissionsEnabled extends Error { }
-export class SaveNewPartMediumPartCaptionEmpty extends Error { }
-export class SaveNewPartMediumPartCaptionTooLong extends Error { }
-export class SaveNewPartMediumOrderLessThanZero extends Error { }
-export class SaveNewPartMediumOrderTooLarge extends Error { }
+abstract class SaveNewPartMediumError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewPartMediumNotFound extends SaveNewPartMediumError { }
+export class SaveNewPartMediumSubmissionsEnabled extends SaveNewPartMediumError { }
+export class SaveNewPartMediumPartCaptionEmpty extends SaveNewPartMediumError { }
+export class SaveNewPartMediumPartCaptionTooLong extends SaveNewPartMediumError { }
+export class SaveNewPartMediumOrderLessThanZero extends SaveNewPartMediumError { }
+export class SaveNewPartMediumOrderTooLarge extends SaveNewPartMediumError { }
 
 export class SaveNewPartMediumInteractor implements IInteractor<SaveNewPartMediumRequestDTO, SaveNewPartMediumResponseDTO> {
 

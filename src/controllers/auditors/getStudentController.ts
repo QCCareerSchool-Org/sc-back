@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { type GetStudentResponseDTO, StudentNotFound } from '../../interactors/auditors/getStudentInteractor.js';
+import { type GetStudentResponseDTO, GetStudentStudentNotFound } from '../../interactors/auditors/getStudentInteractor.js';
 import { getStudentInteractor } from '../../interactors/auditors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -50,7 +50,7 @@ export class GetStudentController extends BaseController<Request, Response> {
     }
 
     switch (result.error.constructor) {
-      case StudentNotFound:
+      case GetStudentStudentNotFound:
         return this.notFound('Student not found');
       default:
         return this.internalServerError(result.error.message);

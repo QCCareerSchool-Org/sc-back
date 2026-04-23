@@ -11,7 +11,12 @@ import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InsertSurveyCompletionInteractor } from './insertSurveyCompletionInteractor.js';
 import { ValidateHMACInteractor } from './validateHMACInteractor.js';
 
-export class InsufficientPrivileges extends Error { }
+export class InsufficientPrivileges extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
 
 export interface IInteractor<RequestDTO, ResponseDTO> {
   execute: (arg: RequestDTO) => ResultType<ResponseDTO> | Promise<ResultType<ResponseDTO>>;

@@ -22,16 +22,22 @@ export type SaveNewAssignmentTemplateRequestDTO = {
 
 export type SaveNewAssignmentTemplateResponseDTO = NewAssignmentTemplateDTO;
 
-export class SaveNewAssignmentTemplateNotFound extends Error { }
-export class SaveNewAssignmentTemplateSubmissionsEnabled extends Error { }
-export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends Error { }
-export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends Error { }
-export class SaveNewAssignmentTemplateTitleTooLong extends Error { }
-export class SaveNewAssignmentTemplateDescriptionTooLong extends Error { }
-export class SaveNewAssignmentTemplateDescriptionTypeEmpty extends Error { }
-export class SaveNewAssignmentTemplateInvalidDescriptionType extends Error { }
-export class SaveNewAssignmentTemplateMarkingCriteriaTooLong extends Error { }
-export class SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse extends Error { }
+abstract class SaveNewAssignmentTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewAssignmentTemplateNotFound extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateSubmissionsEnabled extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateAssignmentNumberLessThanOne extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateAssignmentNumberTooLarge extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateTitleTooLong extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateDescriptionTooLong extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateDescriptionTypeEmpty extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateInvalidDescriptionType extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateMarkingCriteriaTooLong extends SaveNewAssignmentTemplateError { }
+export class SaveNewAssignmentTemplateAssignmentNumberAlreadyInUse extends SaveNewAssignmentTemplateError { }
 
 export class SaveNewAssignmentTemplateInteractor implements IInteractor<SaveNewAssignmentTemplateRequestDTO, SaveNewAssignmentTemplateResponseDTO> {
 

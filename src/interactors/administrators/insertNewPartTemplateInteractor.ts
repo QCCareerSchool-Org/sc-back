@@ -21,17 +21,23 @@ export type InsertNewPartTemplateRequestDTO = {
 
 export type InsertNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
-export class InsertNewPartTemplateAssignmentNotFound extends Error { }
-export class InsertNewPartTemplateSubmissionsEnabled extends Error { }
-export class InsertNewPartTemplatePartTitleEmpty extends Error { }
-export class InsertNewPartTemplatePartTitleTooLong extends Error { }
-export class InsertNewPartTemplateDescriptionTooLong extends Error { }
-export class InsertNewPartTemplateDescriptionTypeEmpty extends Error { }
-export class InsertNewPartTemplateInvalidDescriptionType extends Error { }
-export class InsertNewPartTemplateMarkingCriteriaTooLong extends Error { }
-export class InsertNewPartTemplatePartNumberLessThanOne extends Error { }
-export class InsertNewPartTemplatePartNumberTooLarge extends Error { }
-export class InsertNewPartTemplatePartNumberAlreadyInUse extends Error { }
+abstract class InsertNewPartTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertNewPartTemplateAssignmentNotFound extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplateSubmissionsEnabled extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplatePartTitleEmpty extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplatePartTitleTooLong extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplateDescriptionTooLong extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplateDescriptionTypeEmpty extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplateInvalidDescriptionType extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplateMarkingCriteriaTooLong extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplatePartNumberLessThanOne extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplatePartNumberTooLarge extends InsertNewPartTemplateError { }
+export class InsertNewPartTemplatePartNumberAlreadyInUse extends InsertNewPartTemplateError { }
 
 export class InsertNewPartTemplateInteractor implements IInteractor<InsertNewPartTemplateRequestDTO, InsertNewPartTemplateResponseDTO> {
 

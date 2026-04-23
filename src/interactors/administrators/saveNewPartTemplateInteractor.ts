@@ -21,17 +21,23 @@ export type SaveNewPartTemplateRequestDTO = {
 
 export type SaveNewPartTemplateResponseDTO = NewPartTemplateDTO;
 
-export class SaveNewPartTemplateNotFound extends Error { }
-export class SaveNewPartTemplateSubmissionsEnabled extends Error { }
-export class SaveNewPartTemplatePartTitleEmpty extends Error { }
-export class SaveNewPartTemplatePartTitleTooLong extends Error { }
-export class SaveNewPartTemplateDescriptionTooLong extends Error { }
-export class SaveNewPartTemplateDescriptionTypeEmpty extends Error { }
-export class SaveNewPartTemplateInvalidDescriptionType extends Error { }
-export class SaveNewPartTemplateMarkingCriteriaTooLong extends Error { }
-export class SaveNewPartTemplatePartNumberLessThanOne extends Error { }
-export class SaveNewPartTemplatePartNumberTooLarge extends Error { }
-export class SaveNewPartTemplatePartNumberAlreadyInUse extends Error { }
+abstract class SaveNewPartTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewPartTemplateNotFound extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplateSubmissionsEnabled extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplatePartTitleEmpty extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplatePartTitleTooLong extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplateDescriptionTooLong extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplateDescriptionTypeEmpty extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplateInvalidDescriptionType extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplateMarkingCriteriaTooLong extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplatePartNumberLessThanOne extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplatePartNumberTooLarge extends SaveNewPartTemplateError { }
+export class SaveNewPartTemplatePartNumberAlreadyInUse extends SaveNewPartTemplateError { }
 
 export class SaveNewPartTemplateInteractor implements IInteractor<SaveNewPartTemplateRequestDTO, SaveNewPartTemplateResponseDTO> {
 

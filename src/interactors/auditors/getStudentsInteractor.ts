@@ -29,7 +29,13 @@ export type GetStudentsResponseDTO = Array<StudentDTO & {
   groups: string[];
 }>;
 
-export class AuditorNotFound extends Error { }
+abstract class GetStudentsError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class AuditorNotFound extends GetStudentsError { }
 
 export class GetStudentsInteractor implements IInteractor<GetStudentsRequestDTO, GetStudentsResponseDTO> {
 

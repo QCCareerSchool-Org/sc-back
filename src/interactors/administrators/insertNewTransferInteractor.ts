@@ -23,11 +23,17 @@ export type InsertNewTransferResponseDTO = NewTransferDTO & {
   newSubmission: Omit<NewSubmissionDTO, 'points' | 'mark' | 'markOverride' | 'complete'>;
 };
 
-export class InsertNewTransferSubmissionNotFound extends Error { }
-export class InsertNewTransferSubmissionAlreadyClosed extends Error { }
-export class InsertNewTransferNoTutorAssigned extends Error { }
-export class InsertNewTransferInvalidTutor extends Error { }
-export class InsertNewTransferDefaultPriceNotFound extends Error { }
+abstract class InsertNewTransferError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertNewTransferSubmissionNotFound extends InsertNewTransferError { }
+export class InsertNewTransferSubmissionAlreadyClosed extends InsertNewTransferError { }
+export class InsertNewTransferNoTutorAssigned extends InsertNewTransferError { }
+export class InsertNewTransferInvalidTutor extends InsertNewTransferError { }
+export class InsertNewTransferDefaultPriceNotFound extends InsertNewTransferError { }
 
 export class InsertNewTransferInteractor implements IInteractor<InsertNewTransferRequestDTO, InsertNewTransferResponseDTO> {
 

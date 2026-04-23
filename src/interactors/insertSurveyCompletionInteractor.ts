@@ -15,8 +15,14 @@ export type InsertSurveyCompletionRequestDTO = {
 
 export type InsertSurveyCompletionResponseDTO = SurveyCompletionDTO;
 
-export class InsertSurveyCompletionSurveyNotFound extends Error { }
-export class InsertSurveyCompletionStudentNotFound extends Error { }
+abstract class InsertSurveyCompletionSurveyError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertSurveyCompletionSurveyNotFound extends InsertSurveyCompletionSurveyError { }
+export class InsertSurveyCompletionStudentNotFound extends InsertSurveyCompletionSurveyError { }
 
 export class InsertSurveyCompletionInteractor implements IInteractor<InsertSurveyCompletionRequestDTO, InsertSurveyCompletionResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds

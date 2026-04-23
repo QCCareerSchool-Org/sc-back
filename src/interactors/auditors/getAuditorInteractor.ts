@@ -13,7 +13,13 @@ export type GetAuditorRequestDTO = {
 
 export type GetAuditorResponseDTO = AuditorDTO;
 
-export class AuditorNotFound extends Error { }
+abstract class GetAuditorError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class GetAuditorNotFound extends GetAuditorError { }
 
 export class GetAuditorInteractor implements IInteractor<GetAuditorRequestDTO, GetAuditorResponseDTO> {
 
@@ -30,7 +36,7 @@ export class GetAuditorInteractor implements IInteractor<GetAuditorRequestDTO, G
       });
 
       if (!auditor) {
-        return failure(new AuditorNotFound());
+        return failure(new GetAuditorNotFound());
       }
 
       return success({

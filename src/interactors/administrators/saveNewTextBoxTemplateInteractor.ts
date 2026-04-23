@@ -19,14 +19,20 @@ export type SaveNewTextBoxTemplateRequestDTO = {
 
 export type SaveNewTextBoxTemplateResponseDTO = NewTextBoxTemplateDTO;
 
-export class SaveNewTextBoxTemplateNotFound extends Error { }
-export class SaveNewTextBoxTemplateSubmissionsEnabled extends Error { }
-export class SaveNewTextBoxTemplateLinesLessThanOne extends Error { }
-export class SaveNewTextBoxTemplateLinesTooLarge extends Error { }
-export class SaveNewTextBoxTemplatePointsLessThanZero extends Error { }
-export class SaveNewTextBoxTemplatePointsTooLarge extends Error { }
-export class SaveNewTextBoxTemplateOrderLessThanZero extends Error { }
-export class SaveNewTextBoxTemplateOrderTooLarge extends Error { }
+abstract class SaveNewTextBoxTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class SaveNewTextBoxTemplateNotFound extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplateSubmissionsEnabled extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplateLinesLessThanOne extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplateLinesTooLarge extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplatePointsLessThanZero extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplatePointsTooLarge extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplateOrderLessThanZero extends SaveNewTextBoxTemplateError { }
+export class SaveNewTextBoxTemplateOrderTooLarge extends SaveNewTextBoxTemplateError { }
 
 export class SaveNewTextBoxTemplateInteractor implements IInteractor<SaveNewTextBoxTemplateRequestDTO, SaveNewTextBoxTemplateResponseDTO> {
 

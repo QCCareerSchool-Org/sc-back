@@ -15,8 +15,14 @@ export type DownloadCourseHeaderImageRequestDTO = {
 
 export type DownloadCourseHeaderImageResponseDTO = InteractorFileStreamDownload | string;
 
-export class DownloadCourseHeaderImageFileNotFound extends Error { }
-export class DownloadCourseHeaderImageFileReadError extends Error { }
+abstract class DownloadCourseHeaderImageError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadCourseHeaderImageFileNotFound extends DownloadCourseHeaderImageError { }
+export class DownloadCourseHeaderImageFileReadError extends DownloadCourseHeaderImageError { }
 
 export class DownloadCourseHeaderImageInteractor implements IInteractor<DownloadCourseHeaderImageRequestDTO, DownloadCourseHeaderImageResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds

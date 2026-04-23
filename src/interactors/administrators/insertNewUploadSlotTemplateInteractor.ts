@@ -19,15 +19,21 @@ export type InsertNewUploadSlotTemplateRequestDTO = {
 
 export type InsertNewUploadSlotTemplateResponseDTO = NewUploadSlotTemplateDTO;
 
-export class InsertNewUploadSlotTemplatePartNotFound extends Error { }
-export class InsertNewUploadSlotTemplateSubmissionsEnabled extends Error { }
-export class InsertNewUploadSlotTemplateLabelEmpty extends Error { }
-export class InsertNewUploadSlotTemplateAllowedTypesEmpty extends Error { }
-export class InsertNewUploadSlotTemplateInvalidAllowedType extends Error { }
-export class InsertNewUploadSlotTemplatePointsLessThanZero extends Error { }
-export class InsertNewUploadSlotTemplatePointsTooLarge extends Error { }
-export class InsertNewUploadSlotTemplateOrderLessThanZero extends Error { }
-export class InsertNewUploadSlotTemplateOrderTooLarge extends Error { }
+abstract class InsertNewUploadSlotTemplateError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class InsertNewUploadSlotTemplatePartNotFound extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateSubmissionsEnabled extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateLabelEmpty extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateAllowedTypesEmpty extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateInvalidAllowedType extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplatePointsLessThanZero extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplatePointsTooLarge extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateOrderLessThanZero extends InsertNewUploadSlotTemplateError { }
+export class InsertNewUploadSlotTemplateOrderTooLarge extends InsertNewUploadSlotTemplateError { }
 
 export class InsertNewUploadSlotTemplateInteractor implements IInteractor<InsertNewUploadSlotTemplateRequestDTO, InsertNewUploadSlotTemplateResponseDTO> {
 

@@ -22,9 +22,15 @@ export type DownloadMaterialImageRequestDTO = {
 
 export type DownloadMaterialImageResponseDTO = InteractorFileStreamDownload | string;
 
-export class DownloadMaterialImageNotFound extends Error { }
-export class DownloadMaterialImageFileNotFound extends Error { }
-export class DownloadMaterialImageFileReadError extends Error { }
+abstract class DownloadMaterialImageError extends Error {
+  public constructor(message?: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+export class DownloadMaterialImageNotFound extends DownloadMaterialImageError { }
+export class DownloadMaterialImageFileNotFound extends DownloadMaterialImageError { }
+export class DownloadMaterialImageFileReadError extends DownloadMaterialImageError { }
 
 export class DownloadMaterialImageInteractor extends StudentInteractor<DownloadMaterialImageRequestDTO, DownloadMaterialImageResponseDTO> {
   private static readonly maxAge = 86_400; // one day in seconds
