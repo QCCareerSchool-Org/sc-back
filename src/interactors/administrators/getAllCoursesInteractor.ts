@@ -33,6 +33,7 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
         version: c.version,
         studentTypeId: c.studentTypeId,
         name: c.name,
+        subheading: c.subheading,
         courseGuide: c.courseGuide,
         quizzesEnabled: c.quizzesEnabled,
         noTutor: c.noTutor,

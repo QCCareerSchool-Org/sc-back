@@ -49,6 +49,7 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         version: updatedCourse.version,
         studentTypeId: updatedCourse.studentTypeId,
         name: updatedCourse.name,
+        subheading: updatedCourse.subheading,
         courseGuide: updatedCourse.courseGuide,
         quizzesEnabled: updatedCourse.quizzesEnabled,
         noTutor: updatedCourse.noTutor,

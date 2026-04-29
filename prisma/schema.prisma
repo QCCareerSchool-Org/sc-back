@@ -488,6 +488,7 @@ model Course {
   version                Int                     @default(0) @db.UnsignedSmallInt
   studentTypeId          String                  @map("student_type") @db.VarChar(50)
   name                   String                  @db.VarChar(50)
+  subheading             String?                 @db.VarChar(191)
   courseGuide            Boolean                 @default(true) @map("course_guide")
   quizzesEnabled         Boolean                 @default(false) @map("quizzes_enabled")
   noTutor                Boolean                 @default(false) @map("no_tutor")

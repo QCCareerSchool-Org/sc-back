@@ -136,6 +136,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
             version: submission.enrollment.course.version,
             studentTypeId: submission.enrollment.course.studentTypeId,
             name: submission.enrollment.course.name,
+            subheading: submission.enrollment.course.subheading,
             courseGuide: submission.enrollment.course.courseGuide,
             quizzesEnabled: submission.enrollment.course.quizzesEnabled,
             noTutor: submission.enrollment.course.noTutor,

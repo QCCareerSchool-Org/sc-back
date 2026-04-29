@@ -72,6 +72,7 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
           version: submissionTemplate.course.version,
           studentTypeId: submissionTemplate.course.studentTypeId,
           name: submissionTemplate.course.name,
+          subheading: submissionTemplate.course.subheading,
           courseGuide: submissionTemplate.course.courseGuide,
           quizzesEnabled: submissionTemplate.course.quizzesEnabled,
           noTutor: submissionTemplate.course.noTutor,

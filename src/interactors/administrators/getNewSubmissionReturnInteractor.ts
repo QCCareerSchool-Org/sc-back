@@ -215,6 +215,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
               version: submissionReturn.newSubmission.enrollment.course.version,
               studentTypeId: submissionReturn.newSubmission.enrollment.course.studentTypeId,
               name: submissionReturn.newSubmission.enrollment.course.name,
+              subheading: submissionReturn.newSubmission.enrollment.course.subheading,
               courseGuide: submissionReturn.newSubmission.enrollment.course.courseGuide,
               quizzesEnabled: submissionReturn.newSubmission.enrollment.course.quizzesEnabled,
               noTutor: submissionReturn.newSubmission.enrollment.course.noTutor,

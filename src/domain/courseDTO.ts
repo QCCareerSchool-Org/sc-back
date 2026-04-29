@@ -6,6 +6,7 @@ export type CourseDTO = {
   version: number;
   studentTypeId: string;
   name: string;
+  subheading: string | null;
   courseGuide: boolean;
   quizzesEnabled: boolean;
   noTutor: boolean;

@@ -167,6 +167,7 @@ export class GetEnrollmentInteractor implements IInteractor<GetEnrollmentRequest
           version: enrollment.course.version,
           studentTypeId: enrollment.course.studentTypeId,
           name: enrollment.course.name,
+          subheading: enrollment.course.subheading,
           courseGuide: enrollment.course.courseGuide,
           quizzesEnabled: enrollment.course.quizzesEnabled,
           noTutor: enrollment.course.noTutor,

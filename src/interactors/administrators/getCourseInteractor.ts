@@ -64,6 +64,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         version: course.version,
         studentTypeId: course.studentTypeId,
         name: course.name,
+        subheading: course.subheading,
         courseGuide: course.courseGuide,
         quizzesEnabled: course.quizzesEnabled,
         noTutor: course.noTutor,

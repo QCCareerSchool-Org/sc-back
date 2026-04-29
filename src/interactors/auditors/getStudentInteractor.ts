@@ -189,6 +189,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
             version: e.course.version,
             studentTypeId: e.course.studentTypeId,
             name: e.course.name,
+            subheading: e.course.subheading,
             courseGuide: e.course.courseGuide,
             quizzesEnabled: e.course.quizzesEnabled,
             noTutor: e.course.noTutor,

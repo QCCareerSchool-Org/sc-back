@@ -80,6 +80,7 @@ export class GetT2202ReceiptsInteractor extends StudentInteractor<GetT2202Receip
             version: t.enrollment.course.version,
             studentTypeId: t.enrollment.course.studentTypeId,
             name: t.enrollment.course.name,
+            subheading: t.enrollment.course.subheading,
             courseGuide: t.enrollment.course.courseGuide,
             quizzesEnabled: t.enrollment.course.quizzesEnabled,
             noTutor: t.enrollment.course.noTutor,
