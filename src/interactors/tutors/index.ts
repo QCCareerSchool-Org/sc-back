@@ -9,6 +9,7 @@ import { EraseNewSubmissionFeedbackInteractor } from './eraseNewSubmissionFeedba
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
 import { ReturnNewSubmissionInteractor } from './returnNewSubmissionInteractor.js';
+import { SaveNewNoteInteractor } from './saveNewNoteInteractor.js';
 import { SaveNewTextBoxInteractor } from './saveNewTextBoxInteractor.js';
 import { SaveNewUploadSlotInteractor } from './saveNewUploadSlotInteractor.js';
 import { UploadNewSubmissionFeedbackInteractor } from './uploadNewSubmissionFeedbackInteractor.js';
@@ -22,6 +23,7 @@ export const closeNewSubmissionInteractor = new CloseNewSubmissionInteractor(pri
 export const returnNewSubmissionInteractor = new ReturnNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const saveNewNoteInteractor = new SaveNewNoteInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const downloadNewAssignmentMediumInteractor = new DownloadNewAssignmentMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const downloadNewPartMediumInteractor = new DownloadNewPartMediumInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
 export const downloadNewUploadSlotInteractor = new DownloadNewUploadSlotInteractor(prisma, uuidService, nodeFileService, sanitizerService, environmentConfigService, winstonLoggerService);
