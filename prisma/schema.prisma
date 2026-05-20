@@ -163,6 +163,7 @@ model Student {
   surveyCompletions       SurveyCompletion[]
   auditors                AuditorsOnStudents[]
   groups                  StudentsOnGroups[]
+  note                    Note?
 
   @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
@@ -207,6 +208,18 @@ model Group {
 
   @@map("groups")
   @@index([name], map: "name")
+}
+
+model Note {
+  noteId    Bytes   @id @db.Binary(16)
+  studentId Int     @unique
+  note      String  @db.MediumText
+  student   Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_notes_students")
+
+  @@map("notes")
+  @@index([noteId], map: "noteId")
+
+
 }
 
 model StudentsOnGroups {

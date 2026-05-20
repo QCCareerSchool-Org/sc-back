@@ -6,6 +6,7 @@ export type StudentDTO = {
   sex: 'M' | 'F';
   firstName: string;
   lastName: string;
+  note: string | null;
   entityVersion: number;
   modified: Date;
 };
