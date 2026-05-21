@@ -25,6 +25,7 @@ export type GetNewSubmissionRequestDTO = {
 export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO & {
     course: CourseDTO;
+    note: string | null;
   };
   tutor: TutorDTO | null;
   newAssignments: Array<NewAssignmentDTO & {
@@ -59,7 +60,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       const submission = await this.prisma.newSubmission.findFirst({
         where: { submissionId: submissionIdBin },
         include: {
-          enrollment: { include: { course: true } },
+          enrollment: { include: { course: true, student: { include: { note: true } } } },
           tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
@@ -122,6 +123,9 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           dueDate: this.dateService.fixPrismaReadDate(submission.enrollment.dueDate),
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
+          student: {
+            note: submission.enrollment.student.note?.note ?? null,
+          },
           course: {
             courseId: submission.enrollment.course.courseId,
             schoolId: submission.enrollment.course.schoolId,
