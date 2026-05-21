@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 
-import { saveNewNoteInteractor } from '../../interactors/tutors/index.js';
-import type { SaveNewNoteResponseDTO } from '../../interactors/tutors/saveNewNoteInteractor.js';
-import { SaveNewNoteTooLong } from '../../interactors/tutors/saveNewNoteInteractor.js';
+import { saveTutorNoteInteractor } from '../../interactors/tutors/index.js';
+import type { SaveTutorNoteResponseDTO } from '../../interactors/tutors/saveTutorNoteInteractor.js';
+import { SaveTutorNoteTooLong } from '../../interactors/tutors/saveTutorNoteInteractor.js';
 import { BaseController } from '../baseController.js';
 
 type Request = {
@@ -17,9 +17,9 @@ type Request = {
   };
 };
 
-type Response = SaveNewNoteResponseDTO;
+type Response = SaveTutorNoteResponseDTO;
 
-export class SaveNewNoteController extends BaseController<Request, Response> {
+export class SaveTutorNoteController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
@@ -46,7 +46,7 @@ export class SaveNewNoteController extends BaseController<Request, Response> {
   }
 
   protected async executeImpl({ params, body }: Request): Promise<void> {
-    if (!this.isPostMethod()) {
+    if (!this.isPutMethod()) {
       return this.methodNotAllowed();
     }
 
@@ -54,15 +54,15 @@ export class SaveNewNoteController extends BaseController<Request, Response> {
     const studentId = parseInt(params.studentId, 10);
     const { note } = body;
 
-    const result = await saveNewNoteInteractor.execute({ tutorId, studentId, note });
+    const result = await saveTutorNoteInteractor.execute({ tutorId, studentId, note });
 
     if (result.success) {
       return this.ok(result.value);
     }
 
     switch (result.error.constructor) {
-      case SaveNewNoteTooLong:
-        return this.badRequest('note exceeds maximum length');
+      case SaveTutorNoteTooLong:
+        return this.badRequest('Note exceeds maximum length');
       default:
         return this.internalServerError(result.error.message);
     }

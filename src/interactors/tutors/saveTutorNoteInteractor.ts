@@ -2,39 +2,32 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { Result as ResultType } from 'generic-result-type';
 import { failure, success } from 'generic-result-type';
-import type { IDateService } from '../../services/date/index.js';
 import type { ILoggerService } from '../../services/logger/index.js';
-import type { IUUIDService } from '../../services/uuid/index.js';
 import type { IInteractor } from '../index.js';
 
-export type SaveNewNoteRequestDTO = {
+export type SaveTutorNoteRequestDTO = {
   tutorId: number;
   studentId: number;
   note: string | null;
 };
 
-export type SaveNewNoteResponseDTO = {
-  studentId: number;
-  note: string | null;
-};
+export type SaveTutorNoteResponseDTO = void;
 
-abstract class SaveNewNoteError extends Error {
+abstract class SaveTutorNoteError extends Error {
   public constructor(message?: string) {
     super(message);
     this.name = new.target.name;
   }
 }
-export class SaveNewNoteTooLong extends SaveNewNoteError { }
+export class SaveTutorNoteTooLong extends SaveTutorNoteError { }
 
-export class SaveNewNoteInteractor implements IInteractor<SaveNewNoteRequestDTO, SaveNewNoteResponseDTO> {
+export class SaveTutorNoteInteractor implements IInteractor<SaveTutorNoteRequestDTO, SaveTutorNoteResponseDTO> {
   public constructor(
     private readonly prisma: PrismaClient,
-    private readonly uuidService: IUUIDService,
-    private readonly dateService: IDateService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
-  public async execute(request: SaveNewNoteRequestDTO): Promise<ResultType<SaveNewNoteResponseDTO>> {
+  public async execute(request: SaveTutorNoteRequestDTO): Promise<ResultType<SaveTutorNoteResponseDTO>> {
     try {
       const { studentId, note } = request;
 
@@ -42,31 +35,25 @@ export class SaveNewNoteInteractor implements IInteractor<SaveNewNoteRequestDTO,
         const max = 16_777_215;
         const length = [ ...note ].length;
         if (length > max) {
-          throw new SaveNewNoteTooLong();
+          throw new SaveTutorNoteTooLong();
         }
       }
 
       if (note === null || note.trim().length === 0) {
-        await this.prisma.note.deleteMany({ where: { studentId } });
-        return success({ studentId, note: null });
+        await this.prisma.tutorNote.deleteMany({ where: { studentId } });
+        return success();
       }
 
-      const noteIdBin = this.uuidService.uuidToBin(this.uuidService.createUUID());
-
-      const saved = await this.prisma.note.upsert({
+      await this.prisma.tutorNote.upsert({
         where: { studentId },
         update: { note },
-        create: { noteId: noteIdBin, studentId, note },
+        create: { studentId, note },
       });
 
-      return success({
-        studentId: saved.studentId,
-        note: saved.note,
-      });
+      return success();
     } catch (err) {
       this.logger.error('error saving note', err instanceof Error ? err.message : err);
       return failure(err instanceof Error ? err : Error('unknown error'));
     }
   }
-
 }

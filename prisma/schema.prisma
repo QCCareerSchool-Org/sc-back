@@ -163,7 +163,7 @@ model Student {
   surveyCompletions       SurveyCompletion[]
   auditors                AuditorsOnStudents[]
   groups                  StudentsOnGroups[]
-  note                    Note?
+  tutorNote               TutorNote?
 
   @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
@@ -210,16 +210,12 @@ model Group {
   @@index([name], map: "name")
 }
 
-model Note {
-  noteId    Bytes   @id @db.Binary(16)
-  studentId Int     @unique
+model TutorNote {
+  studentId Int     @id
   note      String  @db.MediumText
-  student   Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_notes_students")
+  student   Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_tutor_notes_accounts")
 
-  @@map("notes")
-  @@index([noteId], map: "noteId")
-
-
+  @@map("tutor_notes")
 }
 
 model StudentsOnGroups {
