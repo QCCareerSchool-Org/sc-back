@@ -12,6 +12,7 @@ import { GetNewSubmissionController } from '../../controllers/tutors/getNewSubmi
 import { ReturnNewSubmissionController } from '../../controllers/tutors/returnNewSubmissionController.js';
 import { SaveNewTextBoxController } from '../../controllers/tutors/saveNewTextBoxController.js';
 import { SaveNewUploadSlotController } from '../../controllers/tutors/saveNewUploadSlotController.js';
+import { SaveTutorNoteController } from '../../controllers/tutors/saveTutorNoteController.js';
 import { TutorGuardMiddleware } from '../../controllers/tutors/tutorGuardMiddleware.js';
 import { UploadNewSubmissionFeedbackController } from '../../controllers/tutors/uploadNewSubmissionFeedbackController.js';
 import type { Route } from './applyRoutes.js';
@@ -31,6 +32,7 @@ const routes: Route[] = [
   [ 'get', '/:tutorId/students/:studentId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
   [ 'patch', '/:tutorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   [ 'patch', '/:tutorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
+  [ 'put', '/:tutorId/students/:studentId/tutorNote', SaveTutorNoteController ],
   [ 'get', '/:tutorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   [ 'get', '/:tutorId/newAssignmentMedia/:assignmentMediumId/file', DownloadNewAssignmentMediumController ],
   [ 'get', '/:tutorId/newPartMedia/:partMediumId/file', DownloadNewPartMediumController ],

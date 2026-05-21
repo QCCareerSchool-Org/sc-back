@@ -2,7 +2,7 @@ import type { PrismaClient } from '@prisma/client';
 
 import type { Result as ResultType } from 'generic-result-type';
 import { failure, success } from 'generic-result-type';
-import type { BadgeDTO } from '../../domain/badgeDTO.js';
+// import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewUploadSlotAllowedType } from '../../domain/newUploadSlotTemplateDTO.js';
@@ -65,7 +65,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           enrollment: { studentId },
         },
         include: {
-          enrollment: { include: { course: true, student: true, newSubmissions: true } },
+          enrollment: { include: { course: true, student: { include: { tutorNote: true } }, newSubmissions: true } },
           newAssignments: {
             include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } },
             orderBy: { assignmentNumber: 'asc' },
@@ -170,6 +170,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             sex: newSubmission.enrollment.student.sex,
             firstName: newSubmission.enrollment.student.firstName,
             lastName: newSubmission.enrollment.student.lastName,
+            tutorNote: newSubmission.enrollment.student.tutorNote?.note ?? null,
             entityVersion: newSubmission.enrollment.student.entityVersion,
             modified: this.dateService.fixPrismaReadDate(newSubmission.enrollment.student.modified),
           },
