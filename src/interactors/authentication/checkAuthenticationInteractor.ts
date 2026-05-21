@@ -59,7 +59,7 @@ export class CheckAuthenticationInteractor implements IInteractor<CheckAuthentic
           type: yup.mixed().oneOf<'student' | 'admin'>([ 'admin', 'student' ]).defined(),
         }).default(undefined),
         exp: yup.number().defined(),
-        xsrf: yup.string().defined(),
+        xsrf: yup.string(),
       });
 
       let accessTokenPayload: AccessTokenPayload;

@@ -19,7 +19,7 @@ export type AccessTokenPayload = {
     type: AccountType;
   };
   exp: number;
-  xsrf: string;
+  xsrf?: string;
 };
 
 export const isAccessTokenPayload = (value: unknown): value is AccessTokenPayload => {

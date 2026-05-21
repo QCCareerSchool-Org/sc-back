@@ -75,6 +75,8 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
         },
       });
 
+      console.log(newSubmission?.enrollment.student);
+
       if (!newSubmission) {
         return failure(new GetNewSubmissionNotFound());
       }
