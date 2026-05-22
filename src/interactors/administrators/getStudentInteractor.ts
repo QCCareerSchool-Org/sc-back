@@ -32,7 +32,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
     try {
       const student = await this.prisma.student.findUnique({
         where: { studentId },
-        include: { country: true, province: true },
+        include: { country: true, province: true, tutorNote: true },
       });
       if (!student) {
         return failure(new GetStudentNotFound());
@@ -58,6 +58,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
         videoViewed: student.videoViewed,
         ajaxUploads: student.ajaxUploads,
         upgradeNotification: student.upgradeNotification,
+        tutorNote: student.tutorNote?.note ?? null,
         entityVersion: student.entityVersion,
         created: this.dateService.fixPrismaReadDate(student.created),
         modified: this.dateService.fixPrismaReadDate(student.modified),
