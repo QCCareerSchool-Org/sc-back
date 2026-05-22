@@ -7,6 +7,7 @@ import type { NewPartDTO } from '../../domain/administrators/newPartDTO.js';
 import type { NewSubmissionDTO } from '../../domain/administrators/newSubmissionDTO.js';
 import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
+import type { StudentDTO } from '../../domain/administrators/studentDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewTransferDTO } from '../../domain/newTransfer.js';
@@ -24,9 +25,7 @@ export type GetNewSubmissionRequestDTO = {
 export type GetNewSubmissionResponseDTO = NewSubmissionDTO & {
   enrollment: EnrollmentDTO & {
     course: CourseDTO;
-    student: {
-      tutorNote: string | null;
-    };
+    student: StudentDTO;
   };
   tutor: TutorDTO | null;
   newAssignments: Array<NewAssignmentDTO & {
@@ -125,7 +124,29 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           fastTrack: submission.enrollment.fastTrack,
           paymentsDisabled: submission.enrollment.paymentsDisabled,
           student: {
+            studentId: submission.enrollment.student.studentId,
+            countryId: submission.enrollment.student.countryId,
+            provinceId: submission.enrollment.student.provinceId,
+            studentTypeId: submission.enrollment.student.studentTypeId,
+            passwordChanged: submission.enrollment.student.passwordChanged,
+            sex: submission.enrollment.student.sex,
+            firstName: submission.enrollment.student.firstName,
+            lastName: submission.enrollment.student.lastName,
+            numLogins: submission.enrollment.student.numLogins,
+            lastLogin: this.dateService.fixPrismaReadDate(submission.enrollment.student.lastLogin),
+            expiry: this.dateService.fixPrismaReadDate(submission.enrollment.student.expiry),
+            emailAddress: submission.enrollment.student.emailAddress,
+            arrears: submission.enrollment.student.arrears,
+            forumUsername: submission.enrollment.student.forumUsername,
+            apiUsername: submission.enrollment.student.apiUsername,
+            questionnaire: submission.enrollment.student.questionnaire,
+            videoViewed: submission.enrollment.student.videoViewed,
+            ajaxUploads: submission.enrollment.student.ajaxUploads,
+            upgradeNotification: submission.enrollment.student.upgradeNotification,
             tutorNote: submission.enrollment.student.tutorNote?.note ?? null,
+            entityVersion: submission.enrollment.student.entityVersion,
+            created: this.dateService.fixPrismaReadDate(submission.enrollment.student.created),
+            modified: this.dateService.fixPrismaReadDate(submission.enrollment.student.modified),
           },
           course: {
             courseId: submission.enrollment.course.courseId,

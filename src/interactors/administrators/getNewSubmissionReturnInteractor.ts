@@ -54,7 +54,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
           newSubmission: {
             include: {
               tutor: true,
-              enrollment: { include: { course: true, student: true } },
+              enrollment: { include: { course: true, student: { include: { tutorNote: true } } } },
               newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
               parent: true,
             },
@@ -245,6 +245,7 @@ export class GetNewSubmissionReturnInteractor implements IInteractor<GetNewSubmi
               videoViewed: submissionReturn.newSubmission.enrollment.student.videoViewed,
               ajaxUploads: submissionReturn.newSubmission.enrollment.student.ajaxUploads,
               upgradeNotification: submissionReturn.newSubmission.enrollment.student.upgradeNotification,
+              tutorNote: submissionReturn.newSubmission.enrollment.student.tutorNote?.note ?? null,
               entityVersion: submissionReturn.newSubmission.enrollment.student.entityVersion,
               created: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.created),
               modified: this.dateService.fixPrismaReadDate(submissionReturn.newSubmission.enrollment.student.modified),
