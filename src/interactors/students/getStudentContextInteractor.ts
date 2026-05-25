@@ -51,6 +51,14 @@ export class GetStudentContextInteractor extends StudentInteractor<GetStudentCon
                 include: {
                   newAssignments: {
                     orderBy: { assignmentNumber: 'asc' },
+                    include: {
+                      newParts: {
+                        include: {
+                          newTextBoxes: true,
+                          newUploadSlots: true,
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -163,49 +171,104 @@ export class GetStudentContextInteractor extends StudentInteractor<GetStudentCon
             lastName: e.tutor.lastName,
             introduction: false,
           },
-          submissions: e.newSubmissions.map(s => ({
-            submissionId: this.uuidService.binToUUID(s.submissionId),
-            enrollmentId: s.enrollmentId,
-            tutorId: s.tutorId,
-            unitLetter: s.unitLetter,
-            title: s.title,
-            description: s.description,
-            markingCriteria: null,
-            optional: s.optional,
-            order: s.order,
-            tutorComment: null,
-            adminComment: s.adminComment,
-            submitted: this.dateService.fixPrismaReadDate(s.submitted),
-            transferred: this.dateService.fixPrismaReadDate(s.transferred),
-            closed: this.dateService.fixPrismaReadDate(s.closed),
-            skipped: s.skipped,
-            responseFilename: s.responseFilename,
-            responseFilesize: s.responseFilesize,
-            responseMimeTypeId: s.responseMimeTypeId,
-            responseProgress: s.responseProgress,
-            redoId: s.redoId === null ? null : this.uuidService.binToUUID(s.redoId),
-            hasParent: false,
-            created: this.dateService.fixPrismaReadDate(s.created),
-            modified: this.dateService.fixPrismaReadDate(s.modified),
-            complete: s.closed !== null,
-            points: 0, // TODO: how to pull this value?
-            mark: null, // TODO: how to pull this value?
-            assignments: s.newAssignments.map(a => ({
-              assignmentId: this.uuidService.binToUUID(a.assignmentId),
-              submissionId: this.uuidService.binToUUID(a.submissionId),
-              assignmentNumber: a.assignmentNumber,
-              title: a.title,
-              description: a.description,
-              descriptionType: a.descriptionType,
+          submissions: e.newSubmissions.map(s => {
+            let submissionComplete = true;
+            let submissionMarked = true;
+            let submissionPoints = 0;
+            let submissionMark = 0;
+
+            const assignments = s.newAssignments.map(a => {
+              let assignmentComplete = true;
+              let assignmentMarked = true;
+              let assignmentPoints = 0;
+              let assignmentMark = 0;
+
+              a.newParts.forEach(p => {
+                let partComplete = true;
+                let partMarked = true;
+                let partPoints = 0;
+                let partMark = 0;
+
+                p.newTextBoxes.forEach(t => {
+                  const textBoxComplete = t.text.length > 0;
+                  if (!t.optional && !textBoxComplete) { partComplete = false; }
+                  if (textBoxComplete && t.mark === null && t.points > 0) { partMarked = false; }
+                  if (textBoxComplete || !t.optional) {
+                    partPoints += t.points;
+                    partMark += t.markOverride ?? t.mark ?? 0;
+                  }
+                });
+
+                p.newUploadSlots.forEach(u => {
+                  const uploadSlotComplete = u.filename !== null;
+                  if (!u.optional && !uploadSlotComplete) { partComplete = false; }
+                  if (uploadSlotComplete && u.mark === null && u.points > 0) { partMarked = false; }
+                  if (uploadSlotComplete || !u.optional) {
+                    partPoints += u.points;
+                    partMark += u.markOverride ?? u.mark ?? 0;
+                  }
+                });
+
+                if (!partComplete) { assignmentComplete = false; }
+                if (partComplete && !partMarked) { assignmentMarked = false; }
+                assignmentPoints += partPoints;
+                assignmentMark += partMark;
+              });
+
+              if (!a.optional && !assignmentComplete) { submissionComplete = false; }
+              if (assignmentComplete || !a.optional) {
+                submissionPoints += assignmentPoints;
+                submissionMark += assignmentMark;
+              }
+              if (assignmentComplete && !assignmentMarked) { submissionMarked = false; }
+
+              return {
+                assignmentId: this.uuidService.binToUUID(a.assignmentId),
+                submissionId: this.uuidService.binToUUID(a.submissionId),
+                assignmentNumber: a.assignmentNumber,
+                title: a.title,
+                description: a.description,
+                descriptionType: a.descriptionType,
+                markingCriteria: null,
+                optional: a.optional,
+                complete: assignmentComplete,
+                points: assignmentPoints,
+                mark: s.closed && assignmentMarked ? assignmentMark : null,
+                created: this.dateService.fixPrismaReadDate(a.created),
+                modified: this.dateService.fixPrismaReadDate(a.modified),
+              };
+            });
+
+            return {
+              submissionId: this.uuidService.binToUUID(s.submissionId),
+              enrollmentId: s.enrollmentId,
+              tutorId: s.tutorId,
+              unitLetter: s.unitLetter,
+              title: s.title,
+              description: s.description,
               markingCriteria: null,
-              optional: a.optional,
-              complete: false, // TODO: how to pull this value?
-              points: 0, // TODO: how to pull this value?
-              mark: null, // TODO: how to pull this value?
-              created: this.dateService.fixPrismaReadDate(a.created),
-              modified: this.dateService.fixPrismaReadDate(a.modified),
-            })),
-          })),
+              tutorComment: null,
+              optional: s.optional,
+              order: s.order,
+              adminComment: s.adminComment,
+              submitted: this.dateService.fixPrismaReadDate(s.submitted),
+              transferred: this.dateService.fixPrismaReadDate(s.transferred),
+              closed: this.dateService.fixPrismaReadDate(s.closed),
+              skipped: s.skipped,
+              responseFilename: s.responseFilename,
+              responseFilesize: s.responseFilesize,
+              responseMimeTypeId: s.responseMimeTypeId,
+              responseProgress: s.responseProgress,
+              redoId: s.redoId === null ? null : this.uuidService.binToUUID(s.redoId),
+              hasParent: false,
+              complete: submissionComplete,
+              points: submissionPoints,
+              mark: s.closed && submissionMarked ? submissionMark : null,
+              created: this.dateService.fixPrismaReadDate(s.created),
+              modified: this.dateService.fixPrismaReadDate(s.modified),
+              assignments,
+            };
+          }),
         })),
       });
 
