@@ -13,6 +13,7 @@ import { GetEnrollmentInteractor } from './getEnrollmentInteractor.js';
 import { GetMaterialInteractor } from './getMaterialInteractor.js';
 import { GetNewAssignmentInteractor } from './getNewAssignmentInteractor.js';
 import { GetNewSubmissionInteractor } from './getNewSubmissionInteractor.js';
+import { GetStudentContextInteractor } from './getStudentContextInteractor.js';
 import { GetStudentInteractor } from './getStudentInteractor.js';
 import { GetT2202ReceiptsInteractor } from './getT2202ReceiptsInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
@@ -32,6 +33,7 @@ import { UploadNewUploadSlotInteractor } from './uploadNewUploadSlotInteractor.j
 export const lessonGuardInteractor = new LessonGuardInteractor(prisma, uuidService, dateService, winstonLoggerService);
 
 export const getStudentInteractor = new GetStudentInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const getStudentContextInteractor = new GetStudentContextInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewSubmissionInteractor = new GetNewSubmissionInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getNewAssignmentInteractor = new GetNewAssignmentInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const getEnrollmentInteractor = new GetEnrollmentInteractor(prisma, uuidService, nodeFileService, dateService, environmentConfigService, winstonLoggerService);

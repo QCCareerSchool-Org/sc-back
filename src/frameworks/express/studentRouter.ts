@@ -13,6 +13,7 @@ import { GetEnrollmentController } from '../../controllers/students/getEnrollmen
 import { GetMaterialController } from '../../controllers/students/getMaterialController.js';
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
 import { GetNewSubmissionController } from '../../controllers/students/getNewSubmissionController.js';
+import { GetStudentContextController } from '../../controllers/students/getStudentContextController.js';
 import { GetStudentController } from '../../controllers/students/getStudentController.js';
 import { GetT2202ReceiptsController } from '../../controllers/students/getT2202ReceiptsController.js';
 import { GetVideoController } from '../../controllers/students/getVideoController.js';
@@ -73,6 +74,7 @@ const routes: Route[] = [
   [ 'delete', '/:studentId/enrollments/:enrollmentId/materials/:materialId/materialCompletions', DeleteMaterialCompletionController ],
   // videos
   [ 'get', '/:studentId/videos/:videoId', GetVideoController ],
+  [ 'get', '/:studentId/context', GetStudentContextController ],
 ];
 
 applyRoutes(studentRouter, routes);
