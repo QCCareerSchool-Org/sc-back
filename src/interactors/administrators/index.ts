@@ -57,6 +57,7 @@ import { ReplaceMaterialContentInteractor } from './replaceMaterialContentIntera
 import { ReplaceMaterialImageInteractor } from './replaceMaterialImageInteractor.js';
 import { ReplaceNewSubmissionTemplatePricesInteractor } from './replaceNewSubmissionTemplatePricesInteractor.js';
 import { RestartNewSubmissionInteractor } from './restartNewSubmissionInteractor.js';
+import { SaveAdminNoteInteractor } from './saveAdminNoteInteractor.js';
 import { SaveMaterialInteractor } from './saveMaterialInteractor.js';
 import { SaveNewAssignmentMediumInteractor } from './saveNewAssignmentMediumInteractor.js';
 import { SaveNewAssignmentTemplateInteractor } from './saveNewAssignmentTemplateInteractor.js';
@@ -129,6 +130,7 @@ export const getNewSubmissionReturnInteractor = new GetNewSubmissionReturnIntera
 export const closeNewSubmissionReturnInteractor = new CloseNewSubmissionReturnInteractor(prisma, uuidService, nodeMailerEmailService, dateService, winstonLoggerService);
 export const saveNewTextBoxInteractor = new SaveNewTextBoxInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const saveNewUploadSlotInteractor = new SaveNewUploadSlotInteractor(prisma, uuidService, dateService, winstonLoggerService);
+export const saveAdminNoteInteractor = new SaveAdminNoteInteractor(prisma, winstonLoggerService);
 
 export const getUnitInteractor = new GetUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);
 export const insertUnitInteractor = new InsertUnitInteractor(prisma, uuidService, dateService, winstonLoggerService);

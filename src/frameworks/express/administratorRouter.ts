@@ -59,6 +59,7 @@ import { ReplaceMaterialContentController } from '../../controllers/administrato
 import { ReplaceMaterialImageController } from '../../controllers/administrators/replaceMaterialImageController.js';
 import { ReplaceNewSubmissionTemplatePricesController } from '../../controllers/administrators/replaceNewSubmissionTemplatePricesController.js';
 import { RestartNewSubmissionController } from '../../controllers/administrators/restartNewSubmissionController.js';
+import { SaveAdminNoteController } from '../../controllers/administrators/saveAdminNoteController.js';
 import { SaveMaterialController } from '../../controllers/administrators/saveMaterialController.js';
 import { SaveNewAssignmentMediumController } from '../../controllers/administrators/saveNewAssignmentMediumController.js';
 import { SaveNewAssignmentTemplateController } from '../../controllers/administrators/saveNewAssignmentTemplateController.js';
@@ -145,6 +146,8 @@ const routes: Route[] = [
   [ 'get', '/:administratorId/newAssignments/:assignmentId', GetNewAssignmentController ],
   // new text boxes
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
+  // new note
+  [ 'put', '/:tutorId/students/:studentId/tutorNote', SaveAdminNoteController ],
   // upload slots
   [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
