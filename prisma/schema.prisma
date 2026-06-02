@@ -224,7 +224,7 @@ model AdminNote {
   note      String  @db.MediumText
   student   Student @relation(fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_admin_notes_accounts")
 
-  @@map("admin_notes")
+  @@map("administrator_notes")
 }
 
 model StudentsOnGroups {

@@ -42,7 +42,7 @@ export class CheckAuthenticationMiddleware extends BaseMiddleware<Request, void>
     const result = await checkAuthenticationInteractor.execute({
       accessToken: cookies.accessToken,
       xsrfToken: headers['x-xsrf-token'],
-      checkXsrf: this.req.method !== 'HEAD' && this.req.method !== 'GET',
+      checkXsrf: process.env.NODE_ENV !== 'development' && this.req.method !== 'HEAD' && this.req.method !== 'GET',
     });
 
     if (result.success) {

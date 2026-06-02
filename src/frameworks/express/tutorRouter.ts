@@ -32,7 +32,7 @@ const routes: Route[] = [
   [ 'get', '/:tutorId/students/:studentId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
   [ 'patch', '/:tutorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   [ 'patch', '/:tutorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
-  [ 'put', '/:tutorId/students/:studentId/tutorNote', SaveTutorNoteController ],
+  [ 'put', '/:tutorId/students/:studentId/note', SaveTutorNoteController ],
   [ 'get', '/:tutorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   [ 'get', '/:tutorId/newAssignmentMedia/:assignmentMediumId/file', DownloadNewAssignmentMediumController ],
   [ 'get', '/:tutorId/newPartMedia/:partMediumId/file', DownloadNewPartMediumController ],
