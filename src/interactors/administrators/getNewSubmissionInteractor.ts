@@ -8,7 +8,6 @@ import type { NewSubmissionDTO } from '../../domain/administrators/newSubmission
 import type { NewTextBoxDTO } from '../../domain/administrators/newTextBoxDTO.js';
 import type { NewUploadSlotDTO } from '../../domain/administrators/newUploadSlotDTO.js';
 import type { StudentDTO } from '../../domain/administrators/studentDTO.js';
-import type { BadgeDTO } from '../../domain/badgeDTO.js';
 import type { CourseDTO } from '../../domain/courseDTO.js';
 import type { EnrollmentDTO } from '../../domain/enrollmentDTO.js';
 import type { NewTransferDTO } from '../../domain/newTransfer.js';
