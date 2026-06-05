@@ -135,6 +135,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
         tutorId: enrollment.tutorId,
         maxAssignments: enrollment.maxAssignments,
         graduated: enrollment.graduated,
+        graduatedDate: this.dateService.fixPrismaReadDate(enrollment.graduatedDate),
         assignmentsDisabled: enrollment.assignmentsDisabled,
         quizzesDisabled: enrollment.quizzesDisabled,
         onHold: enrollment.onHold,
@@ -190,6 +191,7 @@ export class GetEnrollmentInteractor extends StudentInteractor<GetEnrollmentRequ
           enabled: enrollment.course.enabled,
           order: enrollment.course.order,
           submissionsEnabled: enrollment.course.submissionsEnabled,
+          designationId: enrollment.course.designationId,
           entityVersion: enrollment.course.entityVersion,
           school: {
             schoolId: enrollment.course.school.schoolId,

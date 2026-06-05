@@ -134,6 +134,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           tutorId: newSubmission.enrollment.tutorId,
           maxAssignments: newSubmission.enrollment.maxAssignments,
           graduated: newSubmission.enrollment.graduated,
+          graduatedDate: this.dateService.fixPrismaReadDate(newSubmission.enrollment.graduatedDate),
           assignmentsDisabled: newSubmission.enrollment.assignmentsDisabled,
           quizzesDisabled: newSubmission.enrollment.quizzesDisabled,
           onHold: newSubmission.enrollment.onHold,
@@ -162,6 +163,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             enabled: newSubmission.enrollment.course.enabled,
             order: newSubmission.enrollment.course.order,
             submissionsEnabled: newSubmission.enrollment.course.submissionsEnabled,
+            designationId: newSubmission.enrollment.course.designationId,
             entityVersion: newSubmission.enrollment.course.entityVersion,
           },
           student: {

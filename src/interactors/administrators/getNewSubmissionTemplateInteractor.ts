@@ -79,6 +79,7 @@ export class GetNewSubmissionTemplateInteractor implements IInteractor<GetNewSub
           submissionType: submissionTemplate.course.submissionType,
           enabled: submissionTemplate.course.enabled,
           order: submissionTemplate.course.order,
+          designationId: submissionTemplate.course.designationId,
           submissionsEnabled: submissionTemplate.course.submissionsEnabled,
           entityVersion: submissionTemplate.course.entityVersion,
         },

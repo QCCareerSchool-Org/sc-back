@@ -57,6 +57,7 @@ export class EnableCourseInteractor implements IInteractor<EnableCourseRequestDT
         enabled: updatedCourse.enabled,
         order: updatedCourse.order,
         submissionsEnabled: updatedCourse.submissionsEnabled,
+        designationId: updatedCourse.designationId,
         entityVersion: updatedCourse.entityVersion,
       });
 

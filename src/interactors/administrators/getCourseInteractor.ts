@@ -72,6 +72,7 @@ export class GetCourseInteractor implements IInteractor<GetCourseRequestDTO, Get
         enabled: course.enabled,
         order: course.order,
         submissionsEnabled: course.submissionsEnabled,
+        designationId: course.designationId,
         entityVersion: course.entityVersion,
         school: {
           schoolId: course.school.schoolId,

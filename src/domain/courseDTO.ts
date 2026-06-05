@@ -14,5 +14,6 @@ export type CourseDTO = {
   order: number;
   enabled: boolean;
   submissionsEnabled: boolean;
+  designationId: number | null;
   entityVersion: number;
 };

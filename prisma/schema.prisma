@@ -505,11 +505,13 @@ model Course {
   enabled                Boolean                 @default(true)
   order                  Int                     @default(0) @db.TinyInt
   submissionsEnabled     Boolean                 @default(false) @map("new_units_enabled")
+  designationId          Int?                    @map("designation_id")
   entityVersion          Int                     @default(0) @map("entity_version")
   school                 School                  @relation(fields: [schoolId], references: [schoolId], map: "courses_ibfk_2")
   variant                Variant?                @relation(fields: [variantId], references: [variantId], map: "courses_ibfk_3")
   studentType            StudentType             @relation(fields: [studentTypeId], references: [studentTypeId], map: "courses_ibfk_1")
   schoolVariant          SchoolsOnVariants?      @relation(fields: [schoolId, variantId], references: [schoolId, variantId], map: "courses_ibfk_4")
+  designation            Designation?            @relation(fields: [designationId], references: [designationId], map: "courses_ibfk_5")
   materialRights         MaterialV4Right[]
   units                  Unit[]
   newSubmissionTemplates NewSubmissionTemplate[]
@@ -533,6 +535,7 @@ model Enrollment {
   tutorId             Int?                 @map("tutor_id")
   maxAssignments      Int?                 @map("max_assignments")
   graduated           Boolean              @default(false)
+  graduatedDate       DateTime?            @map("graduated_date") @db.Timestamp(0)
   assignmentsDisabled Boolean              @default(false) @map("assignments_disabled")
   quizzesDisabled     Boolean              @default(false) @map("quizzes_disabled")
   onHold              Boolean              @default(false) @map("on_hold")
@@ -574,6 +577,15 @@ model Enrollment {
   @@index([tutorId], map: "tutor_id")
   // @@index([course_code], map: "course_code") // TODO: remove this index
   @@map("students")
+}
+
+model Designation {
+  designationId Int       @id @default(autoincrement()) @map("id") @db.UnsignedInt
+  name          String    @db.VarChar(191) 
+  code          String    @db.VarChar(50)
+  course        Course[]  
+  
+  @@map("designations")
 }
 
 model FinalSubmission {

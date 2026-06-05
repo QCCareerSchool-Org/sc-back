@@ -6,6 +6,7 @@ export type EnrollmentDTO = {
   tutorId: number | null;
   maxAssignments: number | null;
   graduated: boolean;
+  graduatedDate: Date | null;
   assignmentsDisabled: boolean;
   quizzesDisabled: boolean;
   onHold: boolean;

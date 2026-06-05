@@ -60,6 +60,7 @@ export class GetSchoolInteractor implements IInteractor<GetSchoolRequestDTO, Get
           enabled: c.enabled,
           order: c.order,
           submissionsEnabled: c.submissionsEnabled,
+          designationId: c.designationId,
           entityVersion: c.entityVersion,
         })),
       });

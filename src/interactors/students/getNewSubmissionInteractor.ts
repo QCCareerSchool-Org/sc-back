@@ -116,6 +116,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
           tutorId: submission.enrollment.tutorId,
           maxAssignments: submission.enrollment.maxAssignments,
           graduated: submission.enrollment.graduated,
+          graduatedDate: this.dateService.fixPrismaReadDate(submission.enrollment.graduatedDate),
           assignmentsDisabled: submission.enrollment.assignmentsDisabled,
           quizzesDisabled: submission.enrollment.quizzesDisabled,
           onHold: submission.enrollment.onHold,
@@ -144,6 +145,7 @@ export class GetNewSubmissionInteractor extends StudentInteractor<GetNewSubmissi
             order: submission.enrollment.course.order,
             enabled: submission.enrollment.course.enabled,
             submissionsEnabled: submission.enrollment.course.submissionsEnabled,
+            designationId: submission.enrollment.course.designationId,
             entityVersion: submission.enrollment.course.entityVersion,
             school: {
               schoolId: submission.enrollment.course.school.schoolId,
