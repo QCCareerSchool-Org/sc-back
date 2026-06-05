@@ -81,6 +81,7 @@ export class GetOldAwardInteractor implements IInteractor<GetOldAwardRequestDTO,
         grade: this.gradeService.calculate(totalMarks / totalPoints),
         name: `${oldSubmission.enrollment.student.firstName} ${oldSubmission.enrollment.student.lastName}`,
         created: oldSubmission.markedDate ?? oldSubmission.finalizedDate ?? oldSubmission.creationDate,
+        designation: oldSubmission.title ?? oldSubmission.enrollment.course.name,
       });
 
     } catch (err) {

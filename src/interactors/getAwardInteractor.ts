@@ -94,6 +94,7 @@ export class GetAwardInteractor implements IInteractor<GetAwardRequestDTO, GetAw
         grade: this.gradeService.calculate(totalMarks / totalPoints),
         name: `${submission.enrollment.student.firstName} ${submission.enrollment.student.lastName}`,
         created: submission.closed,
+        designation: submission.title ?? submission.enrollment.course.name,
       });
 
     } catch (err) {

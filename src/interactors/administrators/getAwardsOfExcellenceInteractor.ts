@@ -41,6 +41,7 @@ export class GetAllAwardsOfExcellenceInteractor implements IInteractor<GetAllAwa
         grade: a.grade,
         name: a.newSubmission.enrollment.student.firstName + ' ' + a.newSubmission.enrollment.student.lastName,
         created: a.created,
+        designation: a.newSubmission.title ?? a.newSubmission.enrollment.course.name,
       })));
 
     } catch (err) {

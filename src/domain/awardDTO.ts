@@ -8,4 +8,5 @@ export type AwardDTO = {
   /** the student's name */
   name: string;
   created: Date;
+  designation: string;
 };
