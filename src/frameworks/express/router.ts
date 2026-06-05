@@ -20,7 +20,7 @@ const routes: Route[] = [
   [ 'post', '/surveys/:surveyId/completions', InsertSurveyCompletionController ],
   [ 'get', '/awards/:submissionId', GetAwardController ],
   [ 'get', '/oldAwards/:submissionId', GetOldAwardController ],
-  [ 'get', '/certificates/:studentId/:courseId', GetCertificateController ],
+  [ 'get', '/certificates/:studentId/courses/:courseId', GetCertificateController ],
   [ 'get', '/certificates/:signature', GetCertificateControllerPublic ],
 ];
 
