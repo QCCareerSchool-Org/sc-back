@@ -8,4 +8,5 @@ export type CertificateDTO = {
     name: string;
     code: string;
   };
+  signature: string;
 };

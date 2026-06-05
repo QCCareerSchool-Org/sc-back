@@ -1,12 +1,10 @@
+import { createCipheriv, randomBytes } from 'crypto';
 import type { PrismaClient } from '@prisma/client';
 
 import type { Result as ResultType } from 'generic-result-type';
 import { failure, success } from 'generic-result-type';
-import type { AwardDTO } from '../domain/awardDTO.js';
 import type { CertificateDTO } from '../domain/certificateDTO.js';
-import type { IGradeService } from '../services/grade/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
-import type { IUUIDService } from '../services/uuid/index.js';
 import type { IInteractor } from './index.js';
 
 export type GetCertificateRequestDTO = {
@@ -22,6 +20,23 @@ export abstract class GetCertificateError extends Error {
     this.name = new.target.name;
   }
 }
+
+const ALGORITHM = 'aes-256-gcm';
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
+
+const encrypt = (plaintext: string): string => {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv(ALGORITHM, KEY, iv);
+
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+
+  const authTag = cipher.getAuthTag();
+  return Buffer.concat([ iv, authTag, encrypted ]).toString('base64url');
+};
+
 export class GetCertificateNotFound extends GetCertificateError { }
 export class GetCertificateNoGradDate extends GetCertificateError { }
 export class GetCertificateNoDesignation extends GetCertificateError { }
@@ -35,7 +50,6 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
 
   public async execute({ studentId, courseId }: GetCertificateRequestDTO): Promise<ResultType<GetCertificateResponseDTO>> {
     try {
-
       const enrollment = await this.prisma.enrollment.findFirst({
         where: { student: { studentId }, course: { courseId }, graduated: true },
         include: {
@@ -67,6 +81,7 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
           name: enrollment.course.designation.name,
           code: enrollment.course.designation.code,
         },
+        signature: encrypt(`${studentId}:${courseId}`),
       });
 
     } catch (err) {
