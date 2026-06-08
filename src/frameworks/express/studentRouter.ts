@@ -50,7 +50,7 @@ const routes: Route[] = [
   // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
   [ 'get', '/:studentId/courses/:courseId/tutorIntro', DownloadTutorIntroController ],
-  [ 'get', '/certificates/:studentId/courses/:courseId', GetCertificateController ],
+  [ 'get', '/:studentId/courses/:courseId/certificate', GetCertificateController ],
   // submissions
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/initializeNext', InitializeNextNewSubmissionController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId', GetNewSubmissionController ],
