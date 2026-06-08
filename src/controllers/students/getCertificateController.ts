@@ -1,41 +1,27 @@
-import { createDecipheriv } from 'crypto';
 import * as yup from 'yup';
 
-import type { GetCertificateResponseDTO } from '../interactors/getCertificateInteractor.js';
-import { GetCertificateNoDesignation, GetCertificateNoGradDate, GetCertificateNotFound } from '../interactors/getCertificateInteractor.js';
-import { getCertificateInteractor } from '../interactors/index.js';
-import { BaseController } from './baseController.js';
-
-const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
+import type { GetCertificateResponseDTO } from '../../interactors/getCertificateInteractor.js';
+import { GetCertificateNoDesignation, GetCertificateNoGradDate, GetCertificateNotFound } from '../../interactors/getCertificateInteractor.js';
+import { getCertificateInteractor } from '../../interactors/index.js';
+import { BaseController } from '../baseController.js';
 
 type Request = {
   params: {
     /** numeric string */
-    signature: string;
+    studentId: string;
+    /** numeric string */
+    courseId: string;
   };
-};
-
-const decrypt = (ciphertext: string): string => {
-  const buf = Buffer.from(ciphertext, 'base64url');
-
-  const iv = buf.subarray(0, 12);
-  const authTag = buf.subarray(12, 28);
-  const encrypted = buf.subarray(28);
-
-  const decipher = createDecipheriv(ALGORITHM, KEY, iv);
-  decipher.setAuthTag(authTag);
-
-  return decipher.update(encrypted, undefined, 'utf8') + decipher.final('utf8');
 };
 
 type Response = GetCertificateResponseDTO;
 
-export class GetCertificateControllerPublic extends BaseController<Request, Response> {
+export class GetCertificateController extends BaseController<Request, Response> {
 
   protected async validate(): Promise<Request | false> {
     const paramsSchema: yup.SchemaOf<Request['params']> = yup.object({
-      signature: yup.string().matches(/^[a-zA-Z0-9+/]*={0,2}$/u).defined(),
+      studentId: yup.string().matches(/^\d+$/u).defined(),
+      courseId: yup.string().matches(/^\d+$/u).defined(),
     });
     try {
       const params = await paramsSchema.validate(this.req.params);
@@ -54,9 +40,9 @@ export class GetCertificateControllerPublic extends BaseController<Request, Resp
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
-    const [ studentIdStr, courseIdStr ] = decrypt(params.signature).split(':');
-    const studentId = parseInt(studentIdStr, 10);
-    const courseId = parseInt(courseIdStr, 10);
+
+    const studentId = parseInt(params.studentId, 10);
+    const courseId = parseInt(params.courseId, 10);
     const result = await getCertificateInteractor.execute({ studentId, courseId });
 
     if (result.success) {

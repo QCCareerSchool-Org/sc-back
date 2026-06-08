@@ -4,7 +4,6 @@ import { DownloadCourseHeaderImageController } from '../../controllers/downloadC
 import { DownloadCourseIconImageController } from '../../controllers/downloadCourseIconImageController.js';
 import { GetAwardController } from '../../controllers/getAwardController.js';
 import { GetCertificateController } from '../../controllers/getCertificateController.js';
-import { GetCertificateControllerPublic } from '../../controllers/getCertificateControllerPublic.js';
 import { GetOldAwardController } from '../../controllers/getOldAwardController.js';
 import { GetVideoController } from '../../controllers/getVideoController.js';
 import { InsertSurveyCompletionController } from '../../controllers/insertSurveyCompletionController.js';
@@ -20,8 +19,7 @@ const routes: Route[] = [
   [ 'post', '/surveys/:surveyId/completions', InsertSurveyCompletionController ],
   [ 'get', '/awards/:submissionId', GetAwardController ],
   [ 'get', '/oldAwards/:submissionId', GetOldAwardController ],
-  [ 'get', '/certificates/:studentId/courses/:courseId', GetCertificateController ],
-  [ 'get', '/certificates/:signature', GetCertificateControllerPublic ],
+  [ 'get', '/certificates/:signature', GetCertificateController ],
 ];
 
 applyRoutes(router, routes);

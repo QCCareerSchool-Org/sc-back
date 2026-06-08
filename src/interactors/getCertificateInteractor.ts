@@ -22,7 +22,11 @@ export abstract class GetCertificateError extends Error {
 }
 
 const ALGORITHM = 'aes-256-gcm';
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
+if (!process.env.ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY environment variable is not set');
+}
+
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
 
 const encrypt = (plaintext: string): string => {
   const iv = randomBytes(12);
