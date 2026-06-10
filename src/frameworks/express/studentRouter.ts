@@ -9,6 +9,7 @@ import { DownloadNewSubmissionFeedbackController } from '../../controllers/stude
 import { DownloadNewUploadSlotController } from '../../controllers/students/downloadNewUploadSlotController.js';
 import { DownloadTutorIntroController } from '../../controllers/students/downloadTutorIntroController.js';
 import { EraseNewUploadSlotController } from '../../controllers/students/eraseNewUploadSlotController.js';
+import { GetCertificateController } from '../../controllers/students/getCertificateController.js';
 import { GetEnrollmentController } from '../../controllers/students/getEnrollmentController.js';
 import { GetMaterialController } from '../../controllers/students/getMaterialController.js';
 import { GetNewAssignmentController } from '../../controllers/students/getNewAssignmentController.js';
@@ -49,6 +50,7 @@ const routes: Route[] = [
   // course
   [ 'get', '/:studentId/courses/:courseId', GetEnrollmentController ],
   [ 'get', '/:studentId/courses/:courseId/tutorIntro', DownloadTutorIntroController ],
+  [ 'get', '/:studentId/courses/:courseId/certificate', GetCertificateController ],
   // submissions
   [ 'post', '/:studentId/courses/:courseId/newSubmissions/initializeNext', InitializeNextNewSubmissionController ],
   [ 'get', '/:studentId/courses/:courseId/newSubmissions/:submissionId', GetNewSubmissionController ],

@@ -137,6 +137,7 @@ export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO
           dueDate: this.dateService.fixPrismaReadDate(e.dueDate),
           fastTrack: e.fastTrack,
           paymentsDisabled: e.paymentsDisabled,
+          graduatedDate: this.dateService.fixPrismaReadDate(e.graduatedDate),
           updated: e.updated,
           entityVersion: e.entityVersion,
           course: {
@@ -155,6 +156,7 @@ export class GetStudentInteractor extends StudentInteractor<GetStudentRequestDTO
             enabled: e.course.enabled,
             order: e.course.order,
             submissionsEnabled: e.course.submissionsEnabled,
+            designationId: e.course.designationId,
             entityVersion: e.course.entityVersion,
             school: {
               schoolId: e.course.school.schoolId,

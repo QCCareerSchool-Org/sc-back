@@ -6,6 +6,7 @@ import { dateService, environmentConfigService, gradeService, nodeCryptoService,
 import { DownloadCourseHeaderImageInteractor } from './downloadCourseHeaderImageInteractor.js';
 import { DownloadCourseIconImageInteractor } from './downloadCourseIconImageInteractor.js';
 import { GetAwardInteractor } from './getAwardInteractor.js';
+import { GetCertificateInteractor } from './getCertificateInteractor.js';
 import { GetOldAwardInteractor } from './getOldAwardInteractor.js';
 import { GetVideoInteractor } from './getVideoInteractor.js';
 import { InsertSurveyCompletionInteractor } from './insertSurveyCompletionInteractor.js';
@@ -55,6 +56,7 @@ export type InteractorFileStreamDownload = {
   download?: boolean;
 };
 
+export const getCertificateInteractor = new GetCertificateInteractor(prisma, winstonLoggerService);
 export const downloadCourseHeaderImageInteractor = new DownloadCourseHeaderImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadCourseIconImageInteractor = new DownloadCourseIconImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);

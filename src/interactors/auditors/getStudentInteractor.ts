@@ -169,6 +169,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
           tutorId: e.tutorId,
           maxAssignments: e.maxAssignments,
           graduated: e.graduated,
+          graduatedDate: this.dateService.fixPrismaReadDate(e.graduatedDate),
           assignmentsDisabled: e.assignmentsDisabled,
           quizzesDisabled: e.quizzesDisabled,
           onHold: e.onHold,
@@ -197,6 +198,7 @@ export class GetStudentInteractor implements IInteractor<GetStudentRequestDTO, G
             order: e.course.order,
             enabled: e.course.enabled,
             submissionsEnabled: e.course.submissionsEnabled,
+            designationId: e.course.designationId,
             entityVersion: e.course.entityVersion,
             school: {
               schoolId: e.course.school.schoolId,

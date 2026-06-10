@@ -41,6 +41,7 @@ export class GetAllCoursesInteractor implements IInteractor<GetAllCoursesRequest
         enabled: c.enabled,
         order: c.order,
         submissionsEnabled: c.submissionsEnabled,
+        designationId: c.designationId,
         entityVersion: c.entityVersion,
         school: {
           schoolId: c.school.schoolId,
