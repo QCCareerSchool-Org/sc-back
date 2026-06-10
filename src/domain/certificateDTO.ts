@@ -4,7 +4,7 @@ export type CertificateDTO = {
   graduationDate: Date;
   courseName: string;
   schoolName: string;
-  designation: {
+  designation?: {
     name: string;
     code: string;
   };

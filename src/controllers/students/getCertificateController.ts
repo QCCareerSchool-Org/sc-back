@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import type { GetCertificateResponseDTO } from '../../interactors/getCertificateInteractor.js';
-import { GetCertificateNoDesignation, GetCertificateNoGradDate, GetCertificateNotFound } from '../../interactors/getCertificateInteractor.js';
+import { GetCertificateNoGradDate, GetCertificateNotFound } from '../../interactors/getCertificateInteractor.js';
 import { getCertificateInteractor } from '../../interactors/index.js';
 import { BaseController } from '../baseController.js';
 
@@ -54,8 +54,6 @@ export class GetCertificateController extends BaseController<Request, Response> 
         return this.notFound('Certificate not found');
       case GetCertificateNoGradDate:
         return this.internalServerError('Graduation date not found');
-      case GetCertificateNoDesignation:
-        return this.internalServerError('Course designation not found');
       default:
         return this.internalServerError(result.error.message);
     }

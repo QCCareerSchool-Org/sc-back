@@ -43,7 +43,6 @@ const encrypt = (plaintext: string): string => {
 
 export class GetCertificateNotFound extends GetCertificateError { }
 export class GetCertificateNoGradDate extends GetCertificateError { }
-export class GetCertificateNoDesignation extends GetCertificateError { }
 
 export class GetCertificateInteractor implements IInteractor<GetCertificateRequestDTO, GetCertificateResponseDTO> {
 
@@ -70,10 +69,6 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
         return failure(new GetCertificateNoGradDate());
       }
 
-      if (!enrollment.course.designation) {
-        return failure(new GetCertificateNoDesignation());
-      }
-
       return success({
         firstName: enrollment.student.firstName,
         lastName: enrollment.student.lastName,
@@ -81,10 +76,12 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
 
         courseName: enrollment.course.name,
         schoolName: enrollment.course.school.name,
-        designation: {
-          name: enrollment.course.designation.name,
-          code: enrollment.course.designation.code,
-        },
+        designation: enrollment.course.designation
+          ? {
+            name: enrollment.course.designation.name,
+            code: enrollment.course.designation.code,
+          }
+          : undefined,
         signature: encrypt(`${studentId}:${courseId}`),
       });
 
