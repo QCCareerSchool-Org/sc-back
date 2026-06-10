@@ -1,35 +1,16 @@
-import { createDecipheriv } from 'crypto';
 import * as yup from 'yup';
 
 import type { GetCertificateResponseDTO } from '../interactors/getCertificateInteractor.js';
 import { GetCertificateNoGradDate, GetCertificateNotFound } from '../interactors/getCertificateInteractor.js';
 import { getCertificateInteractor } from '../interactors/index.js';
+import { nodeCryptoService } from '../services/index.js';
 import { BaseController } from './baseController.js';
-
-const ALGORITHM = 'aes-256-gcm';
-if (!process.env.ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY environment variable is not set');
-}
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
 
 type Request = {
   params: {
     /** numeric string */
     signature: string;
   };
-};
-
-const decrypt = (ciphertext: string): string => {
-  const buf = Buffer.from(ciphertext, 'base64url');
-
-  const iv = buf.subarray(0, 12);
-  const authTag = buf.subarray(12, 28);
-  const encrypted = buf.subarray(28);
-
-  const decipher = createDecipheriv(ALGORITHM, KEY, iv);
-  decipher.setAuthTag(authTag);
-
-  return decipher.update(encrypted, undefined, 'utf8') + decipher.final('utf8');
 };
 
 type Response = GetCertificateResponseDTO;
@@ -57,7 +38,7 @@ export class GetCertificateController extends BaseController<Request, Response> 
     if (!this.isGetMethod()) {
       return this.methodNotAllowed();
     }
-    const [ studentIdStr, courseIdStr ] = decrypt(params.signature).split(':');
+    const [ studentIdStr, courseIdStr ] = nodeCryptoService.aes256gcmDecrypt(params.signature).split(':');
     const studentId = parseInt(studentIdStr, 10);
     const courseId = parseInt(courseIdStr, 10);
     const result = await getCertificateInteractor.execute({ studentId, courseId });

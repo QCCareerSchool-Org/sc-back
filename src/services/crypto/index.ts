@@ -28,4 +28,8 @@ export interface ICryptoService {
   decodeSIN: (buffer: Buffer) => Promise<string>;
 
   sha256Hmac: (data: Buffer | string, secret: string) => string;
+
+  aes256gcmEncrypt: (plaintext: string) => string;
+
+  aes256gcmDecrypt: (ciphertext: string) => string;
 }

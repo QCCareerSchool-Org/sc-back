@@ -56,7 +56,7 @@ export type InteractorFileStreamDownload = {
   download?: boolean;
 };
 
-export const getCertificateInteractor = new GetCertificateInteractor(prisma, winstonLoggerService);
+export const getCertificateInteractor = new GetCertificateInteractor(prisma, nodeCryptoService, winstonLoggerService);
 export const downloadCourseHeaderImageInteractor = new DownloadCourseHeaderImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const downloadCourseIconImageInteractor = new DownloadCourseIconImageInteractor(nodeFileService, environmentConfigService, winstonLoggerService);
 export const getVideoInteractor = new GetVideoInteractor(prisma, uuidService, winstonLoggerService);

@@ -1,9 +1,9 @@
-import { createCipheriv, randomBytes } from 'crypto';
 import type { PrismaClient } from '@prisma/client';
 
 import type { Result as ResultType } from 'generic-result-type';
 import { failure, success } from 'generic-result-type';
 import type { CertificateDTO } from '../domain/certificateDTO.js';
+import type { ICryptoService } from '../services/crypto/index.js';
 import type { ILoggerService } from '../services/logger/index.js';
 import type { IInteractor } from './index.js';
 
@@ -21,26 +21,6 @@ export abstract class GetCertificateError extends Error {
   }
 }
 
-const ALGORITHM = 'aes-256-gcm';
-if (!process.env.ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY environment variable is not set');
-}
-
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
-
-const encrypt = (plaintext: string): string => {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv(ALGORITHM, KEY, iv);
-
-  const encrypted = Buffer.concat([
-    cipher.update(plaintext, 'utf8'),
-    cipher.final(),
-  ]);
-
-  const authTag = cipher.getAuthTag();
-  return Buffer.concat([ iv, authTag, encrypted ]).toString('base64url');
-};
-
 export class GetCertificateNotFound extends GetCertificateError { }
 export class GetCertificateNoGradDate extends GetCertificateError { }
 
@@ -48,6 +28,7 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
 
   public constructor(
     private readonly prisma: PrismaClient,
+    private readonly cryptoService: ICryptoService,
     private readonly logger: ILoggerService,
   ) { /* empty */ }
 
@@ -82,7 +63,7 @@ export class GetCertificateInteractor implements IInteractor<GetCertificateReque
             code: enrollment.course.designation.code,
           }
           : undefined,
-        signature: encrypt(`${studentId}:${courseId}`),
+        signature: this.cryptoService.aes256gcmEncrypt(`${studentId}:${courseId}`),
       });
 
     } catch (err) {
