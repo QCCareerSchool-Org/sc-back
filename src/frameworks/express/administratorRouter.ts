@@ -147,7 +147,7 @@ const routes: Route[] = [
   // new text boxes
   [ 'put', '/:administratorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   // new note
-  [ 'put', '/:administratorId/students/:studentId/note', SaveAdminNoteController ],
+  [ 'put', '/:administratorId/students/:studentId/adminNote', SaveAdminNoteController ],
   // upload slots
   [ 'put', '/:administratorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
   [ 'get', '/:administratorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
