@@ -28,6 +28,7 @@ export type StudentDTO = {
   ajaxUploads: boolean;
   upgradeNotification: boolean;
   tutorNote: string | null;
+  adminNote: string | null;
   entityVersion: number;
   created: Date;
   modified: Date;

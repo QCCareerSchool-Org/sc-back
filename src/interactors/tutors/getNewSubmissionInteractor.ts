@@ -65,7 +65,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
           enrollment: { studentId },
         },
         include: {
-          enrollment: { include: { course: true, student: { include: { tutorNote: true } }, newSubmissions: true } },
+          enrollment: { include: { course: true, student: { include: { tutorNote: true, adminNote: true } }, newSubmissions: true } },
           newAssignments: {
             include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } },
             orderBy: { assignmentNumber: 'asc' },
@@ -175,6 +175,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             firstName: newSubmission.enrollment.student.firstName,
             lastName: newSubmission.enrollment.student.lastName,
             tutorNote: newSubmission.enrollment.student.tutorNote?.note ?? null,
+            adminNote: newSubmission.enrollment.student.adminNote?.note ?? null,
             entityVersion: newSubmission.enrollment.student.entityVersion,
             modified: this.dateService.fixPrismaReadDate(newSubmission.enrollment.student.modified),
           },

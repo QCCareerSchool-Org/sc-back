@@ -164,6 +164,7 @@ model Student {
   auditors                AuditorsOnStudents[]
   groups                  StudentsOnGroups[]
   tutorNote               TutorNote?                @relation("student_tutor_note")
+  adminNote               AdminNote?                @relation("student_admin_note")
 
   @@unique([studentId, entityVersion], map: "id_entity_version")
   @@index([apiUsername], map: "api_username")
@@ -216,6 +217,14 @@ model TutorNote {
   student   Student @relation("student_tutor_note", fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_tutor_notes_accounts")
 
   @@map("tutor_notes")
+}
+
+model AdminNote {
+  studentId Int     @id
+  note      String  @db.MediumText
+  student   Student @relation("student_admin_note", fields: [studentId], references: [studentId], onDelete: Cascade, map: "FK_admin_notes_accounts")
+
+  @@map("administrator_notes")
 }
 
 model StudentsOnGroups {

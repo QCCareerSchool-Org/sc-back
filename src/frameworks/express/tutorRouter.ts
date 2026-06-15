@@ -23,6 +23,7 @@ export const tutorRouter = Router();
 const routes: Route[] = [
   // only the tutor in question, or any administrator, should be able to access this path
   [ 'use', '/:tutorId', TutorGuardMiddleware ],
+  [ 'put', '/:tutorId/students/:studentId/tutorNote', SaveTutorNoteController ],
   [ 'get', '/:tutorId/students/:studentId/newSubmissions/:submissionId', GetNewSubmissionController ],
   [ 'post', '/:tutorId/students/:studentId/newSubmissions/:submissionId/returns', ReturnNewSubmissionController ],
   [ 'post', '/:tutorId/students/:studentId/newSubmissions/:submissionId/closes', CloseNewSubmissionController ],
@@ -32,7 +33,6 @@ const routes: Route[] = [
   [ 'get', '/:tutorId/students/:studentId/newSubmissions/:submissionId/assignments/:assignmentId', GetNewAssignmentController ],
   [ 'patch', '/:tutorId/newTextBoxes/:textBoxId', SaveNewTextBoxController ],
   [ 'patch', '/:tutorId/newUploadSlots/:uploadSlotId', SaveNewUploadSlotController ],
-  [ 'put', '/:tutorId/students/:studentId/tutorNote', SaveTutorNoteController ],
   [ 'get', '/:tutorId/newUploadSlots/:uploadSlotId/file', DownloadNewUploadSlotController ],
   [ 'get', '/:tutorId/newAssignmentMedia/:assignmentMediumId/file', DownloadNewAssignmentMediumController ],
   [ 'get', '/:tutorId/newPartMedia/:partMediumId/file', DownloadNewPartMediumController ],

@@ -60,7 +60,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
       const submission = await this.prisma.newSubmission.findFirst({
         where: { submissionId: submissionIdBin },
         include: {
-          enrollment: { include: { course: true, student: { include: { tutorNote: true } } } },
+          enrollment: { include: { course: true, student: { include: { tutorNote: true, adminNote: true } } } },
           tutor: true,
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           newTransfers: { include: { preTutor: true, postTutor: true } },
@@ -145,6 +145,7 @@ export class GetNewSubmissionInteractor implements IInteractor<GetNewSubmissionR
             ajaxUploads: submission.enrollment.student.ajaxUploads,
             upgradeNotification: submission.enrollment.student.upgradeNotification,
             tutorNote: submission.enrollment.student.tutorNote?.note ?? null,
+            adminNote: submission.enrollment.student.adminNote?.note ?? null,
             entityVersion: submission.enrollment.student.entityVersion,
             created: this.dateService.fixPrismaReadDate(submission.enrollment.student.created),
             modified: this.dateService.fixPrismaReadDate(submission.enrollment.student.modified),
