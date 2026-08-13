@@ -1424,6 +1424,7 @@ model NewSubmission {
   newTransfers       NewTransfer[]
   awardOfExcellence  AwardOfExcellence?
   // badges             NewSubmissionsOnBadges[]
+  emails             EmailsOnSubmissions[]
 
   @@unique([submissionId, entityVersion], map: "submission_id_entity_version")
   @@index([enrollmentId], map: "enrollment_id")
@@ -2331,4 +2332,26 @@ model AwardOfExcellence {
   newSubmission      NewSubmission            @relation(fields: [submissionId], references: [submissionId], onDelete: Restrict, map: "awards_of_excellence_ibfk_1")
 
   @@map("awards_of_excellence")
+}
+
+model Email {
+  emailId       Bytes                 @id @db.Binary(16)
+  subject       String                @db.VarChar(255)
+  htmlBody      String                @db.MediumText
+  textBody      String                @db.MediumText
+  fromName      String                @db.VarChar(255)
+  fromAddress   String                @db.VarChar(255)
+  submissions   EmailsOnSubmissions[]
+
+  @@map("email")
+}
+
+model EmailsOnSubmissions {
+  submissionId Bytes         @db.Binary(16)
+  emailId      Bytes         @db.Binary(16)
+  submission   NewSubmission @relation(fields: [submissionId], references: [submissionId])
+  email        Email         @relation(fields: [emailId], references: [emailId])
+
+  @@map("new_submissions_email")
+  @@id([submissionId, emailId])
 }

@@ -1,4 +1,4 @@
-import type { Course, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
+import type { Course, Email, Enrollment, NewSubmission, PrismaClient, Student } from '@prisma/client';
 
 import type { Result as ResultType } from 'generic-result-type';
 import { failure, success } from 'generic-result-type';
@@ -55,6 +55,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         include: {
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           enrollment: { include: { student: true, course: { include: { school: true } } } },
+          emails: { include: { email: true } },
         },
       });
 
@@ -236,6 +237,17 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
           await this.sendExternshipEmail(newSubmission);
         } catch (err) {
           this.logger.error('Error sending HS kit email', err);
+        }
+      }
+
+      const student = newSubmission.enrollment.student;
+      if (student.emailAddress) {
+        for (const email of newSubmission.emails) {
+          try {
+            await this.sendSubmissionCompletionEmail(student.firstName, student.emailAddress, email.email);
+          } catch (err) {
+            this.logger.error('Error sending submission completion email');
+          }
         }
       }
 
@@ -525,5 +537,20 @@ P.S. We'd love to share your story to inspire others! Just reply to this email i
       case 'QC Pet Studies':
         return 'https://g.page/r/CecVjVSoL9bwEBM/review';
     }
+  }
+
+  private async sendSubmissionCompletionEmail(name: string, to: string, email: Email): Promise<void> {
+    const html = email.htmlBody.replace(/%%name%%/ug, name);
+    const text = email.textBody.replace(/%%name%%/ug, name);
+    const headers = {
+      'X-EMAIL-ID': this.uuidService.binToUUID(email.emailId),
+      'BCC': 'dave@qccareerschool.com',
+    };
+    const from = {
+      name: email.fromName,
+      address: email.fromAddress,
+    };
+
+    await this.emailService.send(name, 'dave@qccareerschool.com', email.subject, html, text, undefined, headers, from);
   }
 }

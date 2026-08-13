@@ -14,12 +14,12 @@ export class NodemailerEmailService implements IEmailService {
     private readonly mode: 'TLS' | 'STARTTLS' | 'INSECURE',
   ) { /* empty */ }
 
-  public async send(name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[], headers?: Record<string, string>): Promise<void> {
+  public async send(name: string, emailAddress: string, subject: string, htmlBody: string, textBody: string, attachments?: Attachment[], headers?: Record<string, string>, from?: { name: string; address: string }): Promise<void> {
     const transport = this.createTransport();
     try {
       await transport.sendMail({
         to: { name, address: emailAddress },
-        from: { name: 'QC Career School', address: 'no-reply@qccareerschool.com' },
+        from: from ?? { name: 'QC Career School', address: 'no-reply@qccareerschool.com' },
         subject,
         html: htmlBody,
         text: textBody,
