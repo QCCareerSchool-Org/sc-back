@@ -1368,20 +1368,22 @@ model Message {
 /////////////////////////////////////////////////////////////////////////
 
 model NewSubmissionTemplate {
-  submissionTemplateId   Bytes                        @id @map("submission_template_id") @db.Binary(16)
-  courseId               Int                          @map("course_id") @db.UnsignedInt
-  unitLetter             String                       @map("unit_letter") @db.Char(1)
+  submissionTemplateId   Bytes                         @id @map("submission_template_id") @db.Binary(16)
+  courseId               Int                           @map("course_id") @db.UnsignedInt
+  unitLetter             String                        @map("unit_letter") @db.Char(1)
   title                  String?
-  description            String?                      @db.Text
-  markingCriteria        String?                      @map("marking_criteria") @db.Text
-  optional               Boolean                      @default(false)
-  order                  Int                          @default(0) @db.TinyInt
-  enabled                Boolean                      @default(false)
-  created                DateTime                     @default(now()) @db.Timestamp(0)
-  modified               DateTime?                    @updatedAt @db.Timestamp(0)
-  course                 Course                       @relation(fields: [courseId], references: [courseId], onDelete: Cascade, map: "new_submission_templates_ibfk_1")
+  description            String?                       @db.Text
+  markingCriteria        String?                       @map("marking_criteria") @db.Text
+  optional               Boolean                       @default(false)
+  order                  Int                           @default(0) @db.TinyInt
+  enabled                Boolean                       @default(false)
+  created                DateTime                      @default(now()) @db.Timestamp(0)
+  modified               DateTime?                     @updatedAt @db.Timestamp(0)
+  course                 Course                        @relation(fields: [courseId], references: [courseId], onDelete: Cascade, map: "new_submission_templates_ibfk_1")
   newAssignmentTemplates NewAssignmentTemplate[]
   prices                 NewSubmissionTemplatePrice[]
+  emails                 EmailsOnSubmissionTemplates[]
+
 
   @@unique([courseId, unitLetter], map: "course_id_unit_letter")
   @@index([order, unitLetter], map: "order_unit_letter")
@@ -1424,7 +1426,6 @@ model NewSubmission {
   newTransfers       NewTransfer[]
   awardOfExcellence  AwardOfExcellence?
   // badges             NewSubmissionsOnBadges[]
-  emails             EmailsOnSubmissions[]
 
   @@unique([submissionId, entityVersion], map: "submission_id_entity_version")
   @@index([enrollmentId], map: "enrollment_id")
@@ -1435,17 +1436,17 @@ model NewSubmission {
 }
 
 model NewAssignmentTemplate {
-  assignmentTemplateId  Bytes                 @id @map("assignment_template_id") @db.Binary(16)
-  submissionTemplateId  Bytes                 @map("submission_template_id") @db.Binary(16)
-  assignmentNumber      Int                   @map("assignment_number") @db.UnsignedInt
+  assignmentTemplateId  Bytes                         @id @map("assignment_template_id") @db.Binary(16)
+  submissionTemplateId  Bytes                         @map("submission_template_id") @db.Binary(16)
+  assignmentNumber      Int                           @map("assignment_number") @db.UnsignedInt
   title                 String?
-  description           String?               @db.Text
-  descriptionType       NewDescriptionType    @default(text) @map("description_type")
-  markingCriteria       String?               @map("marking_criteria") @db.Text
-  optional              Boolean               @default(false)
-  created               DateTime              @default(now()) @db.Timestamp(0)
-  modified              DateTime?             @updatedAt @db.Timestamp(0)
-  newSubmissionTemplate NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "FK_new_assignment_templates_new_submission_templates")
+  description           String?                       @db.Text
+  descriptionType       NewDescriptionType            @default(text) @map("description_type")
+  markingCriteria       String?                       @map("marking_criteria") @db.Text
+  optional              Boolean                       @default(false)
+  created               DateTime                      @default(now()) @db.Timestamp(0)
+  modified              DateTime?                     @updatedAt @db.Timestamp(0)
+  newSubmissionTemplate NewSubmissionTemplate         @relation(fields: [submissionTemplateId], references: [submissionTemplateId], onDelete: Cascade, map: "FK_new_assignment_templates_new_submission_templates")
   newAssignmentMedia    NewAssignmentMedium[]
   newPartTemplates      NewPartTemplate[]
 
@@ -2335,23 +2336,23 @@ model AwardOfExcellence {
 }
 
 model Email {
-  emailId       Bytes                 @id @db.Binary(16)
-  subject       String                @db.VarChar(255)
-  htmlBody      String                @db.MediumText
-  textBody      String                @db.MediumText
-  fromName      String                @db.VarChar(255)
-  fromAddress   String                @db.VarChar(255)
-  submissions   EmailsOnSubmissions[]
+  emailId             Bytes                         @id @db.Binary(16)
+  subject             String                        @db.VarChar(255)
+  htmlBody            String                        @db.MediumText
+  textBody            String                        @db.MediumText
+  fromName            String                        @db.VarChar(255)
+  fromAddress         String                        @db.VarChar(255)
+  submissionTemplates EmailsOnSubmissionTemplates[]
 
   @@map("email")
 }
 
-model EmailsOnSubmissions {
-  submissionId Bytes         @db.Binary(16)
-  emailId      Bytes         @db.Binary(16)
-  submission   NewSubmission @relation(fields: [submissionId], references: [submissionId])
-  email        Email         @relation(fields: [emailId], references: [emailId])
+model EmailsOnSubmissionTemplates {
+  submissionTemplateId Bytes                 @db.Binary(16)
+  emailId              Bytes                 @db.Binary(16)
+  submissionTemplate   NewSubmissionTemplate @relation(fields: [submissionTemplateId], references: [submissionTemplateId])
+  email                Email                 @relation(fields: [emailId], references: [emailId])
 
-  @@map("new_submissions_email")
-  @@id([submissionId, emailId])
+  @@map("new_submission_templates_email")
+  @@id([submissionTemplateId, emailId])
 }

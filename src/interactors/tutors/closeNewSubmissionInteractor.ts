@@ -26,6 +26,7 @@ abstract class CloseNewSubmissionError extends Error {
   }
 }
 export class CloseNewSubmissionNotFound extends CloseNewSubmissionError { }
+export class CloseNewSubmissionTemplateNotFound extends CloseNewSubmissionError { }
 export class CloseNewSubmissionNotSubmitted extends CloseNewSubmissionError { }
 export class CloseNewSubmissionSkipped extends CloseNewSubmissionError { }
 export class CloseNewSubmissionAlreadyClosed extends CloseNewSubmissionError { }
@@ -55,12 +56,20 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
         include: {
           newAssignments: { include: { newParts: { include: { newTextBoxes: true, newUploadSlots: true } } } },
           enrollment: { include: { student: true, course: { include: { school: true } } } },
-          emails: { include: { email: true } },
         },
       });
 
       if (!newSubmission) {
         return failure(new CloseNewSubmissionNotFound());
+      }
+
+      const newSubmissionTemplate = await this.prisma.newSubmissionTemplate.findFirst({
+        where: { courseId: newSubmission.enrollment.courseId, unitLetter: newSubmission.unitLetter },
+        include: { emails: { include: { email: true } } },
+      });
+
+      if (!newSubmissionTemplate) {
+        return failure(new CloseNewSubmissionTemplateNotFound());
       }
 
       if (!newSubmission.submitted) {
@@ -242,7 +251,7 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
 
       const student = newSubmission.enrollment.student;
       if (student.emailAddress) {
-        for (const email of newSubmission.emails) {
+        for (const email of newSubmissionTemplate.emails) {
           try {
             await this.sendSubmissionCompletionEmail(student.firstName, student.emailAddress, email.email);
           } catch (err) {
