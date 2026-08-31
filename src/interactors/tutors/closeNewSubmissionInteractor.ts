@@ -553,13 +553,13 @@ P.S. We'd love to share your story to inspire others! Just reply to this email i
     const text = email.textBody.replace(/%%name%%/ug, name);
     const headers = {
       'X-EMAIL-ID': this.uuidService.binToUUID(email.emailId),
-      'BCC': 'dave@qccareerschool.com',
+      // 'BCC': 'dave@qccareerschool.com',
     };
     const from = {
       name: email.fromName,
       address: email.fromAddress,
     };
 
-    await this.emailService.send(name, 'dave@qccareerschool.com', email.subject, html, text, undefined, headers, from);
+    await this.emailService.send(name, to, email.subject, html, text, undefined, headers, from);
   }
 }
