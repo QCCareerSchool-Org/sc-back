@@ -193,26 +193,27 @@ export class CloseNewSubmissionInteractor implements IInteractor<CloseNewSubmiss
           } catch (err) {
             this.logger.warn('Could not send failed submission email', err);
           }
+        } else {
+
+          if (newSubmission.unitLetter !== finalUnitLetter) { // this is not the final submission
+            return s;
+          }
+
+          // check if there is already a final submission recorded
+          const finalSubmission = await t.finalSubmission.findFirst({ where: { enrollmentId: s.enrollmentId } });
+
+          if (finalSubmission) { // we already have a final submission recorded for this enrollment
+            return s;
+          }
+
+          // create the final submission record
+          await t.finalSubmission.create({
+            data: {
+              enrollmentId: s.enrollmentId,
+              created: prismaNow,
+            },
+          });
         }
-
-        if (newSubmission.unitLetter !== finalUnitLetter) { // this is not the final submission
-          return s;
-        }
-
-        // check if there is already a final submission recorded
-        const finalSubmission = await t.finalSubmission.findFirst({ where: { enrollmentId: s.enrollmentId } });
-
-        if (finalSubmission) { // we already have a final submission recorded for this enrollment
-          return s;
-        }
-
-        // create the final submission record
-        await t.finalSubmission.create({
-          data: {
-            enrollmentId: s.enrollmentId,
-            created: prismaNow,
-          },
-        });
 
         return s;
       });
